@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  font-family: 'Inter', sans-serif;
+}
+
+@layer base {
+  h1 {
+    @apply text-4xl font-extrabold tracking-tight lg:text-5xl text-hvac-navy mb-6;
+  }
+  h2 {
+    @apply text-3xl font-bold tracking-tight text-hvac-navy mt-12 mb-4;
+  }
+  h3 {
+    @apply text-xl font-semibold text-hvac-blue border-l-4 border-hvac-gold pl-3 my-4;
+  }
+  p {
+    @apply leading-7 [&:not(:first-child)]:mt-6 text-gray-700 dark:text-gray-300;
+  }
+}
+
+@layer components {
+  .manual-card {
+    @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-8 shadow-sm hover:shadow-md transition-shadow;
+  }
+  
+  .cause-list {
+    @apply list-decimal pl-6 space-y-8;
+  }
+
+  .cause-list li {
+    @apply manual-card list-item;
+  }
+
+  .repair-list {
+    @apply list-disc pl-5 mt-4 space-y-2;
+  }
+
+  .btn-primary {
+    @apply bg-hvac-navy hover:bg-hvac-blue text-white font-bold py-3 px-6 rounded-lg transition-colors inline-block text-center;
+  }
+
+  .diagnostic-step {
+    @apply flex gap-4 p-4 items-start border-b border-gray-100 dark:border-gray-800 last:border-0;
+  }
+
+  .step-number {
+    @apply bg-hvac-navy text-white w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-bold;
+  }
+}
