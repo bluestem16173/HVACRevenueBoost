@@ -137,3 +137,28 @@ export async function getSymptomWithCausesFromDB(symptomSlug: string): Promise<S
     return null;
   }
 }
+export async function getComponentData(componentSlug: string) {
+  try {
+    const symptoms = SYMPTOMS.filter(s => 
+      s.causes?.some((cId: string) => {
+        const cause = getCauseDetails(cId);
+        return cause?.component?.toLowerCase() === componentSlug.toLowerCase();
+      })
+    );
+
+    const repairs = SYMPTOMS.flatMap(s => s.causes || [])
+      .map(cId => getCauseDetails(cId))
+      .filter(c => c?.component?.toLowerCase() === componentSlug.toLowerCase())
+      .flatMap(c => c?.repairDetails || [])
+      .slice(0, 10);
+
+    return {
+      component: componentSlug,
+      symptoms,
+      repairs: Array.from(new Set(repairs.map(r => JSON.stringify(r)))).map(s => JSON.parse(s))
+    };
+  } catch (error) {
+    console.error('Component Data Fetch Error:', error);
+    return null;
+  }
+}

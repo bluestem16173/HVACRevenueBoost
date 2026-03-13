@@ -42,6 +42,38 @@ async function populate() {
       }
     }
 
+    // 2. Queue Component Pages
+    const components = [
+      "compressor", "evaporator coil", "condenser", "thermostat", 
+      "control board", "blower motor", "refrigerant line", "capacitor", 
+      "contactor", "drain line", "filter", "heat exchanger", 
+      "inducer motor", "flame sensor", "igniter", "humidifier", 
+      "air handler", "ductwork", "reversing valve", "defrost board"
+    ];
+
+    for (const comp of components) {
+      const compSlug = comp.replace(/\s+/g, '-');
+      const proposedSlug = `components/${compSlug}`;
+      const proposedTitle = `${comp.charAt(0).toUpperCase() + comp.slice(1)} Troubleshooting & Repair Guide`;
+
+      await sql`
+        INSERT INTO generation_queue (
+          page_type, 
+          status, 
+          proposed_slug, 
+          proposed_title
+        )
+        VALUES (
+          'component', 
+          'queued', 
+          ${proposedSlug}, 
+          ${proposedTitle}
+        )
+        ON CONFLICT DO NOTHING
+      `;
+      count++;
+    }
+
     console.log(`✅ Successfully queued ${count} page candidates.`);
   } catch (error) {
     console.error('❌ Population failed:', error);
