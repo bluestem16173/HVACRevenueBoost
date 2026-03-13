@@ -116,8 +116,13 @@ export default function SymptomPageTemplate({
             if (!cause) return null;
             return (
               <li key={cause.id} className="relative pl-12 border-b border-slate-100 dark:border-slate-800 pb-12 last:border-0">
-                <h3 className="text-xl font-bold text-hvac-navy">{cause.name}</h3>
+                <Link href={`/cause/${cause.slug}`} className="hover:opacity-80 transition-opacity block w-fit">
+                  <h3 className="text-xl font-bold text-hvac-navy mt-0">{cause.name}</h3>
+                </Link>
                 <p className="mt-2 text-gray-600 dark:text-gray-400 italic">"{cause.explanation}"</p>
+                <Link href={`/cause/${cause.slug}`} className="text-xs font-bold text-hvac-blue hover:text-hvac-navy uppercase tracking-widest mt-3 inline-block">
+                  Read Full Diagnostic Analysis →
+                </Link>
                 
                 <div className="mt-6 bg-blue-50/30 dark:bg-blue-900/10 p-4 rounded-lg">
                   <span className="text-xs font-bold uppercase tracking-widest text-hvac-blue">Verified Repair Path</span>
