@@ -21,6 +21,32 @@ async function runWorker() {
       return;
     }
 
+    // SEMANTIC AUTO-LINKING LOGIC
+    const entities = [
+      { keyword: "refrigerant leak", url: "/cause/refrigerant-leak" },
+      { keyword: "capacitor failure", url: "/diagnose/ac-capacitor-failure" },
+      { keyword: "dirty evaporator coil", url: "/diagnose/evaporator-coil-dirty" },
+      { keyword: "compressor replacement", url: "/fix/compressor-replacement" }
+    ];
+
+    const autoLinkContent = (html, entities, maxLinks = 10) => {
+      let linkedHtml = html;
+      let linkCount = 0;
+      
+      for (const entity of entities) {
+        if (linkCount >= maxLinks) break;
+        const regex = new RegExp(`(?<!<a[^>]*>)\\b${entity.keyword}\\b(?![^<]*</a>)`, "ig");
+        if (regex.test(linkedHtml)) {
+          linkedHtml = linkedHtml.replace(
+            regex,
+            `<a href="${entity.url}" class="font-bold text-hvac-blue hover:underline">${entity.keyword}</a>`
+          );
+          linkCount++;
+        }
+      }
+      return linkedHtml;
+    };
+
     for (const item of queueItems) {
       try {
         console.log(`🛠️ Generating: ${item.proposed_slug}`);
@@ -34,6 +60,8 @@ async function runWorker() {
           case 'topic':
             contentJson.engine_version = '3.0.0-TopicHub-5Tier';
             contentJson.mermaid_graph = `graph TD\nA[${pageTitle}] --> B[Causes]`;
+            let mockTopicHtml = `<p>If your AC is blowing warm air, you may have a refrigerant leak or a capacitor failure.</p>`;
+            contentJson.html_content = autoLinkContent(mockTopicHtml, entities);
             break;
           case 'cause':
             contentJson.engine_version = '3.0.0-CauseAnalysis-5Tier';
@@ -42,6 +70,8 @@ async function runWorker() {
           case 'repair':
             contentJson.engine_version = '3.0.0-RepairManual-5Tier';
             contentJson.safety_warnings = ["LOTO", "Capacitor Discharge"];
+            let mockRepairHtml = `<p>To fix this, you might need a compressor replacement. Warning: doing this wrong can lead to capacitor failure.</p>`;
+            contentJson.html_content = autoLinkContent(mockRepairHtml, entities);
             break;
           case 'component':
             contentJson.engine_version = '3.0.0-ComponentSpec-5Tier';

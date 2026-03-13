@@ -84,6 +84,14 @@ export default function SymptomPageTemplate({
         <h1 className="text-4xl md:text-5xl font-black text-hvac-navy leading-tight">
           {symptom.name}: Professional HVAC Diagnostic Guide
         </h1>
+
+        {/* Multi-Query Search Variations SEO Block */}
+        {symptom.query_variations && symptom.query_variations.length >= 2 && (
+          <div className="mt-4 text-gray-600 text-lg leading-relaxed">
+            If your <strong>{symptom.query_variations[0]}</strong> or <strong>{symptom.query_variations[1]}</strong>, the issue may be related to {symptom.name.toLowerCase()}. 
+            Homeowners also notice this when <strong>{symptom.query_variations[2] || 'the system malfunctions'}</strong> or <strong>{symptom.query_variations[3] || 'cooling drops'}</strong>.
+          </div>
+        )}
         
         <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/10 border-l-4 border-hvac-gold rounded-r-lg">
           <p className="m-0 text-yellow-900 dark:text-yellow-200 font-medium">
