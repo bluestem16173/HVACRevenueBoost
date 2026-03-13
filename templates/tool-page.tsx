@@ -32,6 +32,20 @@ export default function ToolPageTemplate({ tool, repairs }: any) {
       <section className="mb-16 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 shadow-sm leading-relaxed text-lg">
         <h2 className="mt-0 text-hvac-navy border-0">What This Tool Does</h2>
         <p className="mt-4">{tool.description}</p>
+        
+        <div className="mt-8 pt-8 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm text-gray-500 m-0">
+            Professional diagnostic gear is highly recommended. Verify specifications on Amazon.
+          </p>
+          <a 
+            href={tool.affiliate_link || `https://www.amazon.com/s?k=${encodeURIComponent('HVAC ' + tool.name)}&tag=decisiongrid2-20`}
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-8 py-3 rounded-lg uppercase tracking-widest text-sm transition-colors w-full sm:w-auto text-center shadow-sm"
+          >
+            Check Price on Amazon
+          </a>
+        </div>
       </section>
 
       <section className="mt-24 pt-24 border-t border-slate-200">
