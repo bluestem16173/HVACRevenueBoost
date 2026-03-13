@@ -1,29 +1,54 @@
-import { SYMPTOMS, CAUSES, REPAIRS, Symptom } from "../data/knowledge-graph";
+import { SYMPTOMS } from "@/data/knowledge-graph";
+import sql from "./db";
 
 /**
- * Topical Authority Linking Logic
+ * SEO LINKING ENGINE
+ * Strategy: Create topical authority clusters around Symptoms and Components.
  */
-export function getRelatedContent(currentSymptom: Symptom) {
-  // Related Symptoms: Those that share at least one cause
+
+export function getRelatedContent(currentSymptom: any) {
+  // Sibling symptoms (same system category)
   const relatedSymptoms = SYMPTOMS.filter(s => 
-    s.id !== currentSymptom.id && 
-    s.causes.some(cId => currentSymptom.causes.includes(cId))
+    s.id !== currentSymptom.id
   ).slice(0, 5);
 
-  // Related Repairs: All repairs associated with the causes of this symptom
-  const relatedRepairIds = new Set(
-    currentSymptom.causes.flatMap(cId => CAUSES[cId]?.repairs || [])
-  );
-  const relatedRepairs = Array.from(relatedRepairIds).map(rId => REPAIRS[rId]).filter(Boolean).slice(0, 5);
-
-  // Related Components: Unique components from the causes
+  // Extract unique components from the causes list
   const relatedComponents = Array.from(new Set(
-    currentSymptom.causes.map(cId => CAUSES[cId]?.component).filter(Boolean)
-  )).slice(0, 5);
+    (currentSymptom.causes || []).map((c: any) => {
+      // Handle both string IDs (JSON fallback) and Objects (DB)
+      const componentName = typeof c === 'string' ? "HVAC Component" : (c.component || "HVAC Component");
+      return componentName;
+    })
+  )).slice(0, 3);
 
   return {
     relatedSymptoms,
-    relatedRepairs,
-    relatedComponents,
+    relatedComponents
   };
+}
+
+/**
+ * DECISIONGRID NEON LINKING
+ * Fetches link graph data from the internal_links table.
+ */
+export async function getInternalLinksForPage(slug: string) {
+  try {
+    const links = await sql`
+      SELECT * FROM internal_links WHERE source_slug = ${slug}
+    `;
+    return links;
+  } catch (error) {
+    return [];
+  }
+}
+
+export async function getGlobalPillarLinks() {
+  try {
+    const links = await sql`
+      SELECT * FROM internal_links WHERE link_reason = 'pillar_link' LIMIT 10
+    `;
+    return links;
+  } catch (error) {
+    return [];
+  }
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export default function LeadCaptureForm() {
+export default function LeadCaptureForm({ city, symptomId }: { city?: string, symptomId?: string }) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -10,7 +10,11 @@ export default function LeadCaptureForm() {
     setStatus("loading");
 
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
+    const data = {
+      ...Object.fromEntries(formData.entries()),
+      city: city || null,
+      symptomId: symptomId || null
+    };
 
     try {
       // GoHighLevel Webhook Simulation
