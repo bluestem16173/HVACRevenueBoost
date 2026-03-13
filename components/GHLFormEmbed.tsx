@@ -25,7 +25,7 @@ export default function GHLFormEmbed() {
           data-layout-iframe-id="inline-rgwcmDTeHu27A2MwprRk"
           data-form-id="rgwcmDTeHu27A2MwprRk"
           title="HVAC Service Request "
-          className="min-h-[600px]"
+          className="min-h-[1150px]"
         ></iframe>
         <Script 
           src="https://api.hvacrevenueboost.com/js/form_embed.js" 

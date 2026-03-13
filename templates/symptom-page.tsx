@@ -132,39 +132,45 @@ export default function SymptomPageTemplate({
         </div>
       </section>
 
-      <div className="grid md:grid-cols-3 gap-12 mt-20 pt-12 border-t border-slate-200">
-        <div className="md:col-span-2">
-          <h2 className="mt-0 text-xl font-bold border-0">Topical Authority Exploration</h2>
-          <div className="grid md:grid-cols-2 gap-8 mt-6">
-            <div>
-              <h4 className="font-bold text-hvac-navy text-xs uppercase tracking-widest mb-4">Related Diagnostics</h4>
-              <ul className="space-y-2 list-none p-0">
-                {relatedContent.relatedSymptoms.map((s: any) => (
-                  <li key={s.id}>
-                    <Link href={`/diagnose/${s.id}`} className="text-hvac-blue hover:underline text-sm font-medium">
-                      {s.name} Manual
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold text-hvac-navy text-xs uppercase tracking-widest mb-4">System Components</h4>
-              <ul className="space-y-2 list-none p-0">
-                {relatedContent.relatedComponents.map((c: any) => (
-                  <li key={c} className="text-gray-500 text-sm capitalize flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-slate-300 rounded-full"></span>
-                    {c} Engineering
-                  </li>
-                ))}
-              </ul>
+      <section className="mt-24 pt-24 border-t border-slate-200">
+        <div className="grid md:grid-cols-12 gap-12 items-start">
+          <div className="md:col-span-7">
+            <h2 className="mt-0 text-3xl font-black border-0 leading-tight">Expert Diagnostic Assistance</h2>
+            <p className="text-gray-600 mt-4 leading-relaxed">
+              If your system exhibits these symptoms, immediate professional verification is recommended. Our specialized HVAC diagnostic team in your area can confirm the root cause and provide a fixed-price repair estimate.
+            </p>
+            <div className="grid grid-cols-2 gap-8 mt-12">
+              <div>
+                <h4 className="font-black text-hvac-navy text-xs uppercase tracking-widest mb-4">Related Diagnostics</h4>
+                <ul className="space-y-3 list-none p-0">
+                  {relatedContent.relatedSymptoms.map((s: any) => (
+                    <li key={s.id}>
+                      <Link href={`/diagnose/${s.id}`} className="text-hvac-blue hover:text-hvac-navy text-sm font-bold flex items-center gap-2 group">
+                        <span className="w-1.5 h-1.5 bg-slate-200 rounded-full group-hover:bg-hvac-gold transition-colors"></span>
+                        {s.name} Manual
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-black text-hvac-navy text-xs uppercase tracking-widest mb-4">System Components</h4>
+                <ul className="space-y-3 list-none p-0">
+                  {relatedContent.relatedComponents.map((c: any) => (
+                    <li key={c} className="text-slate-500 text-sm capitalize flex items-center gap-2 font-medium">
+                      <span className="w-1.5 h-1.5 bg-slate-100 rounded-full"></span>
+                      {c} Engineering
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
+          <div className="md:col-span-5">
+            <LeadCaptureForm symptomId={symptom.id} />
+          </div>
         </div>
-        <div className="md:col-span-1">
-          <LeadCaptureForm symptomId={symptom.id} />
-        </div>
-      </div>
+      </section>
     </div>
   );
 }

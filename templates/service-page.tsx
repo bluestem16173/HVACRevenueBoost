@@ -50,8 +50,8 @@ export default function ServicePageTemplate({
 
       <ThirtySecondSummary points={summaryPoints} />
 
-      <div className="grid md:grid-cols-3 gap-8 mb-16">
-        <div className="md:col-span-2 space-y-12">
+      <div className="grid lg:grid-cols-5 gap-12 mb-16">
+        <div className="lg:col-span-3 space-y-12">
           <section className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <h2 className="mt-0 text-hvac-navy border-0">Technical Root Causes</h2>
             <div className="space-y-8 mt-8">
@@ -84,29 +84,30 @@ export default function ServicePageTemplate({
           </section>
         </div>
 
-        <aside className="md:col-span-1">
+        <aside className="lg:col-span-2">
           <div className="sticky top-24">
             <LeadCaptureForm city={city.name} symptomId={symptom.id} />
             
-            <div className="mt-8 p-6 bg-hvac-navy text-white rounded-xl shadow-lg border-b-4 border-hvac-gold">
-              <h4 className="text-white m-0 text-sm font-bold uppercase tracking-widest">Local Service Hub</h4>
-              <p className="text-xs text-blue-100 mt-2 mb-6">Immediate HVAC assistance available for {city.name} residents.</p>
+            <div className="mt-8 p-8 bg-hvac-navy text-white rounded-2xl shadow-xl border-b-8 border-hvac-gold border-r-8 border-hvac-gold/10">
+              <h4 className="text-white m-0 text-lg font-black uppercase tracking-widest leading-none">Local Service Hub</h4>
+              <p className="text-[10px] text-blue-300 mt-3 mb-8 uppercase tracking-[0.2em] font-bold">Immediate HVAC assistance for {city.name}</p>
               
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {localContractors.length > 0 ? (
                   localContractors.map((contractor: any, idx: number) => (
-                    <div key={idx} className="border-l-2 border-hvac-gold/50 pl-4 py-1">
-                      <div className="text-sm font-bold text-white">{contractor.company_name}</div>
-                      <div className="text-[10px] text-blue-200 uppercase tracking-tighter">{contractor.trade} • {city.name} Certified</div>
+                    <div key={idx} className="border-l-4 border-hvac-gold/30 pl-6 py-2 bg-white/5 rounded-r-xl">
+                      <div className="text-sm font-black text-white">{contractor.company_name}</div>
+                      <div className="text-[10px] text-hvac-gold uppercase tracking-widest mt-1">{contractor.trade} • {city.name} Certified</div>
                     </div>
                   ))
                 ) : (
-                  <div className="text-2xl font-black text-hvac-gold">24/7 Priority Repair</div>
+                  <div className="text-3xl font-black text-hvac-gold leading-none tracking-tighter">24/7 Priority Repair Available</div>
                 )}
               </div>
 
-              <div className="mt-6 pt-4 border-t border-white/10 text-xs text-blue-200">
-                Verified Techs in {city.name} • Licensed & Insured • Fast Response
+              <div className="mt-10 pt-6 border-t border-white/10 text-[10px] text-blue-200 font-bold uppercase tracking-widest flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                Verified Techs in {city.name}
               </div>
             </div>
           </div>
