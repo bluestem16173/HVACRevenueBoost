@@ -35,6 +35,13 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   const relatedContent = getRelatedContent(symptomData);
   const internalLinks = await getInternalLinksForPage(params.slug);
 
+  let tools: any[] = [];
+  try {
+    const { neon } = require('@neondatabase/serverless');
+    const sql = neon(process.env.DATABASE_URL as string);
+    tools = await sql`SELECT * FROM tools LIMIT 4`;
+  } catch(e) { /* silent fail for static gen */ }
+
   return (
     <SymptomPageTemplate 
       symptom={symptom}
@@ -42,6 +49,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
       diagnosticSteps={diagnosticSteps}
       relatedContent={relatedContent}
       internalLinks={internalLinks}
+      tools={tools}
       getCauseDetails={getCauseDetails}
     />
   );
