@@ -90,7 +90,7 @@ export default function ServicePageTemplate({
             
             <div className="mt-8 p-8 bg-hvac-navy text-white rounded-2xl shadow-xl border-b-8 border-hvac-gold border-r-8 border-hvac-gold/10">
               <h4 className="text-white m-0 text-lg font-black uppercase tracking-widest leading-none">Local Service Hub</h4>
-              <p className="text-[10px] text-blue-300 mt-3 mb-8 uppercase tracking-[0.2em] font-bold">Immediate HVAC assistance for {city.name}</p>
+              <p className="text-[10px] text-blue-300 mt-3 mb-8 uppercase tracking-[0.2em] font-bold">Status: {localContractors.length > 0 ? "Verified Service Active" : "Expansion in Progress"}</p>
               
               <div className="space-y-6">
                 {localContractors.length > 0 ? (
@@ -101,13 +101,18 @@ export default function ServicePageTemplate({
                     </div>
                   ))
                 ) : (
-                  <div className="text-3xl font-black text-hvac-gold leading-none tracking-tighter">24/7 Priority Repair Available</div>
+                  <div className="bg-white/5 p-6 rounded-xl border border-white/10">
+                    <div className="text-2xl font-black text-hvac-gold leading-tight tracking-tighter mb-4">Coming Soon to {city.name}</div>
+                    <p className="text-[11px] text-blue-100 leading-relaxed font-medium m-0">
+                      We are currently vetting licensed HVAC contractors in **{city.name}**. Check back soon or use the fallback diagnostic guide above.
+                    </p>
+                  </div>
                 )}
               </div>
 
               <div className="mt-10 pt-6 border-t border-white/10 text-[10px] text-blue-200 font-bold uppercase tracking-widest flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                Verified Techs in {city.name}
+                <span className={`w-2 h-2 rounded-full ${localContractors.length > 0 ? "bg-green-500" : "bg-yellow-500 animate-pulse"}`}></span>
+                {localContractors.length > 0 ? `Verified Techs in ${city.name}` : "Vetting New Partners"}
               </div>
             </div>
           </div>
