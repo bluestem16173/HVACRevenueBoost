@@ -1,5 +1,5 @@
 import { SYMPTOMS, CITIES } from "@/data/knowledge-graph";
-import { getDiagnosticSteps, getCauseDetails, getSymptomWithCausesFromDB } from "@/lib/diagnostic-engine";
+import { getDiagnosticSteps, getCauseDetails, getSymptomWithCausesFromDB, getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { getInternalLinksForPage } from "@/lib/seo-linking";
 import { getContractorsByCity } from "@/lib/db";
 import ServicePageTemplate from "@/templates/service-page";
@@ -34,6 +34,11 @@ export default async function CitySymptomPage({
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
 
+  // Fetch the AI generated page from Neon
+  const dbSlug = `repair/${params.city}/${params.slug}`;
+  const aiPage = await getDiagnosticPageFromDB(dbSlug);
+  const htmlContent = aiPage?.content_json?.html_content || null;
+
   if (!symptomData) {
     symptomData = SYMPTOMS.find(s => s.id === params.slug) as any;
   }
@@ -61,6 +66,7 @@ export default async function CitySymptomPage({
       internalLinks={internalLinks}
       localContractors={localContractors}
       getCauseDetails={getCauseDetails}
+      htmlContent={htmlContent}
     />
   );
 }

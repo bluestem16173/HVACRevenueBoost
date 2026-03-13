@@ -11,7 +11,8 @@ export default function SymptomPageTemplate({
   relatedContent,
   internalLinks,
   tools,
-  getCauseDetails
+  getCauseDetails,
+  htmlContent
 }: any) {
   // Extract a "Fast Answer" from the description or first cause
   const firstCause = causeIds.length > 0 ? getCauseDetails(causeIds[0]) : null;
@@ -183,17 +184,26 @@ export default function SymptomPageTemplate({
           <div className="bg-hvac-navy text-white px-6 py-4">
             <h2 className="text-lg text-white m-0 border-0">Diagnostic Workflow (Manual Extract)</h2>
           </div>
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {diagnosticSteps.map((step: any, idx: number) => (
-              <div key={idx} className="p-6 flex gap-6">
-                <div className="text-2xl font-black text-slate-200">{idx + 1}</div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-hvac-navy mb-1">{step.step}</h4>
-                  <p className="text-gray-600 m-0 leading-snug text-sm">{step.action}</p>
+          {htmlContent ? (
+            <div className="p-6">
+              <div 
+                className="prose prose-slate max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{ __html: htmlContent }} 
+              />
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              {diagnosticSteps.map((step: any, idx: number) => (
+                <div key={idx} className="p-6 flex gap-6">
+                  <div className="text-2xl font-black text-slate-200">{idx + 1}</div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-hvac-navy mb-1">{step.step}</h4>
+                    <p className="text-gray-600 m-0 leading-snug text-sm">{step.action}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

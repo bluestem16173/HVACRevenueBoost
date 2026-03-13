@@ -1,5 +1,5 @@
 import { SYMPTOMS } from "@/data/knowledge-graph";
-import { getDiagnosticSteps, getCauseDetails, getSymptomWithCausesFromDB } from "@/lib/diagnostic-engine";
+import { getDiagnosticSteps, getCauseDetails, getSymptomWithCausesFromDB, getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { getRelatedContent, getInternalLinksForPage } from "@/lib/seo-linking";
 import SymptomPageTemplate from "@/templates/symptom-page";
 import { notFound } from "next/navigation";
@@ -16,6 +16,11 @@ export async function generateStaticParams() {
 export default async function SymptomPage({ params }: { params: { slug: string } }) {
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
+
+  // Fetch the AI generated page from Neon
+  const dbSlug = `diagnose/${params.slug}`;
+  const aiPage = await getDiagnosticPageFromDB(dbSlug);
+  const htmlContent = aiPage?.content_json?.html_content || null;
 
   if (!symptomData) {
     symptomData = SYMPTOMS.find((s) => s.id === params.slug) as any;
@@ -51,6 +56,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
       internalLinks={internalLinks}
       tools={tools}
       getCauseDetails={getCauseDetails}
+      htmlContent={htmlContent}
     />
   );
 }

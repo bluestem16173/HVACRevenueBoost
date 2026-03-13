@@ -10,7 +10,8 @@ export default function ServicePageTemplate({
   diagnosticSteps, 
   internalLinks, 
   localContractors,
-  getCauseDetails
+  getCauseDetails,
+  htmlContent
 }: any) {
   const firstCause = causeIds.length > 0 ? getCauseDetails(causeIds[0]) : null;
   const fastAnswerText = firstCause 
@@ -72,15 +73,22 @@ export default function ServicePageTemplate({
 
           <section>
             <h2 className="text-hvac-navy">Quick {city.name} Diagnostic Steps</h2>
-            <div className="manual-grid mt-6">
-              {diagnosticSteps.slice(0, 4).map((step: any, idx: number) => (
-                <div key={idx} className="p-5 border border-slate-100 dark:border-slate-800 rounded-lg">
-                  <div className="text-xs font-black text-hvac-blue uppercase mb-1">Step {idx+1}</div>
-                  <h5 className="font-bold m-0 leading-tight mb-2">{step.step}</h5>
-                  <p className="text-xs text-gray-500 m-0">{step.action}</p>
-                </div>
-              ))}
-            </div>
+            {htmlContent ? (
+              <div 
+                className="mt-6 prose prose-slate max-w-none dark:prose-invert"
+                dangerouslySetInnerHTML={{ __html: htmlContent }} 
+              />
+            ) : (
+              <div className="manual-grid mt-6">
+                {diagnosticSteps.slice(0, 4).map((step: any, idx: number) => (
+                  <div key={idx} className="p-5 border border-slate-100 dark:border-slate-800 rounded-lg">
+                    <div className="text-xs font-black text-hvac-blue uppercase mb-1">Step {idx+1}</div>
+                    <h5 className="font-bold m-0 leading-tight mb-2">{step.step}</h5>
+                    <p className="text-xs text-gray-500 m-0">{step.action}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
         </div>
 
