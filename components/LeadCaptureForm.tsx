@@ -4,7 +4,7 @@ import GHLFormEmbed from "./GHLFormEmbed";
 
 export default function LeadCaptureForm({ city, symptomId }: { city?: string, symptomId?: string }) {
   return (
-    <div className="manual-card-wrapper border-0 shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border-2 border-hvac-gold/20">
+    <div id="find-local-help" className="manual-card-wrapper border-0 shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-slate-900 border-2 border-hvac-gold/20 scroll-mt-24">
       <div className="p-10 bg-hvac-navy text-center border-b border-white/10 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-hvac-gold text-hvac-navy px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.3em] whitespace-nowrap shadow-xl">
           Priority Dispatch Active

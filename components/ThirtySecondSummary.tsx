@@ -32,6 +32,15 @@ export default function ThirtySecondSummary({
             </div>
           ))}
         </div>
+
+        <div className="mt-12 flex justify-center lg:justify-start">
+          <a 
+            href="#find-local-help" 
+            className="group inline-flex items-center gap-3 bg-hvac-gold text-hvac-navy px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-white transition-all shadow-xl shadow-hvac-gold/10"
+          >
+            Claim Local Repair Coupon <span className="text-lg group-hover:translate-y-1 transition-transform">↓</span>
+          </a>
+        </div>
       </div>
     </div>
   );
