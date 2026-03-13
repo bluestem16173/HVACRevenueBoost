@@ -2,6 +2,7 @@ import Link from "next/link";
 import LeadCaptureForm from "@/components/LeadCaptureForm";
 import FastAnswer from "@/components/FastAnswer";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
+import DiagnosticFlowchart from "@/components/DiagnosticFlowchart";
 
 export default function SymptomPageTemplate({
   symptom,
@@ -24,6 +25,9 @@ export default function SymptomPageTemplate({
     { label: "Urgency", value: "Moderate to High" }
   ];
 
+  // Map cause details for the flowchart
+  const fullCauses = causeIds.map((id: string) => getCauseDetails(id)).filter(Boolean);
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       {/* breadcrumbs */}
@@ -44,6 +48,8 @@ export default function SymptomPageTemplate({
       <FastAnswer answer={fastAnswerText} />
       
       <ThirtySecondSummary points={summaryPoints} />
+
+      <DiagnosticFlowchart symptomName={symptom.name} causes={fullCauses} />
 
       {/* Internal Links Cluster (SEO Flywheel) */}
       {internalLinks.length > 0 && (

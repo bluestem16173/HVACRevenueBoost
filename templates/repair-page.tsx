@@ -1,0 +1,68 @@
+import Link from "next/link";
+import LeadCaptureForm from "@/components/LeadCaptureForm";
+import ThirtySecondSummary from "@/components/ThirtySecondSummary";
+
+export default function RepairPageTemplate({ repair, component, tools, cause }: any) {
+  const summaryPoints = [
+    { label: "Repair Type", value: repair.name },
+    { label: "Cost Estimate", value: repair.repair_type === 'low' ? '$150 - $350' : repair.repair_type === 'high' ? '$800+' : '$350 - $800' },
+    { label: "Target Component", value: component?.name || "System Level" },
+    { label: "Skill Level", value: repair.skill_level || "Professional Recommended" }
+  ];
+
+  return (
+    <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <nav className="text-sm text-gray-500 mb-8 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800">
+        <Link href="/" className="hover:text-hvac-blue">Home</Link>
+        <span className="mx-2">/</span>
+        <Link href={`/components/${component?.slug || ''}`} className="hover:text-hvac-blue">{component?.name || 'Components'}</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-900 font-medium">How to Fix</span>
+      </nav>
+
+      <section className="mb-12">
+        <div className="inline-block bg-hvac-blue/10 text-hvac-blue text-[10px] font-black px-3 py-1 rounded-full mb-4 uppercase tracking-widest">
+          Technical Service Manual
+        </div>
+        <h1 className="text-4xl md:text-5xl font-black text-hvac-navy leading-tight">
+          How to {repair.name.toLowerCase()}
+        </h1>
+      </section>
+
+      <ThirtySecondSummary points={summaryPoints} />
+
+      <section className="mt-24 pt-24 border-t border-slate-200">
+        <div className="grid md:grid-cols-12 gap-12 items-start">
+          <div className="md:col-span-7">
+            <h2 className="mt-0 text-3xl font-black border-0 leading-tight">Tools & Precautions</h2>
+            <p className="text-hvac-safety font-bold text-sm mt-4 bg-hvac-safety/10 p-4 rounded-lg border border-hvac-safety/20">
+              WARNING: Extreme risk of electrical shock. Always discharge capacitors and disconnect main breaker before proceeding.
+            </p>
+            
+            <div className="mt-8">
+              <h4 className="font-black text-hvac-navy text-xs uppercase tracking-widest mb-4">Required Tools</h4>
+              <ul className="space-y-3 list-none p-0">
+                {tools?.map((t: any) => (
+                  <li key={t.slug} className="text-sm border border-slate-200 rounded-lg p-3">
+                    <Link href={`/tools/${t.slug}`} className="font-bold text-hvac-blue hover:underline block">{t.name}</Link>
+                    <span className="text-xs text-gray-500 mt-1 block">{t.description}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="mt-8 bg-slate-50 p-6 rounded-xl">
+              <h4 className="font-black text-hvac-navy text-xs uppercase tracking-widest mb-4">Primary Triggers (Why you are here)</h4>
+              <p className="text-sm text-gray-600 m-0">This manual is intended for systems suffering from <strong>{cause?.name || "a detected fault"}</strong>.</p>
+              <Link href={`/cause/${cause?.slug}`} className="text-xs font-bold text-hvac-blue uppercase hover:underline mt-4 inline-block">Review Root Cause Analysis →</Link>
+            </div>
+
+          </div>
+          <div className="md:col-span-5">
+            <LeadCaptureForm />
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
