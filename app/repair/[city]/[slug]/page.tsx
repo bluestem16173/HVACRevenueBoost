@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 
 // Enable ISR
 export const revalidate = 3600;
+export const dynamicParams = true; // allow pages not in generateStaticParams to render via SSR
 
 export async function generateStaticParams() {
   const combinations = [];
@@ -35,6 +36,7 @@ export default async function CitySymptomPage({
   let isFromDB = !!symptomData;
 
   // Fetch the AI generated page from Neon
+  // The generator script saves slugs exactly like: repair/las-vegas/ac-blowing-warm-air
   const dbSlug = `repair/${params.city}/${params.slug}`;
   const aiPage = await getDiagnosticPageFromDB(dbSlug);
   const htmlContent = aiPage?.content_json?.html_content || null;
@@ -46,6 +48,8 @@ export default async function CitySymptomPage({
   const symptom = symptomData as any;
 
   if (!city || !symptomData) {
+    // We shouldn't 404 here during build time since generateStaticParams provides the base arrays,
+    // but we should fail gracefully if something is fundamentally missing.
     notFound();
   }
 

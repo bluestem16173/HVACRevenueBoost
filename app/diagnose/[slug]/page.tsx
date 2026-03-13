@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 
 // Enable ISR
 export const revalidate = 3600;
+export const dynamicParams = true; // allow pages not in generateStaticParams to render via SSR
 
 export async function generateStaticParams() {
   return SYMPTOMS.map((s) => ({
@@ -42,9 +43,8 @@ export default async function SymptomPage({ params }: { params: { slug: string }
 
   let tools: any[] = [];
   try {
-    const { neon } = require('@neondatabase/serverless');
-    const sql = neon(process.env.DATABASE_URL as string);
-    tools = await sql`SELECT * FROM tools LIMIT 4`;
+    const { getToolsFromDB } = require("@/lib/db");
+    tools = await getToolsFromDB();
   } catch(e) { /* silent fail for static gen */ }
 
   return (

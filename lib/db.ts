@@ -85,3 +85,16 @@ export async function getContractorsByCity(citySlug: string) {
     return [];
   }
 }
+
+/**
+ * Fetch generic tools safely during build
+ */
+export async function getToolsFromDB() {
+  try {
+    const results = await sql`SELECT * FROM tools LIMIT 4`;
+    return results;
+  } catch (error) {
+    console.error("Tool Fetch Error:", error);
+    return [];
+  }
+}
