@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LeadCaptureForm from "@/components/LeadCaptureForm";
+import FastAnswer from "@/components/FastAnswer";
 
 export default function SymptomPageTemplate({
   symptom,
@@ -9,6 +10,12 @@ export default function SymptomPageTemplate({
   internalLinks,
   getCauseDetails
 }: any) {
+  // Extract a "Fast Answer" from the description or first cause
+  const firstCause = causeIds.length > 0 ? getCauseDetails(causeIds[0]) : null;
+  const fastAnswerText = firstCause 
+    ? `Likely caused by ${firstCause.name}. ${firstCause.explanation}`
+    : symptom.description;
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       {/* breadcrumbs */}
@@ -20,14 +27,13 @@ export default function SymptomPageTemplate({
         <span className="text-gray-900 font-medium">{symptom.name}</span>
       </nav>
 
-      <section className="mb-16">
+      <section className="mb-12">
         <h1 className="text-4xl md:text-5xl font-black text-hvac-navy leading-tight">
           {symptom.name}: Professional HVAC Diagnostic Guide
         </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-400 mt-4 font-normal leading-relaxed">
-          {symptom.description} Follow this technical repair manual to identify the root cause and find the correct repair solution.
-        </p>
       </section>
+
+      <FastAnswer answer={fastAnswerText} />
 
       {/* Internal Links Cluster (SEO Flywheel) */}
       {internalLinks.length > 0 && (

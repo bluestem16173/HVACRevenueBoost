@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LeadCaptureForm from "@/components/LeadCaptureForm";
+import FastAnswer from "@/components/FastAnswer";
 
 export default function ServicePageTemplate({ 
   city, 
@@ -10,6 +11,11 @@ export default function ServicePageTemplate({
   localContractors,
   getCauseDetails
 }: any) {
+  const firstCause = causeIds.length > 0 ? getCauseDetails(causeIds[0]) : null;
+  const fastAnswerText = firstCause 
+    ? `For homeowners in ${city.name}, ${symptom.name} is frequently caused by ${firstCause.name}. ${firstCause.explanation}`
+    : `Technical diagnostic manual for ${symptom.name} specifically for ${city.name} residents.`;
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       {/* breadcrumbs */}
@@ -18,22 +24,21 @@ export default function ServicePageTemplate({
         <span className="mx-2">/</span>
         <Link href="/repair" className="hover:text-hvac-blue">Local Repair</Link>
         <span className="mx-2">/</span>
-        <span className="capitalize">{city.name}</span>
+        <span className="capitalize">{city.slug.split('-').join(' ')}</span>
         <span className="mx-2">/</span>
         <span className="text-gray-900 font-medium">{symptom.name}</span>
       </nav>
 
-      <section className="mb-16">
+      <section className="mb-12">
         <div className="inline-block bg-hvac-gold/10 text-hvac-gold text-xs font-black px-3 py-1 rounded-full mb-4 border border-hvac-gold/20 uppercase tracking-widest">
           {city.name}, {city.state} Localized Guide
         </div>
         <h1 className="text-4xl md:text-5xl font-black text-hvac-navy leading-tight">
           {symptom.name} Repair in {city.name}
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 mt-6 leading-relaxed">
-          Homeowners in {city.name} dealing with {symptom.name} require specific technical diagnostics tailored to the local {city.state} climate. Use this professional manual to identify common failure points.
-        </p>
       </section>
+
+      <FastAnswer answer={fastAnswerText} />
 
       <div className="grid md:grid-cols-3 gap-8 mb-16">
         <div className="md:col-span-2 space-y-12">
