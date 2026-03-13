@@ -1,5 +1,6 @@
 import Link from "next/link";
 import LeadCaptureForm from "@/components/LeadCaptureForm";
+import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 
 export default function ComponentPageTemplate({
   component,
@@ -7,30 +8,35 @@ export default function ComponentPageTemplate({
   repairs,
   internalLinks,
   localContractors,
-  city // Optional if localized
 }: any) {
+  const summaryPoints = [
+    { label: "Core Component", value: component },
+    { label: "Common Symptoms", value: symptoms.length > 0 ? `${symptoms.length} Identified` : "System Check Needed" },
+    { label: "Replacement Cost", value: repairs?.[0]?.estimatedCost || "$250-$800" },
+    { label: "Technical Status", value: "Standard Service Part" }
+  ];
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       {/* breadcrumbs */}
       <nav className="text-sm text-gray-500 mb-8 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800">
         <Link href="/" className="hover:text-hvac-blue">Home</Link>
         <span className="mx-2">/</span>
-        <Link href="/components" className="hover:text-hvac-blue">HVAC Components</Link>
+        <Link href="/components" className="hover:text-hvac-blue">Components</Link>
         <span className="mx-2">/</span>
-        <span className="text-gray-900 font-medium capitalize">{component}</span>
+        <span className="capitalize">{component}</span>
       </nav>
 
-      <section className="mb-16">
-        <div className="inline-block bg-hvac-blue/10 text-hvac-blue text-xs font-black px-3 py-1 rounded-full mb-4 border border-hvac-blue/20 uppercase tracking-widest">
-          Technical Component Guide
+      <section className="mb-12">
+        <div className="inline-block bg-slate-100 dark:bg-slate-800 text-slate-500 text-[10px] font-black px-3 py-1 rounded-full mb-4 border border-slate-200 dark:border-slate-700 uppercase tracking-widest">
+          HVAC Component technical Guide
         </div>
-        <h1 className="text-4xl md:text-5xl font-black text-hvac-navy leading-tight capitalize">
-          {component} Repair & Diagnostics
+        <h1 className="text-4xl md:text-5xl font-black text-hvac-navy leading-tight">
+          {component.charAt(0).toUpperCase() + component.slice(1)} Troubleshooting
         </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400 mt-6 leading-relaxed">
-          The {component} is a critical part of your HVAC unit. Failure in this module often presents as complex electrical or mechanical signs. Use this manual to understand how to troubleshoot and fix common {component} failures.
-        </p>
       </section>
+
+      <ThirtySecondSummary points={summaryPoints} />
 
       <div className="grid md:grid-cols-3 gap-8 mb-16">
         <div className="md:col-span-2 space-y-12">

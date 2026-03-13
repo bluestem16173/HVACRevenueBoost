@@ -1,6 +1,7 @@
 import Link from "next/link";
 import LeadCaptureForm from "@/components/LeadCaptureForm";
 import FastAnswer from "@/components/FastAnswer";
+import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 
 export default function SymptomPageTemplate({
   symptom,
@@ -15,6 +16,13 @@ export default function SymptomPageTemplate({
   const fastAnswerText = firstCause 
     ? `Likely caused by ${firstCause.name}. ${firstCause.explanation}`
     : symptom.description;
+
+  const summaryPoints = [
+    { label: "Core Symptom", value: symptom.name },
+    { label: "Primary Cause", value: firstCause?.name || "System Analysis Required" },
+    { label: "Repair Level", value: firstCause?.repairDetails?.[0]?.estimatedCost || "Variable" },
+    { label: "Urgency", value: "Moderate to High" }
+  ];
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
@@ -34,6 +42,8 @@ export default function SymptomPageTemplate({
       </section>
 
       <FastAnswer answer={fastAnswerText} />
+      
+      <ThirtySecondSummary points={summaryPoints} />
 
       {/* Internal Links Cluster (SEO Flywheel) */}
       {internalLinks.length > 0 && (

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import LeadCaptureForm from "@/components/LeadCaptureForm";
 import FastAnswer from "@/components/FastAnswer";
+import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 
 export default function ServicePageTemplate({ 
   city, 
@@ -15,6 +16,13 @@ export default function ServicePageTemplate({
   const fastAnswerText = firstCause 
     ? `For homeowners in ${city.name}, ${symptom.name} is frequently caused by ${firstCause.name}. ${firstCause.explanation}`
     : `Technical diagnostic manual for ${symptom.name} specifically for ${city.name} residents.`;
+
+  const summaryPoints = [
+    { label: "Location", value: `${city.name}, ${city.state}` },
+    { label: "Symptom", value: symptom.name },
+    { label: "Avg. Repair Cost", value: firstCause?.repairDetails?.[0]?.estimatedCost || "$150-$450" },
+    { label: "Local Response", value: "< 30 Minutes" }
+  ];
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
@@ -39,6 +47,8 @@ export default function ServicePageTemplate({
       </section>
 
       <FastAnswer answer={fastAnswerText} />
+
+      <ThirtySecondSummary points={summaryPoints} />
 
       <div className="grid md:grid-cols-3 gap-8 mb-16">
         <div className="md:col-span-2 space-y-12">
