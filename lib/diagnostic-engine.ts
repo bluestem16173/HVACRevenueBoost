@@ -128,9 +128,38 @@ export async function getSymptomWithCausesFromDB(symptomSlug: string): Promise<S
       WHERE sc.symptom_id = ${symptom[0].id}
     `;
 
+    // Fetch repairs for each cause
+    const causeIds = causes.map((c: any) => c.id);
+    const repairs = causeIds.length > 0 ? await sql`
+      SELECT r.*, r.cause_id 
+      FROM repairs r 
+      WHERE r.cause_id = ANY(${causeIds})
+    ` : [];
+
+    const repairsByCause = (repairs as any[]).reduce((acc: Record<string, any[]>, r: any) => {
+      const cid = r.cause_id;
+      if (!acc[cid]) acc[cid] = [];
+      acc[cid].push({
+        id: r.id,
+        name: r.name,
+        slug: r.slug,
+        description: r.repair_type || r.name,
+        estimatedCost: r.skill_level === 'advanced' ? 'high' : r.skill_level === 'moderate' ? 'medium' : 'low',
+        skill_level: r.skill_level || 'moderate'
+      });
+      return acc;
+    }, {});
+
+    const causesWithRepairs = causes.map((c: any) => ({
+      ...c,
+      id: c.slug || c.id,
+      explanation: c.explanation || c.description || '',
+      repairDetails: repairsByCause[c.id] || []
+    }));
+
     return {
       ...symptom[0],
-      causes: causes
+      causes: causesWithRepairs
     } as any;
   } catch (error) {
     console.error('Neon Symptom Fetch Error:', error);

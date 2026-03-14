@@ -53,24 +53,24 @@ export default async function CitySymptomPage({
     notFound();
   }
 
-  const causeIds = isFromDB 
-    ? (symptom.causes?.map((c: any) => c.id) || [])
-    : (symptom.causes || []);
-    
+  const causeDetails = isFromDB
+    ? (symptom.causes || [])
+    : (symptom.causes || []).map((cId: string) => getCauseDetails(cId)).filter(Boolean);
+  const causeIds = causeDetails.map((c: any) => c.slug || c.id);
   const diagnosticSteps = getDiagnosticSteps(causeIds);
   const internalLinks = await getInternalLinksForPage(`${params.slug}-repair-${params.city}`);
   const localContractors = await getContractorsByCity(params.city);
 
   return (
-    <ServicePageTemplate 
+    <ServicePageTemplate
       city={city}
       symptom={symptom}
-      causeIds={causeIds}
+      causeDetails={causeDetails}
       diagnosticSteps={diagnosticSteps}
       internalLinks={internalLinks}
       localContractors={localContractors}
-      getCauseDetails={getCauseDetails}
       htmlContent={htmlContent}
+      symptomSlug={params.slug}
     />
   );
 }
