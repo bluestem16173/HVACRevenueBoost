@@ -7,7 +7,9 @@ import { neon } from '@neondatabase/serverless';
  * Uses the DATABASE_URL from .env.local
  */
 
-const sql = neon(process.env.DATABASE_URL || '');
+// During Vercel's build phase, DATABASE_URL might be undefined.
+// We provide a dummy postgres string so the initial module parser doesn't fatally crash.
+const sql = neon(process.env.DATABASE_URL || 'postgres://dummy:dummy@dummy.neon.tech/dummy');
 
 export default sql;
 
