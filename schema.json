@@ -1,0 +1,53 @@
+{
+  "columns": [
+    {
+      "column_name": "priority_score",
+      "data_type": "numeric"
+    },
+    {
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone"
+    },
+    {
+      "column_name": "query_variations",
+      "data_type": "jsonb"
+    },
+    {
+      "column_name": "id",
+      "data_type": "uuid"
+    },
+    {
+      "column_name": "system_id",
+      "data_type": "uuid"
+    },
+    {
+      "column_name": "description",
+      "data_type": "text"
+    },
+    {
+      "column_name": "name",
+      "data_type": "text"
+    },
+    {
+      "column_name": "slug",
+      "data_type": "text"
+    },
+    {
+      "column_name": "search_intent",
+      "data_type": "text"
+    }
+  ],
+  "firstRow": [
+    {
+      "id": "a817607e-ea4b-4822-ac2a-30d00c23164d",
+      "system_id": "e91d03a6-8682-4670-8294-6fb3a8f3e12e",
+      "name": "AC Blowing Warm Air",
+      "slug": "ac-blowing-warm-air",
+      "search_intent": "troubleshooting",
+      "priority_score": "0",
+      "created_at": "2026-03-13T18:57:39.347Z",
+      "query_variations": [],
+      "description": null
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "message": "invalid input syntax for type uuid: \"ac-blowing-warm-air\"",
+  "stack": "NeonDbError: invalid input syntax for type uuid: \"ac-blowing-warm-air\"\n    at mr.execute (C:\\Users\\anedo\\Desktop\\HVAC\\HVACRevenueBoostWeb\\node_modules\\@neondatabase\\serverless\\index.js:1300:10)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)\n    at async seed120Symptoms (C:\\Users\\anedo\\Desktop\\HVAC\\HVACRevenueBoostWeb\\scripts\\seed-120-symptoms.ts:203:9)",
+  "code": "22P02",
+  "name": "NeonDbError"
+}
