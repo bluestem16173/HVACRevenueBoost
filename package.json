@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db:seed-diagnostic-tests": "tsx scripts/seed-diagnostic-tests.ts"
+    "db:seed-diagnostic-tests": "tsx scripts/seed-diagnostic-tests.ts",
+    "pr": "node scripts/open-pr.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
