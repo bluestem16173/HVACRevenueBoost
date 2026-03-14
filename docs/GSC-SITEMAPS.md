@@ -1,14 +1,24 @@
-# Cluster Sitemaps for Google Search Console
+# Sitemaps for Google Search Console
 
-Cluster-specific sitemaps let you submit each problem category separately to GSC for better indexing control.
-
-## Sitemap Index (submit this to include all)
+## Phase 16: Master Sitemap (Submit This)
 
 ```
-https://hvacrevenueboost.com/sitemap-index.xml
+https://hvacrevenueboost.com/sitemap.xml
 ```
 
-This index lists the main sitemap + all 16 cluster sitemaps.
+The master sitemap index references layer-specific indexes:
+- `/sitemaps/static` - Home, pillars, hubs
+- `/sitemaps/clusters-index` - Cluster pages
+- `/sitemaps/symptoms-index` - Symptom pages (chunked ≤5000)
+- `/sitemaps/conditions-index` - Condition pages
+- `/sitemaps/causes-index` - Cause pages
+- `/sitemaps/repairs-index` - Repair pages
+- `/sitemaps/components-index` - Component pages
+- `/sitemaps/local-index` - City × symptom pages
+
+## Cluster Sitemaps (Optional)
+
+Cluster-specific sitemaps for granular GSC submission:
 
 ## Individual Cluster Sitemaps
 

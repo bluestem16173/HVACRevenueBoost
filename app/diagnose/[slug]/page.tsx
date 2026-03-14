@@ -1,6 +1,7 @@
 import { SYMPTOMS } from "@/data/knowledge-graph";
 import { getDiagnosticSteps, getCauseDetails, getSymptomWithCausesFromDB, getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { getRelatedContent, getInternalLinksForPage } from "@/lib/seo-linking";
+import { buildLinksForPage } from "@/lib/link-engine";
 import SymptomPageTemplate from "@/templates/symptom-page";
 import { notFound } from "next/navigation";
 
@@ -41,6 +42,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   const diagnosticSteps = getDiagnosticSteps(causeIds);
   const relatedContent = getRelatedContent(symptomData);
   const internalLinks = await getInternalLinksForPage(params.slug);
+  const relatedLinks = await buildLinksForPage("symptom", `diagnose/${params.slug}`, { symptomId: params.slug });
 
   let tools: any[] = [];
   try {
@@ -56,6 +58,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
       diagnosticSteps={diagnosticSteps}
       relatedContent={relatedContent}
       internalLinks={internalLinks}
+      relatedLinks={relatedLinks}
       tools={tools}
       getCauseDetails={getCauseDetails}
       htmlContent={htmlContent}

@@ -5,9 +5,6 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://hvacrevenueboost.c
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: { userAgent: "*", allow: "/" },
-    sitemap: [
-      `${BASE_URL}/sitemap.xml`,
-      `${BASE_URL}/sitemap-index.xml`,
-    ],
+    sitemap: `${BASE_URL}/sitemap.xml`,
   };
 }

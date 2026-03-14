@@ -68,3 +68,23 @@ npm run db:seed-hvac-graph
 | hvac.diagnostic_tests | Technician verification procedures |
 | hvac.cause_diagnostic_tests | Cause ↔ Test junction |
 | hvac.cities | For /repair/{city}/{symptom} |
+
+---
+
+## Migration 003: Related Nodes (Phase 16)
+
+Dense internal linking. 4-8 related nodes per page.
+
+### Run Migration
+
+```bash
+psql $DATABASE_URL -f scripts/migrations/003-related-nodes.sql
+```
+
+### Build Related Graph
+
+```bash
+npm run db:build-related-graph
+```
+
+Generates relations: related-problem, similar-cause, alternative-repair, same-component-family, same-condition-family, same-system-cluster.

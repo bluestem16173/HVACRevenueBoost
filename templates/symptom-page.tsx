@@ -12,6 +12,7 @@ export default function SymptomPageTemplate({
   diagnosticSteps,
   relatedContent,
   internalLinks,
+  relatedLinks,
   tools,
   getCauseDetails,
   htmlContent
@@ -197,6 +198,24 @@ export default function SymptomPageTemplate({
           </section>
         );
       })()}
+
+      {/* Related Problems (Phase 16) */}
+      {relatedLinks?.length > 0 && (
+        <section className="mb-12">
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Related Problems</h3>
+          <div className="flex flex-wrap gap-3">
+            {relatedLinks.slice(0, 8).map((link: any, idx: number) => (
+              <Link
+                key={idx}
+                href={link.slug}
+                className="text-xs font-bold uppercase tracking-tighter bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded text-hvac-blue hover:bg-hvac-blue hover:text-white transition-colors"
+              >
+                {link.title}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Internal Links Cluster */}
       {internalLinks?.length > 0 && (
