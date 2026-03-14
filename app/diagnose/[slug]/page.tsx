@@ -33,10 +33,11 @@ export default async function SymptomPage({ params }: { params: { slug: string }
     notFound();
   }
 
-  const causeIds = isFromDB 
-    ? (symptom.causes?.map((c: any) => c.id) || [])
-    : (symptom.causes || []);
-    
+  const causeDetails = isFromDB
+    ? (symptom.causes || [])
+    : (symptom.causes || []).map((cId: string) => getCauseDetails(cId)).filter(Boolean);
+  const causeIds = causeDetails.map((c: any) => c.slug || c.id);
+
   const diagnosticSteps = getDiagnosticSteps(causeIds);
   const relatedContent = getRelatedContent(symptomData);
   const internalLinks = await getInternalLinksForPage(params.slug);
@@ -48,9 +49,10 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   } catch(e) { /* silent fail for static gen */ }
 
   return (
-    <SymptomPageTemplate 
+    <SymptomPageTemplate
       symptom={symptom}
       causeIds={causeIds}
+      causeDetails={causeDetails}
       diagnosticSteps={diagnosticSteps}
       relatedContent={relatedContent}
       internalLinks={internalLinks}

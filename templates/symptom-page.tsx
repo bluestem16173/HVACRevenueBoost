@@ -6,6 +6,7 @@ import InteractiveDiagnosticTree from "@/components/InteractiveDiagnosticTree";
 export default function SymptomPageTemplate({
   symptom,
   causeIds,
+  causeDetails,
   diagnosticSteps,
   relatedContent,
   internalLinks,
@@ -13,10 +14,14 @@ export default function SymptomPageTemplate({
   getCauseDetails,
   htmlContent
 }: any) {
-  // Extract a "Fast Answer" from the description or first cause
-  const firstCause = causeIds.length > 0 ? getCauseDetails(causeIds[0]) : null;
-  const fastAnswerText = firstCause 
-    ? `Likely caused by ${firstCause.name}. ${firstCause.explanation}`
+  // Use causeDetails when passed (DB), otherwise resolve from causeIds (static KG)
+  const fullCauses = causeDetails?.length > 0
+    ? causeDetails
+    : (causeIds || []).map((id: string) => getCauseDetails(id)).filter(Boolean);
+  const firstCause = fullCauses[0] || null;
+
+  const fastAnswerText = firstCause
+    ? `Likely caused by ${firstCause.name}. ${firstCause.explanation || ""}`
     : symptom.description;
 
   const summaryPoints = [
@@ -25,9 +30,6 @@ export default function SymptomPageTemplate({
     { label: "Repair Level", value: firstCause?.repairDetails?.[0]?.estimatedCost || "Variable" },
     { label: "Urgency", value: "Moderate to High" }
   ];
-
-  // Map cause details for the flowchart
-  const fullCauses = causeIds.map((id: string) => getCauseDetails(id)).filter(Boolean);
 
   // Generate JSON-LD Schema
   const articleSchema = {
@@ -220,12 +222,11 @@ export default function SymptomPageTemplate({
         <h2 className="text-3xl font-black mb-6 border-0">Common Causes & Possible Fixes</h2>
         
         <ol className="cause-list space-y-12 list-none p-0">
-          {causeIds.map((causeId: string) => {
-            const cause = getCauseDetails(causeId);
+          {fullCauses.map((cause: any, idx: number) => {
             if (!cause) return null;
             return (
-              <li key={cause.id} className="relative pl-12 border-b border-slate-100 dark:border-slate-800 pb-12 last:border-0">
-                <Link href={`/cause/${cause.slug}`} className="hover:opacity-80 transition-opacity block w-fit">
+              <li key={cause.id || cause.slug || idx} className="relative pl-12 border-b border-slate-100 dark:border-slate-800 pb-12 last:border-0">
+                <Link href={`/cause/${cause.slug || cause.id}`} className="hover:opacity-80 transition-opacity block w-fit">
                   <h3 className="text-xl font-bold text-hvac-navy mt-0">{cause.name}</h3>
                 </Link>
                 <p className="mt-2 text-gray-600 dark:text-gray-400 italic">&quot;{cause.explanation}&quot;</p>

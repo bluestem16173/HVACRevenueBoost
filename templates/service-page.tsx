@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import {
   getCauseTechnicalContent,
+  getSystemContext,
   HIGH_DESERT_CLIMATE_FACTORS,
   AIRFLOW_PARTS,
   getEnvironmentVariations,
@@ -52,6 +53,7 @@ export default function ServicePageTemplate({
     city?.slug || ""
   );
   const envVariations = getEnvironmentVariations(symptomSlug || symptom?.id || "", city?.slug || "");
+  const systemContext = getSystemContext(symptomSlug || symptom?.id || "");
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -87,15 +89,15 @@ export default function ServicePageTemplate({
         <div className="context-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-[1000px] mx-auto px-5 py-8">
           <div className="context-card bg-[#f8f9fb] dark:bg-slate-900 p-5 rounded-[10px] border border-slate-200 dark:border-slate-700">
             <h4 className="mb-1 text-sm text-slate-500 dark:text-slate-400">System</h4>
-            <p className="font-semibold text-hvac-navy dark:text-white m-0">Central Air Conditioning</p>
+            <p className="font-semibold text-hvac-navy dark:text-white m-0">{systemContext.system}</p>
           </div>
           <div className="context-card bg-[#f8f9fb] dark:bg-slate-900 p-5 rounded-[10px] border border-slate-200 dark:border-slate-700">
             <h4 className="mb-1 text-sm text-slate-500 dark:text-slate-400">Component Path</h4>
-            <p className="font-semibold text-hvac-navy dark:text-white m-0">Return Air → Blower → Supply Duct</p>
+            <p className="font-semibold text-hvac-navy dark:text-white m-0">{systemContext.componentPath}</p>
           </div>
           <div className="context-card bg-[#f8f9fb] dark:bg-slate-900 p-5 rounded-[10px] border border-slate-200 dark:border-slate-700">
             <h4 className="mb-1 text-sm text-slate-500 dark:text-slate-400">Symptom Type</h4>
-            <p className="font-semibold text-hvac-navy dark:text-white m-0">Airflow Restriction</p>
+            <p className="font-semibold text-hvac-navy dark:text-white m-0">{systemContext.symptomType}</p>
           </div>
           <div className="context-card bg-[#f8f9fb] dark:bg-slate-900 p-5 rounded-[10px] border border-slate-200 dark:border-slate-700">
             <h4 className="mb-1 text-sm text-slate-500 dark:text-slate-400">Environment</h4>
