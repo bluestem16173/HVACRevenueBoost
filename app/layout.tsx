@@ -27,8 +27,9 @@ export default function RootLayout({
               <span>DIAGNOSTIC</span>
             </Link>
             <nav className="hidden md:flex gap-6 font-medium">
-              <Link href="/diagnose" className="hover:text-hvac-gold transition-colors">Find a Symptom</Link>
-              <Link href="/repair" className="hover:text-hvac-gold transition-colors">Local Repair</Link>
+              <Link href="/hvac" className="hover:text-hvac-gold transition-colors">HVAC Systems</Link>
+              <Link href="/diagnose" className="hover:text-hvac-gold transition-colors">Diagnostics</Link>
+              <Link href="/repair" className="hover:text-hvac-gold transition-colors">Repair Guides</Link>
             </nav>
             <div className="md:hidden">
               {/* Mobile menu would go here */}

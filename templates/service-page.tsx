@@ -59,17 +59,17 @@ export default function ServicePageTemplate({
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* Breadcrumbs */}
       <nav className="max-w-[1100px] mx-auto px-5 py-4 text-sm text-gray-500">
-        <Link href="/" className="hover:text-hvac-blue">
-          Home
-        </Link>
+        <Link href="/" className="hover:text-hvac-blue">Home</Link>
         <span className="mx-2">/</span>
-        <Link href="/repair" className="hover:text-hvac-blue">
-          Local Repair
+        <Link href="/hvac" className="hover:text-hvac-blue">HVAC Systems</Link>
+        <span className="mx-2">/</span>
+        <Link href="/diagnose" className="hover:text-hvac-blue">Diagnostics</Link>
+        <span className="mx-2">/</span>
+        <Link href={`/diagnose/${symptomSlug || symptom?.id}`} className="hover:text-hvac-blue">
+          {symptom?.name}
         </Link>
         <span className="mx-2">/</span>
         <span className="capitalize">{(city?.slug || "").split("-").join(" ")}</span>
-        <span className="mx-2">/</span>
-        <span className="text-gray-900 dark:text-white font-medium">{symptom?.name}</span>
       </nav>
 
       {/* 1. Diagnostic Header */}
@@ -312,6 +312,31 @@ export default function ServicePageTemplate({
               Get {city?.name} Repair Quotes
             </button>
           </div>
+        </div>
+      </section>
+
+      {/* Diagnostic Pathway (upward links) */}
+      <section className="max-w-[900px] mx-auto px-5 py-8">
+        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">
+          Diagnostic Pathway
+        </h3>
+        <div className="flex flex-wrap gap-3">
+          <Link href={`/diagnose/${symptomSlug || symptom?.id}`} className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors">
+            {symptom?.name} Diagnostic
+          </Link>
+          {causeDetails?.[0] && (
+            <Link href={`/cause/${causeDetails[0].slug || causeDetails[0].id}`} className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors">
+              {causeDetails[0].name} Cause
+            </Link>
+          )}
+          {causeDetails?.[0]?.repairDetails?.[0] && (
+            <Link href={`/fix/${causeDetails[0].repairDetails[0].slug || causeDetails[0].repairDetails[0].id}`} className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors">
+              {causeDetails[0].repairDetails[0].name}
+            </Link>
+          )}
+          <Link href="/repair" className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors">
+            All Repair Guides
+          </Link>
         </div>
       </section>
 

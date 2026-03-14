@@ -1,10 +1,26 @@
 import { MetadataRoute } from 'next';
 import sql from '@/lib/db';
+import { CLUSTERS } from '@/lib/clusters';
+import { CONDITIONS } from '@/lib/conditions';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://hvacrevenueboost.com';
 
   try {
+    const clusterRoutes = CLUSTERS.map((c) => ({
+      url: `${baseUrl}/cluster/${c.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
+    }));
+
+    const conditionRoutes = CONDITIONS.map((c) => ({
+      url: `${baseUrl}/conditions/${c.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+
     // Fetch all published pages from Neon
     const pages = await sql`
       SELECT slug, created_at 
@@ -17,6 +33,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       '',
       '/repair',
       '/diagnose',
+      '/hvac',
+      '/hvac-air-conditioning',
+      '/hvac-heating-systems',
+      '/hvac-airflow-ductwork',
+      '/hvac-electrical-controls',
+      '/hvac-thermostats-controls',
+      '/hvac-maintenance',
     ].map((route) => ({
       url: `${baseUrl}${route}`,
       lastModified: new Date(),
@@ -31,7 +54,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
 
-    return [...staticRoutes, ...dynamicRoutes];
+    return [...staticRoutes, ...clusterRoutes, ...conditionRoutes, ...dynamicRoutes];
   } catch (error) {
     console.error('Sitemap generation error:', error);
     return [];

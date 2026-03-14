@@ -2,6 +2,8 @@ import Link from "next/link";
 import FastAnswer from "@/components/FastAnswer";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 import InteractiveDiagnosticTree from "@/components/InteractiveDiagnosticTree";
+import { getConditionsForSymptom } from "@/lib/conditions";
+import { getClusterForSymptom } from "@/lib/clusters";
 
 export default function SymptomPageTemplate({
   symptom,
@@ -69,13 +71,33 @@ export default function SymptomPageTemplate({
       />
       
       {/* breadcrumbs */}
-      <nav className="text-sm text-gray-500 mb-8">
-        <Link href="/" className="hover:text-hvac-blue">Home</Link>
-        <span className="mx-2">/</span>
-        <Link href="/diagnose" className="hover:text-hvac-blue">Diagnostics</Link>
-        <span className="mx-2">/</span>
-        <span className="text-gray-900 font-medium">{symptom.name}</span>
-      </nav>
+      {(() => {
+        const cluster = getClusterForSymptom(symptom.id);
+        return (
+          <nav className="text-sm text-gray-500 mb-8">
+            <Link href="/" className="hover:text-hvac-blue">Home</Link>
+            <span className="mx-2">/</span>
+            <Link href="/hvac" className="hover:text-hvac-blue">HVAC Systems</Link>
+            <span className="mx-2">/</span>
+            {cluster ? (
+              <>
+                <Link href={`/${cluster.pillarSlug}`} className="hover:text-hvac-blue">
+                  {cluster.pillarSlug.replace("hvac-", "").replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                </Link>
+                <span className="mx-2">/</span>
+                <Link href={`/cluster/${cluster.slug}`} className="hover:text-hvac-blue">
+                  {cluster.name}
+                </Link>
+                <span className="mx-2">/</span>
+              </>
+            ) : (
+              <Link href="/diagnose" className="hover:text-hvac-blue">Diagnostics</Link>
+            )}
+            <span className="mx-2">/</span>
+            <span className="text-gray-900 dark:text-white font-medium">{symptom.name}</span>
+          </nav>
+        );
+      })()}
 
       {/* STEP 1: Problem Statement & Above-the-Fold Conversion */}
       <section className="mb-12">
@@ -153,6 +175,28 @@ export default function SymptomPageTemplate({
       <section className="mb-16 mt-8" id="diagnostics">
         <InteractiveDiagnosticTree symptomName={symptom.name} causes={fullCauses} />
       </section>
+
+      {/* Condition Links (Symptom → Condition pathway) */}
+      {(() => {
+        const conditions = getConditionsForSymptom(symptom.id);
+        if (conditions.length === 0) return null;
+        return (
+          <section className="mb-12">
+            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Narrow Your Diagnosis</h3>
+            <div className="flex flex-wrap gap-3">
+              {conditions.map((c) => (
+                <Link
+                  key={c.slug}
+                  href={`/conditions/${c.slug}`}
+                  className="text-xs font-bold uppercase tracking-tighter bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded text-hvac-blue hover:bg-hvac-blue hover:text-white transition-colors"
+                >
+                  {c.name}
+                </Link>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Internal Links Cluster */}
       {internalLinks?.length > 0 && (
