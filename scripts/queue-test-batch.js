@@ -22,9 +22,15 @@ async function queueTestBatch() {
     // 2. Queue 1 of each type
     const testItems = [
       {
+        page_type: 'cluster',
+        proposed_slug: 'ac-problems',
+        proposed_title: 'AC Problems - Troubleshooting Cluster',
+        system_id: systemId
+      },
+      {
         page_type: 'topic',
-        proposed_slug: 'diagnose-ac-blowing-warm-air',
-        proposed_title: 'AC Blowing Warm Air - Causes, Diagnosis & Fixes',
+        proposed_slug: 'ac-not-cooling',
+        proposed_title: 'AC Not Cooling - Causes, Diagnosis & Fixes',
         system_id: systemId
       },
       {

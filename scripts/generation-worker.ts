@@ -5,8 +5,11 @@
  * Run this script to generate content for the SEO flywheel.
  */
 
+import * as dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
 import sql from '../lib/db';
 import { getCauseTechnicalContent, getSystemContext } from '../lib/symptom-technical-content';
+import { generatePageContent, renderToHtml } from '../lib/ai-generator';
 
 async function runWorker() {
   console.log('🚀 Starting DecisionGrid Worker (Neon)...');
@@ -16,7 +19,7 @@ async function runWorker() {
     const queueItems = await sql`
       SELECT * FROM generation_queue 
       WHERE status = 'queued' 
-      LIMIT 100
+      AND proposed_slug IN ('diagnose-ac-blowing-warm-air', 'why-does-capacitor-fail')
     `;
 
     console.log(`📦 Processing ${queueItems.length || 0} items...`);
@@ -59,65 +62,41 @@ async function runWorker() {
         const pageTitle = item.proposed_title || `HVAC Repair in ${item.city}`;
         const pageSlug = item.proposed_slug;
 
-        let contentJson: any = { generated_at: new Date().toISOString() };
-        
-        switch(item.page_type) {
-          case 'city': {
-            // City x Symptom pages: repair/{city}/{symptom-slug}
-            const slugParts = (pageSlug || '').split('/');
-            const symptomSlug = slugParts[slugParts.length - 1] || '';
-            const causes = item.symptom_id ? await sql`
-              SELECT c.* FROM causes c
-              JOIN symptom_causes sc ON sc.cause_id = c.id
-              WHERE sc.symptom_id = ${item.symptom_id}
-            ` : [];
-            const systemContext = getSystemContext(symptomSlug);
-            const causesWithTech = (causes as any[]).map((c: any) => {
-              const tech = getCauseTechnicalContent(symptomSlug, c.slug || c.id);
-              return {
-                name: c.name,
-                slug: c.slug,
-                technicalCause: tech?.technicalCause || c.explanation || c.description || '',
-                verificationTest: tech?.verificationTest || [],
-                repair: tech?.repair || ''
-              };
-            });
-            contentJson.engine_version = '3.0.0-CityDiagnostic-Authority';
-            contentJson.system_context = systemContext;
-            contentJson.causes = causesWithTech;
-            contentJson.generated_at = new Date().toISOString();
-            const summaryHtml = `<p>${pageTitle} usually indicates a restriction or imbalance within the system. This guide explains technical causes, verification tests, and repair options used by HVAC technicians.</p>`;
-            contentJson.html_content = autoLinkContent(summaryHtml, entities);
-            break;
-          }
-          case 'topic':
-            contentJson.engine_version = '3.0.0-TopicHub-5Tier';
-            contentJson.mermaid_graph = `graph TD\nA[${pageTitle}] --> B[Causes]`;
-            // Mocking the AI output and applying Auto-Linking
-            let mockTopicHtml = `<p>If your AC is blowing warm air, you may have a refrigerant leak or a capacitor failure.</p>`;
-            contentJson.html_content = autoLinkContent(mockTopicHtml, entities);
-            break;
-          case 'cause':
-            contentJson.engine_version = '3.0.0-CauseAnalysis-5Tier';
-            contentJson.root_cause_analysis = true;
-            break;
-          case 'repair':
-            contentJson.engine_version = '3.0.0-RepairManual-5Tier';
-            contentJson.safety_warnings = ["LOTO", "Capacitor Discharge"];
-            let mockRepairHtml = `<p>To fix this, you might need a compressor replacement. Warning: doing this wrong can lead to capacitor failure.</p>`;
-            contentJson.html_content = autoLinkContent(mockRepairHtml, entities);
-            break;
-          case 'component':
-            contentJson.engine_version = '3.0.0-ComponentSpec-5Tier';
-            contentJson.multimeter_tests = true;
-            break;
-          case 'tool':
-            contentJson.engine_version = '3.0.0-ToolGuide-5Tier';
-            contentJson.affiliate_ready = true;
-            break;
-          default:
-            contentJson.engine_version = '2.0.0-DecisionGrid-Neon';
+        let additionalContext: any = {};
+
+        if (item.page_type === 'city') {
+          const slugParts = (pageSlug || '').split('/');
+          const symptomSlug = slugParts[slugParts.length - 1] || '';
+          const causes = item.symptom_id ? await sql`
+            SELECT c.* FROM causes c
+            JOIN symptom_causes sc ON sc.cause_id = c.id
+            WHERE sc.symptom_id = ${item.symptom_id}
+          ` : [];
+          const systemContext = getSystemContext(symptomSlug);
+          const causesWithTech = (causes as any[]).map((c: any) => {
+            const tech = getCauseTechnicalContent(symptomSlug, c.slug || c.id);
+            return {
+              name: c.name,
+              slug: c.slug,
+              technicalCause: tech?.technicalCause || c.explanation || c.description || '',
+              verificationTest: tech?.verificationTest || [],
+              repair: tech?.repair || ''
+            };
+          });
+          additionalContext = { systemContext, causesWithTech };
         }
+
+        console.log(`🧠 Calling AI Generator for ${pageSlug}...`);
+        const aiData = await generatePageContent(pageSlug, item.page_type, pageTitle, additionalContext);
+        const generatedHtml = renderToHtml(aiData);
+
+        let contentJson: any;
+        contentJson = {
+          ...aiData,
+          html_content: autoLinkContent(generatedHtml, entities),
+          engine_version: '4.0.0-DecisionGrid-AI-Generator',
+          generated_at: new Date().toISOString()
+        };
 
         // 3. Upsert into Pages table using Neon raw SQL
         const result = await sql`

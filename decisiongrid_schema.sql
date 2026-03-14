@@ -236,6 +236,15 @@ CREATE TABLE IF NOT EXISTS conditions (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- Environments Layer (Conditions vs Environments separation)
+CREATE TABLE IF NOT EXISTS environments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
 CREATE TABLE IF NOT EXISTS symptom_conditions (
   symptom_id UUID REFERENCES symptoms(id) ON DELETE CASCADE,
   condition_id UUID REFERENCES conditions(id) ON DELETE CASCADE,
@@ -250,3 +259,13 @@ CREATE TABLE IF NOT EXISTS condition_causes (
 
 CREATE INDEX IF NOT EXISTS idx_symptom_conditions_symptom ON symptom_conditions(symptom_id);
 CREATE INDEX IF NOT EXISTS idx_condition_causes_condition ON condition_causes(condition_id);
+
+-- Component-Cause mapping (for pages like compressor-failure-symptoms)
+CREATE TABLE IF NOT EXISTS component_causes (
+  component_id UUID REFERENCES components(id) ON DELETE CASCADE,
+  cause_id UUID REFERENCES causes(id) ON DELETE CASCADE,
+  PRIMARY KEY (component_id, cause_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_component_causes_component ON component_causes(component_id);
+CREATE INDEX IF NOT EXISTS idx_component_causes_cause ON component_causes(cause_id);
