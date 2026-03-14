@@ -1,7 +1,7 @@
 /**
  * Cluster layer for Pillar → Cluster → Symptom architecture.
- * 15 seed clusters based on actual HVAC homeowner search behavior.
- * Each cluster = hub page → symptoms → condition patterns → causes → repairs → components.
+ * 16 clusters based on HVAC homeowner search behavior.
+ * Pillar distribution: AC (6) | Airflow (3) | Electrical (4) | Thermostat (1) | Maintenance (1) | Heating (1)
  */
 
 import { SYMPTOMS } from "@/data/knowledge-graph";
@@ -15,19 +15,13 @@ export interface Cluster {
 }
 
 export const CLUSTERS: Cluster[] = [
+  // Cooling Failures (hvac-air-conditioning)
   {
     slug: "ac-not-cooling",
     name: "AC Not Cooling",
     description: "The single largest HVAC troubleshooting cluster. AC running but not producing cold air—warm air, poor cooling, cooling failure.",
     symptomIds: ["ac-blowing-warm-air", "ice-on-outdoor-unit", "humidity-too-high-home"],
     pillarSlug: "hvac-air-conditioning",
-  },
-  {
-    slug: "weak-airflow",
-    name: "Weak Airflow",
-    description: "Huge cluster tied to ductwork and blower issues. Weak airflow from vents, air not blowing, some vents not working.",
-    symptomIds: ["weak-airflow-vents", "uneven-cooling-heating"],
-    pillarSlug: "hvac-airflow-ductwork",
   },
   {
     slug: "ac-freezing-up",
@@ -37,20 +31,6 @@ export const CLUSTERS: Cluster[] = [
     pillarSlug: "hvac-air-conditioning",
   },
   {
-    slug: "ac-not-turning-on",
-    name: "AC Not Turning On",
-    description: "AC not starting, won't start, thermostat calling but unit not responding. Usually electrical failures.",
-    symptomIds: ["ac-not-turning-on", "thermostat-display-blank", "heat-pump-not-switching"],
-    pillarSlug: "hvac-air-conditioning",
-  },
-  {
-    slug: "outside-unit-not-running",
-    name: "Outside Unit Not Running",
-    description: "Outdoor condenser not turning on, fan not spinning, unit silent. Capacitor, contactor, or compressor issues.",
-    symptomIds: ["ac-not-turning-on", "noisy-outdoor-condenser", "heat-pump-not-switching"],
-    pillarSlug: "hvac-electrical-controls",
-  },
-  {
     slug: "ac-short-cycling",
     name: "AC Short Cycling",
     description: "AC turning on and off, runs a few minutes then stops, cycles too frequently. Often thermostat, oversized system, or refrigerant.",
@@ -58,39 +38,19 @@ export const CLUSTERS: Cluster[] = [
     pillarSlug: "hvac-air-conditioning",
   },
   {
-    slug: "thermostat-problems",
-    name: "Thermostat Problems",
-    description: "Very high homeowner search volume. Thermostat not working, not responding, blank display, wrong temperature.",
-    symptomIds: ["thermostat-display-blank", "ac-running-constantly", "furnace-not-heating", "ac-not-turning-on", "heat-pump-not-switching"],
-    pillarSlug: "hvac-thermostats-controls",
-  },
-  {
-    slug: "ac-making-noise",
-    name: "AC Making Noise",
-    description: "Loud noise, buzzing, rattling, squealing, humming. Noise complaints drive a lot of service calls.",
-    symptomIds: ["strange-noises-hvac", "noisy-outdoor-condenser", "hvac-clunking-sound", "burning-smell-hvac"],
+    slug: "ac-running-constantly",
+    name: "AC Running Constantly",
+    description: "AC running all day, won't shut off, never reaches temperature. Often undersized system, dirty coils, or refrigerant issues.",
+    symptomIds: ["ac-running-constantly"],
     pillarSlug: "hvac-air-conditioning",
   },
+  // Airflow & Distribution (hvac-airflow-ductwork)
   {
-    slug: "ac-tripping-breaker",
-    name: "AC Tripping Breaker",
-    description: "Breaker trips when AC starts or runs. Usually electrical faults—capacitor, contactor, or short.",
-    symptomIds: ["hvac-tripping-breaker"],
-    pillarSlug: "hvac-electrical-controls",
-  },
-  {
-    slug: "refrigerant-problems",
-    name: "Refrigerant Problems",
-    description: "Low refrigerant, AC refrigerant leak, losing refrigerant, low Freon. Ties directly to high-cost repairs.",
-    symptomIds: ["ac-blowing-warm-air", "ice-on-outdoor-unit", "humidity-too-high-home", "hvac-unit-short-cycling"],
-    pillarSlug: "hvac-air-conditioning",
-  },
-  {
-    slug: "capacitor-problems",
-    name: "Capacitor Problems",
-    description: "AC capacitor bad, humming but not starting, fan won't start, hard start problems. Converts extremely well for repair searches.",
-    symptomIds: ["ac-not-turning-on", "noisy-outdoor-condenser", "hvac-tripping-breaker", "strange-noises-hvac", "hvac-clunking-sound", "burning-smell-hvac"],
-    pillarSlug: "hvac-electrical-controls",
+    slug: "weak-airflow",
+    name: "Weak Airflow",
+    description: "Huge cluster tied to ductwork and blower issues. Weak airflow from vents, air not blowing, some vents not working.",
+    symptomIds: ["weak-airflow-vents", "uneven-cooling-heating"],
+    pillarSlug: "hvac-airflow-ductwork",
   },
   {
     slug: "blower-motor-problems",
@@ -106,13 +66,59 @@ export const CLUSTERS: Cluster[] = [
     symptomIds: ["uneven-cooling-heating", "weak-airflow-vents", "bad-odors-from-vents"],
     pillarSlug: "hvac-airflow-ductwork",
   },
+  // Electrical / Controls (hvac-electrical-controls)
   {
-    slug: "ac-running-constantly",
-    name: "AC Running Constantly",
-    description: "AC running all day, won't shut off, never reaches temperature. Often undersized system, dirty coils, or refrigerant issues.",
-    symptomIds: ["ac-running-constantly"],
+    slug: "ac-not-turning-on",
+    name: "AC Not Turning On",
+    description: "AC not starting, won't start, thermostat calling but unit not responding. Usually electrical failures.",
+    symptomIds: ["ac-not-turning-on", "thermostat-display-blank", "heat-pump-not-switching"],
+    pillarSlug: "hvac-electrical-controls",
+  },
+  {
+    slug: "outside-unit-not-running",
+    name: "Outside Unit Not Running",
+    description: "Outdoor condenser not turning on, fan not spinning, unit silent. Capacitor, contactor, or compressor issues.",
+    symptomIds: ["ac-not-turning-on", "noisy-outdoor-condenser", "heat-pump-not-switching"],
+    pillarSlug: "hvac-electrical-controls",
+  },
+  {
+    slug: "ac-tripping-breaker",
+    name: "AC Tripping Breaker",
+    description: "Breaker trips when AC starts or runs. Usually electrical faults—capacitor, contactor, or short.",
+    symptomIds: ["hvac-tripping-breaker"],
+    pillarSlug: "hvac-electrical-controls",
+  },
+  {
+    slug: "capacitor-problems",
+    name: "Capacitor Problems",
+    description: "AC capacitor bad, humming but not starting, fan won't start, hard start problems. Converts extremely well for repair searches.",
+    symptomIds: ["ac-not-turning-on", "noisy-outdoor-condenser", "hvac-tripping-breaker", "strange-noises-hvac", "hvac-clunking-sound", "burning-smell-hvac"],
+    pillarSlug: "hvac-electrical-controls",
+  },
+  // Thermostat (hvac-thermostats-controls)
+  {
+    slug: "thermostat-problems",
+    name: "Thermostat Problems",
+    description: "Very high homeowner search volume. Thermostat not working, not responding, blank display, wrong temperature.",
+    symptomIds: ["thermostat-display-blank", "ac-running-constantly", "furnace-not-heating", "ac-not-turning-on", "heat-pump-not-switching"],
+    pillarSlug: "hvac-thermostats-controls",
+  },
+  // Mechanical / Refrigerant (hvac-air-conditioning)
+  {
+    slug: "refrigerant-problems",
+    name: "Refrigerant Problems",
+    description: "Low refrigerant, AC refrigerant leak, losing refrigerant, low Freon. Ties directly to high-cost repairs. Distinct search intent.",
+    symptomIds: ["low-refrigerant-ac", "ac-refrigerant-leak", "ac-losing-freon", "ac-pressure-low"],
     pillarSlug: "hvac-air-conditioning",
   },
+  {
+    slug: "ac-making-noise",
+    name: "AC Making Noise",
+    description: "Loud noise, buzzing, rattling, squealing, humming. Noise complaints drive a lot of service calls.",
+    symptomIds: ["strange-noises-hvac", "noisy-outdoor-condenser", "hvac-clunking-sound", "burning-smell-hvac"],
+    pillarSlug: "hvac-air-conditioning",
+  },
+  // Maintenance / Water (hvac-maintenance)
   {
     slug: "ac-water-leaks",
     name: "AC Water Leaks",
@@ -120,7 +126,28 @@ export const CLUSTERS: Cluster[] = [
     symptomIds: ["hvac-leaking-water"],
     pillarSlug: "hvac-maintenance",
   },
+  // Heating (hvac-heating-systems)
+  {
+    slug: "furnace-not-heating",
+    name: "Furnace Not Heating",
+    description: "Furnace not heating, blowing cold air, not turning on, running but no heat. Heat pump not heating. Winter traffic and leads.",
+    symptomIds: ["furnace-not-heating", "furnace-blowing-cold-air", "furnace-clicking-no-ignition", "heat-pump-not-switching"],
+    pillarSlug: "hvac-heating-systems",
+  },
 ];
+
+/** Clusters that produce highest HVAC service calls—prioritize for city page generation. */
+export const PRIORITY_CLUSTERS_FOR_CITY_PAGES = ["ac-not-cooling", "ac-not-turning-on", "outside-unit-not-running"] as const;
+
+/** Symptom IDs from priority clusters for lead-gen city pages. */
+export function getPrioritySymptomsForCityPages(): string[] {
+  const ids = new Set<string>();
+  for (const slug of PRIORITY_CLUSTERS_FOR_CITY_PAGES) {
+    const cluster = CLUSTERS.find((c) => c.slug === slug);
+    if (cluster) cluster.symptomIds.forEach((id) => ids.add(id));
+  }
+  return Array.from(ids);
+}
 
 export function getCluster(slug: string): Cluster | undefined {
   return CLUSTERS.find((c) => c.slug === slug);

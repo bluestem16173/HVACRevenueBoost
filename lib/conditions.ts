@@ -424,6 +424,118 @@ export const CONDITIONS: Condition[] = [
     symptomId: "humidity-too-high-home",
     causeIds: ["dirty-coils", "dirty-filter", "refrigerant-leak"],
   },
+  // === LOW REFRIGERANT AC (refrigerant-problems cluster) ===
+  {
+    slug: "low-refrigerant-ac-but-unit-running",
+    name: "Low Refrigerant AC but Unit Running",
+    description: "AC runs but cooling is poor. Low charge affects heat exchange and may cause icing.",
+    symptomId: "low-refrigerant-ac",
+    causeIds: ["refrigerant-leak", "dirty-coils", "dirty-filter"],
+  },
+  {
+    slug: "low-refrigerant-ac-in-extreme-heat",
+    name: "Low Refrigerant AC in Extreme Heat",
+    description: "Cooling fails during peak temperatures. Low charge worsens under high load.",
+    symptomId: "low-refrigerant-ac",
+    causeIds: ["refrigerant-leak", "dirty-coils"],
+  },
+  {
+    slug: "low-refrigerant-ac-short-cycling",
+    name: "Low Refrigerant AC Short Cycling",
+    description: "Low charge can cause rapid on/off cycling. System struggles to maintain pressure.",
+    symptomId: "low-refrigerant-ac",
+    causeIds: ["refrigerant-leak"],
+  },
+  // === AC REFRIGERANT LEAK ===
+  {
+    slug: "ac-refrigerant-leak-slow",
+    name: "AC Refrigerant Leak Slow",
+    description: "Gradual loss of cooling over weeks or months. Small leak in lines or coils.",
+    symptomId: "ac-refrigerant-leak",
+    causeIds: ["refrigerant-leak"],
+  },
+  {
+    slug: "ac-refrigerant-leak-sudden",
+    name: "AC Refrigerant Leak Sudden",
+    description: "Cooling dropped quickly. Larger leak—requires professional leak detection.",
+    symptomId: "ac-refrigerant-leak",
+    causeIds: ["refrigerant-leak"],
+  },
+  // === AC LOSING FREON ===
+  {
+    slug: "ac-losing-freon-after-recharge",
+    name: "AC Losing Freon After Recharge",
+    description: "System was recharged but lost refrigerant again. Active leak must be found and repaired.",
+    symptomId: "ac-losing-freon",
+    causeIds: ["refrigerant-leak"],
+  },
+  {
+    slug: "ac-losing-freon-icing",
+    name: "AC Losing Freon with Icing",
+    description: "Low Freon causes evaporator to freeze. Ice on lines or indoor coil.",
+    symptomId: "ac-losing-freon",
+    causeIds: ["refrigerant-leak", "dirty-filter"],
+  },
+  // === AC PRESSURE LOW ===
+  {
+    slug: "ac-pressure-low-both-sides",
+    name: "AC Pressure Low Both Sides",
+    description: "Suction and liquid pressures below normal. Confirms low refrigerant charge.",
+    symptomId: "ac-pressure-low",
+    causeIds: ["refrigerant-leak"],
+  },
+  {
+    slug: "ac-pressure-low-suction-only",
+    name: "AC Pressure Low Suction Only",
+    description: "Low suction pressure with normal or high head. Restriction or low charge.",
+    symptomId: "ac-pressure-low",
+    causeIds: ["refrigerant-leak", "dirty-coils"],
+  },
+  // === FURNACE NOT HEATING (furnace-not-heating cluster) ===
+  {
+    slug: "furnace-not-heating-fan-blowing",
+    name: "Furnace Not Heating – Fan Blowing",
+    description: "Blower runs but air is cold. Igniter, flame sensor, or gas valve issue.",
+    symptomId: "furnace-not-heating",
+    causeIds: ["worn-igniter", "dirty-flame-sensor", "faulty-thermostat"],
+  },
+  {
+    slug: "furnace-not-heating-not-starting",
+    name: "Furnace Not Heating – Not Starting",
+    description: "No blower, no ignition attempt. Thermostat, power, or control board.",
+    symptomId: "furnace-not-heating",
+    causeIds: ["faulty-thermostat"],
+  },
+  {
+    slug: "furnace-not-heating-after-winter",
+    name: "Furnace Not Heating After Winter",
+    description: "Furnace worked last season but won't start now. Pilot, igniter, or gas supply.",
+    symptomId: "furnace-not-heating",
+    causeIds: ["worn-igniter", "dirty-flame-sensor", "faulty-thermostat"],
+  },
+  // === FURNACE BLOWING COLD AIR ===
+  {
+    slug: "furnace-blowing-cold-air-intermittent",
+    name: "Furnace Blowing Cold Air Intermittent",
+    description: "Sometimes heats, sometimes blows cold. Flame sensor or limit switch.",
+    symptomId: "furnace-blowing-cold-air",
+    causeIds: ["dirty-flame-sensor", "faulty-thermostat"],
+  },
+  {
+    slug: "furnace-blowing-cold-air-from-start",
+    name: "Furnace Blowing Cold Air from Start",
+    description: "Never produces heat. Igniter or gas valve failure.",
+    symptomId: "furnace-blowing-cold-air",
+    causeIds: ["worn-igniter", "dirty-flame-sensor", "faulty-thermostat"],
+  },
+  // === HEAT PUMP NOT SWITCHING (furnace cluster overlap) ===
+  {
+    slug: "heat-pump-not-heating-winter",
+    name: "Heat Pump Not Heating in Winter",
+    description: "Heat pump in heating mode but no warm air. Defrost, reversing valve, or refrigerant.",
+    symptomId: "heat-pump-not-switching",
+    causeIds: ["bad-defrost-board", "stuck-reversing-valve", "refrigerant-leak"],
+  },
 ];
 
 export function getCondition(slug: string): Condition | undefined {

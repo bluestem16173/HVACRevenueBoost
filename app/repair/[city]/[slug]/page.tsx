@@ -1,4 +1,5 @@
 import { SYMPTOMS, CITIES } from "@/data/knowledge-graph";
+import { getPrioritySymptomsForCityPages } from "@/lib/clusters";
 import { getDiagnosticSteps, getCauseDetails, getSymptomWithCausesFromDB, getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { getInternalLinksForPage } from "@/lib/seo-linking";
 import { getContractorsByCity } from "@/lib/db";
@@ -12,7 +13,13 @@ export const dynamicParams = true; // allow pages not in generateStaticParams to
 export async function generateStaticParams() {
   const combinations = [];
   const topCities = CITIES.slice(0, 50);
-  const topSymptoms = SYMPTOMS.slice(0, 10);
+  // Prioritize symptoms from ac-not-cooling, ac-not-turning-on, outside-unit-not-running (highest service call clusters)
+  const priorityIds = getPrioritySymptomsForCityPages();
+  const prioritySymptoms = priorityIds
+    .map((id) => SYMPTOMS.find((s) => s.id === id))
+    .filter((s): s is (typeof SYMPTOMS)[number] => !!s);
+  const restSymptoms = SYMPTOMS.filter((s) => !priorityIds.includes(s.id)).slice(0, 10 - prioritySymptoms.length);
+  const topSymptoms = [...prioritySymptoms, ...restSymptoms].slice(0, 10);
 
   for (const city of topCities) {
     for (const symptom of topSymptoms) {

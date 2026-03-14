@@ -355,7 +355,32 @@ export const SYMPTOMS: Symptom[] = [
     name: "Fan Running Constantly",
     description: "The indoor blower fan never stops, even when the system isn't heating or cooling.",
     causes: ["faulty-thermostat", "welded-contactor"],
-  }
+  },
+  // Refrigerant-specific symptoms (distinct search intent for refrigerant-problems cluster)
+  {
+    id: "low-refrigerant-ac",
+    name: "Low Refrigerant AC",
+    description: "AC is low on refrigerant. System may cool poorly, ice up, or short cycle.",
+    causes: ["refrigerant-leak", "dirty-coils", "dirty-filter"],
+  },
+  {
+    id: "ac-refrigerant-leak",
+    name: "AC Refrigerant Leak",
+    description: "Refrigerant is leaking from the system. Requires professional leak detection and repair.",
+    causes: ["refrigerant-leak"],
+  },
+  {
+    id: "ac-losing-freon",
+    name: "AC Losing Freon",
+    description: "AC has lost refrigerant (Freon). Cooling capacity drops and system may freeze or short cycle.",
+    causes: ["refrigerant-leak"],
+  },
+  {
+    id: "ac-pressure-low",
+    name: "AC Pressure Low",
+    description: "Refrigerant pressure readings are below normal. Indicates leak or low charge.",
+    causes: ["refrigerant-leak"],
+  },
 ];
 
 export const CITIES: City[] = [

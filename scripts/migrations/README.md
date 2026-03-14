@@ -28,3 +28,43 @@ Requires:
 - `diagnostic_tests` table
 - `cause_diagnostic_tests` table
 - `causes` table with seeded causes (run seed-neon or seed-5-tier first)
+
+---
+
+## Migration 002: HVAC Diagnostic Graph Schema
+
+Full relational schema for Pillar → Cluster → Symptom → Condition → Cause → Repair → Component.
+
+Uses `hvac` schema to avoid conflicts with existing decisiongrid tables. Designed for 100k–300k page scale.
+
+### Run Migration
+
+```bash
+psql $DATABASE_URL -f scripts/migrations/002-hvac-diagnostic-graph-schema.sql
+```
+
+### Seed HVAC Graph
+
+Populates `hvac.*` tables from static knowledge (lib/clusters, lib/conditions, data/knowledge-graph):
+
+```bash
+npm run db:seed-hvac-graph
+```
+
+### Tables Created
+
+| Table | Purpose |
+|-------|---------|
+| hvac.pillars | Top-level domains (hvac-air-conditioning, hvac-heating-systems, etc.) |
+| hvac.clusters | Problem categories (ac-not-cooling, weak-airflow, etc.) |
+| hvac.symptoms | Observable problems → /diagnose/[slug] |
+| hvac.condition_patterns | Templates: {symptom} but unit running, etc. |
+| hvac.conditions | Pattern-applied symptoms → /conditions/[slug] |
+| hvac.causes | Root causes |
+| hvac.condition_causes | Condition ↔ Cause junction |
+| hvac.repairs | Repair procedures → /fix/[slug] |
+| hvac.components | Parts → /components/[slug] |
+| hvac.repair_components | Repair ↔ Component junction |
+| hvac.diagnostic_tests | Technician verification procedures |
+| hvac.cause_diagnostic_tests | Cause ↔ Test junction |
+| hvac.cities | For /repair/{city}/{symptom} |
