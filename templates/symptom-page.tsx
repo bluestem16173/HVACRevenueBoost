@@ -220,7 +220,7 @@ export default function SymptomPageTemplate({
                 <Link href={`/cause/${cause.slug}`} className="hover:opacity-80 transition-opacity block w-fit">
                   <h3 className="text-xl font-bold text-hvac-navy mt-0">{cause.name}</h3>
                 </Link>
-                <p className="mt-2 text-gray-600 dark:text-gray-400 italic">"{cause.explanation}"</p>
+                <p className="mt-2 text-gray-600 dark:text-gray-400 italic">&quot;{cause.explanation}&quot;</p>
                 <Link href={`/cause/${cause.slug}`} className="text-xs font-bold text-hvac-blue hover:text-hvac-navy uppercase tracking-widest mt-3 inline-block">
                   Read Full Diagnostic Analysis →
                 </Link>

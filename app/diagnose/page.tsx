@@ -59,17 +59,17 @@ export default function DiagnosticsIndex() {
             <div>
               <h4 className="font-black text-hvac-blue uppercase tracking-tighter mb-4 text-sm">Technical Accuracy</h4>
               <p className="text-[10px] text-gray-500 leading-relaxed uppercase font-bold text-center border-t border-slate-100 pt-4">Manual Extract</p>
-              <p className="text-xs text-gray-500 leading-relaxed mt-2 text-center italic">"All diagnostic flows are modeled after manufacturer service manuals and verified by licensed Field Engineering Specialists."</p>
+              <p className="text-xs text-gray-500 leading-relaxed mt-2 text-center italic">&quot;All diagnostic flows are modeled after manufacturer service manuals and verified by licensed Field Engineering Specialists.&quot;</p>
             </div>
             <div>
               <h4 className="font-black text-hvac-blue uppercase tracking-tighter mb-4 text-sm">Quarterly Reviews</h4>
               <p className="text-[10px] text-gray-500 leading-relaxed uppercase font-bold text-center border-t border-slate-100 pt-4">Flywheel Data</p>
-              <p className="text-xs text-gray-500 leading-relaxed mt-2 text-center italic">"Our symptom database is updated every 90 days to include emerging failure patterns in modern high-efficiency SEER2 systems."</p>
+              <p className="text-xs text-gray-500 leading-relaxed mt-2 text-center italic">&quot;Our symptom database is updated every 90 days to include emerging failure patterns in modern high-efficiency SEER2 systems.&quot;</p>
             </div>
             <div>
               <h4 className="font-black text-hvac-blue uppercase tracking-tighter mb-4 text-sm">Independent Search</h4>
               <p className="text-[10px] text-gray-500 leading-relaxed uppercase font-bold text-center border-t border-slate-100 pt-4">Vendor Neutral</p>
-              <p className="text-xs text-gray-500 leading-relaxed mt-2 text-center italic">"DecisionGrid remains vendor-neutral. Our guides prioritize the root cause over specific product marketing."</p>
+              <p className="text-xs text-gray-500 leading-relaxed mt-2 text-center italic">&quot;DecisionGrid remains vendor-neutral. Our guides prioritize the root cause over specific product marketing.&quot;</p>
             </div>
           </div>
         </div>

@@ -105,7 +105,7 @@ export default function Home() {
         <div className="max-w-xl mx-auto">
           <h4 className="font-bold text-hvac-navy mb-4">Troubleshooting an RV AC?</h4>
           <p className="text-gray-500 text-sm italic mb-6">
-            "If you are troubleshooting an RV air conditioner instead of a home HVAC system, visit DecisionGrid for RV repair diagnostics."
+            &quot;If you are troubleshooting an RV air conditioner instead of a home HVAC system, visit DecisionGrid for RV repair diagnostics.&quot;
           </p>
           <a 
             href="https://decisiongrid.com" 

@@ -1,0 +1,45 @@
+﻿
+> hvac-revenue-boost-web@0.1.0 lint
+> next lint
+
+node.exe : 
+At line:1 char:1
++ & "C:\Program Files\
+nodejs/node.exe" "C:\U
+sers\anedo\AppData\Roa
+ming\ ...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: (:String) [   
+ ], RemoteExceptio    
+n
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+./components/LeadCaptu
+reForm.tsx
+26:14  Error: `"` can 
+be escaped with 
+`&quot;`, `&ldquo;`, 
+`&#34;`, `&rdquo;`.  r
+eact/no-unescaped-enti
+ties
+26:146  Error: `"` 
+can be escaped with 
+`&quot;`, `&ldquo;`, 
+`&#34;`, `&rdquo;`.  r
+eact/no-unescaped-enti
+ties
+
+info  - Need to 
+disable some ESLint 
+rules? Learn more 
+here: https://nextjs.o
+rg/docs/basic-features
+/eslint#disabling-rule
+s

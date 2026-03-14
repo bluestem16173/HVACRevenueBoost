@@ -23,7 +23,7 @@ export default function LeadCaptureForm({ city, symptomId }: { city?: string, sy
         <div className="flex flex-col items-center gap-4 opacity-70">
            <div className="text-[11px] font-black tracking-[0.2em] text-slate-500">24/7 EMERGENCY RESPONSE READY</div>
            <p className="text-[10px] text-slate-400 m-0 max-w-xs mx-auto italic">
-             "Our local diagnostic team is standing by to confirm your findings and provide professional repair support in {city || "your area"}."
+             &quot;Our local diagnostic team is standing by to confirm your findings and provide professional repair support in {city || "your area"}.&quot;
            </p>
         </div>
       </div>

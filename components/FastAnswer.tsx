@@ -11,7 +11,7 @@ export default function FastAnswer({ answer, confidence = "High" }: { answer: st
         <div className="flex-1">
           <h3 className="text-hvac-navy text-sm font-bold uppercase tracking-wider mb-2 border-0">Immediate Diagnostic Summary</h3>
           <p className="text-lg text-slate-700 dark:text-slate-300 font-medium leading-snug m-0 italic">
-            "{answer}"
+            &quot;{answer}&quot;
           </p>
           <div className="mt-4">
             <a 
