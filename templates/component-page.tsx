@@ -1,5 +1,5 @@
 import Link from "next/link";
-import LeadCaptureForm from "@/components/LeadCaptureForm";
+
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 
 export default function ComponentPageTemplate({
@@ -67,7 +67,13 @@ export default function ComponentPageTemplate({
 
         <aside className="md:col-span-1">
           <div className="sticky top-24">
-            <LeadCaptureForm />
+            <div className="bg-hvac-navy text-white p-8 rounded-2xl text-center shadow-xl">
+              <h3 className="text-2xl font-black mb-4 border-0">Diagnosing {component.name}?</h3>
+              <p className="text-slate-300 mb-6 text-sm leading-relaxed">Don't guess on expensive parts. Have a certified technician test it for you.</p>
+              <button data-open-lead-modal className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm transition-colors shadow-md w-full">
+                Get HVAC Repair Quotes
+              </button>
+            </div>
             
             <div className="mt-8 p-6 bg-hvac-navy text-white rounded-xl shadow-lg border-b-4 border-hvac-gold">
               <h4 className="text-white m-0 text-sm font-bold uppercase tracking-widest">Licensed Assistance</h4>

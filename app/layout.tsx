@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import MobileStickyCallButton from "@/components/MobileStickyCallButton";
+import LeadCaptureModal from "@/components/LeadCaptureModal";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -64,6 +65,7 @@ export default function RootLayout({
           </div>
         </footer>
         <MobileStickyCallButton />
+        <LeadCaptureModal />
       </body>
     </html>
   );

@@ -1,8 +1,7 @@
 import Link from "next/link";
-import LeadCaptureForm from "@/components/LeadCaptureForm";
 import FastAnswer from "@/components/FastAnswer";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
-import DiagnosticFlowchart from "@/components/DiagnosticFlowchart";
+import InteractiveDiagnosticTree from "@/components/InteractiveDiagnosticTree";
 
 export default function SymptomPageTemplate({
   symptom,
@@ -100,50 +99,58 @@ export default function SymptomPageTemplate({
           </p>
         </div>
 
-        {/* Quick Fix Box */}
-        <div className="mt-8 bg-slate-50 dark:bg-slate-900 p-6 rounded-xl border border-slate-200 shadow-sm">
-          <h3 className="text-lg font-black text-hvac-navy mb-4 m-0 border-0 flex items-center gap-2">
-            <span>⚡</span> Quick Fixes to Try First
-          </h3>
-          <ul className="grid md:grid-cols-2 gap-3 list-none p-0 m-0">
-            <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <span className="bg-slate-200 text-slate-600 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold">1</span> 
-              Verify thermostat is set to cool
-            </li>
-            <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <span className="bg-slate-200 text-slate-600 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold">2</span> 
-              Replace dirty air filter
-            </li>
-            <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <span className="bg-slate-200 text-slate-600 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold">3</span> 
-              Reset HVAC breaker
-            </li>
-            <li className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-              <span className="bg-slate-200 text-slate-600 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold">4</span> 
-              Clean outdoor condenser coil
-            </li>
-          </ul>
-        </div>
-
         {/* Action Strip CTAs */}
         <div className="mt-8 flex flex-col sm:flex-row gap-4">
           <a 
             href="#diagnostics" 
-            className="flex-1 bg-white border-2 border-hvac-navy text-hvac-navy hover:bg-slate-50 text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-colors"
+            className="flex-1 bg-white border-2 border-hvac-navy text-hvac-navy hover:bg-slate-50 text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-colors flex items-center justify-center gap-2"
           >
             Diagnose the Problem ↓
           </a>
-          <a 
-            href="#get-quote" 
-            className="flex-1 bg-hvac-blue hover:bg-blue-700 text-white text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-md transition-colors"
+          <button 
+            data-open-lead-modal
+            className="flex-1 bg-hvac-blue hover:bg-blue-700 text-white text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-md transition-colors flex items-center justify-center gap-2"
           >
-            Get HVAC Repair Help →
-          </a>
+            Get Local HVAC Repair →
+          </button>
         </div>
       </section>
 
-      {/* STEP 2: Causes (Mermaid Flowchart) */}
-      <DiagnosticFlowchart symptomName={symptom.name} causes={fullCauses} />
+      {/* STEP 2: Quick Fix Section (High Engagement) */}
+      <section className="mb-12 bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 shadow-sm" id="quick-fix">
+        <h2 className="text-2xl font-black text-hvac-navy mb-6 m-0 border-0 flex items-center gap-2">
+          <span>⚡</span> Quick Fixes to Try First
+        </h2>
+        <ol className="grid md:grid-cols-2 gap-4 list-none p-0 m-0 mb-8">
+          <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300 font-medium">
+            <span className="bg-hvac-gold text-hvac-navy w-6 h-6 flex items-center justify-center rounded-full text-sm font-black p-0">1</span> 
+            Verify thermostat is set to cool
+          </li>
+          <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300 font-medium">
+            <span className="bg-hvac-gold text-hvac-navy w-6 h-6 flex items-center justify-center rounded-full text-sm font-black p-0">2</span> 
+            Replace dirty air filter
+          </li>
+          <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300 font-medium">
+            <span className="bg-hvac-gold text-hvac-navy w-6 h-6 flex items-center justify-center rounded-full text-sm font-black p-0">3</span> 
+            Reset HVAC breaker
+          </li>
+          <li className="flex items-center gap-3 text-gray-700 dark:text-gray-300 font-medium">
+            <span className="bg-hvac-gold text-hvac-navy w-6 h-6 flex items-center justify-center rounded-full text-sm font-black p-0">4</span> 
+            Check outdoor condenser coil
+          </li>
+        </ol>
+        <div className="pt-6 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="font-bold text-hvac-navy dark:text-white m-0">Still having the problem?</p>
+          <button data-open-lead-modal className="bg-hvac-navy text-white hover:bg-slate-800 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-colors w-full sm:w-auto shadow-md">
+            Get Local HVAC Help →
+          </button>
+        </div>
+      </section>
+
+      {/* STEP 3: Interactive Diagnostic Tree */}
+      <section className="mb-16 mt-8" id="diagnostics">
+        <InteractiveDiagnosticTree symptomName={symptom.name} causes={fullCauses} />
+      </section>
 
       {/* Internal Links Cluster */}
       {internalLinks?.length > 0 && (
@@ -160,10 +167,10 @@ export default function SymptomPageTemplate({
         </section>
       )}
 
-      {/* STEP 3: Diagnostics */}
+      {/* STEP 4: Signs Your HVAC System Has This Problem */}
       <section className="mb-16">
         <div className="bg-slate-50 dark:bg-slate-900 border-l-4 border-hvac-safety p-6 rounded-r-lg mb-8">
-          <h2 className="mt-0 text-hvac-navy">Signs Your HVAC System Has This Problem</h2>
+          <h2 className="mt-0 text-hvac-navy text-2xl font-black">Signs Your HVAC System Has This Problem</h2>
           <ul className="grid md:grid-cols-2 gap-4 mt-4 list-none p-0">
             <li className="flex items-start gap-2 text-sm">
               <span className="text-hvac-safety">●</span> Unusual noises from the outdoor unit
@@ -180,6 +187,7 @@ export default function SymptomPageTemplate({
           </ul>
         </div>
 
+      {/* STEP 5: Diagnostic Steps */}
         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
           <div className="bg-hvac-navy text-white px-6 py-4">
             <h2 className="text-lg text-white m-0 border-0">Diagnostic Workflow (Manual Extract)</h2>
@@ -207,7 +215,7 @@ export default function SymptomPageTemplate({
         </div>
       </section>
 
-      {/* STEP 4: Possible Fixes */}
+      {/* STEP 6: Common Causes & Repairs */}
       <section className="mb-16">
         <h2 className="text-3xl font-black mb-6 border-0">Common Causes & Possible Fixes</h2>
         
@@ -270,7 +278,47 @@ export default function SymptomPageTemplate({
         </ol>
       </section>
 
-      {/* STEP 5: DIY Parts / Tools (Amazon) */}
+      {/* STEP 7: Cost Estimates */}
+      <section className="mb-16">
+        <h2 className="text-3xl font-black mb-6 border-0">Typical Repair Costs</h2>
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+              <tr>
+                <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Repair</th>
+                <th className="p-4 font-bold text-slate-700 dark:text-slate-300 text-right">Typical Cost</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {fullCauses.flatMap((c: any) => c.repairDetails || []).map((repair: any, idx: number) => (
+                <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                  <td className="p-4 font-medium text-hvac-navy dark:text-slate-200">{repair.name}</td>
+                  <td className="p-4 text-right font-bold text-gray-700 dark:text-gray-300">
+                    {repair.estimatedCost === 'low' ? '$150 - $400' : 
+                     repair.estimatedCost === 'medium' ? '$400 - $800' : 
+                     '$800 - $1,500+'}
+                  </td>
+                </tr>
+              ))}
+              {(!fullCauses.some((c: any) => c.repairDetails?.length > 0)) && (
+                <tr>
+                  <td className="p-4 font-medium text-slate-500 italic" colSpan={2}>
+                    Diagnostics required for accurate repair cost.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+          <div className="p-6 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row justify-between items-center gap-4">
+             <p className="text-sm font-bold m-0 text-slate-600 dark:text-slate-400">Not sure what's broken?</p>
+             <button data-open-lead-modal className="w-full md:w-auto bg-hvac-navy text-white hover:bg-slate-800 font-black px-6 py-3 rounded-lg uppercase tracking-widest text-sm transition-colors shadow-sm">
+               Get Local Repair Quotes →
+             </button>
+          </div>
+        </div>
+      </section>
+
+      {/* STEP 8: DIY Parts / Tools (Amazon) */}
       <section className="mb-16 bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 shadow-sm">
         <h2 className="text-3xl font-black mb-2 border-0">Recommended DIY Parts & Tools</h2>
         <p className="text-gray-600 mb-8">
@@ -302,7 +350,7 @@ export default function SymptomPageTemplate({
         </div>
       </section>
 
-      {/* STEP 6: When to Call an HVAC Technician */}
+      {/* STEP 9: When to Call an HVAC Technician */}
       <section className="mb-16">
         <div className="bg-red-50 dark:bg-red-900/10 p-8 rounded-2xl border-2 border-red-200 dark:border-red-900/30">
           <div className="flex items-center gap-4 mb-4">
@@ -333,80 +381,65 @@ export default function SymptomPageTemplate({
               <span className="text-sm text-red-900 dark:text-red-200"><strong>Gas Appliances:</strong> Never attempt to modify furnace gas valves or heat exchangers due to carbon monoxide and explosion risks.</span>
             </li>
           </ul>
+          <div className="mt-8 pt-6 border-t border-red-200 dark:border-red-900/30">
+            <button data-open-lead-modal className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white font-black px-8 py-4 rounded-xl uppercase tracking-widest text-sm transition-colors shadow-md">
+              Find Local HVAC Repair →
+            </button>
+          </div>
         </div>
       </section>
 
-      {/* STEP 7: Emergency CTA & Lead Capture */}
-      <section className="mt-16 pt-16 border-t border-slate-200" id="get-quote">
-        
-        {/* Urgency Block & ZIP Capture */}
-        <div className="bg-hvac-navy text-white p-8 rounded-2xl shadow-xl mb-12 relative overflow-hidden">
+      {/* STEP 10: Lead Capture CTA */}
+      <section className="mb-16" id="get-quote">
+        <div className="bg-hvac-navy text-white p-10 md:p-14 rounded-3xl relative overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-64 h-64 bg-hvac-blue opacity-20 rounded-full -translate-y-1/2 translate-x-1/3 blur-3xl"></div>
           
-          <div className="relative z-10 grid md:grid-cols-2 gap-8 items-center">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <span className="bg-red-500 text-white text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded">Urgent</span>
-                <span className="text-slate-300 text-sm font-bold">Risk of System Damage</span>
-              </div>
-              <h3 className="text-3xl font-black m-0 border-0 leading-tight">Need Immediate HVAC Repair?</h3>
-              <p className="text-slate-300 mt-3 text-sm leading-relaxed mb-0">
-                Running a system with {symptom.name.toLowerCase()} can cause catastrophic compressor failure. Enter your ZIP code to find verified partners.
-              </p>
-            </div>
-            
-            <div className="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/20">
-              <div className="flex bg-white rounded-lg p-1">
-                <input 
-                  type="text" 
-                  placeholder="Enter ZIP Code (e.g., 33907)" 
-                  className="flex-1 px-4 py-3 bg-transparent text-hvac-navy font-bold focus:outline-none placeholder-slate-400"
-                  maxLength={5}
-                />
-                <button className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-6 py-3 rounded-md uppercase tracking-widest text-sm transition-colors shadow-sm">
-                  Get Quotes
-                </button>
-              </div>
-            </div>
+          <div className="relative z-10 text-center max-w-2xl mx-auto">
+            <h2 className="text-3xl md:text-5xl font-black m-0 border-0 leading-tight text-white mb-6">
+              Get Local HVAC Repair Help
+            </h2>
+            <p className="text-slate-300 text-lg md:text-xl leading-relaxed mb-8">
+              Don't let {symptom.name.toLowerCase()} turn into a catastrophic compressor failure. Our network of licensed local professionals can fix it today.
+            </p>
+            <button data-open-lead-modal className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-10 py-5 rounded-2xl uppercase tracking-widest text-lg transition-transform hover:scale-105 shadow-xl w-full sm:w-auto">
+              Request Repair Quote
+            </button>
           </div>
         </div>
+      </section>
 
-        <div className="grid md:grid-cols-12 gap-12 items-start">
-          <div className="md:col-span-7">
-            <h2 className="mt-0 text-3xl font-black border-0 leading-tight">Expert Diagnostic Assistance</h2>
-            <p className="text-gray-600 mt-4 leading-relaxed">
-              If your system exhibits these symptoms, immediate professional verification is recommended. Our specialized HVAC diagnostic team in your area can confirm the root cause and provide a fixed-price repair estimate.
-            </p>
-            <div className="grid grid-cols-2 gap-8 mt-12">
-              <div>
-                <h4 className="font-black text-hvac-navy text-xs uppercase tracking-widest mb-4">Related Diagnostics</h4>
-                <ul className="space-y-3 list-none p-0">
-                  {relatedContent.relatedSymptoms.map((s: any) => (
-                    <li key={s.id}>
-                      <Link href={`/diagnose/${s.id}`} className="text-hvac-blue hover:text-hvac-navy text-sm font-bold flex items-center gap-2 group">
-                        <span className="w-1.5 h-1.5 bg-slate-200 rounded-full group-hover:bg-hvac-gold transition-colors"></span>
-                        {s.name} Manual
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-black text-hvac-navy text-xs uppercase tracking-widest mb-4">System Components</h4>
-                <ul className="space-y-3 list-none p-0">
-                  {relatedContent.relatedComponents.map((c: any) => (
-                    <li key={c} className="text-slate-500 text-sm capitalize flex items-center gap-2 font-medium">
-                      <span className="w-1.5 h-1.5 bg-slate-100 rounded-full"></span>
-                      {c} Engineering
-                    </li>
-                  ))}
-                </ul>
-              </div>
+      {/* STEP 11: Related HVAC Problems */}
+      {relatedContent?.relatedSymptoms?.length > 0 && (
+        <section className="mb-16">
+          <h2 className="text-2xl font-black mb-6 border-0">Related HVAC Problems</h2>
+          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+            {relatedContent.relatedSymptoms.slice(0, 4).map((s: any) => (
+              <Link 
+                key={s.id} 
+                href={`/diagnose/${s.id}`} 
+                className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-xl hover:border-hvac-blue hover:shadow-md transition-all group"
+              >
+                <h4 className="font-bold text-hvac-navy dark:text-white m-0 group-hover:text-hvac-blue transition-colors line-clamp-2">
+                  {s.name}
+                </h4>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* STEP 12: Frequency Asked Questions */}
+      <section className="mb-16">
+        <h2 className="text-3xl font-black mb-8 border-0">Frequently Asked Questions</h2>
+        <div className="space-y-4">
+          {fullCauses.map((c: any) => (
+            <div key={c.id} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm">
+              <h3 className="text-lg font-bold text-hvac-navy dark:text-white m-0">Can a {c.name.toLowerCase()} cause {symptom.name.toLowerCase()}?</h3>
+              <p className="text-gray-600 dark:text-gray-400 mt-3 m-0 leading-relaxed">
+                Yes. {c.explanation} If you suspect this is the case, <button data-open-lead-modal className="text-hvac-blue hover:underline font-bold inline">get a professional diagnostic</button> to confirm before replacing parts.
+              </p>
             </div>
-          </div>
-          <div className="md:col-span-5 relative" id="diagnostics">
-            <LeadCaptureForm symptomId={symptom.id} />
-          </div>
+          ))}
         </div>
       </section>
     </div>

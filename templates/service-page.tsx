@@ -1,5 +1,5 @@
 import Link from "next/link";
-import LeadCaptureForm from "@/components/LeadCaptureForm";
+
 import FastAnswer from "@/components/FastAnswer";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 
@@ -94,7 +94,13 @@ export default function ServicePageTemplate({
 
         <aside className="lg:col-span-2">
           <div className="sticky top-24">
-            <LeadCaptureForm city={city.name} symptomId={symptom.id} />
+            <div className="bg-hvac-navy text-white p-8 rounded-2xl text-center shadow-xl">
+              <h3 className="text-2xl font-black mb-4 border-0 text-white">Need Local HVAC Service?</h3>
+              <p className="text-slate-300 mb-6 text-sm leading-relaxed">Top-rated certified technicians in {city.name} are available now.</p>
+              <button data-open-lead-modal className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm transition-colors shadow-md w-full">
+                Get {city.name} Repair Quotes
+              </button>
+            </div>
             
             <div className="mt-8 p-8 bg-hvac-navy text-white rounded-2xl shadow-xl border-b-8 border-hvac-gold border-r-8 border-hvac-gold/10">
               <h4 className="text-white m-0 text-lg font-black uppercase tracking-widest leading-none">Local Service Hub</h4>

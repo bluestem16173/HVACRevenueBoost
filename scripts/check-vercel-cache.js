@@ -1,9 +1,12 @@
 async function check() {
-  const url = 'https://www.hvacrevenueboost.com/repair/las-vegas/hvac-unit-short-cycling';
-  console.log('Fetching:', url);
-  const res = await fetch(url);
-  console.log('Status:', res.status);
-  console.log('Cache Hit:', res.headers.get('x-vercel-cache'));
-  console.log('Matched Route:', res.headers.get('x-matched-path'));
+  const urls = [
+    'https://www.hvacrevenueboost.com/repair/las-vegas/hvac-unit-short-cycling',
+    'https://www.hvacrevenueboost.com/repair/las-vegas/thermostat-display-blank',
+    'https://www.hvacrevenueboost.com/repair/las-vegas/ice-on-outdoor-unit'
+  ];
+  for (const url of urls) {
+    const res = await fetch(url);
+    console.log(res.status, url);
+  }
 }
 check();

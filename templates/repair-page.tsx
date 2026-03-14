@@ -1,5 +1,5 @@
 import Link from "next/link";
-import LeadCaptureForm from "@/components/LeadCaptureForm";
+
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 
 export default function RepairPageTemplate({ repair, component, tools, cause }: any) {
@@ -59,7 +59,13 @@ export default function RepairPageTemplate({ repair, component, tools, cause }: 
 
           </div>
           <div className="md:col-span-5">
-            <LeadCaptureForm />
+            <div className="bg-hvac-navy text-white p-8 rounded-2xl text-center shadow-xl">
+              <h3 className="text-2xl font-black mb-4 border-0">Need Professional Installation?</h3>
+              <p className="text-slate-300 mb-6 text-sm leading-relaxed">Don't risk electrical or refrigerant hazards. Get quotes from local experts.</p>
+              <button data-open-lead-modal className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm transition-colors shadow-md w-full">
+                Get Repair Quotes
+              </button>
+            </div>
           </div>
         </div>
       </section>
