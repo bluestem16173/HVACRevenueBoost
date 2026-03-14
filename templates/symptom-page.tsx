@@ -2,21 +2,29 @@ import Link from "next/link";
 import FastAnswer from "@/components/FastAnswer";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 import InteractiveDiagnosticTree from "@/components/InteractiveDiagnosticTree";
+import { getConditionsForSymptom } from "@/lib/conditions";
+import { getClusterForSymptom } from "@/lib/clusters";
 
 export default function SymptomPageTemplate({
   symptom,
   causeIds,
+  causeDetails,
   diagnosticSteps,
   relatedContent,
   internalLinks,
+  relatedLinks,
   tools,
   getCauseDetails,
   htmlContent
 }: any) {
-  // Extract a "Fast Answer" from the description or first cause
-  const firstCause = causeIds.length > 0 ? getCauseDetails(causeIds[0]) : null;
-  const fastAnswerText = firstCause 
-    ? `Likely caused by ${firstCause.name}. ${firstCause.explanation}`
+  // Use causeDetails when passed (DB), otherwise resolve from causeIds (static KG)
+  const fullCauses = causeDetails?.length > 0
+    ? causeDetails
+    : (causeIds || []).map((id: string) => getCauseDetails(id)).filter(Boolean);
+  const firstCause = fullCauses[0] || null;
+
+  const fastAnswerText = firstCause
+    ? `Likely caused by ${firstCause.name}. ${firstCause.explanation || ""}`
     : symptom.description;
 
   const summaryPoints = [
@@ -25,9 +33,6 @@ export default function SymptomPageTemplate({
     { label: "Repair Level", value: firstCause?.repairDetails?.[0]?.estimatedCost || "Variable" },
     { label: "Urgency", value: "Moderate to High" }
   ];
-
-  // Map cause details for the flowchart
-  const fullCauses = causeIds.map((id: string) => getCauseDetails(id)).filter(Boolean);
 
   // Generate JSON-LD Schema
   const articleSchema = {
@@ -67,13 +72,33 @@ export default function SymptomPageTemplate({
       />
       
       {/* breadcrumbs */}
-      <nav className="text-sm text-gray-500 mb-8">
-        <Link href="/" className="hover:text-hvac-blue">Home</Link>
-        <span className="mx-2">/</span>
-        <Link href="/diagnose" className="hover:text-hvac-blue">Diagnostics</Link>
-        <span className="mx-2">/</span>
-        <span className="text-gray-900 font-medium">{symptom.name}</span>
-      </nav>
+      {(() => {
+        const cluster = getClusterForSymptom(symptom.id);
+        return (
+          <nav className="text-sm text-gray-500 mb-8">
+            <Link href="/" className="hover:text-hvac-blue">Home</Link>
+            <span className="mx-2">/</span>
+            <Link href="/hvac" className="hover:text-hvac-blue">HVAC Systems</Link>
+            <span className="mx-2">/</span>
+            {cluster ? (
+              <>
+                <Link href={`/${cluster.pillarSlug}`} className="hover:text-hvac-blue">
+                  {cluster.pillarSlug.replace("hvac-", "").replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                </Link>
+                <span className="mx-2">/</span>
+                <Link href={`/cluster/${cluster.slug}`} className="hover:text-hvac-blue">
+                  {cluster.name}
+                </Link>
+                <span className="mx-2">/</span>
+              </>
+            ) : (
+              <Link href="/diagnose" className="hover:text-hvac-blue">Diagnostics</Link>
+            )}
+            <span className="mx-2">/</span>
+            <span className="text-gray-900 dark:text-white font-medium">{symptom.name}</span>
+          </nav>
+        );
+      })()}
 
       {/* STEP 1: Problem Statement & Above-the-Fold Conversion */}
       <section className="mb-12">
@@ -152,6 +177,46 @@ export default function SymptomPageTemplate({
         <InteractiveDiagnosticTree symptomName={symptom.name} causes={fullCauses} />
       </section>
 
+      {/* Condition Links (Symptom → Condition pathway) */}
+      {(() => {
+        const conditions = getConditionsForSymptom(symptom.id);
+        if (conditions.length === 0) return null;
+        return (
+          <section className="mb-12">
+            <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Narrow Your Diagnosis</h3>
+            <div className="flex flex-wrap gap-3">
+              {conditions.map((c) => (
+                <Link
+                  key={c.slug}
+                  href={`/conditions/${c.slug}`}
+                  className="text-xs font-bold uppercase tracking-tighter bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded text-hvac-blue hover:bg-hvac-blue hover:text-white transition-colors"
+                >
+                  {c.name}
+                </Link>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
+
+      {/* Related Problems (Phase 16) */}
+      {relatedLinks?.length > 0 && (
+        <section className="mb-12">
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">Related Problems</h3>
+          <div className="flex flex-wrap gap-3">
+            {relatedLinks.slice(0, 8).map((link: any, idx: number) => (
+              <Link
+                key={idx}
+                href={link.slug}
+                className="text-xs font-bold uppercase tracking-tighter bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded text-hvac-blue hover:bg-hvac-blue hover:text-white transition-colors"
+              >
+                {link.title}
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Internal Links Cluster */}
       {internalLinks?.length > 0 && (
         <section className="mb-12 flex flex-wrap gap-3">
@@ -220,12 +285,11 @@ export default function SymptomPageTemplate({
         <h2 className="text-3xl font-black mb-6 border-0">Common Causes & Possible Fixes</h2>
         
         <ol className="cause-list space-y-12 list-none p-0">
-          {causeIds.map((causeId: string) => {
-            const cause = getCauseDetails(causeId);
+          {fullCauses.map((cause: any, idx: number) => {
             if (!cause) return null;
             return (
-              <li key={cause.id} className="relative pl-12 border-b border-slate-100 dark:border-slate-800 pb-12 last:border-0">
-                <Link href={`/cause/${cause.slug}`} className="hover:opacity-80 transition-opacity block w-fit">
+              <li key={cause.id || cause.slug || idx} className="relative pl-12 border-b border-slate-100 dark:border-slate-800 pb-12 last:border-0">
+                <Link href={`/cause/${cause.slug || cause.id}`} className="hover:opacity-80 transition-opacity block w-fit">
                   <h3 className="text-xl font-bold text-hvac-navy mt-0">{cause.name}</h3>
                 </Link>
                 <p className="mt-2 text-gray-600 dark:text-gray-400 italic">&quot;{cause.explanation}&quot;</p>

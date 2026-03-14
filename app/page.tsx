@@ -24,6 +24,9 @@ export default function Home() {
               <Link href="/repair" className="btn-primary px-10 py-4 bg-white text-hvac-navy hover:bg-slate-100 font-bold text-xl border-2 border-white">
                 FIND LOCAL HELP
               </Link>
+              <Link href="/hvac" className="btn-primary px-10 py-4 bg-hvac-blue/20 text-white hover:bg-hvac-blue/30 font-bold text-lg border-2 border-white/50">
+                HVAC SYSTEMS
+              </Link>
             </div>
           </div>
         </div>

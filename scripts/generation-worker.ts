@@ -6,6 +6,7 @@
  */
 
 import sql from '../lib/db';
+import { getCauseTechnicalContent, getSystemContext } from '../lib/symptom-technical-content';
 
 async function runWorker() {
   console.log('🚀 Starting DecisionGrid Worker (Neon)...');
@@ -61,6 +62,34 @@ async function runWorker() {
         let contentJson: any = { generated_at: new Date().toISOString() };
         
         switch(item.page_type) {
+          case 'city': {
+            // City x Symptom pages: repair/{city}/{symptom-slug}
+            const slugParts = (pageSlug || '').split('/');
+            const symptomSlug = slugParts[slugParts.length - 1] || '';
+            const causes = item.symptom_id ? await sql`
+              SELECT c.* FROM causes c
+              JOIN symptom_causes sc ON sc.cause_id = c.id
+              WHERE sc.symptom_id = ${item.symptom_id}
+            ` : [];
+            const systemContext = getSystemContext(symptomSlug);
+            const causesWithTech = (causes as any[]).map((c: any) => {
+              const tech = getCauseTechnicalContent(symptomSlug, c.slug || c.id);
+              return {
+                name: c.name,
+                slug: c.slug,
+                technicalCause: tech?.technicalCause || c.explanation || c.description || '',
+                verificationTest: tech?.verificationTest || [],
+                repair: tech?.repair || ''
+              };
+            });
+            contentJson.engine_version = '3.0.0-CityDiagnostic-Authority';
+            contentJson.system_context = systemContext;
+            contentJson.causes = causesWithTech;
+            contentJson.generated_at = new Date().toISOString();
+            const summaryHtml = `<p>${pageTitle} usually indicates a restriction or imbalance within the system. This guide explains technical causes, verification tests, and repair options used by HVAC technicians.</p>`;
+            contentJson.html_content = autoLinkContent(summaryHtml, entities);
+            break;
+          }
           case 'topic':
             contentJson.engine_version = '3.0.0-TopicHub-5Tier';
             contentJson.mermaid_graph = `graph TD\nA[${pageTitle}] --> B[Causes]`;

@@ -22,6 +22,14 @@ export default function DiagnosticsIndex() {
 
       {/* Grid Section */}
       <section className="container mx-auto max-w-6xl px-4 -mt-16 pb-24">
+        <div className="mb-8 flex flex-wrap gap-3">
+          <Link href="/hvac" className="px-4 py-2 bg-hvac-blue/10 text-hvac-blue rounded-lg text-sm font-bold hover:bg-hvac-blue hover:text-white transition-colors">
+            HVAC System Hubs
+          </Link>
+          <Link href="/repair" className="px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm font-bold hover:bg-hvac-blue hover:text-white transition-colors">
+            Repair Guides
+          </Link>
+        </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {SYMPTOMS.map((symptom) => (
             <Link 

@@ -1,152 +1,375 @@
 import Link from "next/link";
 
-import FastAnswer from "@/components/FastAnswer";
-import ThirtySecondSummary from "@/components/ThirtySecondSummary";
+import {
+  getCauseTechnicalContent,
+  getSystemContext,
+  HIGH_DESERT_CLIMATE_FACTORS,
+  AIRFLOW_PARTS,
+  getEnvironmentVariations,
+} from "@/lib/symptom-technical-content";
 
-export default function ServicePageTemplate({ 
-  city, 
-  symptom, 
-  causeIds, 
-  diagnosticSteps, 
-  internalLinks, 
+// Repair cost/difficulty mapping for authority table
+const REPAIR_DISPLAY: Record<string, { difficulty: string; cost: string }> = {
+  "replace-air-filter": { difficulty: "Easy", cost: "$10 – $40" },
+  "clean-evaporator-coil": { difficulty: "Moderate", cost: "$250 – $600" },
+  "duct-sealing": { difficulty: "Advanced", cost: "$500 – $1,100" },
+  "replace-blower-motor": { difficulty: "Advanced", cost: "$500 – $1,100" },
+  "replace-capacitor": { difficulty: "Moderate", cost: "$120 – $350" },
+  "recharge-refrigerant": { difficulty: "Advanced", cost: "$200 – $600" },
+};
+
+function getRepairDisplay(repair: any): { difficulty: string; cost: string } {
+  const slug = repair?.slug || repair?.id || "";
+  return (
+    REPAIR_DISPLAY[slug] || {
+      difficulty:
+        repair?.skill_level === "advanced"
+          ? "Advanced"
+          : repair?.skill_level === "moderate"
+            ? "Moderate"
+            : "Easy",
+      cost:
+        repair?.estimatedCost === "low"
+          ? "$10 – $40"
+          : repair?.estimatedCost === "medium"
+            ? "$120 – $600"
+            : "$500 – $1,100",
+    }
+  );
+}
+
+export default function ServicePageTemplate({
+  city,
+  symptom,
+  causeDetails,
+  diagnosticSteps,
+  internalLinks,
   localContractors,
-  getCauseDetails,
-  htmlContent
+  htmlContent,
+  symptomSlug,
 }: any) {
-  const firstCause = causeIds.length > 0 ? getCauseDetails(causeIds[0]) : null;
-  const fastAnswerText = firstCause 
-    ? `For homeowners in ${city.name}, ${symptom.name} is frequently caused by ${firstCause.name}. ${firstCause.explanation}`
-    : `Technical diagnostic manual for ${symptom.name} specifically for ${city.name} residents.`;
-
-  const summaryPoints = [
-    { label: "Location", value: `${city.name}, ${city.state}` },
-    { label: "Symptom", value: symptom.name },
-    { label: "Avg. Repair Cost", value: firstCause?.repairDetails?.[0]?.estimatedCost || "$150-$450" },
-    { label: "Local Response", value: "< 30 Minutes" }
-  ];
+  const isWeakAirflow = (symptomSlug || symptom?.slug || symptom?.id || "").includes("airflow");
+  const isHighDesert = ["tempe", "phoenix", "scottsdale", "mesa", "chandler", "tucson", "las-vegas", "henderson"].includes(
+    city?.slug || ""
+  );
+  const envVariations = getEnvironmentVariations(symptomSlug || symptom?.id || "", city?.slug || "");
+  const systemContext = getSystemContext(symptomSlug || symptom?.id || "");
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl">
-      {/* breadcrumbs */}
-      <nav className="text-sm text-gray-500 mb-8 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-100 dark:border-slate-800">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      {/* Breadcrumbs */}
+      <nav className="max-w-[1100px] mx-auto px-5 py-4 text-sm text-gray-500">
         <Link href="/" className="hover:text-hvac-blue">Home</Link>
         <span className="mx-2">/</span>
-        <Link href="/repair" className="hover:text-hvac-blue">Local Repair</Link>
+        <Link href="/hvac" className="hover:text-hvac-blue">HVAC Systems</Link>
         <span className="mx-2">/</span>
-        <span className="capitalize">{city.slug.split('-').join(' ')}</span>
+        <Link href="/diagnose" className="hover:text-hvac-blue">Diagnostics</Link>
         <span className="mx-2">/</span>
-        <span className="text-gray-900 font-medium">{symptom.name}</span>
+        <Link href={`/diagnose/${symptomSlug || symptom?.id}`} className="hover:text-hvac-blue">
+          {symptom?.name}
+        </Link>
+        <span className="mx-2">/</span>
+        <span className="capitalize">{(city?.slug || "").split("-").join(" ")}</span>
       </nav>
 
-      <section className="mb-12">
-        <div className="inline-block bg-hvac-gold/10 text-hvac-gold text-xs font-black px-3 py-1 rounded-full mb-4 border border-hvac-gold/20 uppercase tracking-widest">
-          {city.name}, {city.state} Localized Guide
-        </div>
-        <h1 className="text-4xl md:text-5xl font-black text-hvac-navy leading-tight">
-          {symptom.name} Repair in {city.name}
+      {/* 1. Diagnostic Header */}
+      <section className="diagnostic-header max-w-[900px] mx-auto px-5 py-10 text-center">
+        <h1 className="text-[34px] font-bold text-hvac-navy dark:text-white mb-2.5 leading-tight">
+          {symptom?.name} – {city?.name} HVAC Diagnosis
         </h1>
+        <p className="diagnostic-summary text-[#555] dark:text-slate-400 text-lg leading-relaxed">
+          {symptom?.name?.toLowerCase()} usually indicates an airflow restriction within the return system, blower
+          assembly, evaporator coil, or duct network. This diagnostic guide explains the technical causes, verification
+          tests, and repair options used by HVAC technicians.
+        </p>
       </section>
 
-      <FastAnswer answer={fastAnswerText} />
-
-      <ThirtySecondSummary points={summaryPoints} />
-
-      <div className="grid lg:grid-cols-5 gap-12 mb-16">
-        <div className="lg:col-span-3 space-y-12">
-          <section className="bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-            <h2 className="mt-0 text-hvac-navy border-0">Technical Root Causes</h2>
-            <div className="space-y-8 mt-8">
-              {causeIds.map((causeId: string, idx: number) => {
-                const cause = getCauseDetails(causeId);
-                if (!cause) return null;
-                return (
-                  <div key={idx} className="border-b border-slate-100 last:border-0 pb-8 last:pb-0">
-                    <h4 className="font-bold text-hvac-blue m-0 text-lg flex items-center gap-2">
-                       <span className="text-slate-300">0{idx+1}</span> {cause.name}
-                    </h4>
-                    <p className="text-sm text-gray-600 mt-2 leading-snug">{cause.explanation}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-hvac-navy">Quick {city.name} Diagnostic Steps</h2>
-            {htmlContent ? (
-              <div 
-                className="mt-6 prose prose-slate max-w-none dark:prose-invert"
-                dangerouslySetInnerHTML={{ __html: htmlContent }} 
-              />
-            ) : (
-              <div className="manual-grid mt-6">
-                {diagnosticSteps.slice(0, 4).map((step: any, idx: number) => (
-                  <div key={idx} className="p-5 border border-slate-100 dark:border-slate-800 rounded-lg">
-                    <div className="text-xs font-black text-hvac-blue uppercase mb-1">Step {idx+1}</div>
-                    <h5 className="font-bold m-0 leading-tight mb-2">{step.step}</h5>
-                    <p className="text-xs text-gray-500 m-0">{step.action}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
+      {/* 2. System Context Panel */}
+      <section className="system-context">
+        <div className="context-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-[1000px] mx-auto px-5 py-8">
+          <div className="context-card bg-[#f8f9fb] dark:bg-slate-900 p-5 rounded-[10px] border border-slate-200 dark:border-slate-700">
+            <h4 className="mb-1 text-sm text-slate-500 dark:text-slate-400">System</h4>
+            <p className="font-semibold text-hvac-navy dark:text-white m-0">{systemContext.system}</p>
+          </div>
+          <div className="context-card bg-[#f8f9fb] dark:bg-slate-900 p-5 rounded-[10px] border border-slate-200 dark:border-slate-700">
+            <h4 className="mb-1 text-sm text-slate-500 dark:text-slate-400">Component Path</h4>
+            <p className="font-semibold text-hvac-navy dark:text-white m-0">{systemContext.componentPath}</p>
+          </div>
+          <div className="context-card bg-[#f8f9fb] dark:bg-slate-900 p-5 rounded-[10px] border border-slate-200 dark:border-slate-700">
+            <h4 className="mb-1 text-sm text-slate-500 dark:text-slate-400">Symptom Type</h4>
+            <p className="font-semibold text-hvac-navy dark:text-white m-0">{systemContext.symptomType}</p>
+          </div>
+          <div className="context-card bg-[#f8f9fb] dark:bg-slate-900 p-5 rounded-[10px] border border-slate-200 dark:border-slate-700">
+            <h4 className="mb-1 text-sm text-slate-500 dark:text-slate-400">Environment</h4>
+            <p className="font-semibold text-hvac-navy dark:text-white m-0">
+              {isHighDesert ? "Hot Desert Climate" : "Residential HVAC"}
+            </p>
+          </div>
         </div>
+      </section>
 
-        <aside className="lg:col-span-2">
-          <div className="sticky top-24">
-            <div className="bg-hvac-navy text-white p-8 rounded-2xl text-center shadow-xl">
-              <h3 className="text-2xl font-black mb-4 border-0 text-white">Need Local HVAC Service?</h3>
-              <p className="text-slate-300 mb-6 text-sm leading-relaxed">Top-rated certified technicians in {city.name} are available now.</p>
-              <button data-open-lead-modal className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm transition-colors shadow-md w-full">
-                Get {city.name} Repair Quotes
-              </button>
-            </div>
-            
-            <div className="mt-8 p-8 bg-hvac-navy text-white rounded-2xl shadow-xl border-b-8 border-hvac-gold border-r-8 border-hvac-gold/10">
-              <h4 className="text-white m-0 text-lg font-black uppercase tracking-widest leading-none">Local Service Hub</h4>
-              <p className="text-[10px] text-blue-300 mt-3 mb-8 uppercase tracking-[0.2em] font-bold">Status: {localContractors.length > 0 ? "Verified Service Active" : "Expansion in Progress"}</p>
-              
-              <div className="space-y-6">
-                {localContractors.length > 0 ? (
-                  localContractors.map((contractor: any, idx: number) => (
-                    <div key={idx} className="border-l-4 border-hvac-gold/30 pl-6 py-2 bg-white/5 rounded-r-xl">
-                      <div className="text-sm font-black text-white">{contractor.company_name}</div>
-                      <div className="text-[10px] text-hvac-gold uppercase tracking-widest mt-1">{contractor.trade} • {city.name} Certified</div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                    <div className="text-2xl font-black text-hvac-gold leading-tight tracking-tighter mb-4">Coming Soon to {city.name}</div>
-                    <p className="text-[11px] text-blue-100 leading-relaxed font-medium m-0">
-                      We are currently vetting licensed HVAC contractors in **{city.name}**. Check back soon or use the fallback diagnostic guide above.
-                    </p>
-                  </div>
+      {/* 3. Diagnostic Severity Card */}
+      <section className="severity-section">
+        <div className="severity-card flex flex-wrap justify-between gap-5 max-w-[900px] mx-auto px-6 py-6 bg-[#0f172a] text-white rounded-xl">
+          <div className="severity-item text-center flex-1 min-w-[120px]">
+            <h4 className="text-[13px] opacity-70 mb-1 font-medium">Cooling Loss</h4>
+            <span className="font-semibold">Moderate</span>
+          </div>
+          <div className="severity-item text-center flex-1 min-w-[120px]">
+            <h4 className="text-[13px] opacity-70 mb-1 font-medium">Efficiency Impact</h4>
+            <span className="font-semibold">Reduced</span>
+          </div>
+          <div className="severity-item text-center flex-1 min-w-[120px]">
+            <h4 className="text-[13px] opacity-70 mb-1 font-medium">Risk Level</h4>
+            <span className="font-semibold">Medium</span>
+          </div>
+          <div className="severity-item text-center flex-1 min-w-[120px]">
+            <h4 className="text-[13px] opacity-70 mb-1 font-medium">Repair Range</h4>
+            <span className="font-semibold">$120 – $1,100</span>
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Root Cause Grid */}
+      <section className="cause-grid py-12">
+        <h2 className="text-2xl font-bold text-hvac-navy dark:text-white text-center mb-10">
+          Technical Root Causes
+        </h2>
+        <div className="cause-cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1100px] mx-auto px-5">
+          {causeDetails?.map((cause: any, idx: number) => {
+            const causeSlug = cause?.slug || cause?.id || "";
+            const techContent = getCauseTechnicalContent(symptomSlug || symptom?.id || "", causeSlug);
+            const technicalCause = techContent?.technicalCause || cause?.explanation;
+            const verificationTest = techContent?.verificationTest;
+
+            return (
+              <div
+                key={idx}
+                className="cause-card bg-white dark:bg-slate-900 p-6 rounded-[10px] border border-slate-200 dark:border-slate-700"
+              >
+                <h3 className="text-lg font-bold text-hvac-navy dark:text-white mb-2.5">
+                  {cause?.name}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed m-0">
+                  {technicalCause}
+                </p>
+                {verificationTest && verificationTest.length > 0 && (
+                  <ul className="mt-2.5 pl-[18px] list-disc space-y-1 text-sm text-slate-700 dark:text-slate-300">
+                    {verificationTest.map((step: string, i: number) => (
+                      <li key={i}>{step}</li>
+                    ))}
+                  </ul>
+                )}
+                {cause?.slug && (
+                  <Link
+                    href={`/cause/${cause.slug}`}
+                    className="inline-block mt-3 text-xs font-bold text-hvac-blue hover:underline uppercase tracking-wider"
+                  >
+                    Full Analysis →
+                  </Link>
                 )}
               </div>
+            );
+          })}
+        </div>
+      </section>
 
-              <div className="mt-10 pt-6 border-t border-white/10 text-[10px] text-blue-200 font-bold uppercase tracking-widest flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${localContractors.length > 0 ? "bg-green-500" : "bg-yellow-500 animate-pulse"}`}></span>
-                {localContractors.length > 0 ? `Verified Techs in ${city.name}` : "Vetting New Partners"}
+      {/* 5. Technician Diagnostic Flow */}
+      <section className="diagnostic-flow py-12">
+        <h2 className="text-2xl font-bold text-hvac-navy dark:text-white text-center mb-10">
+          Technician Diagnostic Steps
+        </h2>
+        <div className="flow flex flex-col items-center max-w-[400px] mx-auto px-5">
+          {diagnosticSteps?.slice(0, 6).map((step: any, idx: number) => (
+            <div key={idx} className="w-full">
+              <div className="flow-step bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg px-5 py-4 text-center font-semibold text-hvac-navy dark:text-white">
+                {step?.step}
               </div>
+              {idx < (diagnosticSteps?.length || 1) - 1 && (
+                <div className="flow-arrow text-center py-2 text-2xl text-slate-400">↓</div>
+              )}
             </div>
-          </div>
-        </aside>
-      </div>
+          ))}
+        </div>
+      </section>
 
-      {internalLinks.length > 0 && (
-        <section className="mb-20 pt-12 border-t border-slate-200">
-          <h2 className="text-center text-sm font-bold text-gray-400 uppercase tracking-[0.2em] mb-8">Crawl Accelerator Index</h2>
-          <div className="flex flex-wrap justify-center gap-4">
+      {/* 6. Repair Options Grid */}
+      <section className="repair-grid py-12">
+        <h2 className="text-2xl font-bold text-hvac-navy dark:text-white text-center mb-8">
+          Repair Options
+        </h2>
+        <div className="max-w-[900px] mx-auto px-5 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
+          <table className="w-full text-sm">
+            <thead className="bg-slate-100 dark:bg-slate-800">
+              <tr>
+                <th className="p-4 text-left font-bold text-slate-700 dark:text-slate-300">Repair</th>
+                <th className="p-4 text-left font-bold text-slate-700 dark:text-slate-300">Difficulty</th>
+                <th className="p-4 text-left font-bold text-slate-700 dark:text-slate-300">Cost Range</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              {(() => {
+                const repairs = causeDetails?.flatMap((c: any) => c.repairDetails || []) || [];
+                if (repairs.length === 0) {
+                  return (
+                    <tr>
+                      <td className="p-4 text-slate-500 italic" colSpan={3}>
+                        Diagnostics required for accurate repair cost.
+                      </td>
+                    </tr>
+                  );
+                }
+                return repairs.map((repair: any, idx: number) => {
+                  const { difficulty, cost } = getRepairDisplay(repair);
+                  return (
+                    <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                      <td className="p-4 font-medium text-hvac-navy dark:text-slate-200">{repair?.name}</td>
+                      <td className="p-4">{difficulty}</td>
+                      <td className="p-4 font-bold">{cost}</td>
+                    </tr>
+                  );
+                });
+              })()}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 7. Parts / Components (Affiliate Opportunity) */}
+      <section className="parts-section py-12">
+        <h2 className="text-2xl font-bold text-hvac-navy dark:text-white text-center mb-8">
+          Parts & Components
+        </h2>
+        <div className="max-w-[900px] mx-auto px-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {AIRFLOW_PARTS.map((part, idx) => (
+              <Link
+                key={idx}
+                href={`/tools/${part.slug}`}
+                className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-hvac-blue transition-colors"
+              >
+                <span className="font-semibold text-hvac-navy dark:text-white">{part.name}</span>
+                <span className="text-xs text-slate-500">View Guide →</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 8. Climate Conditions / Environment Variations */}
+      <section className="climate-section py-12">
+        <h2 className="text-2xl font-bold text-hvac-navy dark:text-white text-center mb-8">
+          Climate Conditions
+        </h2>
+        <div className="max-w-[900px] mx-auto px-5">
+          <div className="space-y-3">
+            {envVariations.map((env, idx) => (
+              <Link
+                key={idx}
+                href={`/${env.slug}`}
+                className="block p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-hvac-blue transition-colors capitalize"
+              >
+                {env.label}
+              </Link>
+            ))}
+          </div>
+          {isHighDesert && (
+            <div className="mt-8 p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl">
+              <h3 className="font-bold text-hvac-navy dark:text-white mb-3">
+                {city?.name} Climate Factors
+              </h3>
+              <ul className="list-none p-0 m-0 space-y-2">
+                {HIGH_DESERT_CLIMATE_FACTORS.map((factor, idx) => (
+                  <li key={idx} className="flex gap-2 text-slate-700 dark:text-slate-300">
+                    <span className="text-hvac-gold">•</span>
+                    {factor}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 9. Local HVAC CTA */}
+      <section className="local-cta py-12">
+        <div className="max-w-[900px] mx-auto px-5">
+          <div className="bg-hvac-navy text-white p-10 rounded-2xl text-center">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              Need HVAC Repair in {city?.name}?
+            </h2>
+            <p className="text-slate-300 mb-6 leading-relaxed max-w-[600px] mx-auto">
+              If airflow remains weak after replacing the air filter or inspecting vents, the issue may involve the
+              blower motor, evaporator coil, or duct system.
+            </p>
+            <p className="text-slate-400 text-sm mb-8">
+              Schedule professional HVAC service in {city?.name}.
+            </p>
+            <button
+              data-open-lead-modal
+              className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-bold px-8 py-4 rounded-xl uppercase tracking-wider transition-colors"
+            >
+              Get {city?.name} Repair Quotes
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Diagnostic Pathway (upward links) */}
+      <section className="max-w-[900px] mx-auto px-5 py-8">
+        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">
+          Diagnostic Pathway
+        </h3>
+        <div className="flex flex-wrap gap-3">
+          <Link href={`/diagnose/${symptomSlug || symptom?.id}`} className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors">
+            {symptom?.name} Diagnostic
+          </Link>
+          {causeDetails?.[0] && (
+            <Link href={`/cause/${causeDetails[0].slug || causeDetails[0].id}`} className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors">
+              {causeDetails[0].name} Cause
+            </Link>
+          )}
+          {causeDetails?.[0]?.repairDetails?.[0] && (
+            <Link href={`/fix/${causeDetails[0].repairDetails[0].slug || causeDetails[0].repairDetails[0].id}`} className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors">
+              {causeDetails[0].repairDetails[0].name}
+            </Link>
+          )}
+          <Link href="/repair" className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors">
+            All Repair Guides
+          </Link>
+        </div>
+      </section>
+
+      {/* 10. Related Diagnostics */}
+      {internalLinks?.length > 0 && (
+        <section className="related py-16 border-t border-slate-200 dark:border-slate-800">
+          <h2 className="text-center text-xl font-bold text-hvac-navy dark:text-white mb-8">
+            Related Diagnostics
+          </h2>
+          <div className="flex flex-wrap justify-center gap-3 max-w-[900px] mx-auto px-5">
             {internalLinks.map((link: any, idx: number) => (
-              <Link 
-                key={idx} 
-                href={`/${link.target_slug}`} 
-                className="text-xs font-medium border border-slate-200 px-4 py-2 rounded-full hover:bg-slate-50 transition-colors"
+              <Link
+                key={idx}
+                href={`/${link.target_slug}`}
+                className="px-5 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full text-sm font-medium hover:border-hvac-blue hover:bg-hvac-blue/5 transition-colors"
               >
                 {link.anchor_text}
               </Link>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* AI-generated content (if present) */}
+      {htmlContent && (
+        <section className="max-w-[900px] mx-auto px-5 py-12">
+          <h2 className="text-xl font-bold text-hvac-navy dark:text-white mb-6">
+            Detailed Diagnostic Notes
+          </h2>
+          <div
+            className="prose prose-slate max-w-none dark:prose-invert"
+            dangerouslySetInnerHTML={{ __html: htmlContent }}
+          />
         </section>
       )}
     </div>
