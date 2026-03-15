@@ -1,6 +1,6 @@
 /**
- * DecisionGrid Generation Worker (Neon Edition)
- * -------------------------------------------
+ * HVAC Revenue Boost Generation Worker (Neon Edition)
+ * ---------------------------------------------------
  * Processes the 'generation_queue' and upserts into 'pages'.
  * Run this script to generate content for the SEO flywheel.
  */
@@ -12,7 +12,7 @@ import { getCauseTechnicalContent, getSystemContext } from '../lib/symptom-techn
 import { generatePageContent, renderToHtml } from '../lib/ai-generator';
 
 async function runWorker() {
-  console.log('🚀 Starting DecisionGrid Worker (Neon)...');
+  console.log('🚀 Starting HVAC Revenue Boost Worker (Neon)...');
 
   try {
     // 1. Fetch pending items from queue
@@ -94,7 +94,7 @@ async function runWorker() {
         contentJson = {
           ...aiData,
           html_content: autoLinkContent(generatedHtml, entities),
-          engine_version: '4.0.0-DecisionGrid-AI-Generator',
+          engine_version: '4.0.0-HVACRevenueBoost-AI',
           generated_at: new Date().toISOString()
         };
 

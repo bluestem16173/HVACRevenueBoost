@@ -119,22 +119,33 @@ export async function getSymptomWithCausesFromDB(symptomSlug: string): Promise<S
       SELECT * FROM symptoms WHERE slug = ${symptomSlug} LIMIT 1
     `;
     
-    if (!symptom[0]) return null;
+    if (!(symptom as any[])[0]) return null;
 
     const causes = await sql`
       SELECT c.* 
       FROM causes c
       JOIN symptom_causes sc ON sc.cause_id = c.id
-      WHERE sc.symptom_id = ${symptom[0].id}
+      WHERE sc.symptom_id = ${(symptom as any[])[0].id}
+      ORDER BY COALESCE(sc.confidence_score, 1) DESC
     `;
 
-    // Fetch repairs for each cause
-    const causeIds = causes.map((c: any) => c.id);
-    const repairs = causeIds.length > 0 ? await sql`
-      SELECT r.*, r.cause_id 
-      FROM repairs r 
-      WHERE r.cause_id = ANY(${causeIds})
-    ` : [];
+    // Fetch repairs via cause_repairs (DecisionGrid) or legacy cause_id
+    const causeIds = (causes as any[]).map((c: any) => c.id);
+    let repairs: any[] = [];
+    try {
+      repairs = await sql`
+        SELECT r.*, cr.cause_id 
+        FROM repairs r 
+        JOIN cause_repairs cr ON cr.repair_id = r.id
+        WHERE cr.cause_id = ANY(${causeIds})
+      `;
+    } catch {
+      try {
+        repairs = await sql`
+          SELECT r.*, r.cause_id FROM repairs r WHERE r.cause_id = ANY(${causeIds})
+        `;
+      } catch {}
+    }
 
     const repairsByCause = (repairs as any[]).reduce((acc: Record<string, any[]>, r: any) => {
       const cid = r.cause_id;
@@ -143,14 +154,14 @@ export async function getSymptomWithCausesFromDB(symptomSlug: string): Promise<S
         id: r.id,
         name: r.name,
         slug: r.slug,
-        description: r.repair_type || r.name,
-        estimatedCost: r.skill_level === 'advanced' ? 'high' : r.skill_level === 'moderate' ? 'medium' : 'low',
+        description: r.description || r.repair_type || r.name,
+        estimatedCost: r.estimated_cost || (r.skill_level === 'advanced' ? 'high' : r.skill_level === 'moderate' ? 'medium' : 'low'),
         skill_level: r.skill_level || 'moderate'
       });
       return acc;
     }, {});
 
-    const causesWithRepairs = causes.map((c: any) => ({
+    const causesWithRepairs = (causes as any[]).map((c: any) => ({
       ...c,
       id: c.slug || c.id,
       explanation: c.explanation || c.description || '',
@@ -158,7 +169,8 @@ export async function getSymptomWithCausesFromDB(symptomSlug: string): Promise<S
     }));
 
     return {
-      ...symptom[0],
+      ...(symptom as any[])[0],
+      id: (symptom as any[])[0].slug || (symptom as any[])[0].id,
       causes: causesWithRepairs
     } as any;
   } catch (error) {

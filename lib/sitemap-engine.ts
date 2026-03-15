@@ -62,6 +62,56 @@ export function getStaticEntries(): SitemapEntry[] {
   }));
 }
 
+/** Systems (DecisionGrid) */
+export async function getSystemEntries(): Promise<SitemapEntry[]> {
+  const now = toLastmod(new Date());
+  try {
+    const rows = await sql`SELECT slug FROM systems`;
+    return (rows as any[]).map((r) => ({
+      loc: `${BASE_URL}/system/${r.slug}`,
+      lastmod: now,
+    }));
+  } catch {
+    return [
+      { loc: `${BASE_URL}/system/residential-ac`, lastmod: now },
+      { loc: `${BASE_URL}/system/rv-ac`, lastmod: now },
+      { loc: `${BASE_URL}/system/mini-split`, lastmod: now },
+      { loc: `${BASE_URL}/system/rooftop-hvac`, lastmod: now },
+    ];
+  }
+}
+
+/** Diagnostics (DecisionGrid wizard) */
+export async function getDiagnosticEntries(): Promise<SitemapEntry[]> {
+  const now = toLastmod(new Date());
+  try {
+    const rows = await sql`SELECT slug FROM diagnostics`;
+    return (rows as any[]).map((r) => ({
+      loc: `${BASE_URL}/diagnostic/${r.slug}`,
+      lastmod: now,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/** Cities (lead gen) */
+export async function getCityEntries(): Promise<SitemapEntry[]> {
+  const now = toLastmod(new Date());
+  try {
+    const rows = await sql`SELECT slug FROM cities`;
+    const fromDb = (rows as any[]).map((r) => ({
+      loc: `${BASE_URL}/repair/${r.slug}`,
+      lastmod: now,
+    }));
+    if (fromDb.length > 0) return fromDb;
+  } catch {}
+  return CITIES.map((c) => ({
+    loc: `${BASE_URL}/repair/${c.slug}`,
+    lastmod: now,
+  }));
+}
+
 /** Cluster pages */
 export function getClusterEntries(): SitemapEntry[] {
   const now = toLastmod(new Date());

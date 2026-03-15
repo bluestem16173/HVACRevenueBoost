@@ -10,7 +10,7 @@ export const MASTER_PROMPT = `
 HVAC Diagnostic Authority Page Layout
 Writing
 
-We are standardizing all HVAC diagnostic pages to use a professional diagnostic interface similar to DecisionGrid.
+We are standardizing all HVAC diagnostic pages to use a professional diagnostic interface.
 
 Pages must resemble technical troubleshooting documentation used by service technicians rather than blog articles.
 
@@ -57,7 +57,7 @@ Section 2 — Problem Summary
 Short technical explanation of the issue (2-3 paragraphs).
 
 Section 3 — Diagnostic Overview Panel
-This panel mimics the DecisionGrid diagnostic system context. Display structured metadata: System, Component Path, Operating Mode, Symptom Category, Environment.
+This panel mimics a professional diagnostic system context. Display structured metadata: System, Component Path, Operating Mode, Symptom Category, Environment.
 
 Section 4 — Confidence Box
 Display diagnostic certainty. Use a visual indicator: Low / Medium / High.
@@ -157,12 +157,13 @@ export async function generatePageContent(pageSlug: string, pageType: string, pa
   `;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: [
       { role: "system", content: systemPrompt }
     ],
     response_format: { type: "json_object" },
-    temperature: 0.2, // Low temp for technical consistency
+    temperature: 0.2,
+    max_tokens: 1200, // Keeps output predictable, prevents essays
   });
 
   const contentStr = response.choices[0].message.content;

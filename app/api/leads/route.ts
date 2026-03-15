@@ -51,7 +51,7 @@ export async function POST(req: Request) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...data,
-            source: "DecisionGrid-SEO-Engine",
+            source: "HVACRevenueBoost-SEO",
             first_name: firstName,
             last_name: lastName
           }) 

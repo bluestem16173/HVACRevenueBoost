@@ -77,7 +77,7 @@ export default function DiagnosticsIndex() {
             <div>
               <h4 className="font-black text-hvac-blue uppercase tracking-tighter mb-4 text-sm">Independent Search</h4>
               <p className="text-[10px] text-gray-500 leading-relaxed uppercase font-bold text-center border-t border-slate-100 pt-4">Vendor Neutral</p>
-              <p className="text-xs text-gray-500 leading-relaxed mt-2 text-center italic">&quot;DecisionGrid remains vendor-neutral. Our guides prioritize the root cause over specific product marketing.&quot;</p>
+              <p className="text-xs text-gray-500 leading-relaxed mt-2 text-center italic">&quot;HVAC Revenue Boost remains vendor-neutral. Our guides prioritize the root cause over specific product marketing.&quot;</p>
             </div>
           </div>
         </div>
