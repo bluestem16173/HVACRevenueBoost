@@ -141,8 +141,12 @@ export default function SymptomPageTemplate({
         </div>
       </section>
 
-      {/* STEP 2: Quick Fix Section (High Engagement) */}
-      <section className="mb-12 bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 shadow-sm" id="quick-fix">
+      {htmlContent ? (
+        <div className="prose max-w-none w-full" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+      ) : (
+        <>
+          {/* STEP 2: Quick Fix Section (High Engagement) */}
+          <section className="mb-12 bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 shadow-sm" id="quick-fix">
         <h2 className="text-2xl font-black text-hvac-navy mb-6 m-0 border-0 flex items-center gap-2">
           <span>⚡</span> Quick Fixes to Try First
         </h2>
@@ -506,6 +510,8 @@ export default function SymptomPageTemplate({
           ))}
         </div>
       </section>
+      </>
+      )}
     </div>
   );
 }
