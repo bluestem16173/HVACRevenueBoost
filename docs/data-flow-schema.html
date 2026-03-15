@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HVAC Revenue Boost — Data Flow Schema</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f1419;
+      --surface: #1a2332;
+      --border: #2d3a4d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+      --accent-gold: #d4a853;
+      --success: #3fb950;
+      --warning: #d29922;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 2rem;
+    }
+    .diagram-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      overflow-x: auto;
+    }
+    .diagram-container svg {
+      display: block;
+      margin: 0 auto;
+      min-width: 900px;
+    }
+    .flow-node {
+      fill: var(--surface);
+      stroke: var(--border);
+      stroke-width: 1.5;
+      rx: 6;
+      transition: fill 0.2s;
+    }
+    .flow-node:hover { fill: #243044; }
+    .flow-node--source { stroke: var(--accent); }
+    .flow-node--db { stroke: var(--success); }
+    .flow-node--ai { stroke: var(--accent-gold); }
+    .flow-node--route { stroke: var(--warning); }
+    .flow-node--cylinder { stroke: var(--success); }
+    .flow-text {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 11px;
+      fill: var(--text);
+      text-anchor: middle;
+    }
+    .flow-text--title { font-weight: 600; font-size: 10px; fill: var(--muted); }
+    .flow-arrow {
+      stroke: var(--muted);
+      stroke-width: 1.5;
+      fill: none;
+      marker-end: url(#arrowhead);
+    }
+    .flow-arrow--bold { stroke: var(--accent); stroke-width: 2; }
+    .section-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <h1>HVAC Revenue Boost — Data Flow Schema</h1>
+  <p class="subtitle">Pillar → Cluster → Symptom → Condition → Cause → Repair → Component</p>
+
+  <div class="section-title">Full Data Flow</div>
+  <div class="diagram-container">
+    <svg viewBox="0 0 1100 700" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#8b949e" />
+        </marker>
+        <marker id="arrowhead-bold" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#58a6ff" />
+        </marker>
+      </defs>
+
+      <!-- SOURCES -->
+      <rect class="flow-node flow-node--source" x="20" y="20" width="140" height="50" />
+      <text class="flow-text flow-text--title" x="90" y="38">Data Sources</text>
+      <text class="flow-text" x="90" y="52">knowledge-graph.ts</text>
+
+      <rect class="flow-node flow-node--source" x="180" y="20" width="100" height="50" />
+      <text class="flow-text flow-text--title" x="230" y="38">Clusters</text>
+      <text class="flow-text" x="230" y="52">clusters.ts</text>
+
+      <rect class="flow-node flow-node--source" x="300" y="20" width="100" height="50" />
+      <text class="flow-text flow-text--title" x="350" y="38">Conditions</text>
+      <text class="flow-text" x="350" y="52">conditions.ts</text>
+
+      <ellipse class="flow-node flow-node--cylinder" cx="450" cy="45" rx="60" ry="25" />
+      <text class="flow-text flow-text--title" x="450" y="40">Database</text>
+      <text class="flow-text" x="450" y="54">Neon Postgres</text>
+
+      <!-- GENERATION PIPELINE -->
+      <rect class="flow-node flow-node--ai" x="20" y="120" width="120" height="45" />
+      <text class="flow-text" x="80" y="140">generation_queue</text>
+      <text class="flow-text" x="80" y="155">(queued)</text>
+
+      <rect class="flow-node flow-node--ai" x="160" y="120" width="130" height="45" />
+      <text class="flow-text" x="225" y="138">generation-worker</text>
+      <text class="flow-text" x="225" y="153">.ts</text>
+
+      <rect class="flow-node flow-node--ai" x="310" y="120" width="140" height="45" />
+      <text class="flow-text" x="380" y="138">ai-generator.ts</text>
+      <text class="flow-text" x="380" y="153">gpt-4o-mini</text>
+
+      <rect class="flow-node flow-node--ai" x="470" y="120" width="100" height="45" />
+      <text class="flow-text" x="520" y="138">renderToHtml</text>
+      <text class="flow-text" x="520" y="153">()</text>
+
+      <rect class="flow-node flow-node--db" x="590" y="120" width="80" height="45" />
+      <text class="flow-text" x="630" y="140">pages</text>
+      <text class="flow-text" x="630" y="155">table</text>
+
+      <!-- Arrows: generation pipeline -->
+      <path class="flow-arrow flow-arrow--bold" d="M 140 142 L 155 142" />
+      <path class="flow-arrow flow-arrow--bold" d="M 290 142 L 305 142" />
+      <path class="flow-arrow flow-arrow--bold" d="M 450 142 L 465 142" />
+      <path class="flow-arrow flow-arrow--bold" d="M 570 142 L 585 142" />
+
+      <!-- Sources to generation -->
+      <path class="flow-arrow" d="M 90 70 L 90 115" />
+      <path class="flow-arrow" d="M 230 70 L 225 115" />
+      <path class="flow-arrow" d="M 450 70 L 380 115" />
+
+      <!-- BUILD SCRIPTS -->
+      <rect class="flow-node" x="20" y="220" width="160" height="45" />
+      <text class="flow-text" x="100" y="240">build-related-graph.ts</text>
+      <text class="flow-text" x="100" y="255">→ related_nodes</text>
+
+      <rect class="flow-node flow-node--db" x="200" y="220" width="100" height="45" />
+      <text class="flow-text" x="250" y="240">related_nodes</text>
+      <text class="flow-text" x="250" y="255">table</text>
+
+      <path class="flow-arrow flow-arrow--bold" d="M 180 242 L 195 242" />
+
+      <!-- LINK ENGINE -->
+      <rect class="flow-node" x="20" y="300" width="140" height="50" />
+      <text class="flow-text" x="90" y="320">link-engine.ts</text>
+      <text class="flow-text" x="90" y="335">buildLinksForPage()</text>
+
+      <path class="flow-arrow" d="M 250 242 L 250 275 L 90 275 L 90 295" />
+      <path class="flow-arrow" d="M 90 70 L 90 100 L 20 100 L 20 215" />
+      <path class="flow-arrow" d="M 20 100 L 90 100 L 90 295" />
+
+      <!-- SITEMAP ENGINE -->
+      <rect class="flow-node" x="400" y="220" width="130" height="45" />
+      <text class="flow-text" x="465" y="240">sitemap-engine.ts</text>
+      <text class="flow-text" x="465" y="255">layered sitemaps</text>
+
+      <path class="flow-arrow" d="M 90 70 L 465 70 L 465 215" />
+      <path class="flow-arrow" d="M 230 70 L 465 70" />
+      <path class="flow-arrow" d="M 350 70 L 465 70" />
+      <path class="flow-arrow" d="M 630 165 L 630 200 L 465 200 L 465 215" />
+
+      <!-- ROUTES -->
+      <rect class="flow-node flow-node--route" x="20" y="400" width="110" height="35" />
+      <text class="flow-text" x="75" y="420">/diagnose/[slug]</text>
+
+      <rect class="flow-node flow-node--route" x="145" y="400" width="100" height="35" />
+      <text class="flow-text" x="195" y="420">/cause/[slug]</text>
+
+      <rect class="flow-node flow-node--route" x="260" y="400" width="90" height="35" />
+      <text class="flow-text" x="305" y="420">/fix/[slug]</text>
+
+      <rect class="flow-node flow-node--route" x="365" y="400" width="120" height="35" />
+      <text class="flow-text" x="425" y="420">/conditions/[slug]</text>
+
+      <rect class="flow-node flow-node--route" x="500" y="400" width="100" height="35" />
+      <text class="flow-text" x="550" y="420">/cluster/[slug]</text>
+
+      <rect class="flow-node flow-node--route" x="615" y="400" width="140" height="35" />
+      <text class="flow-text" x="685" y="420">/repair/[city]/[slug]</text>
+
+      <!-- Pages/Routes connections -->
+      <path class="flow-arrow flow-arrow--bold" d="M 630 165 L 630 350 L 75 350 L 75 400" />
+      <path class="flow-arrow" d="M 630 350 L 195 350 L 195 400" />
+      <path class="flow-arrow" d="M 630 350 L 305 350 L 305 400" />
+      <path class="flow-arrow" d="M 630 350 L 685 350 L 685 400" />
+      <path class="flow-arrow" d="M 90 350 L 90 380 L 425 380 L 425 400" />
+      <path class="flow-arrow" d="M 230 70 L 230 380 L 550 380 L 550 400" />
+      <path class="flow-arrow" d="M 90 350 L 90 380 L 90 400" />
+      <path class="flow-arrow" d="M 90 350 L 160 350 L 160 380 L 90 380" />
+      <path class="flow-arrow" d="M 90 350 L 90 380 L 350 380 L 350 400" />
+    </svg>
+  </div>
+
+  <div class="section-title">Page Resolution Flow (Symptom Example)</div>
+  <div class="diagram-container">
+    <svg viewBox="0 0 900 280" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#8b949e" />
+        </marker>
+      </defs>
+
+      <!-- Request -->
+      <rect class="flow-node flow-node--route" x="20" y="100" width="140" height="50" />
+      <text class="flow-text flow-text--title" x="90" y="120">Request</text>
+      <text class="flow-text" x="90" y="138">/diagnose/ac-blowing-warm-air</text>
+      <text class="flow-text" x="90" y="152">params.slug</text>
+
+      <!-- Lookup -->
+      <rect class="flow-node" x="220" y="40" width="160" height="45" />
+      <text class="flow-text" x="300" y="60">getSymptomWithCausesFromDB()</text>
+      <text class="flow-text" x="300" y="78">→ symptom + causes</text>
+
+      <rect class="flow-node" x="220" y="100" width="160" height="45" />
+      <text class="flow-text" x="300" y="120">getDiagnosticPageFromDB()</text>
+      <text class="flow-text" x="300" y="138">→ html_content</text>
+
+      <rect class="flow-node" x="220" y="160" width="160" height="45" />
+      <text class="flow-text" x="300" y="180">SYMPTOMS.find() fallback</text>
+      <text class="flow-text" x="300" y="198">knowledge-graph</text>
+
+      <!-- Enrichment -->
+      <rect class="flow-node" x="430" y="40" width="120" height="35" />
+      <text class="flow-text" x="490" y="60">getCauseDetails()</text>
+
+      <rect class="flow-node" x="430" y="85" width="120" height="35" />
+      <text class="flow-text" x="490" y="105">getDiagnosticSteps()</text>
+
+      <rect class="flow-node" x="430" y="130" width="120" height="35" />
+      <text class="flow-text" x="490" y="150">getRelatedContent()</text>
+
+      <rect class="flow-node" x="430" y="175" width="120" height="35" />
+      <text class="flow-text" x="490" y="195">buildLinksForPage()</text>
+
+      <!-- Render -->
+      <rect class="flow-node flow-node--ai" x="600" y="80" width="180" height="90" />
+      <text class="flow-text flow-text--title" x="690" y="105">Render</text>
+      <text class="flow-text" x="690" y="125">SymptomPageTemplate</text>
+      <text class="flow-text" x="690" y="145">(symptom, causes, steps,</text>
+      <text class="flow-text" x="690" y="160">relatedLinks, htmlContent)</text>
+
+      <!-- Arrows: Request → Lookup -->
+      <path class="flow-arrow flow-arrow--bold" d="M 160 125 L 215 125" />
+      <path class="flow-arrow flow-arrow--bold" d="M 160 125 L 215 122" />
+      <path class="flow-arrow flow-arrow--bold" d="M 160 125 L 215 182" />
+      <!-- Lookup → Enrichment -->
+      <path class="flow-arrow" d="M 380 62 L 425 62" />
+      <path class="flow-arrow" d="M 380 122 L 425 102" />
+      <path class="flow-arrow" d="M 380 182 L 425 147" />
+      <path class="flow-arrow" d="M 380 122 L 425 192" />
+      <!-- Enrichment → Render -->
+      <path class="flow-arrow flow-arrow--bold" d="M 550 62 L 595 105" />
+      <path class="flow-arrow flow-arrow--bold" d="M 550 102 L 595 105" />
+      <path class="flow-arrow flow-arrow--bold" d="M 550 147 L 595 105" />
+      <path class="flow-arrow flow-arrow--bold" d="M 550 192 L 595 150" />
+    </svg>
+  </div>
+
+  <div class="section-title">Legend</div>
+  <div style="display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--muted);">
+      <div style="width: 12px; height: 12px; border-radius: 4px; border: 2px solid var(--accent); background: var(--surface);"></div>
+      Static / code
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--muted);">
+      <div style="width: 12px; height: 12px; border-radius: 4px; border: 2px solid var(--success); background: var(--surface);"></div>
+      Database
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--muted);">
+      <div style="width: 12px; height: 12px; border-radius: 4px; border: 2px solid var(--accent-gold); background: var(--surface);"></div>
+      AI generation
+    </div>
+    <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--muted);">
+      <div style="width: 12px; height: 12px; border-radius: 4px; border: 2px solid var(--warning); background: var(--surface);"></div>
+      Route / page
+    </div>
+  </div>
+</body>
+</html>

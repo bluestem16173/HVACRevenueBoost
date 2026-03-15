@@ -17,7 +17,10 @@ export default function LeadCaptureModal() {
     city: "",
     state: "",
     zip: "",
-    service: ""
+    service: "",
+    systemType: "",
+    urgency: "",
+    preferredContactTime: "",
   });
 
   // Global event listeners to open the modal from ANY button on the page
@@ -89,7 +92,7 @@ export default function LeadCaptureModal() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -219,10 +222,47 @@ export default function LeadCaptureModal() {
                   </div>
                 </div>
 
-                <div className="space-y-1 pb-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-500 uppercase">System Type</label>
+                  <select name="systemType" value={formData.systemType} onChange={handleChange} className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-hvac-blue text-slate-900 dark:text-white">
+                    <option value="">Select...</option>
+                    <option value="residential-ac">Residential AC</option>
+                    <option value="rv-ac">RV AC</option>
+                    <option value="mini-split">Mini Split</option>
+                    <option value="rooftop-hvac">Rooftop HVAC</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-500 uppercase">Describe Your Problem</label>
                   <textarea required name="service" value={formData.service} onChange={handleChange} rows={3} placeholder="E.g., AC blowing warm air, thermostat screen blank..." className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-hvac-blue transition-shadow text-slate-900 dark:text-white resize-none"></textarea>
                 </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500 uppercase">Urgency</label>
+                    <select name="urgency" value={formData.urgency} onChange={handleChange} className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-hvac-blue text-slate-900 dark:text-white">
+                      <option value="">Select...</option>
+                      <option value="emergency">Emergency</option>
+                      <option value="soon">Within a few days</option>
+                      <option value="routine">Routine</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-500 uppercase">Preferred Contact Time</label>
+                    <select name="preferredContactTime" value={formData.preferredContactTime} onChange={handleChange} className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-hvac-blue text-slate-900 dark:text-white">
+                      <option value="">Select...</option>
+                      <option value="morning">Morning</option>
+                      <option value="afternoon">Afternoon</option>
+                      <option value="evening">Evening</option>
+                      <option value="any">Any time</option>
+                    </select>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-500 dark:text-slate-400 italic">
+                  HVAC Revenue Boost connects users with independent service professionals and does not perform repairs.
+                </p>
 
                 {/* Submit Sticky Footer-ish within scroll area */}
                 <button 

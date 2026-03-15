@@ -1,13 +1,14 @@
 /**
  * Phase 16: Internal Link Injection Engine
  * buildLinksForPage() - Returns 4-8 related links per page type.
- * Dense internal linking without spammy over-linking.
+ * Priority: graph junction tables → related_nodes → heuristic fallback.
  */
 
 import sql from "@/lib/db";
 import { getClusterForSymptom, CLUSTERS } from "@/lib/clusters";
 import { getConditionsForSymptom, CONDITIONS } from "@/lib/conditions";
 import { SYMPTOMS, CAUSES, REPAIRS } from "@/data/knowledge-graph";
+import { buildGraphLinks } from "@/lib/graph-link-builder";
 
 const MAX_RELATED = 8;
 
@@ -20,8 +21,8 @@ export interface PageLink {
 export type PageType = "symptom" | "condition" | "cause" | "repair" | "component";
 
 /**
- * Build internal links for a page. Uses related_nodes when available,
- * falls back to heuristic linking from knowledge graph.
+ * Build internal links for a page.
+ * Priority: 1) Graph junction tables (DecisionGrid) 2) related_nodes 3) heuristic
  */
 export async function buildLinksForPage(
   pageType: PageType,
@@ -33,8 +34,17 @@ export async function buildLinksForPage(
     component?: string;
   }
 ): Promise<PageLink[]> {
-  const links: PageLink[] = [];
+  const rawSlug = slug.replace("diagnose/", "").replace("conditions/", "").replace("cause/", "").replace("fix/", "").replace("components/", "");
 
+  // 1. Try graph junction tables (DecisionGrid-aligned)
+  try {
+    const graphLinks = await buildGraphLinks(pageType, rawSlug);
+    if (graphLinks.length > 0) return graphLinks;
+  } catch {
+    // Fall through
+  }
+
+  // 2. Try related_nodes
   try {
     const dbSlug = slug.startsWith("diagnose/") ? slug : getCanonicalSlug(pageType, slug);
     const dbLinks = await sql`
@@ -46,21 +56,17 @@ export async function buildLinksForPage(
     `;
 
     if ((dbLinks as any[]).length > 0) {
-      for (const row of dbLinks as any[]) {
-        const title = slugToTitle(row.target_slug);
-        links.push({
-          slug: `/${row.target_slug}`,
-          title,
-          relationType: row.relation_type || "related",
-        });
-      }
-      return links.slice(0, MAX_RELATED);
+      return (dbLinks as any[]).map((row) => ({
+        slug: `/${row.target_slug}`,
+        title: slugToTitle(row.target_slug),
+        relationType: row.relation_type || "related",
+      }));
     }
   } catch {
-    // Fall through to heuristic
+    // Fall through
   }
 
-  // Heuristic fallback
+  // 3. Heuristic fallback
   switch (pageType) {
     case "symptom":
       return buildSymptomLinks(slug, context);

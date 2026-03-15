@@ -15,12 +15,15 @@ export async function GET() {
 
   const sitemaps = [
     { loc: `${BASE_URL}/sitemaps/static`, lastmod: now },
+    { loc: `${BASE_URL}/sitemaps/systems-index`, lastmod: now },
     { loc: `${BASE_URL}/sitemaps/clusters-index`, lastmod: now },
     { loc: `${BASE_URL}/sitemaps/symptoms-index`, lastmod: now },
     { loc: `${BASE_URL}/sitemaps/conditions-index`, lastmod: now },
+    { loc: `${BASE_URL}/sitemaps/diagnostics-index`, lastmod: now },
     { loc: `${BASE_URL}/sitemaps/causes-index`, lastmod: now },
     { loc: `${BASE_URL}/sitemaps/repairs-index`, lastmod: now },
     { loc: `${BASE_URL}/sitemaps/components-index`, lastmod: now },
+    { loc: `${BASE_URL}/sitemaps/cities-index`, lastmod: now },
     { loc: `${BASE_URL}/sitemaps/local-index`, lastmod: now },
   ];
 

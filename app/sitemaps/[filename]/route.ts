@@ -7,12 +7,15 @@
 import { NextResponse } from "next/server";
 import {
   getStaticEntries,
+  getSystemEntries,
   getClusterEntries,
   getSymptomEntries,
   getConditionEntries,
+  getDiagnosticEntries,
   getCauseEntries,
   getRepairEntries,
   getComponentEntries,
+  getCityEntries,
   getLocalEntries,
   chunkEntries,
   toUrlSetXml,
@@ -36,6 +39,63 @@ export async function GET(
       const entries = getStaticEntries();
       const xml = toUrlSetXml(entries);
       return xmlResponse(xml);
+    }
+
+    // Systems (DecisionGrid)
+    if (filename === "systems-index") {
+      const entries = await getSystemEntries();
+      const chunks = chunkEntries(entries);
+      const sitemaps = chunks.map((_, i) => ({
+        loc: `${BASE_URL}/sitemaps/systems-${i + 1}.xml`,
+        lastmod: now,
+      }));
+      const xml = chunks.length <= 1 ? toUrlSetXml(entries) : toSitemapIndexXml(sitemaps);
+      return xmlResponse(xml);
+    }
+    if (filename.startsWith("systems-")) {
+      const idx = parseInt(filename.replace("systems-", "").replace(".xml", ""), 10);
+      const entries = await getSystemEntries();
+      const chunks = chunkEntries(entries);
+      const chunk = chunks[idx - 1] || [];
+      return xmlResponse(toUrlSetXml(chunk));
+    }
+
+    // Diagnostics (DecisionGrid wizard)
+    if (filename === "diagnostics-index") {
+      const entries = await getDiagnosticEntries();
+      const chunks = chunkEntries(entries);
+      const sitemaps = chunks.map((_, i) => ({
+        loc: `${BASE_URL}/sitemaps/diagnostics-${i + 1}.xml`,
+        lastmod: now,
+      }));
+      const xml = chunks.length <= 1 ? toUrlSetXml(entries) : toSitemapIndexXml(sitemaps);
+      return xmlResponse(xml);
+    }
+    if (filename.startsWith("diagnostics-")) {
+      const idx = parseInt(filename.replace("diagnostics-", "").replace(".xml", ""), 10);
+      const entries = await getDiagnosticEntries();
+      const chunks = chunkEntries(entries);
+      const chunk = chunks[idx - 1] || [];
+      return xmlResponse(toUrlSetXml(chunk));
+    }
+
+    // Cities
+    if (filename === "cities-index") {
+      const entries = await getCityEntries();
+      const chunks = chunkEntries(entries);
+      const sitemaps = chunks.map((_, i) => ({
+        loc: `${BASE_URL}/sitemaps/cities-${i + 1}.xml`,
+        lastmod: now,
+      }));
+      const xml = chunks.length <= 1 ? toUrlSetXml(entries) : toSitemapIndexXml(sitemaps);
+      return xmlResponse(xml);
+    }
+    if (filename.startsWith("cities-")) {
+      const idx = parseInt(filename.replace("cities-", "").replace(".xml", ""), 10);
+      const entries = await getCityEntries();
+      const chunks = chunkEntries(entries);
+      const chunk = chunks[idx - 1] || [];
+      return xmlResponse(toUrlSetXml(chunk));
     }
 
     // Clusters (single file, no index needed - but we use clusters-index for consistency)

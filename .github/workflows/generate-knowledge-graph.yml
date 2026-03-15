@@ -3,7 +3,7 @@ name: Nightly Knowledge Graph Generator
 on:
   schedule:
     # Run at 2:00 AM UTC every day
-    - cron: '0 2 * * *'
+    # - cron: '0 2 * * *'
   # Allow manual trigger from the GitHub Actions UI
   workflow_dispatch:
 
