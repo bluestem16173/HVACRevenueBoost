@@ -7,96 +7,94 @@ const openai = new OpenAI({
 });
 
 export const MASTER_PROMPT = `
-HVAC Diagnostic Authority Page Layout
-Writing
+HVAC Revenue Boost – Technical Service Manual Generator
 
-We are standardizing all HVAC diagnostic pages to use a professional diagnostic interface.
+SYSTEM ROLE
 
-Pages must resemble technical troubleshooting documentation used by service technicians rather than blog articles.
+You are a 20-year HVAC service technician, mechanical systems engineer, and technical manual author.
 
-All pages must follow the exact section order defined below.
+You have:
+• 20+ years residential HVAC service experience
+• EPA 608 certification
+• experience diagnosing compressors, refrigerant systems, airflow problems, and electrical faults
+• experience training junior technicians
 
-The generator should return structured JSON content that is rendered by React components.
+You write like a service manual author or field trainer, not a blogger.
 
-Do not return pre-built HTML. Return structured sections.
+Your job is to create highly technical residential HVAC diagnostic guides that function like repair manuals.
 
-Page Layout Wireframe
+The content must resemble:
+• manufacturer troubleshooting manuals
+• field technician repair guides
+• service training documents
 
-All diagnostic pages must render the following sections.
+Avoid generic advice.
 
-Page Header
-↓
-Problem Summary
-↓
-Diagnostic Overview Panel
-↓
-Confidence Box
-↓
-Severity Indicator
-↓
-Diagnostic Flowchart
-↓
-Common Causes
-↓
-Diagnostic Tests
-↓
-Repair Options
-↓
-Components / Tools
-↓
-Field Technician Note
-↓
-Related Diagnostic Paths
-↓
-Local HVAC Service CTA
+Assume the reader is:
+• homeowner attempting diagnosis
+• apprentice technician
+• contractor researching symptoms
 
-Section 1 — Page Header
-The header displays the main symptom or condition.
+CONTENT OBJECTIVES
 
-Section 2 — Problem Summary
-Short technical explanation of the issue (2-3 paragraphs).
+Each page must accomplish three goals:
+1. Diagnose HVAC failures
+2. Educate the homeowner
+3. Generate HVAC service leads
 
-Section 3 — Diagnostic Overview Panel
-This panel mimics a professional diagnostic system context. Display structured metadata: System, Component Path, Operating Mode, Symptom Category, Environment.
+TECHNICAL STANDARD
 
-Section 4 — Confidence Box
-Display diagnostic certainty. Use a visual indicator: Low / Medium / High.
+All content must reference real HVAC service measurements, including:
+• voltage readings
+• capacitor microfarads
+• refrigerant pressure ranges
+• airflow CFM values
+• static pressure limits
+• temperature split across evaporator coil
 
-Section 5 — Severity Indicator
-Show structured risk indicators: Severity, Risk if Ignored, Estimated Failure Window, Repair Urgency.
+Examples:
 
-Section 6 — Diagnostic Flowchart
-Render the Mermaid diagnostic tree returned by the AI (Start node, minimum 7 nodes, realistic logic, valid mermaid syntax).
+Typical residential HVAC values:
+- Temperature split across evaporator coil: 16°F – 22°F
+- Capacitor tolerance: ±6%
+- Typical residential static pressure: 0.5 in WC
+- Typical refrigerant pressures (R410A cooling): Low side 115-140 psi, High side 350-450 psi
 
-Section 7 — Common Causes
-Each cause must render in a card layout. Fields per cause: Cause Title, Technical Explanation, Diagnostic Tests, Repair Links. Minimum causes required: 3 causes. Each technical explanation and root cause analysis should be at least 100 words and formatted with markdown bullet points where appropriate.
+KNOWLEDGE GRAPH ARCHITECTURE
 
-Section 8 — Diagnostic Tests
-Show technician verification procedures. Each test contains: Test Name, Tools Required, Procedure Steps.
+SYSTEM → SYMPTOM → CONDITION → CAUSE → REPAIR → COMPONENT
 
-Section 9 — Repair Options
-Render repair cards. Fields: Repair Name, Description, Difficulty, Estimated Cost. Minimum repairs required: 5 repair options.
+Example: Central AC → AC blowing warm air → Outdoor unit running but compressor not starting → Failed capacitor → Replace capacitor → AC dual run capacitor
 
-Section 10 — Components / Tools
-Render a grid of parts and tools linking to related pages.
+Pages must reference connected nodes to create deep internal linking.
 
-Section 11 — Field Technician Note
-Highlighted callout box containing a 100+ word technical observation.
+PAGE TYPES: System Pillar, Symptom, Condition, Cause, Repair, Component, Location
 
-Section 12 — Related Diagnostic Paths
-Pull related nodes (4-8 links).
+PAGE STRUCTURE
 
-Section 13 — Local HVAC Service CTA
-Lead generation hook pointing to /hvac-repair/{city}/{symptom}.
+Every page must include:
 
-Styling & Content Requirements
-- AI output must strictly conform to these sections.
-- Tone must be technical service manual.
-- Use structured data.
-- Minimum 3 causes (100+ words each).
-- Minimum 5 repair paths.
-- Mermaid graph required.
-- 100+ word field note required.
+1. FAST ANSWER — 30-second explanation. Example: "If your AC is blowing warm air, the most common causes are a failed capacitor, low refrigerant charge, or a compressor that is not starting even though the outdoor fan is running."
+
+2. SYSTEM OVERVIEW — Relevant HVAC system components involved (compressor, condenser coil, metering device, evaporator coil).
+
+3. TECHNICAL DIAGNOSTIC PROCEDURE — Step-by-step troubleshooting with voltage checks, capacitor tests, refrigerant pressure checks.
+
+4. COMMON CAUSES — Minimum 3 causes. Each: explanation, symptoms, diagnostic confirmation.
+
+5. REPAIR OPTIONS — Minimum 5 repairs. Each: difficulty, cost, time.
+
+6. TOOLS REQUIRED — multimeter, manifold gauge set, vacuum pump, refrigerant scale, clamp meter.
+
+7. MERMAID DIAGNOSTIC TREE — Decision tree. Example: graph TD A[AC blowing warm air] --> B{Outdoor unit running?} B -->|Yes| C[Test capacitor] B -->|No| D[Check breaker]
+
+8. FIELD TECHNICIAN NOTES — Real service call insights (100+ words).
+
+9. PREVENTATIVE MAINTENANCE — How to prevent recurrence.
+
+10. LEAD GENERATION — Service CTA.
+
+OUTPUT: Strict JSON. No pre-built HTML.
 `;
 
 export async function generatePageContent(pageSlug: string, pageType: string, pageTitle: string, additionalContext: any = {}) {
@@ -111,45 +109,27 @@ export async function generatePageContent(pageSlug: string, pageType: string, pa
     CRITICAL OUTPUT INSTRUCTIONS:
     Provide the response strictly as a JSON object matching this schema:
     {
-       "content": "Overall introductory text / System Context",
-       "problem_summary": "Short technical explanation of the issue (2-3 paragraphs)",
-       "diagnostic_overview": {
-          "system": "...",
-          "component_path": "...",
-          "operating_mode": "...",
-          "symptom_category": "...",
-          "environment": "..."
-       },
-       "confidence_box": "Low/Medium/High",
-       "severity_indicator": {
-          "severity": "Low/Moderate/High/Critical",
-          "risk_if_ignored": "Brief explanation",
-          "estimated_failure_window": "Timeframe",
-          "repair_urgency": "..."
-       },
-       "mermaid_graph": "graph TD\\\\n...",
-       "causes": [
-         { "name": "Cause Name", "mechanism": "...", "indicator": "...", "root_cause_analysis": "100+ words formatting with markdown bullet points...", "explanation": "..." }
+       "title": "AC Blowing Warm Air? Causes, Diagnosis, Repair Cost",
+       "slug": "page-slug",
+       "fast_answer": "30-second explanation of the problem",
+       "system_overview": "Explain relevant HVAC system components (compressor, condenser coil, metering device, evaporator coil)",
+       "diagnostics": [
+         { "step": "Step 1 — Confirm thermostat call", "action": "Verify 24V between Y and C at control board" },
+         { "step": "Step 2 — Inspect outdoor condenser", "action": "Observe condenser fan and compressor" },
+         { "step": "Step 3 — Test capacitor", "action": "Measure microfarads, acceptable ±6%" },
+         { "step": "Step 4 — Check refrigerant pressures", "action": "R410A: Low 115-140 psi, High 350-450 psi" }
        ],
-       "diagnostic_tests": [
-         { "name": "Test Name", "tools": ["Tool 1", "Tool 2"], "steps": ["Step 1", "Step 2", "Step 3"] }
+       "causes": [
+         { "name": "Failed Capacitor", "explanation": "Technical explanation", "symptoms": "compressor hums, outdoor fan running, breaker not tripped", "diagnostic_clues": "Capacitor reading below tolerance" }
        ],
        "repairs": [
-         { "name": "Repair Name", "explanation": "...", "cost": "$100-$200", "difficulty": "Easy/Medium/Hard" }
+         { "name": "Replace capacitor", "cost": "$150-$350", "difficulty": "Easy", "repair_time": "1 hour" }
        ],
-       "tools": [
-         { "name": "Tool Name", "url": "..." }
-       ],
-       "components": [
-          { "name": "Component Name", "description": "...", "url": "..." }
-       ],
-       "other_causes": [
-         { "name": "Other Cause", "url": "..." }
-       ],
-       "field_note": "Technician observation (100+ words)",
-       "related_diagnostics": [
-         { "name": "Related Page", "url": "..." }
-       ]
+       "tools": ["multimeter", "manifold gauge set", "vacuum pump", "refrigerant scale", "clamp meter"],
+       "mermaid_graph": "graph TD\\\\nA[AC blowing warm air] --> B{Outdoor unit running?}\\\\nB -->|Yes| C[Test capacitor]\\\\nB -->|No| D[Check breaker]",
+       "field_notes": "Real service call insights (100+ words). Example: In real service calls, a failed capacitor accounts for nearly 40% of warm air complaints.",
+       "prevention": "Annual maintenance: capacitor inspection, coil cleaning, refrigerant pressure check",
+       "internal_links": [{ "name": "Related Page", "url": "/path" }]
     }
     
     ADDITIONAL CONTEXT:
@@ -163,7 +143,7 @@ export async function generatePageContent(pageSlug: string, pageType: string, pa
     ],
     response_format: { type: "json_object" },
     temperature: 0.2,
-    max_tokens: 1200, // Keeps output predictable, prevents essays
+    max_tokens: 4000, // 1200-1800 word equivalent in structured output
   });
 
   const contentStr = response.choices[0].message.content;
@@ -173,21 +153,19 @@ export async function generatePageContent(pageSlug: string, pageType: string, pa
 
   const aiData = JSON.parse(contentStr);
 
-  // Validation Rules
-    if (aiData.causes && aiData.causes.length < 3 && pageType === 'symptom') {
-      console.warn('⚠️ Validation Warning: Less than 3 causes generated.');
-    }
-    if (aiData.repairs && aiData.repairs.length < 5 && (pageType === 'symptom' || pageType === 'cause')) {
-      console.warn('⚠️ Validation Warning: Less than 5 repairs generated.');
-    }
-    if (!aiData.mermaid_graph && ['symptom', 'diagnostic', 'cluster'].includes(pageType)) {
-      console.warn('⚠️ Validation Warning: Missing mermaid diagram.');
-    }
-    if (!aiData.severity_indicator && ['symptom', 'cause', 'cluster'].includes(pageType)) {
-      console.warn('⚠️ Validation Warning: Missing Severity Indicator.');
-    }
-  if (!aiData.field_note || aiData.field_note.length < 50) {
-    throw new Error("Validation failed: Missing field note");
+  // Validation Rules (HVAC Revenue Boost)
+  if (aiData.causes && aiData.causes.length < 3 && ['symptom', 'condition', 'cause'].includes(pageType)) {
+    console.warn('⚠️ Validation Warning: Less than 3 causes generated.');
+  }
+  if (aiData.repairs && aiData.repairs.length < 5 && ['symptom', 'cause', 'repair'].includes(pageType)) {
+    console.warn('⚠️ Validation Warning: Less than 5 repairs generated.');
+  }
+  if (!aiData.mermaid_graph && ['symptom', 'diagnostic', 'cluster', 'condition'].includes(pageType)) {
+    console.warn('⚠️ Validation Warning: Missing mermaid diagram.');
+  }
+  const fieldNote = aiData.field_notes || aiData.field_note;
+  if (!fieldNote || fieldNote.length < 50) {
+    console.warn('⚠️ Validation Warning: Field notes should be 100+ words.');
   }
 
   return aiData;
@@ -196,12 +174,23 @@ export async function generatePageContent(pageSlug: string, pageType: string, pa
 export function renderToHtml(aiData: any): string {
   let html = '';
 
-  // Section 2 - Problem Summary
-  if (aiData.problem_summary) {
+  // Section 1 - Fast Answer
+  const fastAnswer = aiData.fast_answer || aiData.quick_answer || aiData.problem_summary;
+  if (fastAnswer) {
     html += `
-      <div class="problem-summary mb-10">
-        <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Problem Summary</h2>
-        <div class="text-[15px] text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">${aiData.problem_summary}</div>
+      <div class="fast-answer mb-10">
+        <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Fast Answer</h2>
+        <div class="text-[15px] text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">${fastAnswer}</div>
+      </div>
+    `;
+  }
+
+  // Section 2 - System Overview
+  if (aiData.system_overview) {
+    html += `
+      <div class="system-overview mb-10">
+        <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">System Overview</h2>
+        <div class="text-[15px] text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">${aiData.system_overview}</div>
       </div>
     `;
   }
@@ -288,6 +277,20 @@ export function renderToHtml(aiData: any): string {
     html += `</div>`;
   }
 
+  // Technical Diagnostic Procedure
+  const diagnosticSteps = aiData.diagnostics || aiData.diagnostic_steps || [];
+  if (diagnosticSteps.length > 0) {
+    html += `<div class="diagnostic-steps-section mb-12">
+      <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">Technical Diagnostic Procedure</h2>
+      <ol class="space-y-4 list-decimal list-inside">`;
+    diagnosticSteps.forEach((s: any, i: number) => {
+      const step = typeof s === 'string' ? s : (s.step || s.action || '');
+      const action = typeof s === 'object' && s.action ? s.action : '';
+      html += `<li class="text-[15px] text-slate-800 font-medium"><strong>${step}</strong>${action ? ` — ${action}` : ''}</li>`;
+    });
+    html += `</ol></div>`;
+  }
+
   // Section 7 - Common Causes (Root Cause Analysis breakdown)
   if (aiData.causes && aiData.causes.length > 0) {
     html += `<div class="diagnostic-causes mb-12">`;
@@ -303,12 +306,12 @@ export function renderToHtml(aiData: any): string {
            <div class="p-5">
              <div class="grid md:grid-cols-2 gap-4 mb-5 p-4 bg-slate-50 rounded border border-slate-100">
                <div>
-                 <span class="text-[10px] font-bold uppercase text-slate-500 tracking-widest block mb-1">Failure Mechanism</span>
-                 <p class="text-[13px] text-slate-800 font-medium">${cause.mechanism || 'N/A'}</p>
+                 <span class="text-[10px] font-bold uppercase text-slate-500 tracking-widest block mb-1">Failure Mechanism / Symptoms</span>
+                 <p class="text-[13px] text-slate-800 font-medium">${cause.mechanism || cause.symptoms || 'N/A'}</p>
                </div>
                <div>
-                 <span class="text-[10px] font-bold uppercase text-slate-500 tracking-widest block mb-1">Primary Indicator</span>
-                 <p class="text-[13px] text-slate-800 font-medium">${cause.indicator || 'N/A'}</p>
+                 <span class="text-[10px] font-bold uppercase text-slate-500 tracking-widest block mb-1">Diagnostic Clues / Indicator</span>
+                 <p class="text-[13px] text-slate-800 font-medium">${cause.diagnostic_clues || cause.indicator || 'N/A'}</p>
                </div>
              </div>
              
@@ -367,6 +370,21 @@ export function renderToHtml(aiData: any): string {
     html += `</div></div>`;
   }
 
+  // Tools Required (standalone when tools array exists)
+  if (aiData.tools && aiData.tools.length > 0) {
+    html += `<div class="tools-section my-12">
+      <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-6">Tools Required</h2>
+      <div class="flex flex-wrap gap-2">`;
+    aiData.tools.forEach((t: any) => {
+      const name = typeof t === 'string' ? t : (t.name || '');
+      const url = typeof t === 'object' && t.url ? t.url : null;
+      html += url
+        ? `<a href="${url}" class="bg-white border border-slate-200 text-slate-700 text-sm font-medium px-3 py-1.5 rounded-lg hover:border-hvac-blue hover:text-hvac-blue transition-colors">${name}</a>`
+        : `<span class="bg-slate-100 border border-slate-200 text-slate-700 text-sm font-medium px-3 py-1.5 rounded-lg">${name}</span>`;
+    });
+    html += `</div></div>`;
+  }
+
   // Section 9 - Repair Options
   if (aiData.repairs && aiData.repairs.length > 0) {
     html += `<div class="repairs-section my-12">
@@ -379,6 +397,7 @@ export function renderToHtml(aiData: any): string {
               <th class="py-3 px-4 w-1/2">Technical Scope</th>
               <th class="py-3 px-4 w-auto">Est. Cost</th>
               <th class="py-3 px-4 w-auto">Difficulty</th>
+              <th class="py-3 px-4 w-auto">Time</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-200">`;
@@ -404,6 +423,9 @@ export function renderToHtml(aiData: any): string {
         <td class="py-3 px-4 align-top">
           <span class="inline-block border px-2 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider whitespace-nowrap ${diffColor}">${repair.difficulty || 'UNKNOWN'}</span>
         </td>
+        <td class="py-3 px-4 align-top">
+          <div class="text-[13px] text-slate-600">${repair.repair_time || '—'}</div>
+        </td>
       </tr>`;
     });
     
@@ -426,26 +448,41 @@ export function renderToHtml(aiData: any): string {
     html += `</div></div>`;
   }
 
-  // Section 11 - Field Technician Note
-  if (aiData.field_note) {
+  // Section 11 - Field Technician Notes
+  const fieldNotes = aiData.field_notes || aiData.field_note;
+  if (fieldNotes) {
     html += `
       <div class="field-note-panel bg-yellow-50 p-6 rounded-lg my-12 border border-yellow-300 relative overflow-hidden shadow-sm">
         <div class="absolute top-0 left-0 w-1.5 h-full bg-hvac-gold"></div>
         <h3 class="text-sm font-bold tracking-widest uppercase text-yellow-900 mb-2 flex items-center gap-2">
-           <svg class="w-4 h-4 text-hvac-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-           Field Technician Assessment
+           <svg class="w-4 h-4 text-hvac-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0z"></path></svg>
+           Field Technician Notes
         </h3>
-        <div class="text-[14px] text-yellow-900 font-medium whitespace-pre-wrap leading-relaxed">"${aiData.field_note}"</div>
+        <div class="text-[14px] text-yellow-900 font-medium whitespace-pre-wrap leading-relaxed">"${fieldNotes}"</div>
       </div>
     `;
   }
 
-  // Section 12 - Related Diagnostic Paths
-  if (aiData.related_diagnostics && aiData.related_diagnostics.length > 0) {
+  // Preventative Maintenance
+  if (aiData.prevention) {
+    html += `
+      <div class="prevention-panel bg-emerald-50 p-6 rounded-lg my-12 border border-emerald-200 relative overflow-hidden shadow-sm">
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-600"></div>
+        <h3 class="text-sm font-bold tracking-widest uppercase text-emerald-900 mb-2 flex items-center gap-2">
+           Preventative Maintenance
+        </h3>
+        <div class="text-[14px] text-emerald-900 font-medium whitespace-pre-wrap leading-relaxed">${aiData.prevention}</div>
+      </div>
+    `;
+  }
+
+  // Section 12 - Related Diagnostic Paths / Internal Links
+  const relatedLinks = aiData.internal_links || aiData.related_diagnostics || [];
+  if (relatedLinks.length > 0) {
     html += `<div class="related-section my-12 pb-8">
       <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Related Diagnostic Vectors</h2>
       <ul class="flex flex-wrap gap-2">`;
-    aiData.related_diagnostics.forEach((rel: any) => {
+    relatedLinks.forEach((rel: any) => {
       html += `<li><span class="inline-block bg-slate-100 border border-slate-200 text-slate-700 text-[11px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-sm">${rel.name}</span></li>`;
     });
     html += `</ul></div>`;
