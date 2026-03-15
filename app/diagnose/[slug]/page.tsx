@@ -19,10 +19,10 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
 
-  // Fetch the AI generated page from Neon
-  const dbSlug = params.slug;
-  const aiPage = await getDiagnosticPageFromDB(dbSlug);
+  // Fetch the AI generated page from Neon (try both slug formats)
+  const aiPage = await getDiagnosticPageFromDB(params.slug) || await getDiagnosticPageFromDB(`diagnose/${params.slug}`);
   const htmlContent = aiPage?.content_json?.html_content || null;
+  const contentJson = aiPage?.content_json || null;
 
   if (!symptomData) {
     symptomData = SYMPTOMS.find((s) => s.id === params.slug) as any;
@@ -62,6 +62,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
       tools={tools}
       getCauseDetails={getCauseDetails}
       htmlContent={htmlContent}
+      contentJson={contentJson}
     />
   );
 }

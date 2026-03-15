@@ -2,6 +2,7 @@ import Link from "next/link";
 import FastAnswer from "@/components/FastAnswer";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 import InteractiveDiagnosticTree from "@/components/InteractiveDiagnosticTree";
+import MermaidDiagram from "@/components/MermaidDiagram";
 import { getConditionsForSymptom } from "@/lib/conditions";
 import { getClusterForSymptom } from "@/lib/clusters";
 
@@ -15,7 +16,8 @@ export default function SymptomPageTemplate({
   relatedLinks,
   tools,
   getCauseDetails,
-  htmlContent
+  htmlContent,
+  contentJson,
 }: any) {
   // Use causeDetails when passed (DB), otherwise resolve from causeIds (static KG)
   const fullCauses = causeDetails?.length > 0
@@ -60,7 +62,10 @@ export default function SymptomPageTemplate({
     }))
   };
 
+  const mermaidGraph = contentJson?.mermaid_graph;
+
   return (
+    <div className="min-h-screen bg-white">
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <script
         type="application/ld+json"
@@ -118,9 +123,10 @@ export default function SymptomPageTemplate({
           </div>
         )}
         
-        <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/10 border-l-4 border-hvac-gold rounded-r-lg">
-          <p className="m-0 text-yellow-900 dark:text-yellow-200 font-medium">
-            <strong>Most Common Cause:</strong> {firstCause?.name || "Dirty Air Filter (40-50% of cases)"}. {firstCause?.explanation?.substring(0, 100)}...
+        {/* DecisionGrid-style light blue intro box */}
+        <div className="mt-6 p-6 bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800 rounded-xl">
+          <p className="m-0 text-slate-800 dark:text-slate-200 font-medium leading-relaxed">
+            <strong className="text-slate-900 dark:text-white">Most Common Cause:</strong> {firstCause?.name || "Dirty Air Filter (40-50% of cases)"}. {(firstCause?.explanation ?? "").slice(0, 120)}{(firstCause?.explanation?.length ?? 0) > 120 ? "..." : ""}
           </p>
         </div>
 
@@ -142,9 +148,25 @@ export default function SymptomPageTemplate({
       </section>
 
       {htmlContent ? (
-        <div className="prose max-w-none w-full" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <>
+          {/* DecisionGrid: Prominent flowchart first */}
+          {mermaidGraph && (
+            <MermaidDiagram chart={mermaidGraph} title="Diagnostic Flowchart" className="mb-12" />
+          )}
+          <div className="prose prose-slate max-w-none w-full text-slate-800" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        </>
       ) : (
         <>
+          {/* DecisionGrid: Flowchart from causes when no AI content */}
+          {fullCauses?.length > 0 && (
+            <section className="mb-12" id="flowchart">
+              <MermaidDiagram
+                chart={`graph TD
+  A[${symptom.name}] --> ${fullCauses.map((c: any, i: number) => `C${i}[${c.name}]`).join("\n  A --> ")}`}
+                title="Diagnostic Flowchart"
+              />
+            </section>
+          )}
           {/* STEP 2: Quick Fix Section (High Engagement) */}
           <section className="mb-12 bg-slate-50 dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 shadow-sm" id="quick-fix">
         <h2 className="text-2xl font-black text-hvac-navy mb-6 m-0 border-0 flex items-center gap-2">
@@ -512,6 +534,7 @@ export default function SymptomPageTemplate({
       </section>
       </>
       )}
+    </div>
     </div>
   );
 }
