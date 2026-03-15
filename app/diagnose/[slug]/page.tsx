@@ -20,7 +20,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   let isFromDB = !!symptomData;
 
   // Fetch the AI generated page from Neon
-  const dbSlug = `diagnose/${params.slug}`;
+  const dbSlug = params.slug;
   const aiPage = await getDiagnosticPageFromDB(dbSlug);
   const htmlContent = aiPage?.content_json?.html_content || null;
 

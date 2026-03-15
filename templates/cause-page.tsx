@@ -8,6 +8,7 @@ export default function CausePageTemplate({
   repairs,
   component,
   diagnosticTests,
+  htmlContent,
 }: any) {
   const summaryPoints = [
     { label: "Technical Cause", value: cause.name },
@@ -41,7 +42,11 @@ export default function CausePageTemplate({
         </h1>
       </section>
 
-      <ThirtySecondSummary points={summaryPoints} />
+      {htmlContent ? (
+        <div className="prose max-w-none w-full" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+      ) : (
+        <>
+          <ThirtySecondSummary points={summaryPoints} />
 
       <section className="mb-16 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm leading-relaxed text-lg">
         <h2 className="mt-0 text-hvac-navy dark:text-white border-0">Technical Explanation</h2>
@@ -163,6 +168,8 @@ export default function CausePageTemplate({
           </div>
         </div>
       </section>
+      </>
+      )}
     </div>
   );
 }

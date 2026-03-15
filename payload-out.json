@@ -1,0 +1,171 @@
+{
+  "tools": [
+    {
+      "url": "/tools/multimeter",
+      "name": "Multimeter"
+    },
+    {
+      "url": "/tools/capacitance-meter",
+      "name": "Capacitance Meter"
+    },
+    {
+      "url": "/tools/insulation-tester",
+      "name": "Insulation Tester"
+    }
+  ],
+  "causes": [
+    {
+      "name": "Electrical Surge",
+      "indicator": "Burn marks on capacitor",
+      "mechanism": "Sudden increase in voltage",
+      "explanation": "An electrical surge can cause the capacitor to overheat and fail, leading to a loss of starting torque for the motor.",
+      "root_cause_analysis": "Electrical surges can occur due to lightning strikes or power grid fluctuations. These surges can overwhelm the capacitor's dielectric material, causing it to fail. **Indicators**: \\n- Burn marks or bulging on the capacitor body. \\n- Tripped circuit breakers. \\n- Flickering lights in the vicinity."
+    },
+    {
+      "name": "Overheating",
+      "indicator": "Bulging or leaking capacitor",
+      "mechanism": "Excessive heat exposure",
+      "explanation": "Overheating can cause the dielectric material inside the capacitor to break down, leading to a short circuit or complete failure.",
+      "root_cause_analysis": "Capacitors are sensitive to high temperatures, which can degrade the dielectric material inside. **Indicators**: \\n- Bulging or leaking capacitor casing. \\n- High ambient temperatures around the unit. \\n- Frequent cycling of the HVAC system."
+    },
+    {
+      "name": "Aging",
+      "indicator": "Reduced capacitance",
+      "mechanism": "Natural wear over time",
+      "explanation": "As capacitors age, their efficiency decreases, leading to insufficient starting torque for the compressor motor.",
+      "root_cause_analysis": "Capacitors have a finite lifespan, typically ranging from 5 to 10 years. Over time, the dielectric material degrades, reducing the capacitor's ability to hold a charge. **Indicators**: \\n- Reduced capacitance readings. \\n- Frequent system startups. \\n- Audible clicking noises during startup."
+    }
+  ],
+  "content": "A blown start capacitor is a common issue in HVAC systems, often leading to system inefficiencies or complete failure. The start capacitor is crucial for providing the necessary torque to start the compressor motor. When it fails, the motor may struggle to start, leading to increased wear and potential damage.",
+  "repairs": [
+    {
+      "cost": "$50-$100",
+      "name": "Capacitor Replacement",
+      "difficulty": "Easy",
+      "explanation": "Replace the faulty capacitor with a new one matching the original specifications."
+    },
+    {
+      "cost": "$100-$200",
+      "name": "Surge Protector Installation",
+      "difficulty": "Medium",
+      "explanation": "Install a surge protector to prevent future electrical surges from damaging the capacitor."
+    },
+    {
+      "cost": "$50-$150",
+      "name": "Thermal Insulation",
+      "difficulty": "Medium",
+      "explanation": "Add thermal insulation to protect the capacitor from excessive heat exposure."
+    },
+    {
+      "cost": "$100-$300",
+      "name": "Regular Maintenance",
+      "difficulty": "Easy",
+      "explanation": "Schedule regular maintenance to inspect and replace aging capacitors before they fail."
+    },
+    {
+      "cost": "$200-$400",
+      "name": "Voltage Regulator Installation",
+      "difficulty": "Hard",
+      "explanation": "Install a voltage regulator to maintain consistent voltage levels and protect electrical components."
+    }
+  ],
+  "components": [
+    {
+      "url": "/components/start-capacitor",
+      "name": "Start Capacitor",
+      "description": "A component that provides the necessary torque to start the compressor motor."
+    },
+    {
+      "url": "/components/surge-protector",
+      "name": "Surge Protector",
+      "description": "A device that protects electrical components from voltage spikes."
+    }
+  ],
+  "field_note": "During field inspections, it's crucial to assess the environmental conditions surrounding the HVAC unit. High ambient temperatures and poor ventilation can accelerate the degradation of capacitors. Technicians should ensure that the unit is installed in a well-ventilated area and that any obstructions to airflow are removed. Additionally, regular inspections of electrical connections can prevent issues related to loose or corroded wiring, which can contribute to capacitor failure. Always verify that replacement capacitors match the original specifications to ensure compatibility and optimal performance.",
+  "generated_at": "2026-03-15T01:01:02.598Z",
+  "html_content": "\n      <div class=\"problem-summary mb-8\">\n        <h2 class=\"text-2xl font-bold mb-4\">Problem Summary</h2>\n        <div class=\"prose max-w-none text-slate-700 whitespace-pre-wrap\">A blown start capacitor can cause significant issues in an HVAC system, primarily affecting the compressor's ability to start. This can lead to increased energy consumption, reduced system efficiency, and potential damage to other components. The capacitor may fail due to electrical surges, overheating, or simply reaching the end of its operational life. Identifying and addressing this issue promptly is crucial to maintaining system performance and preventing further damage.</div>\n      </div>\n    \n      <div class=\"diagnostic-overview bg-slate-50 border border-slate-200 p-6 rounded-xl mb-8\">\n        <h3 class=\"text-lg font-bold text-slate-900 mb-4 border-b pb-2\">Diagnostic Overview</h3>\n        <ul class=\"grid sm:grid-cols-2 gap-y-2 text-sm text-slate-600\">\n          <li><span class=\"font-bold text-slate-800\">System:</span> HVAC</li>\n          <li><span class=\"font-bold text-slate-800\">Operating Mode:</span> Startup</li>\n          <li><span class=\"font-bold text-slate-800\">Path:</span> Electrical > Capacitors > Start Capacitor</li>\n          <li><span class=\"font-bold text-slate-800\">Category:</span> Electrical Failure</li>\n          <li><span class=\"font-bold text-slate-800\">Environment:</span> Residential/Commercial</li>\n        </ul>\n      </div>\n    \n      <div class=\"confidence-severity-panel bg-blue-50 border border-blue-200 p-6 rounded-xl mb-12 relative overflow-hidden\">\n        <div class=\"absolute top-0 left-0 w-2 h-full bg-blue-600\"></div>\n        <h2 class=\"text-xl font-bold mb-4 text-gray-900 border-b pb-2\">Diagnostic Confidence</h2>\n    <p class=\"mb-4 text-emerald-700 font-bold uppercase tracking-wider text-sm\">Confidence Level: High</p>\n        <div class=\"severity-indicator p-4 bg-white rounded-lg shadow-sm border border-gray-100\">\n           <div class=\"flex items-center gap-2 mb-2\">\n             <span class=\"font-bold\">Problem Severity:</span> \n             <span class=\"px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-red-700 bg-red-100\">High</span>\n           </div>\n           <p class=\"text-sm text-gray-700 mb-1\"><span class=\"font-semibold\">Risk if ignored:</span> Potential compressor failure and increased energy costs.</p>\n           <p class=\"text-sm text-gray-700 mb-1\"><span class=\"font-semibold\">Estimated failure window:</span> Immediate to 1 week</p>\n           <p class=\"text-sm text-gray-700\"><span class=\"font-semibold\">Repair Urgency:</span> Urgent</p>\n        </div>\n      </div><div class=\"diagnostic-causes mb-12\"><h2 class=\"text-2xl font-bold mb-6\">Common Causes</h2><div class=\"space-y-6\">\n        <div class=\"bg-white p-6 shadow-sm border border-slate-200 rounded-lg\">\n           <h3 class=\"font-black text-lg mb-2 text-hvac-navy\">Electrical Surge</h3>\n           <div class=\"mb-3\">\n             <span class=\"text-xs font-bold uppercase text-slate-500 tracking-wider\">Failure Mechanism</span>\n             <p class=\"text-sm text-slate-700\">Sudden increase in voltage</p>\n           </div>\n           <div class=\"mb-3\">\n             <span class=\"text-xs font-bold uppercase text-slate-500 tracking-wider\">Diagnostic Indicator</span>\n             <p class=\"text-sm text-slate-700\">Burn marks on capacitor</p>\n           </div>\n           \n           <div class=\"mt-4 pt-4 border-t border-slate-100\">\n              <span class=\"text-sm font-bold text-slate-800 block mb-2\">Root Cause Analysis</span>\n              <div class=\"text-sm text-slate-600 whitespace-pre-wrap\">Electrical surges can occur due to lightning strikes or power grid fluctuations. These surges can overwhelm the capacitor's dielectric material, causing it to fail. **Indicators**: \\n- Burn marks or bulging on the capacitor body. \\n- Tripped circuit breakers. \\n- Flickering lights in the vicinity.</div>\n           </div>\n           \n           <div class=\"mt-4\">\n              <span class=\"text-sm font-bold text-slate-800 block mb-2\">Technical Explanation</span>\n              <div class=\"text-sm text-slate-600 whitespace-pre-wrap\">An electrical surge can cause the capacitor to overheat and fail, leading to a loss of starting torque for the motor.</div>\n           </div>\n        </div>\n      \n        <div class=\"bg-white p-6 shadow-sm border border-slate-200 rounded-lg\">\n           <h3 class=\"font-black text-lg mb-2 text-hvac-navy\">Overheating</h3>\n           <div class=\"mb-3\">\n             <span class=\"text-xs font-bold uppercase text-slate-500 tracking-wider\">Failure Mechanism</span>\n             <p class=\"text-sm text-slate-700\">Excessive heat exposure</p>\n           </div>\n           <div class=\"mb-3\">\n             <span class=\"text-xs font-bold uppercase text-slate-500 tracking-wider\">Diagnostic Indicator</span>\n             <p class=\"text-sm text-slate-700\">Bulging or leaking capacitor</p>\n           </div>\n           \n           <div class=\"mt-4 pt-4 border-t border-slate-100\">\n              <span class=\"text-sm font-bold text-slate-800 block mb-2\">Root Cause Analysis</span>\n              <div class=\"text-sm text-slate-600 whitespace-pre-wrap\">Capacitors are sensitive to high temperatures, which can degrade the dielectric material inside. **Indicators**: \\n- Bulging or leaking capacitor casing. \\n- High ambient temperatures around the unit. \\n- Frequent cycling of the HVAC system.</div>\n           </div>\n           \n           <div class=\"mt-4\">\n              <span class=\"text-sm font-bold text-slate-800 block mb-2\">Technical Explanation</span>\n              <div class=\"text-sm text-slate-600 whitespace-pre-wrap\">Overheating can cause the dielectric material inside the capacitor to break down, leading to a short circuit or complete failure.</div>\n           </div>\n        </div>\n      \n        <div class=\"bg-white p-6 shadow-sm border border-slate-200 rounded-lg\">\n           <h3 class=\"font-black text-lg mb-2 text-hvac-navy\">Aging</h3>\n           <div class=\"mb-3\">\n             <span class=\"text-xs font-bold uppercase text-slate-500 tracking-wider\">Failure Mechanism</span>\n             <p class=\"text-sm text-slate-700\">Natural wear over time</p>\n           </div>\n           <div class=\"mb-3\">\n             <span class=\"text-xs font-bold uppercase text-slate-500 tracking-wider\">Diagnostic Indicator</span>\n             <p class=\"text-sm text-slate-700\">Reduced capacitance</p>\n           </div>\n           \n           <div class=\"mt-4 pt-4 border-t border-slate-100\">\n              <span class=\"text-sm font-bold text-slate-800 block mb-2\">Root Cause Analysis</span>\n              <div class=\"text-sm text-slate-600 whitespace-pre-wrap\">Capacitors have a finite lifespan, typically ranging from 5 to 10 years. Over time, the dielectric material degrades, reducing the capacitor's ability to hold a charge. **Indicators**: \\n- Reduced capacitance readings. \\n- Frequent system startups. \\n- Audible clicking noises during startup.</div>\n           </div>\n           \n           <div class=\"mt-4\">\n              <span class=\"text-sm font-bold text-slate-800 block mb-2\">Technical Explanation</span>\n              <div class=\"text-sm text-slate-600 whitespace-pre-wrap\">As capacitors age, their efficiency decreases, leading to insufficient starting torque for the compressor motor.</div>\n           </div>\n        </div>\n      </div></div><div class=\"diagnostic-tests-section my-12\">\n      <h2 class=\"text-2xl font-bold mb-6\">Diagnostic Tests</h2>\n      <div class=\"space-y-6\">\n        <div class=\"bg-indigo-50/50 border border-indigo-100 p-6 rounded-lg\">\n          <h3 class=\"text-lg font-bold text-indigo-900 mb-3\">Capacitor Continuity Test</h3>\n          \n          <div class=\"mb-4\">\n             <span class=\"text-xs font-bold uppercase tracking-wider text-indigo-500 block mb-1\">Tools Required</span>\n             <ul class=\"flex flex-wrap gap-2\">\n               <li class=\"bg-white border border-indigo-200 text-indigo-700 text-xs px-2 py-1 rounded shadow-sm\">Multimeter</li>\n             </ul>\n          </div>\n          \n          <div>\n            <span class=\"text-xs font-bold uppercase tracking-wider text-indigo-500 block mb-2\">Procedure Steps</span>\n            <ol class=\"list-decimal pl-5 text-sm text-slate-700 space-y-1\">\n              <li>Disconnect power to the unit.</li><li>Remove the capacitor from the circuit.</li><li>Set multimeter to continuity mode.</li><li>Place probes on capacitor terminals.</li><li>Check for continuity.</li>\n            </ol>\n          </div>\n        </div>\n      \n        <div class=\"bg-indigo-50/50 border border-indigo-100 p-6 rounded-lg\">\n          <h3 class=\"text-lg font-bold text-indigo-900 mb-3\">Voltage Supply Test</h3>\n          \n          <div class=\"mb-4\">\n             <span class=\"text-xs font-bold uppercase tracking-wider text-indigo-500 block mb-1\">Tools Required</span>\n             <ul class=\"flex flex-wrap gap-2\">\n               <li class=\"bg-white border border-indigo-200 text-indigo-700 text-xs px-2 py-1 rounded shadow-sm\">Multimeter</li>\n             </ul>\n          </div>\n          \n          <div>\n            <span class=\"text-xs font-bold uppercase tracking-wider text-indigo-500 block mb-2\">Procedure Steps</span>\n            <ol class=\"list-decimal pl-5 text-sm text-slate-700 space-y-1\">\n              <li>Ensure power is off.</li><li>Set multimeter to AC voltage mode.</li><li>Reconnect power and measure voltage across capacitor terminals.</li><li>Verify voltage matches specifications.</li>\n            </ol>\n          </div>\n        </div>\n      \n        <div class=\"bg-indigo-50/50 border border-indigo-100 p-6 rounded-lg\">\n          <h3 class=\"text-lg font-bold text-indigo-900 mb-3\">Capacitance Test</h3>\n          \n          <div class=\"mb-4\">\n             <span class=\"text-xs font-bold uppercase tracking-wider text-indigo-500 block mb-1\">Tools Required</span>\n             <ul class=\"flex flex-wrap gap-2\">\n               <li class=\"bg-white border border-indigo-200 text-indigo-700 text-xs px-2 py-1 rounded shadow-sm\">Capacitance Meter</li>\n             </ul>\n          </div>\n          \n          <div>\n            <span class=\"text-xs font-bold uppercase tracking-wider text-indigo-500 block mb-2\">Procedure Steps</span>\n            <ol class=\"list-decimal pl-5 text-sm text-slate-700 space-y-1\">\n              <li>Disconnect power to the unit.</li><li>Remove the capacitor from the circuit.</li><li>Set meter to capacitance mode.</li><li>Measure capacitance and compare to rated value.</li>\n            </ol>\n          </div>\n        </div>\n      </div></div><div class=\"repairs-section my-12\">\n      <h2 class=\"text-2xl font-bold mb-4\">Repair Options</h2>\n      <div class=\"overflow-x-auto rounded-lg shadow-sm border border-slate-200\">\n        <table class=\"min-w-full bg-white\">\n          <thead class=\"bg-slate-50\">\n            <tr>\n              <th class=\"py-3 px-4 border-b font-bold text-sm text-slate-700 text-left\">Repair</th>\n              <th class=\"py-3 px-4 border-b font-bold text-sm text-slate-700 text-left\">Description</th>\n              <th class=\"py-3 px-4 border-b font-bold text-sm text-slate-700 text-left\">Estimated Cost</th>\n              <th class=\"py-3 px-4 border-b font-bold text-sm text-slate-700 text-left\">Difficulty</th>\n            </tr>\n          </thead>\n          <tbody class=\"divide-y divide-slate-100\"><tr>\n        <td class=\"py-3 px-4 text-sm font-medium\"><a href=\"#\" class=\"text-blue-600 hover:underline\">Capacitor Replacement</a></td>\n        <td class=\"py-3 px-4 text-sm text-slate-600 whitespace-pre-wrap\">Replace the faulty capacitor with a new one matching the original specifications.</td>\n        <td class=\"py-3 px-4 text-sm text-slate-700 font-medium\">$50-$100</td>\n        <td class=\"py-3 px-4 text-sm text-slate-600\">Easy</td>\n      </tr><tr>\n        <td class=\"py-3 px-4 text-sm font-medium\"><a href=\"#\" class=\"text-blue-600 hover:underline\">Surge Protector Installation</a></td>\n        <td class=\"py-3 px-4 text-sm text-slate-600 whitespace-pre-wrap\">Install a surge protector to prevent future electrical surges from damaging the capacitor.</td>\n        <td class=\"py-3 px-4 text-sm text-slate-700 font-medium\">$100-$200</td>\n        <td class=\"py-3 px-4 text-sm text-slate-600\">Medium</td>\n      </tr><tr>\n        <td class=\"py-3 px-4 text-sm font-medium\"><a href=\"#\" class=\"text-blue-600 hover:underline\">Thermal Insulation</a></td>\n        <td class=\"py-3 px-4 text-sm text-slate-600 whitespace-pre-wrap\">Add thermal insulation to protect the capacitor from excessive heat exposure.</td>\n        <td class=\"py-3 px-4 text-sm text-slate-700 font-medium\">$50-$150</td>\n        <td class=\"py-3 px-4 text-sm text-slate-600\">Medium</td>\n      </tr><tr>\n        <td class=\"py-3 px-4 text-sm font-medium\"><a href=\"#\" class=\"text-blue-600 hover:underline\">Regular Maintenance</a></td>\n        <td class=\"py-3 px-4 text-sm text-slate-600 whitespace-pre-wrap\">Schedule regular maintenance to inspect and replace aging capacitors before they fail.</td>\n        <td class=\"py-3 px-4 text-sm text-slate-700 font-medium\">$100-$300</td>\n        <td class=\"py-3 px-4 text-sm text-slate-600\">Easy</td>\n      </tr><tr>\n        <td class=\"py-3 px-4 text-sm font-medium\"><a href=\"#\" class=\"text-blue-600 hover:underline\">Voltage Regulator Installation</a></td>\n        <td class=\"py-3 px-4 text-sm text-slate-600 whitespace-pre-wrap\">Install a voltage regulator to maintain consistent voltage levels and protect electrical components.</td>\n        <td class=\"py-3 px-4 text-sm text-slate-700 font-medium\">$200-$400</td>\n        <td class=\"py-3 px-4 text-sm text-slate-600\">Hard</td>\n      </tr></tbody></table></div></div><div class=\"components-section my-12\">\n      <h2 class=\"text-xl font-bold mb-4 border-b pb-2\">Components & Tools</h2>\n      <div class=\"grid grid-cols-2 md:grid-cols-4 gap-4\">\n        <a href=\"/components/start-capacitor\" class=\"bg-white border border-slate-200 hover:border-blue-400 p-4 rounded-lg shadow-sm transition group\">\n           <h4 class=\"font-bold text-sm text-slate-800 group-hover:text-blue-600\">Start Capacitor</h4>\n           <p class=\"text-xs text-slate-500 mt-1 line-clamp-2\">A component that provides the necessary torque to start the compressor motor.</p>\n        </a>\n      \n        <a href=\"/components/surge-protector\" class=\"bg-white border border-slate-200 hover:border-blue-400 p-4 rounded-lg shadow-sm transition group\">\n           <h4 class=\"font-bold text-sm text-slate-800 group-hover:text-blue-600\">Surge Protector</h4>\n           <p class=\"text-xs text-slate-500 mt-1 line-clamp-2\">A device that protects electrical components from voltage spikes.</p>\n        </a>\n      </div></div>\n      <div class=\"field-note-panel bg-amber-50 p-6 rounded-lg my-12 border border-amber-200 relative overflow-hidden\">\n        <div class=\"absolute top-0 left-0 w-1.5 h-full bg-amber-500\"></div>\n        <h3 class=\"text-lg font-black tracking-wide uppercase text-amber-800 mb-3 flex items-center gap-2\">\n           <svg class=\"w-5 h-5\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z\"></path></svg>\n           Field Technician Note\n        </h3>\n        <div class=\"text-amber-900 font-medium whitespace-pre-wrap leading-relaxed\">\"During field inspections, it's crucial to assess the environmental conditions surrounding the HVAC unit. High ambient temperatures and poor ventilation can accelerate the degradation of capacitors. Technicians should ensure that the unit is installed in a well-ventilated area and that any obstructions to airflow are removed. Additionally, regular inspections of electrical connections can prevent issues related to loose or corroded wiring, which can contribute to <a href=\"/diagnose/ac-capacitor-failure\" class=\"font-bold text-hvac-blue hover:underline\">capacitor failure</a>. Always verify that replacement capacitors match the original specifications to ensure compatibility and optimal performance.\"</div>\n      </div>\n    <div class=\"related-section my-12\">\n      <h2 class=\"text-xl font-bold mb-4 border-b pb-2\">Related Diagnostic Paths</h2>\n      <ul class=\"flex flex-wrap gap-2\"><li><a href=\"/diagnostics/compressor-motor-failure\" class=\"inline-block bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium px-4 py-2 rounded-full transition\">Compressor Motor Failure</a></li><li><a href=\"/diagnostics/electrical-overload\" class=\"inline-block bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium px-4 py-2 rounded-full transition\">Electrical Overload</a></li><li><a href=\"/diagnostics/thermal-overload\" class=\"inline-block bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium px-4 py-2 rounded-full transition\">Thermal Overload</a></li><li><a href=\"/diagnostics/capacitor-aging\" class=\"inline-block bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium px-4 py-2 rounded-full transition\">Capacitor Aging</a></li></ul></div>",
+  "other_causes": [
+    {
+      "url": "/diagnostics/faulty-wiring",
+      "name": "Faulty Wiring"
+    },
+    {
+      "url": "/diagnostics/compressor-overload",
+      "name": "Compressor Overload"
+    }
+  ],
+  "mermaid_graph": "graph TD\\nA[Start] --> B{Is the capacitor visibly damaged?}\\nB -->|Yes| C[Replace Capacitor]\\nB -->|No| D{Check for electrical continuity}\\nD -->|No Continuity| E[Replace Capacitor]\\nD -->|Continuity Present| F{Check Voltage Supply}\\nF -->|Voltage Present| G[Inspect Motor]\\nF -->|No Voltage| H[Check Power Supply]",
+  "confidence_box": "High",
+  "engine_version": "4.0.0-DecisionGrid-AI-Generator",
+  "problem_summary": "A blown start capacitor can cause significant issues in an HVAC system, primarily affecting the compressor's ability to start. This can lead to increased energy consumption, reduced system efficiency, and potential damage to other components. The capacitor may fail due to electrical surges, overheating, or simply reaching the end of its operational life. Identifying and addressing this issue promptly is crucial to maintaining system performance and preventing further damage.",
+  "diagnostic_tests": [
+    {
+      "name": "Capacitor Continuity Test",
+      "steps": [
+        "Disconnect power to the unit.",
+        "Remove the capacitor from the circuit.",
+        "Set multimeter to continuity mode.",
+        "Place probes on capacitor terminals.",
+        "Check for continuity."
+      ],
+      "tools": [
+        "Multimeter"
+      ]
+    },
+    {
+      "name": "Voltage Supply Test",
+      "steps": [
+        "Ensure power is off.",
+        "Set multimeter to AC voltage mode.",
+        "Reconnect power and measure voltage across capacitor terminals.",
+        "Verify voltage matches specifications."
+      ],
+      "tools": [
+        "Multimeter"
+      ]
+    },
+    {
+      "name": "Capacitance Test",
+      "steps": [
+        "Disconnect power to the unit.",
+        "Remove the capacitor from the circuit.",
+        "Set meter to capacitance mode.",
+        "Measure capacitance and compare to rated value."
+      ],
+      "tools": [
+        "Capacitance Meter"
+      ]
+    }
+  ],
+  "severity_indicator": {
+    "severity": "High",
+    "repair_urgency": "Urgent",
+    "risk_if_ignored": "Potential compressor failure and increased energy costs.",
+    "estimated_failure_window": "Immediate to 1 week"
+  },
+  "diagnostic_overview": {
+    "system": "HVAC",
+    "environment": "Residential/Commercial",
+    "component_path": "Electrical > Capacitors > Start Capacitor",
+    "operating_mode": "Startup",
+    "symptom_category": "Electrical Failure"
+  },
+  "related_diagnostics": [
+    {
+      "url": "/diagnostics/compressor-motor-failure",
+      "name": "Compressor Motor Failure"
+    },
+    {
+      "url": "/diagnostics/electrical-overload",
+      "name": "Electrical Overload"
+    },
+    {
+      "url": "/diagnostics/thermal-overload",
+      "name": "Thermal Overload"
+    },
+    {
+      "url": "/diagnostics/capacitor-aging",
+      "name": "Capacitor Aging"
+    }
+  ]
+}

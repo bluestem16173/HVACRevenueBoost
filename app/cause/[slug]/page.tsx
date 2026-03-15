@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import sql from "@/lib/db";
 import CausePageTemplate from "@/templates/cause-page";
+import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 
 export const revalidate = 3600;
 
@@ -13,10 +14,13 @@ export default async function CausePage({ params }: { params: { slug: string } }
     LIMIT 1
   `;
 
-  if (causeRes.length === 0) {
+  const aiPage = await getDiagnosticPageFromDB(params.slug);
+  const htmlContent = aiPage?.content_json?.html_content || null;
+
+  if (causeRes.length === 0 && !htmlContent) {
     notFound();
   }
-  const cause = causeRes[0];
+  const cause = causeRes[0] || { name: params.slug.replace(/-/g, ' '), explanation: 'AI Generated Diagnostic Report' };
 
   // Repairs: prefer cause_id (core schema), fallback to component_id (5-tier)
   let repairsRes: any[] = [];
@@ -61,13 +65,16 @@ export default async function CausePage({ params }: { params: { slug: string } }
     // Tables may not exist yet
   }
 
+  // We moved aiPage fetch up.
+
   return (
     <CausePageTemplate
       cause={cause}
-      symptom={symptomRes[0] || null}
+      symptom={symptomRes && symptomRes.length > 0 ? symptomRes[0] : null}
       component={cause.component_name ? { name: cause.component_name, slug: cause.component_slug } : null}
       repairs={repairsRes}
       diagnosticTests={diagnosticTests}
+      htmlContent={htmlContent}
     />
   );
 }
