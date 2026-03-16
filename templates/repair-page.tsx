@@ -2,7 +2,19 @@ import Link from "next/link";
 
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 
-export default function RepairPageTemplate({ repair, component, tools, cause }: any) {
+export default function RepairPageTemplate({ repair, component, tools, cause, contentJson }: any) {
+  const {
+    fast_answer,
+    tools_required,
+    parts_required,
+    step_overview,
+    cost_estimates,
+    technician_insights,
+    faq,
+  } = contentJson || {};
+
+  const displayTools = tools_required?.length > 0 ? tools_required : tools;
+
   const summaryPoints = [
     { label: "Repair Type", value: repair.name },
     { label: "Cost Estimate", value: repair.repair_type === 'low' ? '$150 - $350' : repair.repair_type === 'high' ? '$800+' : '$350 - $800' },
@@ -30,6 +42,55 @@ export default function RepairPageTemplate({ repair, component, tools, cause }: 
       </section>
 
       <ThirtySecondSummary points={summaryPoints} />
+
+      {fast_answer && (
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-3">Fast Answer</h2>
+          <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">{fast_answer}</p>
+        </section>
+      )}
+
+      {displayTools?.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-4">Tools Required</h2>
+          <ul className="space-y-3 list-none p-0">
+            {displayTools.map((t: any, i: number) => (
+              <li key={i} className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                <span className="font-bold text-hvac-navy dark:text-white">{t.name}</span>
+                {(t.reason || t.description) && <span className="text-sm text-slate-600 dark:text-slate-400 ml-2">— {t.reason || t.description}</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {parts_required?.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-4">Parts Required</h2>
+          <ul className="space-y-3 list-none p-0">
+            {parts_required.map((p: any, i: number) => (
+              <li key={i} className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                <span className="font-bold text-hvac-navy dark:text-white">{p.name}</span>
+                {p.description && <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 m-0">{p.description}</p>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {step_overview?.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-4">Repair Overview</h2>
+          <div className="space-y-4">
+            {step_overview.map((step: any, i: number) => (
+              <div key={i} className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                <strong className="text-hvac-navy dark:text-white">Step {i + 1}</strong>
+                <p className="text-slate-600 dark:text-slate-400 mt-2 m-0">{step.description ?? step.step}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <section className="mt-24 pt-24 border-t border-slate-200">
         <div className="grid md:grid-cols-12 gap-12 items-start">

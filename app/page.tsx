@@ -1,7 +1,11 @@
-import { SYMPTOMS, CITIES } from "@/data/knowledge-graph";
+import { SYSTEM_HUBS } from "@/lib/system-hubs";
+import { getConditionsForPillar } from "@/lib/conditions";
+import { getCitiesByState } from "@/lib/locations";
 import Link from "next/link";
 
 export default function Home() {
+  const statesWithCities = getCitiesByState();
+
   return (
     <div>
       {/* Hero Section */}
@@ -25,12 +29,14 @@ export default function Home() {
                 FIND LOCAL HELP
               </Link>
               <Link href="/hvac" className="btn-primary px-10 py-4 bg-hvac-blue/20 text-white hover:bg-hvac-blue/30 font-bold text-lg border-2 border-white/50">
-                HVAC SYSTEMS
+                HVAC PILLARS
+              </Link>
+              <Link href="/hub/home-ac" className="btn-primary px-10 py-4 bg-hvac-blue/10 text-white hover:bg-hvac-blue/20 font-bold text-lg border-2 border-white/30">
+                DIAGNOSTIC HUBS
               </Link>
             </div>
           </div>
         </div>
-        {/* Abstract Background pattern */}
         <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none">
           <div className="w-[800px] h-[800px] border-[50px] border-white rounded-full translate-x-1/2 translate-y-1/2"></div>
         </div>
@@ -54,48 +60,107 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Main Symptoms Grid */}
+      {/* HVAC Pillar System — Authoritative Guides */}
       <section className="container mx-auto px-4 py-24">
         <div className="text-center mb-16">
-          <h2 className="mt-0">Common HVAC Symptoms</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">Select a symptom below to access the full technical diagnostic manual and repair paths.</p>
+          <h2 className="mt-0">HVAC System Pillars</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Navigate by system domain. Each pillar links to an authoritative guide with problem clusters and condition variations.
+          </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {SYMPTOMS.map((symptom) => (
-            <Link 
-              key={symptom.id} 
-              href={`/diagnose/${symptom.id}`}
-              className="manual-card hover:border-hvac-blue hover:-translate-y-1 group"
-            >
-              <h3 className="group-hover:text-hvac-gold transition-colors">{symptom.name}</h3>
-              <p className="text-sm text-gray-500 line-clamp-2">{symptom.description}</p>
-              <div className="mt-6 flex items-center gap-2 text-hvac-blue font-bold text-xs uppercase tracking-widest">
-                Start Repair Guide <span className="group-hover:translate-x-1 transition-transform">→</span>
+          {SYSTEM_HUBS.map((hub) => {
+            const conditions = getConditionsForPillar(hub.slug);
+            return (
+              <div key={hub.slug} className="manual-card">
+                <Link href={`/${hub.slug}`} className="block group">
+                  <h3 className="group-hover:text-hvac-gold transition-colors mb-2">{hub.name}</h3>
+                  <p className="text-sm text-gray-500 line-clamp-2 mb-4">{hub.description}</p>
+                  <span className="text-hvac-blue font-bold text-xs uppercase tracking-widest">
+                    Authoritative Guide →
+                  </span>
+                </Link>
+                {conditions.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-slate-100">
+                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                      Conditions ({conditions.length})
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {conditions.slice(0, 4).map((c) => (
+                        <Link
+                          key={c.slug}
+                          href={`/conditions/${c.slug}`}
+                          className="text-xs text-hvac-blue hover:underline"
+                        >
+                          {c.name}
+                        </Link>
+                      ))}
+                      {conditions.length > 4 && (
+                        <Link href={`/${hub.slug}`} className="text-xs text-slate-500 hover:text-hvac-blue">
+                          +{conditions.length - 4} more
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-            </Link>
-          ))}
+            );
+          })}
         </div>
       </section>
 
-      {/* Localized Repair Hubs */}
+      {/* Florida Service Hubs — State column with sub-items */}
       <section className="bg-slate-50 py-24">
         <div className="container mx-auto px-4">
-          <h2 className="text-center mb-16">Verified HVAC Service Hubs</h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {CITIES.map((city) => (
-              <div key={city.slug} className="manual-card bg-white">
-                <h3 className="text-hvac-blue">{city.name}, {city.state}</h3>
-                <p className="text-sm text-gray-500 mb-6">Expert HVAC diagnostics and repair services for the greater {city.name} area.</p>
-                <div className="space-y-3">
-                  {SYMPTOMS.slice(0, 3).map(s => (
-                    <Link 
-                      key={s.id} 
-                      href={`/repair/${city.slug}/${s.id}`}
-                      className="block text-sm text-hvac-navy hover:text-hvac-gold font-medium"
-                    >
-                      {s.name} Repair {city.name}
-                    </Link>
+          <h2 className="text-center mb-4">Verified HVAC Service — Florida</h2>
+          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
+            We currently serve Florida. Expert HVAC diagnostics and repair services. More states coming soon.
+          </p>
+          <div className="max-w-4xl mx-auto">
+            {statesWithCities.map(({ state, stateName, cities }) => (
+              <div key={state} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="bg-hvac-navy text-white px-6 py-4 font-bold text-lg">
+                  {stateName}
+                </div>
+                <div className="p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {cities.slice(0, 12).map((city) => (
+                    <div key={city.slug} className="border border-slate-100 rounded-lg p-4 hover:border-hvac-blue transition-colors">
+                      <h4 className="font-bold text-hvac-navy mb-2">{city.name}</h4>
+                      <div className="space-y-1.5">
+                        <Link
+                          href={`/repair/${city.slug}/ac-blowing-warm-air`}
+                          className="block text-sm text-hvac-blue hover:underline"
+                        >
+                          AC Blowing Warm Air
+                        </Link>
+                        <Link
+                          href={`/repair/${city.slug}/ac-not-turning-on`}
+                          className="block text-sm text-hvac-blue hover:underline"
+                        >
+                          AC Not Turning On
+                        </Link>
+                        <Link
+                          href={`/repair/${city.slug}/ice-on-outdoor-unit`}
+                          className="block text-sm text-hvac-blue hover:underline"
+                        >
+                          Ice on Outdoor Unit
+                        </Link>
+                        <Link
+                          href={`/repair/${city.slug}`}
+                          className="block text-sm font-bold text-hvac-gold hover:underline mt-2"
+                        >
+                          All {city.name} Repairs →
+                        </Link>
+                      </div>
+                    </div>
                   ))}
+                  {cities.length > 12 && (
+                    <div className="sm:col-span-2 lg:col-span-3 text-center py-4">
+                      <Link href="/repair" className="text-hvac-blue font-bold hover:underline">
+                        View all {cities.length} Florida cities →
+                      </Link>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -110,8 +175,8 @@ export default function Home() {
           <p className="text-gray-500 text-sm italic mb-6">
             &quot;If you are troubleshooting an RV air conditioner instead of a home HVAC system, visit DecisionGrid for RV repair diagnostics.&quot;
           </p>
-          <a 
-            href="https://decisiongrid.com" 
+          <a
+            href="https://decisiongrid.com"
             className="text-hvac-blue font-bold hover:underline"
           >
             Visit DecisionGrid.com RV Diagnostics

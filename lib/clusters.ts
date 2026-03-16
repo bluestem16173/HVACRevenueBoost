@@ -56,7 +56,7 @@ export const CLUSTERS: Cluster[] = [
     slug: "blower-motor-problems",
     name: "Blower Motor Problems",
     description: "Blower motor not working, fan not spinning, running slowly, air handler fan not working. Strong airflow-related cluster.",
-    symptomIds: ["weak-airflow-vents", "uneven-cooling-heating", "constant-fan-running"],
+    symptomIds: ["blower-fan-not-working", "weak-airflow-vents", "uneven-cooling-heating", "constant-fan-running"],
     pillarSlug: "hvac-airflow-ductwork",
   },
   {

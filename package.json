@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:3001": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -19,6 +20,14 @@
     "db:migrate-007": "npx tsx scripts/run-migration-007.ts",
     "db:migrate-008": "npx tsx scripts/run-migration-008.ts",
     "db:migrate-009": "npx tsx scripts/run-migration-009.ts",
+    "db:migrate-010": "npx tsx scripts/run-migration-010.ts",
+    "db:migrate-011": "npx tsx scripts/run-migration-011.ts",
+    "db:migrate-012": "npx tsx scripts/run-migration-012.ts",
+    "db:11": "npx tsx scripts/run-migration-011.ts",
+    "db:seed-010": "npx tsx scripts/run-seed-010.ts",
+    "db:master-migrate": "npx tsx scripts/run-master-migration.ts migrate",
+    "db:master-seed": "npx tsx scripts/run-master-migration.ts seed",
+    "db:master-verify": "npx tsx scripts/run-master-migration.ts verify",
     "canary": "npx tsx scripts/canary-batch.ts",
     "pr": "node scripts/open-pr.js"
   },
@@ -34,7 +43,8 @@
     "openai": "^6.29.0",
     "react": "^18",
     "react-dom": "^18",
-    "tailwind-merge": "^2.2.2"
+    "tailwind-merge": "^2.2.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/node": "^20",

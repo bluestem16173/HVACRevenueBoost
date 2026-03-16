@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { REPAIRS } from "@/data/knowledge-graph";
-import { CITIES } from "@/data/knowledge-graph";
+import { FLORIDA_CITIES } from "@/lib/locations";
 
 export const revalidate = 3600;
 
@@ -65,19 +65,19 @@ export default function RepairHubPage() {
 
         <div className="pt-12 border-t border-slate-200 dark:border-slate-800">
           <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-6">
-            Find Local HVAC Repair
+            Find Local HVAC Repair — Florida
           </h2>
           <p className="text-gray-600 dark:text-slate-400 mb-6">
-            Connect with verified HVAC technicians in your area.
+            Connect with verified HVAC technicians in Florida. More states coming soon.
           </p>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {CITIES.slice(0, 12).map((city) => (
+            {FLORIDA_CITIES.slice(0, 24).map((city) => (
               <Link
                 key={city.slug}
                 href={`/repair/${city.slug}/ac-blowing-warm-air`}
                 className="block p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors"
               >
-                {city.name}, {city.state}
+                {city.name}, FL
               </Link>
             ))}
           </div>

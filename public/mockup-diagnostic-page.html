@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AC Blowing Warm Air — LOCKED Template</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            hvac: { navy: '#0a192f', blue: '#1e3a8a', gold: '#d4af37' }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <header class="bg-hvac-navy text-white py-4 shadow-lg sticky top-0 z-50">
+    <div class="container mx-auto px-4 flex justify-between items-center">
+      <span class="text-2xl font-black tracking-tighter flex gap-2">
+        <span class="bg-hvac-gold text-hvac-navy px-2 py-1 rounded">HVAC</span>
+        <span>DIAGNOSTIC</span>
+      </span>
+      <nav class="hidden md:flex gap-6 font-medium">
+        <a href="#" class="hover:text-hvac-gold">HVAC Systems</a>
+        <a href="#" class="hover:text-hvac-gold">Diagnostics</a>
+        <a href="#" class="hover:text-hvac-gold">Repair Guides</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container mx-auto px-4 py-12 max-w-4xl">
+    <nav class="text-sm text-gray-500 mb-8">
+      <a href="#" class="hover:text-hvac-blue">Home</a>
+      <span class="mx-2">/</span>
+      <a href="#" class="hover:text-hvac-blue">HVAC Systems</a>
+      <span class="mx-2">/</span>
+      <a href="#" class="hover:text-hvac-blue">Air Conditioning</a>
+      <span class="mx-2">/</span>
+      <a href="#" class="hover:text-hvac-blue">AC Not Cooling</a>
+      <span class="mx-2">/</span>
+      <span class="text-gray-900 font-medium">AC Blowing Warm Air</span>
+    </nav>
+
+    <!-- Hero -->
+    <section class="mb-12">
+      <div class="flex items-center gap-2 mb-4 text-sm font-bold text-hvac-blue bg-blue-50/50 w-fit px-3 py-1.5 rounded-full border border-blue-100">
+        <span class="text-green-600">✔</span> Reviewed by Certified HVAC Technicians
+      </div>
+      <h1 class="text-4xl md:text-5xl font-black text-hvac-navy leading-tight">
+        AC Blowing Warm Air: Professional HVAC Diagnostic Guide
+      </h1>
+      <p class="mt-4 text-lg font-medium text-slate-700">
+        AC blowing warm air is most often caused by low refrigerant or restricted airflow. Check the air filter first, then follow the diagnostic flow below to isolate the problem.
+      </p>
+
+      <!-- Tech Field Note (yellow box) -->
+      <div class="mt-6 p-5 sm:p-6 bg-amber-50 border-l-4 border-hvac-gold rounded-r-xl shadow-sm">
+        <h3 class="text-xs font-black uppercase tracking-widest text-amber-800 mb-2">Tech Field Note: Why This Happens</h3>
+        <p class="text-base font-medium text-slate-800 leading-relaxed m-0 italic">
+          "Restricted airflow from a dirty filter lowers evaporator heat absorption. Per Bernoulli and mass-flow principles, less air means less heat transfer—so the coil can't cool refrigerant enough. The system then blows warm. Check the filter first; it's the #1 field fix."
+        </p>
+        <p class="text-xs font-bold text-slate-500 mt-3 m-0 uppercase tracking-widest">— ASHRAE Fundamentals & Top Rated Local Techs</p>
+      </div>
+
+      <!-- Why This Happens (Technical / Educational) -->
+      <div class="mt-6 p-6 bg-slate-100 border border-slate-200 rounded-xl" id="why-this-happens">
+        <h3 class="text-sm font-black text-hvac-navy uppercase tracking-widest mb-3 m-0">Why This Happens</h3>
+        <p class="m-0 text-slate-700 leading-relaxed">
+          HVAC systems rely on refrigerant to transfer heat from inside the home to the outdoor condenser. When refrigerant levels drop due to leaks, or airflow is restricted by a dirty filter, the evaporator coil cannot absorb enough heat—causing the system to blow warm air. Understanding this helps you prioritize checks (filter first, then refrigerant) and know when to call a pro.
+        </p>
+      </div>
+
+      <!-- TOC -->
+      <div class="mt-8 p-6 bg-slate-50 rounded-xl border border-slate-200">
+        <h3 class="text-sm font-black text-hvac-navy uppercase tracking-widest mb-4 m-0">In This Guide</h3>
+        <ul class="grid sm:grid-cols-2 gap-2 list-none p-0 m-0 text-sm">
+          <li><a href="#why-this-happens" class="text-hvac-blue hover:underline">Why This Happens</a></li>
+          <li><a href="#troubleshoot-diy" class="text-hvac-blue hover:underline">Troubleshoot / DIY</a></li>
+          <li><a href="#diagnostics" class="text-hvac-blue hover:underline">Interactive Diagnostic Tree</a></li>
+          <li><a href="#causes-at-glance" class="text-hvac-blue hover:underline">Causes at a Glance</a></li>
+          <li><a href="#common-causes" class="text-hvac-blue hover:underline">Common Causes & Fixes</a></li>
+          <li><a href="#cost" class="text-hvac-blue hover:underline">Typical Repair Costs</a></li>
+          <li><a href="#common-mistakes" class="text-hvac-blue hover:underline">Common Mistakes</a></li>
+          <li><a href="#prevention" class="text-hvac-blue hover:underline">Prevention Tips</a></li>
+          <li><a href="#when-to-call" class="text-hvac-blue hover:underline">When to Call a Pro</a></li>
+          <li><a href="#get-quote" class="text-hvac-blue hover:underline">Get Local Repair Help</a></li>
+          <li><a href="#faq" class="text-hvac-blue hover:underline">FAQ</a></li>
+        </ul>
+      </div>
+
+      <div class="mt-8 flex flex-col sm:flex-row gap-4">
+        <a href="#diagnostics" class="flex-1 bg-white border-2 border-hvac-navy text-hvac-navy hover:bg-slate-50 text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm">Diagnose the Problem ↓</a>
+        <button class="flex-1 bg-hvac-blue hover:bg-blue-700 text-white text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm">Get Local HVAC Repair →</button>
+      </div>
+    </section>
+
+    <!-- Flowchart -->
+    <section class="mb-12 p-8 bg-white rounded-xl border border-slate-200" id="flowchart">
+      <h2 class="text-xl font-black text-hvac-navy mb-4">Diagnostic Flowchart</h2>
+      <div class="bg-slate-50 rounded-lg p-6 overflow-x-auto flex justify-center">
+        <div class="mermaid">
+graph TD
+  A[AC Blowing Warm Air] --> B[Low Refrigerant]
+  A --> C[Dirty Air Filter]
+  A --> D[Blown Capacitor]
+  A --> E[Bad Contactor]
+  A --> F[Leaky Ducts]
+  B --> G[Check pressure]
+  C --> H[Replace filter]
+  D --> I[Replace capacitor]
+  E --> J[Replace contactor]
+  F --> K[Seal ducts]
+        </div>
+      </div>
+    </section>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      mermaid.initialize({ startOnLoad: true, theme: 'base', themeVariables: { primaryColor: '#eff6ff', primaryTextColor: '#0a192f', primaryBorderColor: '#1e3a8a', lineColor: '#1e3a8a' } });
+    </script>
+
+    <!-- Causes at a Glance (with DIY Friendly) -->
+    <section class="mb-12" id="causes-at-glance">
+      <h2 class="text-2xl font-black text-hvac-navy mb-4">Causes at a Glance</h2>
+      <div class="overflow-x-auto rounded-xl border border-slate-200">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-slate-100 border-b border-slate-200">
+            <tr>
+              <th class="p-4 font-bold">Problem</th>
+              <th class="p-4 font-bold">Likely Cause</th>
+              <th class="p-4 font-bold">Difficulty</th>
+              <th class="p-4 font-bold">DIY Friendly</th>
+              <th class="p-4 font-bold">Guide</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr><td class="p-4">Weak airflow</td><td class="p-4">Dirty filter</td><td class="p-4">Easy</td><td class="p-4 font-bold text-green-600">Yes</td><td class="p-4"><a href="#common-causes" class="text-hvac-blue font-bold">View →</a></td></tr>
+            <tr><td class="p-4">Outdoor unit running, no cooling</td><td class="p-4">Low refrigerant</td><td class="p-4">Moderate</td><td class="p-4 font-bold text-amber-600">Not recommended</td><td class="p-4"><a href="#common-causes" class="text-hvac-blue font-bold">View →</a></td></tr>
+            <tr><td class="p-4">Unit hums but fan doesn't spin</td><td class="p-4">Capacitor failure</td><td class="p-4">Moderate</td><td class="p-4 font-bold text-amber-600">Not recommended</td><td class="p-4"><a href="#common-causes" class="text-hvac-blue font-bold">View →</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Troubleshoot / DIY -->
+    <section class="mb-12 bg-slate-50 p-8 rounded-2xl border border-slate-200" id="troubleshoot-diy">
+      <h2 class="text-2xl font-black text-hvac-navy mb-6 flex items-center gap-2"><span>⚡</span> Troubleshoot / DIY</h2>
+      <p class="text-slate-600 mb-4">Before calling a pro, verify airflow, thermostat settings, and power. Most issues start with a dirty filter or closed vents.</p>
+      <p class="text-xs font-medium text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2 mb-6">RV/home owners assume risk. If uncomfortable, contact a professional.</p>
+      <ol class="grid md:grid-cols-2 gap-4 list-none p-0 m-0 mb-8">
+        <li class="flex items-center gap-3 font-medium"><span class="bg-hvac-gold text-hvac-navy w-6 h-6 rounded-full flex items-center justify-center text-sm font-black">1</span> Verify thermostat is set to cool</li>
+        <li class="flex items-center gap-3 font-medium"><span class="bg-hvac-gold text-hvac-navy w-6 h-6 rounded-full flex items-center justify-center text-sm font-black">2</span> Replace dirty air filter</li>
+        <li class="flex items-center gap-3 font-medium"><span class="bg-hvac-gold text-hvac-navy w-6 h-6 rounded-full flex items-center justify-center text-sm font-black">3</span> Reset HVAC breaker</li>
+        <li class="flex items-center gap-3 font-medium"><span class="bg-hvac-gold text-hvac-navy w-6 h-6 rounded-full flex items-center justify-center text-sm font-black">4</span> Check outdoor condenser coil</li>
+      </ol>
+      <div class="pt-6 border-t border-slate-200 flex justify-between items-center">
+        <p class="font-bold m-0">Still having the problem?</p>
+        <button class="bg-hvac-navy text-white px-6 py-3 rounded-xl font-black text-sm uppercase">Get Local HVAC Help →</button>
+      </div>
+    </section>
+
+    <!-- Interactive Diagnostic Tree (modal trigger) -->
+    <section class="mb-12 bg-white p-8 rounded-2xl border border-slate-200" id="diagnostics">
+      <button class="w-full bg-white border-2 border-hvac-navy text-hvac-navy hover:bg-slate-50 text-center py-4 rounded-xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-2">
+        <span class="bg-hvac-blue text-white w-8 h-8 rounded-full flex items-center justify-center text-sm">?</span>
+        Open Interactive Diagnostic Tree
+      </button>
+    </section>
+
+    <!-- Common Causes & Fixes — with DIY difficulty on repair cards -->
+    <section class="mb-12" id="common-causes">
+      <h2 class="text-3xl font-black mb-6">Common Causes & Possible Fixes</h2>
+      <div class="space-y-8">
+        <div class="border-b border-slate-100 pb-8">
+          <h3 class="text-xl font-bold text-hvac-navy">Low Refrigerant Levels</h3>
+          <p class="mt-2 text-gray-600 italic">A leak in the refrigerant lines prevents the system from absorbing heat efficiently.</p>
+          <div class="mt-6 bg-blue-50/30 p-5 rounded-xl border border-blue-100">
+            <span class="text-xs font-black uppercase text-hvac-blue bg-white px-3 py-1 rounded">Verified Repair Path</span>
+            <div class="mt-4 p-4 bg-white rounded-lg border flex flex-col gap-3">
+              <div class="flex justify-between items-start">
+                <span class="font-bold">Refrigerant Recharge</span>
+                <span class="text-xs font-black uppercase px-3 py-1.5 rounded bg-red-100 text-red-700 border border-red-200">$450+</span>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">DIY level</span>
+                  <div class="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden flex">
+                    <div class="flex-1 bg-red-500"></div>
+                    <div class="flex-1 bg-slate-200"></div>
+                    <div class="flex-1 bg-slate-200"></div>
+                    <div class="flex-1 bg-slate-200"></div>
+                  </div>
+                </div>
+                <span class="text-[10px] font-medium text-slate-600">Leave to professionals</span>
+                <p class="text-[10px] text-amber-700 font-medium">⚠ Refrigerant (EPA 608) — strongly discourage DIY.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="border-b border-slate-100 pb-8">
+          <h3 class="text-xl font-bold text-hvac-navy">Dirty Air Filter</h3>
+          <p class="mt-2 text-gray-600 italic">Restricted airflow reduces cooling capacity and can cause evaporator freeze.</p>
+          <div class="mt-6 bg-blue-50/30 p-5 rounded-xl border border-blue-100">
+            <span class="text-xs font-black uppercase text-hvac-blue bg-white px-3 py-1 rounded">Verified Repair Path</span>
+            <div class="mt-4 p-4 bg-white rounded-lg border flex flex-col gap-3">
+              <div class="flex justify-between items-start">
+                <span class="font-bold">Replace Filter</span>
+                <span class="text-xs font-black uppercase px-3 py-1.5 rounded bg-green-100 text-green-700 border border-green-200">$50 - $150</span>
+              </div>
+              <a href="#" class="text-xs font-bold text-hvac-blue hover:underline mt-1">Buy part →</a>
+              <div class="flex flex-col gap-1.5">
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">DIY level</span>
+                  <div class="flex-1 h-1.5 bg-slate-200 rounded-full overflow-hidden flex">
+                    <div class="flex-1 bg-green-500"></div>
+                    <div class="flex-1 bg-slate-200"></div>
+                    <div class="flex-1 bg-slate-200"></div>
+                    <div class="flex-1 bg-slate-200"></div>
+                  </div>
+                </div>
+                <span class="text-[10px] font-medium text-slate-600">Beginner-friendly</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Narrow / Related (1-2 environments, 1-2 conditions) -->
+    <section class="mb-12">
+      <div class="grid md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-lg font-black text-hvac-navy mb-2">Narrow Your Diagnosis</h3>
+          <p class="text-sm text-slate-600 mb-4">1–2 environments and 1–2 conditions to pinpoint the issue.</p>
+          <div class="space-y-3">
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><span class="font-bold">Hot weather</span> — System under peak load</div>
+            <div class="bg-slate-50 p-3 rounded-lg border border-slate-200"><span class="font-bold">After long trip</span> — RV/home sat unused</div>
+            <div class="flex flex-wrap gap-2 mt-4">
+              <a href="#" class="text-xs font-bold bg-slate-100 px-3 py-1.5 rounded text-hvac-blue hover:bg-hvac-blue hover:text-white">AC Running but Not Cooling</a>
+              <a href="#" class="text-xs font-bold bg-slate-100 px-3 py-1.5 rounded text-hvac-blue hover:bg-hvac-blue hover:text-white">AC Not Cooling After Filter Change</a>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-lg font-black text-hvac-navy mb-2">Related Problems</h3>
+          <p class="text-sm text-slate-600 mb-4">1–2 environments and 1–2 conditions that share causes.</p>
+          <div class="flex flex-wrap gap-3">
+            <a href="#" class="bg-white border rounded-lg p-4 font-bold text-hvac-blue hover:border-hvac-blue hover:shadow">AC Freezing Up →</a>
+            <a href="#" class="bg-white border rounded-lg p-4 font-bold text-hvac-blue hover:border-hvac-blue hover:shadow">AC Not Turning On →</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Cost (stepwise green→yellow→red) -->
+    <section class="mb-12" id="cost">
+      <h2 class="text-3xl font-black mb-6">Typical Repair Costs</h2>
+      <div class="space-y-4">
+        <div class="bg-green-50 border-2 border-green-200 p-6 rounded-xl">
+          <h3 class="text-sm font-black text-green-800 uppercase tracking-widest mb-2">DIY / Low</h3>
+          <p class="text-3xl font-black m-0">$50–$150</p>
+          <p class="text-sm text-slate-600 mt-2 font-medium">Filter, drain line, basic maintenance</p>
+        </div>
+        <div class="bg-amber-50 border-2 border-amber-200 p-6 rounded-xl">
+          <h3 class="text-sm font-black text-amber-800 uppercase tracking-widest mb-2">Moderate — Professional Recommended</h3>
+          <p class="text-3xl font-black m-0">$150–$450</p>
+          <p class="text-sm text-slate-600 mt-2 font-medium">Capacitor, contactor, thermostat</p>
+          <a href="#" class="mt-4 inline-block text-sm font-bold text-hvac-blue hover:underline">Find local services →</a>
+        </div>
+        <div class="bg-red-50 border-2 border-red-200 p-6 rounded-xl">
+          <h3 class="text-sm font-black text-red-800 uppercase tracking-widest mb-2">Professional — Significant to Catastrophic if Delayed</h3>
+          <p class="text-3xl font-black m-0">$450+</p>
+          <p class="text-sm text-slate-600 mt-2 font-medium">Refrigerant, compressor, electrical</p>
+          <p class="text-sm font-bold text-red-800 mt-4">Cost of delay: Neglect can cascade into compressor failure ($2,500+). Mismanagement voids warranties.</p>
+          <button class="mt-4 bg-red-600 hover:bg-red-700 text-white font-black px-6 py-3 rounded-xl uppercase text-sm">Connect With Local Pro →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Signs it might be more serious -->
+    <section class="mb-12">
+      <div class="bg-amber-50 p-8 rounded-2xl border-2 border-amber-200">
+        <h2 class="text-2xl font-black text-amber-900 mb-4">Signs It Might Be More Serious—or Work Seems Too Complicated</h2>
+        <p class="text-amber-900 font-medium m-0">HVAC systems use expensive components, regulated chemicals (refrigerants), high-voltage electricity, and in furnaces, gas lines. Repairs are not necessarily DIY-friendly.</p>
+      </div>
+    </section>
+
+    <!-- Quick Repair Toolkit -->
+    <section class="mb-12 bg-slate-50 p-8 rounded-2xl border border-slate-200">
+      <h2 class="text-2xl font-black mb-2">Quick Repair Toolkit</h2>
+      <p class="text-gray-600 mb-6">Diagnosis and repair usually require these tools. Filter and drain fixes are owner-doable; electrical and refrigerant work require a pro.</p>
+      <div class="rounded-xl border border-slate-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-100 border-b border-slate-200">
+            <tr><th class="p-4 font-bold text-left">Tool</th><th class="p-4 font-bold text-left">Why You Need It</th></tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            <tr><td class="p-4 font-medium">Multimeter</td><td class="p-4 text-slate-600">Check voltage at disconnect and capacitor</td></tr>
+            <tr><td class="p-4 font-medium">Coil cleaner</td><td class="p-4 text-slate-600">Remove evaporator buildup</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Common Mistakes (with time estimates) -->
+    <section class="mb-12" id="common-mistakes">
+      <h2 class="text-2xl font-black text-hvac-navy mb-4">Common Mistakes</h2>
+      <ul class="space-y-4 list-none p-0">
+        <li class="flex items-start gap-3">
+          <span class="text-red-500 font-black">✗</span>
+          <div>
+            <strong class="block">Replacing the compressor before checking refrigerant</strong>
+            <span class="text-sm text-slate-600">Wastes $2,500+. Verify refrigerant and leak first.</span>
+            <span class="block text-xs font-bold text-slate-500 mt-1">Time: Leave to pros</span>
+          </div>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="text-red-500 font-black">✗</span>
+          <div>
+            <strong class="block">Ignoring dirty filters</strong>
+            <span class="text-sm text-slate-600">#1 cause of airflow and cooling issues. Replace monthly.</span>
+            <span class="block text-xs font-bold text-slate-500 mt-1">Time: 5–15 min</span>
+          </div>
+        </li>
+        <li class="flex items-start gap-3">
+          <span class="text-red-500 font-black">✗</span>
+          <div>
+            <strong class="block">Handling refrigerant without EPA certification</strong>
+            <span class="text-sm text-slate-600">EPA Section 608—illegal to vent or handle without license.</span>
+            <span class="block text-xs font-bold text-slate-500 mt-1">Time: Leave to pros</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Prevention -->
+    <section class="mb-12" id="prevention">
+      <h2 class="text-2xl font-black text-hvac-navy mb-4">Prevention Tips</h2>
+      <ul class="grid md:grid-cols-2 gap-3 list-none p-0">
+        <li class="flex items-start gap-2 text-sm"><span class="text-green-600 font-bold">•</span> Replace filter monthly during heavy use</li>
+        <li class="flex items-start gap-2 text-sm"><span class="text-green-600 font-bold">•</span> Clean condenser coils annually</li>
+        <li class="flex items-start gap-2 text-sm"><span class="text-green-600 font-bold">•</span> Schedule annual professional maintenance</li>
+      </ul>
+    </section>
+
+    <!-- When to Call -->
+    <section class="mb-12 bg-red-50 p-8 rounded-2xl border-2 border-red-200" id="when-to-call">
+      <h2 class="text-2xl font-black text-red-900 mb-4">When to Call an HVAC Technician</h2>
+      <ul class="mt-6 space-y-3 list-none p-0">
+        <li class="flex items-start gap-3"><span class="text-red-600 font-black">1.</span> <span class="text-sm text-red-900"><strong>Electrical Risk:</strong> Contactors, capacitors, control boards require LOTO training.</span></li>
+        <li class="flex items-start gap-3"><span class="text-red-600 font-black">2.</span> <span class="text-sm text-red-900"><strong>Refrigerant:</strong> EPA Section 608—illegal to vent or handle without license.</span></li>
+      </ul>
+      <button class="mt-8 bg-red-600 hover:bg-red-700 text-white font-black px-8 py-4 rounded-xl uppercase text-sm">Find Local HVAC Repair →</button>
+    </section>
+
+    <!-- Continue Troubleshooting — 4–5 topics max, below When to Call -->
+    <section class="mb-12">
+      <h2 class="text-xl font-black text-hvac-navy mb-4">Continue Troubleshooting</h2>
+      <p class="text-sm text-slate-600 mb-4">Related diagnostic guides and technical deep-dives.</p>
+      <div class="flex flex-wrap gap-3">
+        <a href="#" class="text-sm font-bold text-hvac-blue hover:underline">How to Test an HVAC Capacitor →</a>
+        <a href="#" class="text-sm font-bold text-hvac-blue hover:underline">How to Check Refrigerant Levels →</a>
+        <a href="#" class="text-sm font-bold text-hvac-blue hover:underline">How to Diagnose Thermostat Problems →</a>
+        <a href="#" class="text-sm font-bold text-hvac-blue hover:underline">AC Freezing Up →</a>
+      </div>
+    </section>
+
+    <!-- Get Help CTA -->
+    <section class="mb-16 bg-hvac-navy text-white p-10 rounded-3xl text-center" id="get-quote">
+      <h2 class="text-3xl font-black m-0 mb-6">Get Local HVAC Repair Help</h2>
+      <p class="text-slate-300 text-lg mb-8">Don't let AC blowing warm air turn into a catastrophic compressor failure.</p>
+      <button class="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-10 py-5 rounded-2xl uppercase text-lg">Request Repair Quote</button>
+    </section>
+
+    <!-- FAQ (minimum 4 items) -->
+    <section class="mb-16" id="faq">
+      <h2 class="text-3xl font-black mb-8">Frequently Asked Questions</h2>
+      <div class="space-y-4">
+        <div class="bg-white border border-slate-200 p-6 rounded-xl">
+          <h3 class="text-lg font-bold text-hvac-navy m-0">Why is my AC blowing warm air?</h3>
+          <p class="text-gray-600 mt-3 m-0">Most often low refrigerant or restricted airflow. Check the filter first.</p>
+        </div>
+        <div class="bg-white border border-slate-200 p-6 rounded-xl">
+          <h3 class="text-lg font-bold text-hvac-navy m-0">Can a dirty filter cause AC to stop cooling?</h3>
+          <p class="text-gray-600 mt-3 m-0">Yes. A clogged filter restricts airflow and can cause the evaporator to freeze.</p>
+        </div>
+        <div class="bg-white border border-slate-200 p-6 rounded-xl">
+          <h3 class="text-lg font-bold text-hvac-navy m-0">When should I call a professional?</h3>
+          <p class="text-gray-600 mt-3 m-0">Call a pro if you suspect refrigerant leaks, electrical faults, or compressor issues. EPA Section 608 requires certification for refrigerant work.</p>
+        </div>
+        <div class="bg-white border border-slate-200 p-6 rounded-xl">
+          <h3 class="text-lg font-bold text-hvac-navy m-0">How much does repair typically cost?</h3>
+          <p class="text-gray-600 mt-3 m-0">Simple fixes like filter replacement run $50–$150. Capacitor or contactor repairs often $150–$450. Refrigerant or compressor work can exceed $450.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bg-slate-900 text-slate-400 py-12 mt-20 border-t border-slate-800">
+    <div class="container mx-auto px-4 text-center text-xs">© HVAC Revenue Boost. All rights reserved.</div>
+  </footer>
+
+  <div class="fixed bottom-4 right-4 bg-green-600 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg">
+    ✓ LOCKED — Canonical template
+  </div>
+</body>
+</html>

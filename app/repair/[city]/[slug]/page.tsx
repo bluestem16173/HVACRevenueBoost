@@ -1,4 +1,5 @@
-import { SYMPTOMS, CITIES } from "@/data/knowledge-graph";
+import { SYMPTOMS } from "@/data/knowledge-graph";
+import { FLORIDA_CITIES } from "@/lib/locations";
 import { getPrioritySymptomsForCityPages } from "@/lib/clusters";
 import { getDiagnosticSteps, getCauseDetails, getSymptomWithCausesFromDB, getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { getInternalLinksForPage } from "@/lib/seo-linking";
@@ -12,7 +13,7 @@ export const dynamicParams = true; // allow pages not in generateStaticParams to
 
 export async function generateStaticParams() {
   const combinations = [];
-  const topCities = CITIES.slice(0, 50);
+  const topCities = FLORIDA_CITIES;
   // Prioritize symptoms from ac-not-cooling, ac-not-turning-on, outside-unit-not-running (highest service call clusters)
   const priorityIds = getPrioritySymptomsForCityPages();
   const prioritySymptoms = priorityIds
@@ -37,7 +38,7 @@ export default async function CitySymptomPage({
 }: { 
   params: { city: string, slug: string } 
 }) {
-  const city = CITIES.find(c => c.slug === params.city);
+  const city = FLORIDA_CITIES.find(c => c.slug === params.city);
   
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;

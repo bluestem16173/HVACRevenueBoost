@@ -6,6 +6,7 @@
 
 import { SYMPTOMS, CAUSES, REPAIRS } from "@/data/knowledge-graph";
 import { getCauseTechnicalContent } from "./symptom-technical-content";
+import { getClustersForPillar } from "./clusters";
 
 export interface Condition {
   slug: string;
@@ -44,6 +45,28 @@ export const CONDITIONS: Condition[] = [
     description: "Airflow did not improve after replacing the filter. Suggests blower motor, evaporator coil, or duct issues.",
     symptomId: "weak-airflow-vents",
     causeIds: ["dirty-coils", "leaky-ducts"],
+  },
+  // === BLOWER FAN NOT WORKING (3 conditions) ===
+  {
+    slug: "blower-not-spinning-at-all",
+    name: "Blower Not Spinning at All",
+    description: "The fan is completely still. No hum, no movement. Usually capacitor or motor failure.",
+    symptomId: "blower-fan-not-working",
+    causeIds: ["blower-capacitor-failed", "failed-blower-motor"],
+  },
+  {
+    slug: "blower-humming-no-spin",
+    name: "Blower Humming but Not Spinning",
+    description: "You hear a hum or buzz from the air handler but the fan doesn't turn. Classic capacitor failure.",
+    symptomId: "blower-fan-not-working",
+    causeIds: ["blower-capacitor-failed"],
+  },
+  {
+    slug: "blower-slow-or-weak",
+    name: "Blower Running Slow or Weak",
+    description: "The fan spins but airflow is very low. Often a dirty filter or failing motor.",
+    symptomId: "blower-fan-not-working",
+    causeIds: ["dirty-filter", "failed-blower-motor"],
   },
   {
     slug: "weak-airflow-in-extreme-heat",
@@ -542,8 +565,22 @@ export function getCondition(slug: string): Condition | undefined {
   return CONDITIONS.find((c) => c.slug === slug);
 }
 
+/** Conditions grouped by pillar (via symptom → cluster → pillarSlug) */
+export function getConditionsForPillar(pillarSlug: string): Condition[] {
+  const clusters = getClustersForPillar(pillarSlug);
+  const symptomIds = new Set(clusters.flatMap((c) => c.symptomIds));
+  return CONDITIONS.filter((c) => symptomIds.has(c.symptomId));
+}
+
 export function getConditionsForSymptom(symptomId: string): Condition[] {
   return CONDITIONS.filter((c) => c.symptomId === symptomId);
+}
+
+/** Conditions for this symptom that include this cause—used for "where to head next" in diagnostic tree */
+export function getConditionsForCause(symptomId: string, causeId: string): Condition[] {
+  return CONDITIONS.filter(
+    (c) => c.symptomId === symptomId && c.causeIds.includes(causeId)
+  );
 }
 
 export function getCauseDetailsForCondition(condition: Condition) {

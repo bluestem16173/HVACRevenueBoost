@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} min-h-screen bg-slate-50 text-slate-900`}>
         <header className="bg-hvac-navy text-white py-4 shadow-lg sticky top-0 z-50">
           <div className="container mx-auto px-4 flex justify-between items-center">
             <Link href="/" className="text-2xl font-black tracking-tighter flex items-center gap-2">
@@ -36,7 +36,7 @@ export default function RootLayout({
             </div>
           </div>
         </header>
-        <main className="min-h-screen">
+        <main className="min-h-screen bg-slate-50">
           {children}
         </main>
         <footer className="bg-slate-900 text-slate-400 py-12 mt-20 border-t border-slate-800">
