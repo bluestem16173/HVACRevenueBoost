@@ -126,7 +126,7 @@ export async function getSymptomWithCausesFromDB(symptomSlug: string): Promise<S
       FROM causes c
       JOIN symptom_causes sc ON sc.cause_id = c.id
       WHERE sc.symptom_id = ${(symptom as any[])[0].id}
-      ORDER BY COALESCE(sc.confidence_score, 1) DESC
+      ORDER BY sc.created_at DESC
     `;
 
     // Fetch repairs via cause_repairs (DecisionGrid) or legacy cause_id
