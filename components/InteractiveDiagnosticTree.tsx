@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { getCauseDiagnosticDetail } from "@/lib/cause-diagnostic-content";
+import { normalizeToString } from "@/lib/utils";
 
 export default function InteractiveDiagnosticTree({
   symptomName,
@@ -42,7 +43,7 @@ export default function InteractiveDiagnosticTree({
       {!selectedCause ? (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <p className="text-lg font-medium text-slate-700 dark:text-slate-300">
-            Which of these specifically describes your {symptomName.toLowerCase()} experience?
+            Which of these specifically describes your {normalizeToString(symptomName).toLowerCase()} experience?
           </p>
           <div className="grid sm:grid-cols-2 gap-3">
             {causes.map((cause) => (

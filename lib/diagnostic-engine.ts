@@ -1,5 +1,6 @@
 import { SYMPTOMS, CAUSES, REPAIRS } from "@/data/knowledge-graph";
 import sql from "./db";
+import { normalizeToString } from "@/lib/utils";
 
 /**
  * GENERATION GUARDRAILS
@@ -126,7 +127,7 @@ export async function getSymptomWithCausesFromDB(symptomSlug: string): Promise<S
       FROM causes c
       JOIN symptom_causes sc ON sc.cause_id = c.id
       WHERE sc.symptom_id = ${(symptom as any[])[0].id}
-      ORDER BY sc.created_at DESC
+      ORDER BY c.id
     `;
 
     // Fetch repairs via cause_repairs (DecisionGrid) or legacy cause_id
@@ -183,13 +184,13 @@ export async function getComponentData(componentSlug: string) {
     const symptoms = SYMPTOMS.filter(s => 
       s.causes?.some((cId: string) => {
         const cause = getCauseDetails(cId);
-        return cause?.component?.toLowerCase() === componentSlug.toLowerCase();
+        return normalizeToString(cause?.component).toLowerCase() === normalizeToString(componentSlug).toLowerCase();
       })
     );
 
     const repairs = SYMPTOMS.flatMap(s => s.causes || [])
       .map(cId => getCauseDetails(cId))
-      .filter(c => c?.component?.toLowerCase() === componentSlug.toLowerCase())
+      .filter(c => normalizeToString(c?.component).toLowerCase() === normalizeToString(componentSlug).toLowerCase())
       .flatMap(c => c?.repairDetails || [])
       .slice(0, 10);
 

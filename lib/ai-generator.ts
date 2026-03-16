@@ -2,6 +2,7 @@ import OpenAI from 'openai';
 import * as dotenv from 'dotenv';
 import { canBuildFromGraph, buildPageFromGraph } from './deterministic-page-builder';
 import { getMasterSystemPrompt } from '@/prompts/master';
+import { normalizeToString } from '@/lib/utils';
 dotenv.config({ path: '.env.local' });
 
 const openai = new OpenAI({
@@ -193,7 +194,7 @@ export function mergeJSON(core: any, enrichment: any): any {
 
   if (enrichment?.repair_explanations?.length && merged.repairs?.length) {
     merged.repairs = merged.repairs.map((r: any) => {
-      const rName = (r.name || '').toLowerCase();
+      const rName = normalizeToString(r.name).toLowerCase();
       const exp = enrichment.repair_explanations.find((e: any) => {
         const eRepair = (e.repair || '').toLowerCase();
         return eRepair.includes(rName) || rName.includes(eRepair) || eRepair.split(/\s+/).some((w: string) => rName.includes(w));
@@ -491,7 +492,7 @@ export function renderToHtml(aiData: any): string {
 
     // Severity Indicator
     if (aiData.severity_indicator) {
-      const isCritical = aiData.severity_indicator.severity?.toLowerCase().includes('critical') || aiData.severity_indicator.severity?.toLowerCase().includes('high');
+      const isCritical = normalizeToString(aiData.severity_indicator.severity).toLowerCase().includes('critical') || normalizeToString(aiData.severity_indicator.severity).toLowerCase().includes('high');
       const sevColor = isCritical ? 'bg-red-600' : 'bg-amber-500';
       const sevBg = isCritical ? 'bg-red-50' : 'bg-amber-50';
       const sevText = isCritical ? 'text-red-900' : 'text-amber-900';
@@ -646,7 +647,7 @@ export function renderToHtml(aiData: any): string {
     aiData.repairs.forEach((repair: any) => {
       // Determine difficulty pill color
       let diffColor = 'bg-slate-100 text-slate-600 border-slate-200';
-      const diffLower = (repair.difficulty || '').toLowerCase();
+      const diffLower = normalizeToString(repair.difficulty).toLowerCase();
       if (diffLower.includes('high') || diffLower.includes('expert') || diffLower.includes('hard') || diffLower.includes('pro')) diffColor = 'bg-red-50 text-red-700 border-red-200';
       else if (diffLower.includes('medium') || diffLower.includes('moderate')) diffColor = 'bg-amber-50 text-amber-700 border-amber-200';
       else if (diffLower.includes('low') || diffLower.includes('easy') || diffLower.includes('diy')) diffColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
