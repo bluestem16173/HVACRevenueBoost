@@ -14,6 +14,7 @@ import { getConditionsForSymptom } from "@/lib/conditions";
 import { getClusterForSymptom } from "@/lib/clusters";
 import { SECTION_MAP } from "@/components/sections";
 import { resolveLayout } from "@/lib/layout-resolver";
+import { normalizeToString } from "@/lib/utils";
 
 export default function SymptomPageTemplate({
   symptom,
@@ -223,7 +224,7 @@ export default function SymptomPageTemplate({
             <h3 className="text-xs font-black uppercase tracking-widest text-hvac-brown dark:text-amber-200 mb-3">Technician Statement</h3>
             <p className="text-base font-medium text-slate-800 dark:text-slate-200 leading-relaxed m-0">
               {contentJson?.technician_statement ?? contentJson?.field_note ?? technician_insights?.[0] ?? contentJson?.why_this_happens ?? (
-                `In the field, ${symptom.name.toLowerCase()} is one of the most common callbacks we see. The good news is that many cases are straightforward—a dirty filter, a tripped breaker, or a thermostat set to heat instead of cool. The trick is ruling out the simple stuff before we start digging into refrigerant levels or electrical components. Restricted airflow from a clogged filter is the number-one cause of reduced cooling; it forces the evaporator to work harder and can even cause ice buildup. If you're seeing weak airflow or ice on the coils, check the filter first. For refrigerant issues, compressor problems, or anything involving electrical work, that's when you should call a pro. EPA Section 608 certification is required for refrigerant handling, and high-voltage components can be dangerous. When in doubt, shut the system off and get a qualified technician out.`
+                `In the field, ${normalizeToString(symptom.name).toLowerCase()} is one of the most common callbacks we see. The good news is that many cases are straightforward—a dirty filter, a tripped breaker, or a thermostat set to heat instead of cool. The trick is ruling out the simple stuff before we start digging into refrigerant levels or electrical components. Restricted airflow from a clogged filter is the number-one cause of reduced cooling; it forces the evaporator to work harder and can even cause ice buildup. If you're seeing weak airflow or ice on the coils, check the filter first. For refrigerant issues, compressor problems, or anything involving electrical work, that's when you should call a pro. EPA Section 608 certification is required for refrigerant handling, and high-voltage components can be dangerous. When in doubt, shut the system off and get a qualified technician out.`
               )}
             </p>
             <p className="text-xs font-bold text-hvac-brown dark:text-amber-200/80 mt-4 m-0 uppercase tracking-widest">
@@ -357,7 +358,7 @@ export default function SymptomPageTemplate({
 
         {/* 7. CAUSES AT A GLANCE — top 3 only: 1 easy, 1 medium, 1 hard */}
         {causes?.length > 0 && (() => {
-          const norm = (c: any) => (c.difficulty ?? "").toLowerCase();
+          const norm = (c: any) => normalizeToString(c.difficulty ?? "").toLowerCase();
           const easy = causes.find((c: any) => norm(c) === "easy");
           const moderate = causes.find((c: any) => norm(c) === "moderate");
           const hard = causes.find((c: any) => norm(c) === "hard" || norm(c) === "advanced");
@@ -445,8 +446,8 @@ export default function SymptomPageTemplate({
                   proCost: r.proCost ?? r.cost ?? pro,
                 };
               });
-              const isEasy = (cause.difficulty ?? "").toLowerCase() === "easy";
-              const isHard = (cause.difficulty ?? "").toLowerCase() === "hard" || (cause.difficulty ?? "").toLowerCase() === "advanced";
+              const isEasy = normalizeToString(cause.difficulty ?? "").toLowerCase() === "easy";
+              const isHard = normalizeToString(cause.difficulty ?? "").toLowerCase() === "hard" || normalizeToString(cause.difficulty ?? "").toLowerCase() === "advanced";
               const boxBg = isEasy ? "bg-green-50 dark:bg-green-900/20 border-green-200" : isHard ? "bg-red-50 dark:bg-red-900/20 border-red-200" : "bg-amber-50 dark:bg-amber-900/20 border-amber-200";
               const boxBorder = isEasy ? "border-green-300" : isHard ? "border-red-300" : "border-amber-300";
               return (
@@ -915,11 +916,11 @@ export default function SymptomPageTemplate({
           <div className="space-y-4">
             {(() => {
               const baseFaq = faq?.length > 0 ? faq : fullCauses.map((c: any) => ({
-                question: `Can a ${c.name.toLowerCase()} cause ${symptom.name.toLowerCase()}?`,
+                question: `Can a ${normalizeToString(c.name).toLowerCase()} cause ${normalizeToString(symptom.name).toLowerCase()}?`,
                 answer: c.explanation,
               }));
               const defaultFaq = [
-                { question: `Why is my ${symptom.name.toLowerCase()}?`, answer: "Most often caused by restricted airflow (dirty filter), low refrigerant, or electrical issues. Check the filter first, then verify the outdoor unit is running." },
+                { question: `Why is my ${normalizeToString(symptom.name).toLowerCase()}?`, answer: "Most often caused by restricted airflow (dirty filter), low refrigerant, or electrical issues. Check the filter first, then verify the outdoor unit is running." },
                 { question: "When should I call a professional?", answer: "Call a pro if you suspect refrigerant leaks, electrical faults, or compressor issues. EPA Section 608 requires certification for refrigerant work." },
                 { question: "How much does repair typically cost?", answer: "Simple fixes like filter replacement run $50–$150. Capacitor or contactor repairs often $150–$450. Refrigerant or compressor work can exceed $450." },
                 { question: "Can I fix this myself?", answer: "Filter and drain line issues are often DIY-friendly. Electrical and refrigerant work should be left to licensed professionals." },

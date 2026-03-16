@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { normalizeToString } from "@/lib/utils";
 
 export default function Repairs({ data }: { data: any }) {
   const repairs = Array.isArray(data) ? data : data?.repairs ?? [];
@@ -10,12 +11,12 @@ export default function Repairs({ data }: { data: any }) {
         {repairs.map((r: any, idx: number) => (
           <Link
             key={idx}
-            href={`/fix/${r.slug || String(r.name).toLowerCase().replace(/\s+/g, "-")}`}
+            href={`/fix/${r.slug || normalizeToString(r.name).toLowerCase().replace(/\s+/g, "-")}`}
             className="block p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-hvac-blue"
           >
-            <span className="font-bold text-slate-800 dark:text-slate-200">{r.name}</span>
+            <span className="font-bold text-slate-800 dark:text-slate-200">{normalizeToString(r.name)}</span>
             <span className="ml-2 text-sm text-slate-500">
-              {r.difficulty} · {r.estimated_cost ?? r.cost}
+              {normalizeToString(r.difficulty)} · {r.estimated_cost ?? r.cost}
             </span>
           </Link>
         ))}

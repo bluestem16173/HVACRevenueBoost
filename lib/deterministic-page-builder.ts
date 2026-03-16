@@ -8,6 +8,8 @@
  * Reduces AI usage 60–80%.
  */
 
+import { normalizeToString } from "@/lib/utils";
+
 const MIN_CAUSES_FOR_GRAPH_PAGE = 2;
 const MIN_REPAIRS_FOR_GRAPH_PAGE = 2;
 
@@ -111,7 +113,7 @@ export function buildPageFromGraph(
 
 function mapSkillLevel(s?: string): string {
   if (!s) return 'moderate';
-  const lower = s.toLowerCase();
+  const lower = normalizeToString(s).toLowerCase();
   if (lower.includes('easy') || lower.includes('low') || lower.includes('diy'))
     return 'easy';
   if (lower.includes('advanced') || lower.includes('high') || lower.includes('hard'))
@@ -122,7 +124,7 @@ function mapSkillLevel(s?: string): string {
 function mapCost(c?: string): string {
   if (!c) return '$150–$450';
   if (typeof c === 'string' && c.includes('$')) return c;
-  const lower = (c || '').toLowerCase();
+  const lower = normalizeToString(c).toLowerCase();
   if (lower.includes('low')) return '$50–$150';
   if (lower.includes('high')) return '$450–$1500';
   return '$150–$450';
@@ -144,14 +146,14 @@ function buildDiagnosticStepsFromCauses(causes: GraphCause[]): any[] {
 
   const hasCapacitor = causes.some(
     (c) =>
-      (c.name || '').toLowerCase().includes('capacitor') ||
-      (c.slug || '').includes('capacitor')
+      normalizeToString(c.name).toLowerCase().includes('capacitor') ||
+      normalizeToString(c.slug).includes('capacitor')
   );
   const hasRefrigerant = causes.some(
     (c) =>
-      (c.name || '').toLowerCase().includes('refrigerant') ||
-      (c.explanation || '').toLowerCase().includes('refrigerant') ||
-      (c.description || '').toLowerCase().includes('refrigerant')
+      normalizeToString(c.name).toLowerCase().includes('refrigerant') ||
+      normalizeToString(c.explanation).toLowerCase().includes('refrigerant') ||
+      normalizeToString(c.description).toLowerCase().includes('refrigerant')
   );
 
   if (hasCapacitor) {

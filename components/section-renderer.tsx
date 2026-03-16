@@ -10,6 +10,7 @@
 import React from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { normalizeToString } from "@/lib/utils";
 
 const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
@@ -127,10 +128,10 @@ export function renderSection({
                 <div className="bg-hvac-brown/30 p-5 rounded-xl">
                   <h4 className="text-xs font-black text-hvac-gold uppercase tracking-widest mb-4">Environment</h4>
                   <div className="flex flex-wrap gap-2">
-                    {env.map((o) => (
-                      <Link key={o} href={`/conditions/${o.toLowerCase().replace(/\s+/g, "-")}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
-                        {o}
-                      </Link>
+                    {env.map((o: any, i: number) => (
+                    <Link key={`env-${i}`} href={`/conditions/${normalizeToString(o).toLowerCase().replace(/\s+/g, "-")}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
+                      {normalizeToString(o)}
+                    </Link>
                     ))}
                   </div>
                 </div>
@@ -139,10 +140,10 @@ export function renderSection({
                 <div className="bg-hvac-brown/30 p-5 rounded-xl">
                   <h4 className="text-xs font-black text-hvac-gold uppercase tracking-widest mb-4">Conditions</h4>
                   <div className="flex flex-wrap gap-2">
-                    {sym.map((o) => (
-                      <Link key={o} href={`/conditions/${o.toLowerCase().replace(/\s+/g, "-")}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
-                        {o}
-                      </Link>
+                    {sym.map((o: any, i: number) => (
+                    <Link key={`sym-${i}`} href={`/conditions/${normalizeToString(o).toLowerCase().replace(/\s+/g, "-")}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
+                      {normalizeToString(o)}
+                    </Link>
                     ))}
                   </div>
                 </div>
@@ -151,10 +152,10 @@ export function renderSection({
                 <div className="bg-hvac-brown/30 p-5 rounded-xl">
                   <h4 className="text-xs font-black text-hvac-gold uppercase tracking-widest mb-4">Noise(s)</h4>
                   <div className="flex flex-wrap gap-2">
-                    {noise.map((o) => (
-                      <Link key={o} href={`/conditions/${o.toLowerCase().replace(/\s+/g, "-")}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
-                        {o}
-                      </Link>
+                    {noise.map((o: any, i: number) => (
+                    <Link key={`noise-${i}`} href={`/conditions/${normalizeToString(o).toLowerCase().replace(/\s+/g, "-")}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
+                      {normalizeToString(o)}
+                    </Link>
                     ))}
                   </div>
                 </div>
@@ -174,8 +175,8 @@ export function renderSection({
           <div className="space-y-6">
             {causes.map((c: any, idx: number) => (
               <div key={idx} className="border-l-4 border-hvac-blue pl-6">
-                <h3 className="text-xl font-bold text-hvac-navy dark:text-white">{c.name}</h3>
-                <p className="text-slate-600 dark:text-slate-400 mt-2">{c.description}</p>
+                <h3 className="text-xl font-bold text-hvac-navy dark:text-white">{normalizeToString(c.name)}</h3>
+                <p className="text-slate-600 dark:text-slate-400 mt-2">{normalizeToString(c.description)}</p>
                 {Array.isArray(c.indicators) && c.indicators.length > 0 && (
                   <p className="text-sm text-slate-500 mt-2">
                     <strong>Indicators:</strong> {c.indicators.join(", ")}
@@ -198,10 +199,10 @@ export function renderSection({
             {repairs.map((r: any, idx: number) => (
               <Link
                 key={idx}
-                href={`/fix/${r.slug || r.name?.toLowerCase().replace(/\s+/g, "-")}`}
+                href={`/fix/${r.slug || normalizeToString(r.name).toLowerCase().replace(/\s+/g, "-")}`}
                 className="block p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-hvac-blue"
               >
-                <span className="font-bold text-slate-800 dark:text-slate-200">{r.name}</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">{normalizeToString(r.name)}</span>
                 <span className="ml-2 text-sm text-slate-500">
                   {r.difficulty} · {r.estimated_cost ?? r.cost}
                 </span>

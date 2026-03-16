@@ -10,7 +10,6 @@ dotenv.config({ path: '.env.local' });
 import sql from '../lib/db';
 import { getSymptomWithCausesFromDB } from '../lib/diagnostic-engine';
 import { generatePageContent, renderToHtml } from '../lib/ai-generator';
-import { generateDiagnosticPage, diagnosticFlowToMermaid } from '../lib/diagnostic-page-generator';
 import { generateCanaryPage, canaryToContentJson } from '../lib/canary-generator';
 
 async function runWorker() {
@@ -83,14 +82,12 @@ async function runWorker() {
 
         let contentJson: any;
 
-        // Canary generator (MASTER-PROMPT-CANARY) for symptom/diagnose with graph data
-        const useCanary = process.env.USE_CANARY === 'true';
+        // Canary generator (MASTER-PROMPT-CANARY) — default for symptom/diagnose with graph data
         if (
-          useCanary &&
           (['symptom', 'diagnose'].includes(item.page_type) || pageSlug?.startsWith('diagnose')) &&
           additionalContext.graphSymptom
         ) {
-          console.log(`🔥 Calling Canary Generator (Master Prompt) for ${pageSlug}...`);
+          console.log(`🔥 Canary Generator (MASTER-PROMPT-CANARY) for ${pageSlug}...`);
           const problem = additionalContext.graphSymptom.name || pageTitle;
           const graphCauses = (additionalContext.graphSymptom.causes || []).map((c: any) => ({ name: c.name }));
           const canary = await generateCanaryPage(problem, {
@@ -105,24 +102,6 @@ async function runWorker() {
             sections: canary.sections,
             ...canaryToContentJson(canary),
             engine_version: canary.engine_version,
-            generated_at: new Date().toISOString(),
-          };
-        } else if (
-          (['symptom', 'diagnose'].includes(item.page_type) || pageSlug?.startsWith('diagnose')) &&
-          additionalContext.graphSymptom
-        ) {
-          console.log(`🧠 Calling UI-aligned Diagnostic Page Generator for ${pageSlug}...`);
-          const problem = additionalContext.graphSymptom.name || pageTitle;
-          const graphCauses = (additionalContext.graphSymptom.causes || []).map((c: any) => ({ name: c.name }));
-          const structured = await generateDiagnosticPage(problem, {
-            system: 'HVAC',
-            subsystem: 'Air Conditioning',
-            graphCauses,
-          });
-          contentJson = {
-            ...structured,
-            mermaid_graph: diagnosticFlowToMermaid(problem, structured.diagnostic_flow as string[]),
-            engine_version: '5.0.0-HVACRevenueBoost-UIAligned',
             generated_at: new Date().toISOString(),
           };
         } else {

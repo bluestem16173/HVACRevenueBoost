@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { normalizeToString } from "@/lib/utils";
 
 export default function GuidedFilters({ data }: { data: any }) {
   if (!data) return null;
@@ -6,7 +7,7 @@ export default function GuidedFilters({ data }: { data: any }) {
   const sym = data.symptoms ?? [];
   const noise = data.noise ?? [];
   if (env.length === 0 && sym.length === 0 && noise.length === 0) return null;
-  const slug = (s: string) => s.toLowerCase().replace(/\s+/g, "-");
+  const slug = (s: any) => normalizeToString(s).toLowerCase().replace(/\s+/g, "-");
   return (
     <section className="mb-16" id="guided-diagnosis">
       <div className="bg-hvac-navy p-8 rounded-2xl shadow-lg">
@@ -16,9 +17,9 @@ export default function GuidedFilters({ data }: { data: any }) {
             <div className="bg-hvac-brown/30 p-5 rounded-xl">
               <h4 className="text-xs font-black text-hvac-gold uppercase tracking-widest mb-4">Environment</h4>
               <div className="flex flex-wrap gap-2">
-                {env.map((o: string) => (
-                  <Link key={o} href={`/conditions/${slug(o)}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
-                    {o}
+                {env.map((o: any, i: number) => (
+                  <Link key={i} href={`/conditions/${slug(o)}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
+                    {normalizeToString(o)}
                   </Link>
                 ))}
               </div>
@@ -28,9 +29,9 @@ export default function GuidedFilters({ data }: { data: any }) {
             <div className="bg-hvac-brown/30 p-5 rounded-xl">
               <h4 className="text-xs font-black text-hvac-gold uppercase tracking-widest mb-4">Conditions</h4>
               <div className="flex flex-wrap gap-2">
-                {sym.map((o: string) => (
-                  <Link key={o} href={`/conditions/${slug(o)}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
-                    {o}
+                {sym.map((o: any, i: number) => (
+                  <Link key={i} href={`/conditions/${slug(o)}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
+                    {normalizeToString(o)}
                   </Link>
                 ))}
               </div>
@@ -40,9 +41,9 @@ export default function GuidedFilters({ data }: { data: any }) {
             <div className="bg-hvac-brown/30 p-5 rounded-xl">
               <h4 className="text-xs font-black text-hvac-gold uppercase tracking-widest mb-4">Noise(s)</h4>
               <div className="flex flex-wrap gap-2">
-                {noise.map((o: string) => (
-                  <Link key={o} href={`/conditions/${slug(o)}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
-                    {o}
+                {noise.map((o: any, i: number) => (
+                  <Link key={i} href={`/conditions/${slug(o)}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded">
+                    {normalizeToString(o)}
                   </Link>
                 ))}
               </div>

@@ -11,6 +11,7 @@ import OpenAI from "openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
+import { normalizeToString } from "@/lib/utils";
 dotenv.config({ path: ".env.local" });
 
 const openai = new OpenAI({
@@ -62,10 +63,11 @@ const CANARY_SCHEMA = {
     },
     sections: {
       type: "object",
-      additionalProperties: true,
+      additionalProperties: false,
       properties: {
         hero: {
           type: "object",
+          additionalProperties: false,
           properties: {
             title: { type: "string" },
             description: { type: "string" },
@@ -75,6 +77,7 @@ const CANARY_SCHEMA = {
         technician_summary: { type: "string" },
         fast_answer: {
           type: "object",
+          additionalProperties: false,
           properties: {
             summary: { type: "string" },
             likely_cause: { type: "string" },
@@ -83,6 +86,7 @@ const CANARY_SCHEMA = {
         },
         most_common_fix: {
           type: "object",
+          additionalProperties: false,
           properties: {
             title: { type: "string" },
             steps: { type: "array", items: { type: "string" } },
@@ -93,22 +97,26 @@ const CANARY_SCHEMA = {
         },
         diagnostic_flow: {
           type: "object",
+          additionalProperties: false,
           properties: { mermaid: { type: "string" } },
           required: ["mermaid"],
         },
         guided_filters: {
           type: "object",
+          additionalProperties: false,
           properties: {
             environment: { type: "array", items: { type: "string" } },
             symptoms: { type: "array", items: { type: "string" } },
             noise: { type: "array", items: { type: "string" } },
           },
+          required: ["environment", "symptoms", "noise"],
         },
         causes: {
           type: "array",
           minItems: 3,
           items: {
             type: "object",
+            additionalProperties: false,
             properties: {
               name: { type: "string" },
               probability: { type: "string", enum: ["high", "medium", "low"] },
@@ -124,6 +132,7 @@ const CANARY_SCHEMA = {
           minItems: 3,
           items: {
             type: "object",
+            additionalProperties: false,
             properties: {
               name: { type: "string" },
               slug: { type: "string" },
@@ -139,6 +148,7 @@ const CANARY_SCHEMA = {
           type: "array",
           items: {
             type: "object",
+            additionalProperties: false,
             properties: {
               repair: { type: "string" },
               difficulty: { type: "string" },
@@ -151,6 +161,7 @@ const CANARY_SCHEMA = {
           type: "array",
           items: {
             type: "object",
+            additionalProperties: false,
             properties: {
               name: { type: "string" },
               purpose: { type: "string" },
@@ -162,6 +173,7 @@ const CANARY_SCHEMA = {
           type: "array",
           items: {
             type: "object",
+            additionalProperties: false,
             properties: {
               name: { type: "string" },
               role: { type: "string" },
@@ -171,35 +183,42 @@ const CANARY_SCHEMA = {
         },
         costs: {
           type: "object",
+          additionalProperties: false,
           properties: {
             diy: { type: "string" },
             moderate: { type: "string" },
             professional: { type: "string" },
           },
+          required: ["diy", "moderate", "professional"],
         },
         insights: { type: "array", items: { type: "string" } },
         warnings: {
           type: "object",
+          additionalProperties: false,
           properties: {
             ignore_risk: { type: "string" },
             safety: { type: "string" },
           },
+          required: ["ignore_risk", "safety"],
         },
         mistakes: { type: "array", items: { type: "string" } },
         environmental_factors: { type: "array", items: { type: "string" } },
         prevention: { type: "array", items: { type: "string" } },
         cta: {
           type: "object",
+          additionalProperties: false,
           properties: {
             primary: { type: "string" },
             secondary: { type: "string" },
           },
+          required: ["primary", "secondary"],
         },
         faq: {
           type: "array",
           minItems: 4,
           items: {
             type: "object",
+            additionalProperties: false,
             properties: {
               question: { type: "string" },
               answer: { type: "string" },
@@ -211,6 +230,7 @@ const CANARY_SCHEMA = {
           type: "array",
           items: {
             type: "object",
+            additionalProperties: false,
             properties: {
               type: { type: "string", enum: ["symptom", "condition", "repair", "component"] },
               slug: { type: "string" },
@@ -293,14 +313,7 @@ Return ONLY valid JSON. No markdown, no explanations. Follow the schema exactly.
         { role: "system", content: systemContent },
         { role: "user", content: `Generate the page for: ${problem}` },
       ],
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "canary_page",
-          strict: true,
-          schema: CANARY_SCHEMA as Record<string, unknown>,
-        },
-      },
+      response_format: { type: "json_object" },
       temperature: 0.6,
       max_tokens: 1200,
     });
@@ -347,9 +360,9 @@ export function canaryToContentJson(canary: {
     guided_diagnosis_filters: s.guided_filters
       ? {
           categories: [
-            { name: "Environment", options: (s.guided_filters.environment || []).map((o: string) => ({ slug: o.toLowerCase().replace(/\s+/g, "-"), label: o })) },
-            { name: "Conditions", options: (s.guided_filters.symptoms || []).map((o: string) => ({ slug: o.toLowerCase().replace(/\s+/g, "-"), label: o })) },
-            { name: "Noise", options: (s.guided_filters.noise || []).map((o: string) => ({ slug: o.toLowerCase().replace(/\s+/g, "-"), label: o })) },
+            { name: "Environment", options: (s.guided_filters.environment || []).map((o: any) => ({ slug: normalizeToString(o).toLowerCase().replace(/\s+/g, "-"), label: normalizeToString(o) })) },
+            { name: "Conditions", options: (s.guided_filters.symptoms || []).map((o: any) => ({ slug: normalizeToString(o).toLowerCase().replace(/\s+/g, "-"), label: normalizeToString(o) })) },
+            { name: "Noise", options: (s.guided_filters.noise || []).map((o: any) => ({ slug: normalizeToString(o).toLowerCase().replace(/\s+/g, "-"), label: normalizeToString(o) })) },
           ],
         }
       : null,

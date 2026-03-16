@@ -28,8 +28,7 @@ const CANARY_SLUGS = [
 ];
 
 async function run() {
-  const useCanary = process.env.USE_CANARY === 'true';
-  console.log(`🐤 Canary batch: ${CANARY_SLUGS.length} pages (${useCanary ? 'MASTER-PROMPT-CANARY' : 'legacy'})`);
+  console.log(`🐤 Canary batch: ${CANARY_SLUGS.length} pages (MASTER-PROMPT-CANARY)`);
   const results: { slug: string; ok: boolean; layout?: string; error?: string }[] = [];
 
   for (const slug of CANARY_SLUGS) {
@@ -53,7 +52,7 @@ async function run() {
       const pageSlug = `diagnose/${symptomSlug}`;
 
       let contentJson: any;
-      if (useCanary && graphSymptom) {
+      if (graphSymptom) {
         const canary = await generateCanaryPage(graphSymptom.name, {
           pageType: 'symptom',
           slug: pageSlug,
@@ -71,16 +70,14 @@ async function run() {
         results.push({ slug, ok: true, layout: canary.layout });
         console.log(`  ✓ layout=${canary.layout} sections=${Object.keys(canary.sections || {}).length}`);
       } else {
-        const aiData = await generatePageContent(pageSlug, 'symptom', pageTitle, {
-          graphSymptom: graphSymptom || undefined,
-        });
+        const aiData = await generatePageContent(pageSlug, 'symptom', pageTitle, {});
         const html = renderToHtml(aiData);
         if (!html || html.length < 100) {
           throw new Error('Generated HTML too short');
         }
         contentJson = { ...aiData, html_content: html, generated_at: new Date().toISOString() };
         results.push({ slug, ok: true });
-        console.log(`  ✓ ${html.length} chars`);
+        console.log(`  ✓ ${html.length} chars (fallback)`);
       }
 
       await sql`

@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import { normalizeToString } from "@/lib/utils";
 import {
   getCauseTechnicalContent,
   getSystemContext,
@@ -78,7 +78,7 @@ export default function ServicePageTemplate({
           {symptom?.name} – {city?.name} HVAC Diagnosis
         </h1>
         <p className="diagnostic-summary text-[#555] dark:text-slate-400 text-lg leading-relaxed">
-          {symptom?.name?.toLowerCase()} usually indicates an airflow restriction within the return system, blower
+          {normalizeToString(symptom?.name).toLowerCase()} usually indicates an airflow restriction within the return system, blower
           assembly, evaporator coil, or duct network. This diagnostic guide explains the technical causes, verification
           tests, and repair options used by HVAC technicians.
         </p>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import { normalizeToString } from "@/lib/utils";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 
 export default function RepairPageTemplate({ repair, component, tools, cause, contentJson }: any) {
@@ -37,7 +37,7 @@ export default function RepairPageTemplate({ repair, component, tools, cause, co
           Technical Service Manual
         </div>
         <h1 className="text-4xl md:text-5xl font-black text-hvac-navy leading-tight">
-          How to {repair.name.toLowerCase()}
+          How to {normalizeToString(repair.name).toLowerCase()}
         </h1>
       </section>
 
