@@ -1,11 +1,20 @@
 export type Component = "compressor" | "evaporator coil" | "condenser" | "thermostat" | "control board" | "blower motor" | "refrigerant line" | "capacitor" | "contactor" | "drain line" | "filter" | "heat exchanger" | "inducer motor" | "flame sensor" | "igniter" | "humidifier" | "air handler" | "ductwork" | "reversing valve" | "defrost board";
 
+/** DIY difficulty: rookie (filter), moderate (thermostat), advanced (capacitor), professional-only (electrical/gas/refrigerant) */
+export type DiyDifficulty = "rookie" | "moderate" | "advanced" | "professional-only";
+/** Safety flags that strongly discourage DIY — electrical, gas, refrigerant require licensed pros */
+export type SafetyConcern = "electrical" | "gas" | "refrigerant" | "high_voltage";
+
 export interface Repair {
   id: string;
   name: string;
   description: string;
   estimatedCost: "low" | "medium" | "high";
   component: Component;
+  /** How suitable for DIY: rookie (easiest) to professional-only (leave to pros) */
+  diyDifficulty?: DiyDifficulty;
+  /** If any present, strongly discourage DIY — warranty, safety, legal (EPA 608), unseen damage */
+  safetyConcerns?: SafetyConcern[];
 }
 
 export interface Cause {
@@ -36,6 +45,8 @@ export const REPAIRS: Record<string, Repair> = {
     description: "Adding refrigerant to the system to restore cooling performance.",
     estimatedCost: "medium",
     component: "refrigerant line",
+    diyDifficulty: "professional-only",
+    safetyConcerns: ["refrigerant"],
   },
   "replace-capacitor": {
     id: "replace-capacitor",
@@ -50,6 +61,8 @@ export const REPAIRS: Record<string, Repair> = {
     description: "Removing dust and debris from the indoor coil to improve heat exchange.",
     estimatedCost: "low",
     component: "evaporator coil",
+    diyDifficulty: "advanced",
+    safetyConcerns: ["electrical"],
   },
   "replace-blower-motor": {
     id: "replace-blower-motor",
@@ -57,6 +70,8 @@ export const REPAIRS: Record<string, Repair> = {
     description: "Installing a new motor for the indoor air handler unit.",
     estimatedCost: "high",
     component: "blower motor",
+    diyDifficulty: "advanced",
+    safetyConcerns: ["electrical", "high_voltage"],
   },
   "replace-thermostat": {
     id: "replace-thermostat",
@@ -64,6 +79,8 @@ export const REPAIRS: Record<string, Repair> = {
     description: "Upgrading or replacing a faulty wall thermostat.",
     estimatedCost: "low",
     component: "thermostat",
+    diyDifficulty: "moderate",
+    safetyConcerns: ["electrical"],
   },
   "replace-compressor": {
     id: "replace-compressor",
@@ -71,6 +88,8 @@ export const REPAIRS: Record<string, Repair> = {
     description: "Replacing the main pump in the outdoor unit.",
     estimatedCost: "high",
     component: "compressor",
+    diyDifficulty: "professional-only",
+    safetyConcerns: ["refrigerant", "electrical", "high_voltage"],
   },
   "clear-drain-line": {
     id: "clear-drain-line",
@@ -78,6 +97,7 @@ export const REPAIRS: Record<string, Repair> = {
     description: "Removing blockages from the water drain line to prevent leaks.",
     estimatedCost: "low",
     component: "drain line",
+    diyDifficulty: "moderate",
   },
   "replace-air-filter": {
     id: "replace-air-filter",
@@ -92,6 +112,8 @@ export const REPAIRS: Record<string, Repair> = {
     description: "Replacing the heating element that lights the furnace burners.",
     estimatedCost: "low",
     component: "igniter",
+    diyDifficulty: "advanced",
+    safetyConcerns: ["gas", "electrical"],
   },
   "clean-flame-sensor": {
     id: "clean-flame-sensor",
@@ -99,6 +121,8 @@ export const REPAIRS: Record<string, Repair> = {
     description: "Cleaning the sensor that confirms the burner has lit.",
     estimatedCost: "low",
     component: "flame sensor",
+    diyDifficulty: "advanced",
+    safetyConcerns: ["gas", "electrical"],
   },
   "replace-contactor": {
     id: "replace-contactor",
@@ -113,6 +137,7 @@ export const REPAIRS: Record<string, Repair> = {
     description: "Sealing leaks in the air ducts to improve efficiency and airflow.",
     estimatedCost: "medium",
     component: "ductwork",
+    diyDifficulty: "moderate",
   },
   "replace-reversing-valve": {
     id: "replace-reversing-valve",
@@ -127,7 +152,9 @@ export const REPAIRS: Record<string, Repair> = {
     description: "Installing a new board that manages the ice-melting cycle on heat pumps.",
     estimatedCost: "medium",
     component: "defrost board",
-  }
+    diyDifficulty: "professional-only",
+    safetyConcerns: ["electrical", "high_voltage"],
+  },
 };
 
 export const CAUSES: Record<string, Cause> = {
@@ -214,7 +241,21 @@ export const CAUSES: Record<string, Cause> = {
     explanation: "A faulty board can cause the outdoor unit to freeze over in winter, blocking heat absorption.",
     component: "defrost board",
     repairs: ["replace-defrost-board"],
-  }
+  },
+  "failed-blower-motor": {
+    id: "failed-blower-motor",
+    name: "Failed Blower Motor",
+    explanation: "The indoor blower motor bearings can seize or the motor can burn out from age, dust, or electrical overload.",
+    component: "blower motor",
+    repairs: ["replace-blower-motor"],
+  },
+  "blower-capacitor-failed": {
+    id: "blower-capacitor-failed",
+    name: "Blower Capacitor Failure",
+    explanation: "Many air handlers use a run capacitor for the blower. When it fails, the fan won't start or may hum without spinning.",
+    component: "capacitor",
+    repairs: ["replace-capacitor"],
+  },
 };
 
 export const SYMPTOMS: Symptom[] = [
@@ -355,6 +396,12 @@ export const SYMPTOMS: Symptom[] = [
     name: "Fan Running Constantly",
     description: "The indoor blower fan never stops, even when the system isn't heating or cooling.",
     causes: ["faulty-thermostat", "welded-contactor"],
+  },
+  {
+    id: "blower-fan-not-working",
+    name: "Blower Fan Not Working",
+    description: "The indoor air handler fan won't spin, runs slowly, or makes noise but doesn't move air. No airflow from vents.",
+    causes: ["failed-blower-motor", "blower-capacitor-failed", "dirty-filter", "faulty-thermostat"],
   },
   // Refrigerant-specific symptoms (distinct search intent for refrigerant-problems cluster)
   {

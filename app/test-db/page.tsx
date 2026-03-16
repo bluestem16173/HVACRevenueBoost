@@ -16,6 +16,7 @@ const SCHEMA_MERMAID = `erDiagram
   systems ||--|{ symptoms : has
   systems ||--|{ conditions : has
   systems ||--|{ causes : has
+  systems ||--|{ components : has
   symptoms ||--|{ symptom_causes : ""
   causes ||--|{ symptom_causes : ""
   symptoms ||--|{ symptom_conditions : ""
@@ -24,9 +25,21 @@ const SCHEMA_MERMAID = `erDiagram
   causes ||--|{ condition_causes : ""
   causes ||--|{ cause_repairs : ""
   repairs ||--|{ cause_repairs : ""
+  causes ||--|{ cause_components : ""
+  components ||--|{ cause_components : ""
+  repairs ||--|{ repair_components : ""
+  components ||--|{ repair_components : ""
+  diagnostics ||--|{ diagnostic_steps : ""
+  conditions ||--|{ condition_diagnostics : ""
+  diagnostics ||--|{ condition_diagnostics : ""
+  components ||--o{ parts : ""
+  symptoms ||--o{ diagnostic_paths : ""
+  conditions ||--o{ diagnostic_paths : ""
   page_targets ||--o{ pages : generates
   page_targets ||--o{ page_generation_runs : ""
   pages ||--o| page_generation_runs : ""
+  symptoms ||--o{ generation_queue : ""
+  pages ||--o{ generation_queue : ""
   systems {
     int id PK
     string name
@@ -50,6 +63,12 @@ const SCHEMA_MERMAID = `erDiagram
     string slug
     string difficulty
   }
+  components {
+    int id PK
+    int system_id FK
+    string name
+    string slug
+  }
   symptom_causes {
     int symptom_id PK
     int cause_id PK
@@ -57,6 +76,36 @@ const SCHEMA_MERMAID = `erDiagram
   cause_repairs {
     int cause_id PK
     int repair_id PK
+  }
+  cause_components {
+    int cause_id PK
+    int component_id PK
+  }
+  repair_components {
+    int repair_id PK
+    int component_id PK
+  }
+  diagnostics {
+    int id PK
+    string slug
+    int symptom_id FK
+    int condition_id FK
+  }
+  diagnostic_steps {
+    int id PK
+    int diagnostic_id FK
+    int step_order
+  }
+  condition_diagnostics {
+    int condition_id PK
+    int diagnostic_id PK
+  }
+  generation_queue {
+    int id PK
+    string proposed_slug
+    string page_type
+    string status
+    int page_id FK
   }
   page_targets {
     int id PK
@@ -69,11 +118,61 @@ const SCHEMA_MERMAID = `erDiagram
     string page_type
     string content
   }
+  cities {
+    int id PK
+    string city
+    string state
+    string slug
+  }
   locations {
     int id PK
     string city
     string state
     string slug
+  }
+  tools {
+    int id PK
+    string name
+    string slug
+  }
+  internal_links {
+    int id PK
+    string source_slug
+    string target_slug
+    string link_reason
+  }
+  related_nodes {
+    int id PK
+    string source_slug
+    string target_slug
+    string relation_type
+  }
+  environments {
+    int id PK
+    string name
+    string slug
+  }
+  vehicle_models {
+    int id PK
+    string make
+    string model
+    string slug
+  }
+  parts {
+    int id PK
+    string name
+    string slug
+    int component_id FK
+  }
+  diagnostic_paths {
+    int id PK
+    int symptom_id FK
+    int condition_id FK
+  }
+  link_graph {
+    int id PK
+    int source_page_id FK
+    int target_page_id FK
   }
   contractors {
     int id PK
@@ -119,13 +218,13 @@ export default function TestDbPage() {
         </a>
       </div>
 
-      {/* Schema (008) — structure before seeding */}
+      {/* Schema (008 + 010) — full schema after migrations */}
       <section className="mb-8 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 overflow-x-auto">
-        <h2 className="text-lg font-bold mb-4">Schema (008) — Before Seeding</h2>
+        <h2 className="text-lg font-bold mb-4">Schema (008 + 010)</h2>
         <p className="text-slate-600 dark:text-slate-400 mb-4 text-xs">
-          Knowledge graph + page targets + leads. Run migration before seeding.
+          Knowledge graph, page targets, generation_queue, diagnostics, cities, tools, components, internal_links, related_nodes.
         </p>
-        <MermaidDiagram chart={SCHEMA_MERMAID} title="Database Schema" downloadFilename="hvac-schema-008.svg" />
+        <MermaidDiagram chart={SCHEMA_MERMAID} title="Database Schema" downloadFilename="hvac-schema-008-010.svg" />
       </section>
 
       {/* DB Status */}

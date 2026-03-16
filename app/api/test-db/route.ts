@@ -27,6 +27,14 @@ export async function GET() {
     cause_repairs: () => sql`SELECT COUNT(*) as c FROM cause_repairs`,
     pages: () => sql`SELECT COUNT(*) as c FROM pages`,
     page_targets: () => sql`SELECT COUNT(*) as c FROM page_targets`,
+    generation_queue: () => sql`SELECT COUNT(*) as c FROM generation_queue`,
+    diagnostics: () => sql`SELECT COUNT(*) as c FROM diagnostics`,
+    diagnostic_steps: () => sql`SELECT COUNT(*) as c FROM diagnostic_steps`,
+    cities: () => sql`SELECT COUNT(*) as c FROM cities`,
+    tools: () => sql`SELECT COUNT(*) as c FROM tools`,
+    components: () => sql`SELECT COUNT(*) as c FROM components`,
+    internal_links: () => sql`SELECT COUNT(*) as c FROM internal_links`,
+    related_nodes: () => sql`SELECT COUNT(*) as c FROM related_nodes`,
   };
 
   try {

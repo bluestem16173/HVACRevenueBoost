@@ -8,9 +8,10 @@
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 import sql from '../lib/db';
-import { getCauseTechnicalContent, getSystemContext } from '../lib/symptom-technical-content';
 import { getSymptomWithCausesFromDB } from '../lib/diagnostic-engine';
 import { generatePageContent, renderToHtml } from '../lib/ai-generator';
+import { generateDiagnosticPage, diagnosticFlowToMermaid } from '../lib/diagnostic-page-generator';
+import { generateCanaryPage, canaryToContentJson } from '../lib/canary-generator';
 
 async function runWorker() {
   console.log('🚀 Starting HVAC Revenue Boost Worker (Neon)...');
@@ -80,17 +81,67 @@ async function runWorker() {
         // SCALABLE: City pages are never queued. They render dynamically from knowledge pages.
         // Only the lead module changes per location. No city-specific content generation.
 
-        console.log(`🧠 Calling AI Generator for ${pageSlug}...`);
-        const aiData = await generatePageContent(pageSlug, item.page_type, pageTitle, additionalContext);
-        const generatedHtml = renderToHtml(aiData);
-
         let contentJson: any;
-        contentJson = {
-          ...aiData,
-          html_content: autoLinkContent(generatedHtml, entities),
-          engine_version: '4.0.0-HVACRevenueBoost-AI',
-          generated_at: new Date().toISOString()
-        };
+
+        // Canary generator (MASTER-PROMPT-CANARY) for symptom/diagnose with graph data
+        const useCanary = process.env.USE_CANARY === 'true';
+        if (
+          useCanary &&
+          (['symptom', 'diagnose'].includes(item.page_type) || pageSlug?.startsWith('diagnose')) &&
+          additionalContext.graphSymptom
+        ) {
+          console.log(`🔥 Calling Canary Generator (Master Prompt) for ${pageSlug}...`);
+          const problem = additionalContext.graphSymptom.name || pageTitle;
+          const graphCauses = (additionalContext.graphSymptom.causes || []).map((c: any) => ({ name: c.name }));
+          const canary = await generateCanaryPage(problem, {
+            pageType: item.page_type,
+            slug: pageSlug,
+            system: 'HVAC',
+            keyword: problem,
+            graphCauses,
+          });
+          contentJson = {
+            layout: canary.layout,
+            sections: canary.sections,
+            ...canaryToContentJson(canary),
+            engine_version: canary.engine_version,
+            generated_at: new Date().toISOString(),
+          };
+        } else if (
+          (['symptom', 'diagnose'].includes(item.page_type) || pageSlug?.startsWith('diagnose')) &&
+          additionalContext.graphSymptom
+        ) {
+          console.log(`🧠 Calling UI-aligned Diagnostic Page Generator for ${pageSlug}...`);
+          const problem = additionalContext.graphSymptom.name || pageTitle;
+          const graphCauses = (additionalContext.graphSymptom.causes || []).map((c: any) => ({ name: c.name }));
+          const structured = await generateDiagnosticPage(problem, {
+            system: 'HVAC',
+            subsystem: 'Air Conditioning',
+            graphCauses,
+          });
+          contentJson = {
+            ...structured,
+            mermaid_graph: diagnosticFlowToMermaid(problem, structured.diagnostic_flow as string[]),
+            engine_version: '5.0.0-HVACRevenueBoost-UIAligned',
+            generated_at: new Date().toISOString(),
+          };
+        } else {
+          console.log(`🧠 Calling AI Generator for ${pageSlug}...`);
+          const aiData = await generatePageContent(pageSlug, item.page_type, pageTitle, additionalContext);
+          const generatedHtml = renderToHtml(aiData);
+          contentJson = {
+            ...aiData,
+            html_content: autoLinkContent(generatedHtml, entities),
+            engine_version: '4.0.0-HVACRevenueBoost-AI',
+            generated_at: new Date().toISOString(),
+          };
+        }
+
+        // Use symptom slug for diagnose pages so /diagnose/[slug] can find it
+        const pagesSlug =
+          (['symptom', 'diagnose'].includes(item.page_type) || pageSlug?.startsWith('diagnose'))
+            ? symptomSlug || pageSlug
+            : pageSlug;
 
         // 3. Upsert into Pages table using Neon raw SQL
         const result = await sql`
@@ -104,7 +155,7 @@ async function runWorker() {
             status, 
             content_json
           ) VALUES (
-            ${pageSlug}, 
+            ${pagesSlug}, 
             ${pageTitle}, 
             ${item.page_type}, 
             ${item.system_id || null}, 

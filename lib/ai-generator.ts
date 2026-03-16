@@ -1,6 +1,7 @@
 import OpenAI from 'openai';
 import * as dotenv from 'dotenv';
 import { canBuildFromGraph, buildPageFromGraph } from './deterministic-page-builder';
+import { getMasterSystemPrompt } from '@/prompts/master';
 dotenv.config({ path: '.env.local' });
 
 const openai = new OpenAI({
@@ -43,8 +44,8 @@ const PASS1_SCHEMA = {
     },
     repairs: {
       type: 'array',
-      minItems: 5,
-      maxItems: 6,
+      minItems: 4,
+      maxItems: 10,
       items: {
         type: 'object',
         additionalProperties: false,
@@ -128,31 +129,30 @@ const ENRICHMENT_ONLY_SCHEMA = {
   required: ['summary', 'field_note', 'repair_explanations', 'mermaid_graph', 'confidence_score'],
 };
 
-/** Pass 1: Core structured data — schema enforces output shape */
-const PASS1_PROMPT = `You are a senior residential and RV HVAC diagnostic engineer with 20 years of field service experience.
+/** Compose Master + Page-Type prompt (hierarchical architecture) */
+export function composeSystemPrompt(pageTypePrompt: string): string {
+  const master = getMasterSystemPrompt();
+  return `${master}\n\n---\n\n${pageTypePrompt}`;
+}
 
-Return only data needed for a technical diagnostic page. Do not write introductions, explanations, markdown, or any text outside the required JSON structure.
+/** Pass 1: Core structured data — schema enforces output shape */
+const PASS1_PROMPT = `Return only data needed for a technical diagnostic page. JSON only—no markdown, no explanations.
+
+CRITICAL: Each cause must include ≥ 2 repair options. Total repair options across all causes must be ≥ 5.
 
 Content rules:
 - Use concise technician-style wording.
 - Prioritize real-world diagnostic clues.
 - Avoid filler. Do not repeat causes or repairs.
-- Keep each field short and information-dense.
 - Summary must be 1 sentence.
 - Generate exactly 3 causes.
-- Generate exactly 5 repairs.
+- Generate exactly 5 repairs (minimum).
 - Generate exactly 4 diagnostic steps.
 
-Important:
-- Causes must be plausible for the exact symptom/condition pair.
-- Repairs must map logically to the listed causes.
-- Diagnostic steps must help narrow the issue efficiently.
-- Keep outputs compact to preserve token budget.`;
+Causes must be plausible for the exact symptom/condition pair. Repairs must map logically to causes.`;
 
 /** Enrichment-only: when page is built from DB graph */
-const ENRICHMENT_ONLY_PROMPT = `You are a veteran HVAC technical writer and service trainer.
-
-Add enrichment to a page built from the knowledge graph. The causes and repairs are ALREADY set. Do NOT regenerate them.
+const ENRICHMENT_ONLY_PROMPT = `Add enrichment to a page built from the knowledge graph. The causes and repairs are ALREADY set. Do NOT regenerate them.
 
 Rules:
 - Be concise. Summary: 1 sentence.
@@ -161,9 +161,7 @@ Rules:
 - Confidence score should reflect how strongly the listed causes fit the symptom.`;
 
 /** Pass 2: Content enrichment using core data */
-const PASS2_PROMPT = `You are a veteran HVAC technical writer and service trainer.
-
-Using the validated core repair data provided below, generate only the remaining enrichment fields.
+const PASS2_PROMPT = `Using the validated core repair data provided below, generate only the remaining enrichment fields.
 
 Rules:
 - Be concise.
@@ -174,9 +172,13 @@ Rules:
 export function validateCoreData(core: any): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
   if (!core?.causes?.length) errors.push('Missing causes');
-  if (!core?.repairs?.length) errors.push('Missing repairs');
   if (core?.causes?.length < 3) errors.push('Need at least 3 causes');
-  if (core?.repairs?.length < 5) errors.push('Need at least 5 repairs');
+
+  const repairCount =
+    (core?.repairs?.length ?? 0) +
+    (core?.causes ?? []).reduce((sum: number, c: any) => sum + (c.repair_options?.length ?? 0), 0);
+  if (repairCount < 5) errors.push(`Need at least 5 total repair options (got ${repairCount})`);
+
   return { valid: errors.length === 0, errors };
 }
 
@@ -248,11 +250,13 @@ Page: ${pageSlug} (${pageType})
 
 Authoring intent: This content is for a highly technical repair knowledge graph used for SEO and lead generation. It should read like a field technician's structured diagnostic output, not a consumer blog post.`;
 
+  const systemPrompt = composeSystemPrompt(PASS1_PROMPT);
+
   return callWithRetry(async () => {
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: PASS1_PROMPT },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: userMsg },
       ],
       response_format: {
@@ -317,11 +321,13 @@ Page topic: ${pageTitle}
 
 Generate: mermaid_graph, field_note, repair_explanations (match repair names), confidence_score.`;
 
+  const systemPrompt = composeSystemPrompt(PASS2_PROMPT);
+
   return callWithRetry(async () => {
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
-        { role: 'system', content: PASS2_PROMPT },
+        { role: 'system', content: systemPrompt },
         { role: 'user', content: userMsg },
       ],
       response_format: {

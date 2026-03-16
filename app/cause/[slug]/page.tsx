@@ -16,6 +16,7 @@ export default async function CausePage({ params }: { params: { slug: string } }
 
   const aiPage = await getDiagnosticPageFromDB(params.slug);
   const htmlContent = aiPage?.content_json?.html_content || null;
+  const contentJson = aiPage?.content_json || null;
 
   if (causeRes.length === 0 && !htmlContent) {
     notFound();
@@ -75,6 +76,7 @@ export default async function CausePage({ params }: { params: { slug: string } }
       repairs={repairsRes}
       diagnosticTests={diagnosticTests}
       htmlContent={htmlContent}
+      contentJson={contentJson}
     />
   );
 }

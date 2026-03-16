@@ -9,6 +9,11 @@ const config: Config = {
     "./templates/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "1rem",
+      screens: { sm: "640px", md: "768px", lg: "1024px", xl: "1280px" },
+    },
     extend: {
       colors: {
         hvac: {
@@ -17,6 +22,9 @@ const config: Config = {
           gold: "#d4af37",
           industrial: "#4a5568",
           safety: "#e53e3e",
+          brown: "#6B5344",
+          "brown-light": "#8B7355",
+          "brown-warm": "#A0522D",
         },
       },
       backgroundImage: {
