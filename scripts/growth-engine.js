@@ -16,17 +16,14 @@ async function runExpansion() {
     console.log(`🌾 Harvesting ${harvestItems.length} new symptom queries...`);
 
     for (const item of harvestItems) {
-      // Typically we would check if it exists, then queue for all cities
-      // For this demo, we'll just queue a few sample cities to show the flywheel
-      const cities = await sql`SELECT city, slug FROM cities LIMIT 5`; 
-      for (const city of cities) {
-        const slug = `repair/${city.slug}/${item.slug || 'new-issue'}`;
-        await sql`
-          INSERT INTO generation_queue (page_type, proposed_slug, proposed_title, city)
-          VALUES ('city', ${slug}, ${item.query + ' in ' + city.city}, ${city.city})
-          ON CONFLICT DO NOTHING
-        `;
-      }
+      // SCALABLE: Queue knowledge pages only. City pages render dynamically.
+      // Do NOT queue repair/{city}/{slug} — that would duplicate content.
+      const slug = item.slug || item.query?.toLowerCase().replace(/\s+/g, '-') || 'new-issue';
+      await sql`
+        INSERT INTO generation_queue (page_type, proposed_slug, proposed_title)
+        VALUES ('symptom', ${slug}, ${item.query})
+        ON CONFLICT DO NOTHING
+      `;
       await sql`UPDATE symptom_harvest SET status = 'completed' WHERE id = ${item.id}`;
     }
 

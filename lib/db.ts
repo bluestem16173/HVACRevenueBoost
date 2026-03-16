@@ -1,17 +1,31 @@
-import { neon } from '@neondatabase/serverless';
+import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
 /**
  * Neon Database Client
  * --------------------
- * High-performance serverless Postgres client.
- * Uses the DATABASE_URL from .env.local
+ * Lazy init so build doesn't fail when DATABASE_URL is missing or invalid.
  */
 
-// During Vercel's build phase, DATABASE_URL might be undefined.
-// We provide a dummy postgres string so the initial module parser doesn't fatally crash.
-const sql = neon(process.env.DATABASE_URL || 'postgres://dummy:dummy@dummy.neon.tech/dummy');
+let _sql: NeonQueryFunction<false, false> | null = null;
+
+function getSql(): NeonQueryFunction<false, false> {
+  if (_sql) return _sql;
+  const url = (process.env.DATABASE_URL || '').trim().replace(/^['"]|['"]$/g, '');
+  const noop = (() => Promise.resolve([])) as unknown as NeonQueryFunction<false, false>;
+  if (!url || !url.startsWith('postgres')) return (_sql = noop);
+  try {
+    _sql = neon(url);
+    return _sql;
+  } catch {
+    return (_sql = noop);
+  }
+}
+
+function sql(strings: TemplateStringsArray, ...values: unknown[]) {
+  return getSql()(strings as any, ...values);
+}
 
 export default sql;
 

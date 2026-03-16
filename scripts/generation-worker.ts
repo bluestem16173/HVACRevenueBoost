@@ -9,6 +9,7 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 import sql from '../lib/db';
 import { getCauseTechnicalContent, getSystemContext } from '../lib/symptom-technical-content';
+import { getSymptomWithCausesFromDB } from '../lib/diagnostic-engine';
 import { generatePageContent, renderToHtml } from '../lib/ai-generator';
 
 async function runWorker() {
@@ -16,9 +17,12 @@ async function runWorker() {
 
   try {
     // 1. Fetch pending items from queue
+    // SCALABLE: Only generate knowledge pages. City/location pages render dynamically.
+    // Do NOT generate: tampa-ac-not-cooling, phoenix-ac-not-cooling, etc.
     const queueItems = await sql`
       SELECT * FROM generation_queue 
       WHERE status = 'queued' 
+      AND page_type IN ('symptom', 'condition', 'cause', 'repair', 'diagnostic', 'system', 'diagnose')
       AND proposed_slug IN ('diagnose-ac-blowing-warm-air', 'why-does-capacitor-fail')
     `;
 
@@ -64,27 +68,17 @@ async function runWorker() {
 
         let additionalContext: any = {};
 
-        if (item.page_type === 'city') {
-          const slugParts = (pageSlug || '').split('/');
-          const symptomSlug = slugParts[slugParts.length - 1] || '';
-          const causes = item.symptom_id ? await sql`
-            SELECT c.* FROM causes c
-            JOIN symptom_causes sc ON sc.cause_id = c.id
-            WHERE sc.symptom_id = ${item.symptom_id}
-          ` : [];
-          const systemContext = getSystemContext(symptomSlug);
-          const causesWithTech = (causes as any[]).map((c: any) => {
-            const tech = getCauseTechnicalContent(symptomSlug, c.slug || c.id);
-            return {
-              name: c.name,
-              slug: c.slug,
-              technicalCause: tech?.technicalCause || c.explanation || c.description || '',
-              verificationTest: tech?.verificationTest || [],
-              repair: tech?.repair || ''
-            };
-          });
-          additionalContext = { systemContext, causesWithTech };
+        // Graph-first: fetch symptom + causes + repairs from DB when applicable
+        const symptomSlug = (pageSlug || '').replace(/^diagnose\//, '').replace(/^diagnose-/, '');
+        if (['symptom', 'diagnose'].includes(item.page_type) || pageSlug?.startsWith('diagnose')) {
+          const graphSymptom = await getSymptomWithCausesFromDB(symptomSlug);
+          if (graphSymptom) {
+            additionalContext.graphSymptom = graphSymptom;
+          }
         }
+
+        // SCALABLE: City pages are never queued. They render dynamically from knowledge pages.
+        // Only the lead module changes per location. No city-specific content generation.
 
         console.log(`🧠 Calling AI Generator for ${pageSlug}...`);
         const aiData = await generatePageContent(pageSlug, item.page_type, pageTitle, additionalContext);
