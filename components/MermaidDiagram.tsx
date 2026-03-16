@@ -7,9 +7,11 @@ interface MermaidDiagramProps {
   chart: string;
   title?: string;
   className?: string;
+  /** When set, shows a download button for the rendered SVG */
+  downloadFilename?: string;
 }
 
-export default function MermaidDiagram({ chart, title = "Diagnostic Flowchart", className = "" }: MermaidDiagramProps) {
+export default function MermaidDiagram({ chart, title = "Diagnostic Flowchart", className = "", downloadFilename }: MermaidDiagramProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [svgCode, setSvgCode] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
@@ -50,14 +52,36 @@ export default function MermaidDiagram({ chart, title = "Diagnostic Flowchart", 
     renderChart();
   }, [chart]);
 
+  const handleDownload = () => {
+    if (!svgCode || !downloadFilename) return;
+    const blob = new Blob([svgCode], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = downloadFilename.endsWith(".svg") ? downloadFilename : `${downloadFilename}.svg`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (error) return null;
 
   return (
-    <div className={`my-8 p-6 bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto ${className}`}>
-      <h3 className="text-lg font-bold text-slate-900 mb-4">{title}</h3>
+    <div className={`my-8 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto w-full ${className}`}>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-slate-900 dark:text-white">{title}</h3>
+        {downloadFilename && svgCode && (
+          <button
+            type="button"
+            onClick={handleDownload}
+            className="px-3 py-1.5 text-sm font-medium rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Download SVG
+          </button>
+        )}
+      </div>
       <div
         ref={containerRef}
-        className="mermaid-diagram flex justify-center min-w-[400px]"
+        className="mermaid-diagram flex justify-center w-full min-w-0 [&>svg]:max-w-full [&>svg]:w-full"
         dangerouslySetInnerHTML={{ __html: svgCode }}
       />
     </div>
