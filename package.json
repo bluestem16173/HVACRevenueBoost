@@ -9,7 +9,17 @@
     "lint": "next lint",
     "db:seed-diagnostic-tests": "tsx scripts/seed-diagnostic-tests.ts",
     "db:seed-hvac-graph": "tsx scripts/seed-hvac-graph.ts",
+    "db:seed-core": "npx tsx scripts/seed-hvac-core.ts",
     "db:build-related-graph": "tsx scripts/build-related-graph.ts",
+    "db:migrate-001": "npx tsx scripts/run-migration-001.ts",
+    "db:migrate-002": "npx tsx scripts/run-migration-002.ts",
+    "db:migrate-003": "npx tsx scripts/run-migration-003.ts",
+    "db:migrate-004": "npx tsx scripts/run-migration-004.ts",
+    "db:migrate-005": "npx tsx scripts/run-migration-005.ts",
+    "db:migrate-007": "npx tsx scripts/run-migration-007.ts",
+    "db:migrate-008": "npx tsx scripts/run-migration-008.ts",
+    "db:migrate-009": "npx tsx scripts/run-migration-009.ts",
+    "canary": "npx tsx scripts/canary-batch.ts",
     "pr": "node scripts/open-pr.js"
   },
   "dependencies": {
@@ -32,6 +42,7 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
+    "pg": "^8.20.0",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"

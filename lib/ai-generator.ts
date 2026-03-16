@@ -1,174 +1,405 @@
 import OpenAI from 'openai';
 import * as dotenv from 'dotenv';
+import { canBuildFromGraph, buildPageFromGraph } from './deterministic-page-builder';
 dotenv.config({ path: '.env.local' });
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export const MASTER_PROMPT = `
-HVAC Revenue Boost – Technical Service Manual Generator
+/** Token budgets by page type (reduces truncation) */
+const TOKEN_BUDGETS: Record<string, { pass1: number; pass2: number }> = {
+  symptom: { pass1: 2000, pass2: 1200 },
+  condition: { pass1: 3200, pass2: 1400 },
+  diagnostic: { pass1: 2600, pass2: 1200 },
+  cause: { pass1: 2200, pass2: 1000 },
+  repair: { pass1: 1800, pass2: 800 },
+  default: { pass1: 2200, pass2: 1200 },
+};
 
-SYSTEM ROLE
+function getTokenBudget(pageType: string) {
+  return TOKEN_BUDGETS[pageType] || TOKEN_BUDGETS.default;
+}
 
-You are a 20-year HVAC service technician, mechanical systems engineer, and technical manual author.
+/** Pass 1: Strict JSON schema for core data (schema-critical) */
+const PASS1_SCHEMA = {
+  type: 'object' as const,
+  additionalProperties: false,
+  properties: {
+    summary: { type: 'string', description: '1 sentence summary' },
+    causes: {
+      type: 'array',
+      minItems: 3,
+      maxItems: 4,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          name: { type: 'string' },
+          indicator: { type: 'string', description: 'short diagnostic clue' },
+        },
+        required: ['name', 'indicator'],
+      },
+    },
+    repairs: {
+      type: 'array',
+      minItems: 5,
+      maxItems: 6,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          name: { type: 'string' },
+          difficulty: { type: 'string', enum: ['easy', 'moderate', 'advanced'] },
+          estimated_cost: { type: 'string' },
+          fix_summary: { type: 'string', description: '1 sentence' },
+        },
+        required: ['name', 'difficulty', 'estimated_cost', 'fix_summary'],
+      },
+    },
+    diagnostic_steps: {
+      type: 'array',
+      minItems: 4,
+      maxItems: 6,
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          step: { type: 'string' },
+          check_for: { type: 'string' },
+          next_if_true: { type: 'string' },
+          next_if_false: { type: 'string' },
+        },
+        required: ['step', 'check_for', 'next_if_true', 'next_if_false'],
+      },
+    },
+  },
+  required: ['summary', 'causes', 'repairs', 'diagnostic_steps'],
+};
 
-You have:
-• 20+ years residential HVAC service experience
-• EPA 608 certification
-• experience diagnosing compressors, refrigerant systems, airflow problems, and electrical faults
-• experience training junior technicians
+/** Pass 2: Strict JSON schema for enrichment */
+const PASS2_SCHEMA = {
+  type: 'object' as const,
+  additionalProperties: false,
+  properties: {
+    mermaid_graph: { type: 'string', description: 'Compact diagnostic flowchart' },
+    field_note: { type: 'string', description: '2-4 sentences technician insight' },
+    repair_explanations: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          repair: { type: 'string' },
+          why_it_fails: { type: 'string' },
+          repair_tip: { type: 'string' },
+        },
+        required: ['repair', 'why_it_fails', 'repair_tip'],
+      },
+    },
+    confidence_score: { type: 'number', description: '0-100' },
+  },
+  required: ['mermaid_graph', 'field_note', 'repair_explanations', 'confidence_score'],
+};
 
-You write like a service manual author or field trainer, not a blogger.
+/** Enrichment-only schema (graph-first flow) */
+const ENRICHMENT_ONLY_SCHEMA = {
+  type: 'object' as const,
+  additionalProperties: false,
+  properties: {
+    summary: { type: 'string' },
+    field_note: { type: 'string' },
+    repair_explanations: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        properties: {
+          repair: { type: 'string' },
+          why_it_fails: { type: 'string' },
+          repair_tip: { type: 'string' },
+        },
+        required: ['repair', 'why_it_fails', 'repair_tip'],
+      },
+    },
+    mermaid_graph: { type: 'string' },
+    confidence_score: { type: 'number' },
+  },
+  required: ['summary', 'field_note', 'repair_explanations', 'mermaid_graph', 'confidence_score'],
+};
 
-Your job is to create highly technical residential HVAC diagnostic guides that function like repair manuals.
+/** Pass 1: Core structured data — schema enforces output shape */
+const PASS1_PROMPT = `You are a senior residential and RV HVAC diagnostic engineer with 20 years of field service experience.
 
-The content must resemble:
-• manufacturer troubleshooting manuals
-• field technician repair guides
-• service training documents
+Return only data needed for a technical diagnostic page. Do not write introductions, explanations, markdown, or any text outside the required JSON structure.
 
-Avoid generic advice.
+Content rules:
+- Use concise technician-style wording.
+- Prioritize real-world diagnostic clues.
+- Avoid filler. Do not repeat causes or repairs.
+- Keep each field short and information-dense.
+- Summary must be 1 sentence.
+- Generate exactly 3 causes.
+- Generate exactly 5 repairs.
+- Generate exactly 4 diagnostic steps.
 
-Assume the reader is:
-• homeowner attempting diagnosis
-• apprentice technician
-• contractor researching symptoms
+Important:
+- Causes must be plausible for the exact symptom/condition pair.
+- Repairs must map logically to the listed causes.
+- Diagnostic steps must help narrow the issue efficiently.
+- Keep outputs compact to preserve token budget.`;
 
-CONTENT OBJECTIVES
+/** Enrichment-only: when page is built from DB graph */
+const ENRICHMENT_ONLY_PROMPT = `You are a veteran HVAC technical writer and service trainer.
 
-Each page must accomplish three goals:
-1. Diagnose HVAC failures
-2. Educate the homeowner
-3. Generate HVAC service leads
+Add enrichment to a page built from the knowledge graph. The causes and repairs are ALREADY set. Do NOT regenerate them.
 
-TECHNICAL STANDARD
+Rules:
+- Be concise. Summary: 1 sentence.
+- Field note: 2-4 sentences maximum.
+- Mermaid graph must be compact.
+- Confidence score should reflect how strongly the listed causes fit the symptom.`;
 
-All content must reference real HVAC service measurements, including:
-• voltage readings
-• capacitor microfarads
-• refrigerant pressure ranges
-• airflow CFM values
-• static pressure limits
-• temperature split across evaporator coil
+/** Pass 2: Content enrichment using core data */
+const PASS2_PROMPT = `You are a veteran HVAC technical writer and service trainer.
 
-Examples:
+Using the validated core repair data provided below, generate only the remaining enrichment fields.
 
-Typical residential HVAC values:
-- Temperature split across evaporator coil: 16°F – 22°F
-- Capacitor tolerance: ±6%
-- Typical residential static pressure: 0.5 in WC
-- Typical refrigerant pressures (R410A cooling): Low side 115-140 psi, High side 350-450 psi
+Rules:
+- Be concise.
+- Mermaid graph must be compact.
+- Field note should be 2-4 sentences maximum.
+- Confidence score should reflect how strongly the listed causes fit the symptom and condition.`;
 
-KNOWLEDGE GRAPH ARCHITECTURE
+export function validateCoreData(core: any): { valid: boolean; errors: string[] } {
+  const errors: string[] = [];
+  if (!core?.causes?.length) errors.push('Missing causes');
+  if (!core?.repairs?.length) errors.push('Missing repairs');
+  if (core?.causes?.length < 3) errors.push('Need at least 3 causes');
+  if (core?.repairs?.length < 5) errors.push('Need at least 5 repairs');
+  return { valid: errors.length === 0, errors };
+}
 
-SYSTEM → SYMPTOM → CONDITION → CAUSE → REPAIR → COMPONENT
+export function mergeJSON(core: any, enrichment: any): any {
+  const merged = { ...core };
+  if (enrichment?.mermaid_graph) merged.mermaid_graph = enrichment.mermaid_graph;
+  if (enrichment?.field_note) merged.field_notes = enrichment.field_note;
+  if (enrichment?.field_notes) merged.field_notes = enrichment.field_notes;
+  if (enrichment?.confidence_score != null) merged.confidence_score = enrichment.confidence_score;
+  if (enrichment?.summary) merged.summary = enrichment.summary;
+  if (enrichment?.summary) merged.fast_answer = enrichment.summary;
 
-Example: Central AC → AC blowing warm air → Outdoor unit running but compressor not starting → Failed capacitor → Replace capacitor → AC dual run capacitor
+  if (enrichment?.repair_explanations?.length && merged.repairs?.length) {
+    merged.repairs = merged.repairs.map((r: any) => {
+      const rName = (r.name || '').toLowerCase();
+      const exp = enrichment.repair_explanations.find((e: any) => {
+        const eRepair = (e.repair || '').toLowerCase();
+        return eRepair.includes(rName) || rName.includes(eRepair) || eRepair.split(/\s+/).some((w: string) => rName.includes(w));
+      });
+      const why = exp?.why_it_fails || r.explanation || r.fix_summary;
+      const tip = exp?.repair_tip || r.repair_tip;
+      return {
+        ...r,
+        explanation: why,
+        repair_tip: tip,
+        cost: r.cost || r.estimated_cost,
+      };
+    });
+  }
+  return merged;
+}
 
-Pages must reference connected nodes to create deep internal linking.
-
-PAGE TYPES: System Pillar, Symptom, Condition, Cause, Repair, Component, Location
-
-PAGE STRUCTURE
-
-Every page must include:
-
-1. FAST ANSWER — 30-second explanation. Example: "If your AC is blowing warm air, the most common causes are a failed capacitor, low refrigerant charge, or a compressor that is not starting even though the outdoor fan is running."
-
-2. SYSTEM OVERVIEW — Relevant HVAC system components involved (compressor, condenser coil, metering device, evaporator coil).
-
-3. TECHNICAL DIAGNOSTIC PROCEDURE — Step-by-step troubleshooting with voltage checks, capacitor tests, refrigerant pressure checks.
-
-4. COMMON CAUSES — Minimum 3 causes. Each: explanation, symptoms, diagnostic confirmation.
-
-5. REPAIR OPTIONS — Minimum 5 repairs. Each: difficulty, cost, time.
-
-6. TOOLS REQUIRED — multimeter, manifold gauge set, vacuum pump, refrigerant scale, clamp meter.
-
-7. MERMAID DIAGNOSTIC TREE — Decision tree. Example: graph TD A[AC blowing warm air] --> B{Outdoor unit running?} B -->|Yes| C[Test capacitor] B -->|No| D[Check breaker]
-
-8. FIELD TECHNICIAN NOTES — Real service call insights (100+ words).
-
-9. PREVENTATIVE MAINTENANCE — How to prevent recurrence.
-
-10. LEAD GENERATION — Service CTA.
-
-OUTPUT: Strict JSON. No pre-built HTML.
-`;
-
-export async function generatePageContent(pageSlug: string, pageType: string, pageTitle: string, additionalContext: any = {}) {
-  const systemPrompt = `
-    ${MASTER_PROMPT}
-
-    Current Page Configuration:
-    - Page Type: ${pageType}
-    - Proposed Slug: ${pageSlug}
-    - Title/Topic: ${pageTitle}
-    
-    CRITICAL OUTPUT INSTRUCTIONS:
-    Provide the response strictly as a JSON object matching this schema:
-    {
-       "title": "AC Blowing Warm Air? Causes, Diagnosis, Repair Cost",
-       "slug": "page-slug",
-       "fast_answer": "30-second explanation of the problem",
-       "system_overview": "Explain relevant HVAC system components (compressor, condenser coil, metering device, evaporator coil)",
-       "diagnostics": [
-         { "step": "Step 1 — Confirm thermostat call", "action": "Verify 24V between Y and C at control board" },
-         { "step": "Step 2 — Inspect outdoor condenser", "action": "Observe condenser fan and compressor" },
-         { "step": "Step 3 — Test capacitor", "action": "Measure microfarads, acceptable ±6%" },
-         { "step": "Step 4 — Check refrigerant pressures", "action": "R410A: Low 115-140 psi, High 350-450 psi" }
-       ],
-       "causes": [
-         { "name": "Failed Capacitor", "explanation": "Technical explanation", "symptoms": "compressor hums, outdoor fan running, breaker not tripped", "diagnostic_clues": "Capacitor reading below tolerance" }
-       ],
-       "repairs": [
-         { "name": "Replace capacitor", "cost": "$150-$350", "difficulty": "Easy", "repair_time": "1 hour" }
-       ],
-       "tools": ["multimeter", "manifold gauge set", "vacuum pump", "refrigerant scale", "clamp meter"],
-       "mermaid_graph": "graph TD\\\\nA[AC blowing warm air] --> B{Outdoor unit running?}\\\\nB -->|Yes| C[Test capacitor]\\\\nB -->|No| D[Check breaker]",
-       "field_notes": "Real service call insights (100+ words). Example: In real service calls, a failed capacitor accounts for nearly 40% of warm air complaints.",
-       "prevention": "Annual maintenance: capacitor inspection, coil cleaning, refrigerant pressure check",
-       "internal_links": [{ "name": "Related Page", "url": "/path" }]
+async function callWithRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let lastError: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      if (i < attempts - 1) {
+        await new Promise((r) => setTimeout(r, 1000 * (i + 1)));
+      }
     }
-    
-    ADDITIONAL CONTEXT:
-    ${JSON.stringify(additionalContext, null, 2)}
-  `;
+  }
+  throw lastError;
+}
 
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      { role: "system", content: systemPrompt }
-    ],
-    response_format: { type: "json_object" },
-    temperature: 0.2,
-    max_tokens: 4000, // 1200-1800 word equivalent in structured output
+export async function generateCoreData(
+  pageSlug: string,
+  pageType: string,
+  pageTitle: string,
+  context: { system?: string; symptom?: string; condition?: string; environment?: string; vehicle?: string } = {}
+) {
+  const system = context.system || 'Central Air Conditioner';
+  const symptom = context.symptom || pageTitle;
+  const condition = context.condition || '';
+  const environment = context.environment || 'Residential';
+  const vehicle = context.vehicle || '';
+  const { pass1 } = getTokenBudget(pageType);
+
+  const userMsg = `Context:
+System: ${system}
+Symptom: ${symptom}
+Condition: ${condition}
+Environment: ${environment}
+Unit: ${vehicle}
+
+Page: ${pageSlug} (${pageType})
+
+Authoring intent: This content is for a highly technical repair knowledge graph used for SEO and lead generation. It should read like a field technician's structured diagnostic output, not a consumer blog post.`;
+
+  return callWithRetry(async () => {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: PASS1_PROMPT },
+        { role: 'user', content: userMsg },
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'core_page',
+          strict: true,
+          schema: PASS1_SCHEMA as Record<string, unknown>,
+        },
+      },
+      temperature: 0.2,
+      max_tokens: pass1,
+    });
+
+    const contentStr = response.choices[0]?.message?.content;
+    if (!contentStr) throw new Error('Pass 1: empty response');
+    return JSON.parse(contentStr);
   });
+}
 
-  const contentStr = response.choices[0].message.content;
-  if (!contentStr) {
-    throw new Error("Failed to generate content: empty response");
+/** AI enrichment only — for pages built from DB graph. */
+export async function generateEnrichmentOnly(graphPageData: any, pageTitle: string) {
+  const userMsg = `Core data (causes and repairs already set):
+Symptom: ${pageTitle}
+Causes: ${(graphPageData.causes || []).map((c: any) => c.name).join(', ')}
+Repairs: ${(graphPageData.repairs || []).map((r: any) => r.name).join(', ')}
+
+Generate: summary, field_note, repair_explanations (match repair names), mermaid_graph, confidence_score.`;
+
+  return callWithRetry(async () => {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: ENRICHMENT_ONLY_PROMPT },
+        { role: 'user', content: userMsg },
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'enrichment_only',
+          strict: true,
+          schema: ENRICHMENT_ONLY_SCHEMA,
+        },
+      },
+      temperature: 0.2,
+      max_tokens: 1000,
+    });
+
+    const contentStr = response.choices[0]?.message?.content;
+    if (!contentStr) throw new Error('Enrichment only: empty response');
+    return JSON.parse(contentStr);
+  });
+}
+
+export async function generateEnrichment(coreData: any, pageTitle: string, pageType = 'symptom') {
+  const { pass2 } = getTokenBudget(pageType);
+
+  const userMsg = `Core data:
+${JSON.stringify({ summary: coreData.summary, causes: coreData.causes, repairs: coreData.repairs }, null, 2)}
+
+Page topic: ${pageTitle}
+
+Generate: mermaid_graph, field_note, repair_explanations (match repair names), confidence_score.`;
+
+  return callWithRetry(async () => {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: PASS2_PROMPT },
+        { role: 'user', content: userMsg },
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          name: 'enrichment',
+          strict: true,
+          schema: PASS2_SCHEMA,
+        },
+      },
+      temperature: 0.2,
+      max_tokens: pass2,
+    });
+
+    const contentStr = response.choices[0]?.message?.content;
+    if (!contentStr) throw new Error('Pass 2: empty response');
+    return JSON.parse(contentStr);
+  });
+}
+
+/**
+ * Generate page content.
+ * Graph-first: if graphData provided and sufficient, use deterministic builder + AI enrichment only (~800 tokens).
+ * Fallback: full two-stage generation (~2000 tokens).
+ */
+export async function generatePageContent(
+  pageSlug: string,
+  pageType: string,
+  pageTitle: string,
+  additionalContext: any = {}
+) {
+  const graphSymptom = additionalContext.graphSymptom;
+
+  if (graphSymptom) {
+    if (canBuildFromGraph(graphSymptom)) {
+      console.log('📦 Graph-first: Building from DB, AI enrichment only...');
+      const pageData = buildPageFromGraph(graphSymptom, {
+        title: `${pageTitle} | Causes, Diagnosis, Repair Cost`,
+        slug: pageSlug,
+        conditions: additionalContext.conditions,
+      });
+      const enrichment = await generateEnrichmentOnly(pageData, pageTitle);
+      const merged = mergeJSON(pageData, enrichment);
+      merged.fast_answer = merged.fast_answer || enrichment.summary || merged.summary;
+      merged.title = merged.title || pageData.title;
+      merged.slug = merged.slug || pageSlug;
+      return merged;
+    }
   }
 
-  const aiData = JSON.parse(contentStr);
+  const ctx = additionalContext.systemContext || additionalContext;
+  const context = {
+    system: (typeof ctx === 'object' && ctx?.system) || additionalContext.system || 'Central Air Conditioner',
+    symptom: additionalContext.symptom || pageTitle,
+    condition: additionalContext.condition || (typeof ctx === 'object' && ctx?.condition) || '',
+    environment: additionalContext.environment || (typeof ctx === 'object' && ctx?.environment) || 'Residential',
+    vehicle: additionalContext.vehicle || (typeof ctx === 'object' && ctx?.vehicle) || '',
+  };
 
-  // Validation Rules (HVAC Revenue Boost)
-  if (aiData.causes && aiData.causes.length < 3 && ['symptom', 'condition', 'cause'].includes(pageType)) {
-    console.warn('⚠️ Validation Warning: Less than 3 causes generated.');
-  }
-  if (aiData.repairs && aiData.repairs.length < 5 && ['symptom', 'cause', 'repair'].includes(pageType)) {
-    console.warn('⚠️ Validation Warning: Less than 5 repairs generated.');
-  }
-  if (!aiData.mermaid_graph && ['symptom', 'diagnostic', 'cluster', 'condition'].includes(pageType)) {
-    console.warn('⚠️ Validation Warning: Missing mermaid diagram.');
-  }
-  const fieldNote = aiData.field_notes || aiData.field_note;
-  if (!fieldNote || fieldNote.length < 50) {
-    console.warn('⚠️ Validation Warning: Field notes should be 100+ words.');
+  console.log('📦 Pass 1: Generating core data...');
+  const core = await generateCoreData(pageSlug, pageType, pageTitle, context);
+
+  const { valid, errors } = validateCoreData(core);
+  if (!valid) {
+    console.warn('⚠️ Core validation:', errors.join(', '));
   }
 
-  return aiData;
+  console.log('📦 Pass 2: Generating enrichment...');
+  const enrichment = await generateEnrichment(core, pageTitle, pageType);
+
+  const merged = mergeJSON(core, enrichment);
+
+  merged.title = merged.title || `${pageTitle} | Causes, Diagnosis, Repair Cost`;
+  merged.slug = merged.slug || pageSlug;
+  merged.fast_answer = merged.fast_answer || merged.summary;
+  merged.diagnostics = merged.diagnostics || merged.diagnostic_steps;
+
+  return merged;
 }
 
 export function renderToHtml(aiData: any): string {
@@ -234,17 +465,19 @@ export function renderToHtml(aiData: any): string {
   }
 
   // Section 4 & 5 - Confidence Box & Severity Indicator
-  if (aiData.confidence_box || aiData.severity_indicator) {
+  const confidenceScore = aiData.confidence_score;
+  const confidenceBox = aiData.confidence_box || (confidenceScore != null ? `High (${confidenceScore}%)` : null);
+  if (confidenceBox || aiData.severity_indicator) {
     html += `<div class="grid md:grid-cols-2 gap-6 mb-12">`;
     
     // Confidence Box
-    if (aiData.confidence_box) {
+    if (confidenceBox) {
       html += `
         <div class="confidence-panel bg-white border border-slate-200 rounded-lg shadow-sm flex flex-col h-full relative overflow-hidden">
           <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-600"></div>
           <div class="p-5">
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Diagnostic Confidence</h3>
-            <p class="text-xl font-bold text-slate-900">${aiData.confidence_box}</p>
+            <p class="text-xl font-bold text-slate-900">${confidenceBox}</p>
           </div>
         </div>
       `;
@@ -285,8 +518,10 @@ export function renderToHtml(aiData: any): string {
       <ol class="space-y-4 list-decimal list-inside">`;
     diagnosticSteps.forEach((s: any, i: number) => {
       const step = typeof s === 'string' ? s : (s.step || s.action || '');
-      const action = typeof s === 'object' && s.action ? s.action : '';
-      html += `<li class="text-[15px] text-slate-800 font-medium"><strong>${step}</strong>${action ? ` — ${action}` : ''}</li>`;
+      const action = typeof s === 'object' && s.action ? s.action : (s.check_for || '');
+      const nextTrue = typeof s === 'object' && s.next_if_true ? ` → ${s.next_if_true}` : '';
+      const nextFalse = typeof s === 'object' && s.next_if_false ? ` (else: ${s.next_if_false})` : '';
+      html += `<li class="text-[15px] text-slate-800 font-medium"><strong>${step}</strong>${action ? ` — ${action}` : ''}${nextTrue}${nextFalse}</li>`;
     });
     html += `</ol></div>`;
   }
@@ -307,7 +542,7 @@ export function renderToHtml(aiData: any): string {
              <div class="grid md:grid-cols-2 gap-4 mb-5 p-4 bg-slate-50 rounded border border-slate-100">
                <div>
                  <span class="text-[10px] font-bold uppercase text-slate-500 tracking-widest block mb-1">Failure Mechanism / Symptoms</span>
-                 <p class="text-[13px] text-slate-800 font-medium">${cause.mechanism || cause.symptoms || 'N/A'}</p>
+                 <p class="text-[13px] text-slate-800 font-medium">${cause.mechanism || cause.symptoms || cause.indicator || 'N/A'}</p>
                </div>
                <div>
                  <span class="text-[10px] font-bold uppercase text-slate-500 tracking-widest block mb-1">Diagnostic Clues / Indicator</span>
@@ -415,7 +650,7 @@ export function renderToHtml(aiData: any): string {
           <div class="font-semibold text-sm text-slate-900 pr-2">${repair.name}</div>
         </td>
         <td class="py-3 px-4 align-top">
-          <div class="text-[13px] text-slate-600 leading-relaxed max-w-lg mb-1">${repair.explanation}</div>
+          <div class="text-[13px] text-slate-600 leading-relaxed max-w-lg mb-1">${repair.explanation || repair.fix_summary || '—'}</div>
         </td>
         <td class="py-3 px-4 align-top">
           <div class="font-mono text-sm font-semibold text-slate-800 whitespace-nowrap">${repair.cost || repair.estimated_cost || 'N/A'}</div>

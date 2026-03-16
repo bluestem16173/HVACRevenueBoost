@@ -122,19 +122,64 @@ Master index at `/sitemap.xml` includes:
 ## Architecture Flow
 
 ```
-AI (gpt-4o-mini)
-    ↓
-Graph Generator / Page Generator
-    ↓
-Graph Database (symptoms, causes, repairs, etc.)
-    ↓
-Templates
-    ↓
-SEO Pages
-    ↓
-Diagnostic Wizard
-    ↓
-Service Lead Modal
-    ↓
-Contractor Leads
+DATABASE KNOWLEDGE GRAPH (symptoms, conditions, causes, repairs)
+        ↓
+DETERMINISTIC PAGE BUILDER (buildPageFromGraph)
+        ↓
+AI ENRICHMENT ONLY (summary, field_note, mermaid, repair_explanations) ~800 tokens
+        ↓
+PAGE RENDER
+        ↓
+INDEX
+
+Fallback when graph sparse: Two-stage AI (Pass 1 core + Pass 2 enrichment) ~2000 tokens
 ```
+
+### Token Cost Comparison
+
+| Mode | Tokens | Use Case |
+|------|--------|----------|
+| Graph-first + enrichment | ~800 | Symptom has 2+ causes, 2+ repairs in DB |
+| Two-stage (Pass 1 + Pass 2) | ~2000 | New topics, sparse graph |
+| Legacy full generation | ~3500+ | Deprecated |
+
+### Pipeline
+
+1. **Queue** → Worker fetches `generation_queue`
+2. **Graph lookup** → `getSymptomWithCausesFromDB(slug)` for symptom/diagnose pages
+3. **If graph sufficient** → `buildPageFromGraph()` + `generateEnrichmentOnly()` → merge
+4. **Else** → `generateCoreData()` + `generateEnrichment()` → merge
+5. **Render** → `renderToHtml()` → save to `pages`
+
+### Structured Outputs (Schema Enforcement)
+
+- **Pass 1** and **Pass 2** use `response_format: { type: "json_schema", json_schema: { name, strict: true, schema } }` for schema adherence.
+- Reduces validation failures and truncation.
+- Token budgets by page type: symptom 2000/1200, condition 3200/1400, diagnostic 2600/1200.
+- Retry logic: 3 attempts with exponential backoff.
+
+### Canary Batch
+
+After schema changes, run `npm run canary` to generate 7 test pages. Success target: 90%+ first-pass validation.
+
+---
+
+## Scalable Architecture (50k–500k pages)
+
+**Principle:** Store knowledge once, render location pages dynamically.
+
+| Storage | Rows | Example |
+|---------|------|---------|
+| ❌ Old | 5,000 cities × 200 pages = 1M | tampa-ac-not-cooling, phoenix-ac-not-cooling |
+| ✅ New | 200 knowledge pages + 5,000 locations | ac-not-cooling (renders at /tampa/..., /phoenix/...) |
+
+**Page generation:** Only for `symptom`, `condition`, `cause`, `repair`, `diagnostic`, `system`. NOT cities.
+
+**Files:**
+- `db/migrations/001_hvac_revenue_boost_schema.sql` — Scalable schema (SERIAL, locations, pages without city)
+- `db/migrations/007_page_targets_expansion.sql` — Topic expansion layer (page_targets, page_generation_runs)
+- `db/migrations/008_shared_graph_schema.sql` — Shared graph schema (SERIAL, locations)
+- `db/migrations/009_align_locations_for_008.sql` — Bridges cities → locations for 008
+- `lib/page-targets.ts` — DB helpers: create targets, select pending, store pages, log runs, route leads
+- `scripts/seed-hvac-core.ts` — Core graph seed
+- `scripts/verify-graph.sql` — Traversal verification
