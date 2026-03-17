@@ -8,6 +8,7 @@
 
 import OpenAI from "openai";
 import * as dotenv from "dotenv";
+import { safeJsonParse } from "@/lib/utils";
 dotenv.config({ path: ".env.local" });
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -86,5 +87,7 @@ Return valid JSON only.`;
   const content = response.choices[0]?.message?.content;
   if (!content) throw new Error("Empty AI response");
 
-  return JSON.parse(content) as GraphNodeOutput;
+  const parsed = safeJsonParse<GraphNodeOutput>(content);
+  if (!parsed) throw new Error("AI returned unrecoverable JSON");
+  return parsed;
 }

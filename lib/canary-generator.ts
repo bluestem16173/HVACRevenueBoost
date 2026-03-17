@@ -11,7 +11,7 @@ import OpenAI from "openai";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
-import { normalizeToString } from "@/lib/utils";
+import { normalizeToString, safeJsonParse } from "@/lib/utils";
 dotenv.config({ path: ".env.local" });
 
 const openai = new OpenAI({
@@ -41,6 +41,9 @@ Each section should be concise: 1–3 short paragraphs OR 3–5 bullets OR 3–5
 
 ### INTERNAL LINK QUALITY RULE
 Internal links must be relevant, naturally phrased (no generic anchors), mapped to real entities. Return 5–8 internal links maximum.
+
+### JSON COMPLETENESS RULE
+Ensure all JSON is fully closed. Do not leave trailing objects, arrays, or strings unclosed. Truncation causes parse failures.
 `;
 
 function getMasterPrompt(): string {
@@ -113,7 +116,8 @@ const CANARY_SCHEMA = {
         },
         causes: {
           type: "array",
-          minItems: 3,
+          minItems: 2,
+          maxItems: 4,
           items: {
             type: "object",
             additionalProperties: false,
@@ -215,7 +219,8 @@ const CANARY_SCHEMA = {
         },
         faq: {
           type: "array",
-          minItems: 4,
+          minItems: 1,
+          maxItems: 2,
           items: {
             type: "object",
             additionalProperties: false,
@@ -302,7 +307,8 @@ CONTEXT: ${context || "Residential HVAC"}
 
 ${graphCauses.length > 0 ? `Known causes from knowledge graph: ${graphCauses.map((c) => c.name).join(", ")}` : ""}
 
-Return ONLY valid JSON. No markdown, no explanations. Follow the schema exactly.`;
+Return ONLY valid JSON. No markdown, no explanations. Follow the schema exactly.
+CRITICAL: Ensure all JSON is fully closed. Do not leave trailing objects, arrays, or strings unclosed.`;
 
   const systemContent = `${masterPrompt}\n\n---\n\n${pagePrompt}`;
 
@@ -315,12 +321,20 @@ Return ONLY valid JSON. No markdown, no explanations. Follow the schema exactly.
       ],
       response_format: { type: "json_object" },
       temperature: 0.6,
-      max_tokens: 1200,
+      max_tokens: 1600,
     });
 
     const contentStr = response.choices[0]?.message?.content;
     if (!contentStr) throw new Error("Empty AI response");
-    return JSON.parse(contentStr);
+
+    const parsed = safeJsonParse<{ layout?: string; sections?: Record<string, unknown> }>(contentStr);
+    if (!parsed) {
+      if (process.env.DEBUG_CANARY === "true") {
+        console.log("RAW AI OUTPUT (last 500 chars):", contentStr.slice(-500));
+      }
+      throw new Error("AI returned unrecoverable JSON");
+    }
+    return parsed;
   });
 
   const layout = result.layout || "diagnostic_first";

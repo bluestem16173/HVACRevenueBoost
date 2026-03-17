@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Seed diagnostic_tests and cause_diagnostic_tests
  * Maps technician testing procedures to causes.

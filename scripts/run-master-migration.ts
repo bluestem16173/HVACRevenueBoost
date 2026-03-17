@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Run master platform migration + seed + verify.
  * Uses DATABASE_URL from .env.local
@@ -6,8 +9,6 @@
  * npm run db:master-seed
  * npm run db:master-verify
  */
-import * as dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
 import { readFileSync } from "fs";
 import { join } from "path";
 import { Client } from "pg";

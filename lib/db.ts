@@ -1,26 +1,37 @@
+import "dotenv/config";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
 
 /**
  * Neon Database Client
  * --------------------
- * Lazy init so build doesn't fail when DATABASE_URL is missing or invalid.
+ * Lazy init. Throws if DATABASE_URL missing (workers). Optional fallback for local dev.
  */
 
 let _sql: NeonQueryFunction<false, false> | null = null;
 
 function getSql(): NeonQueryFunction<false, false> {
   if (_sql) return _sql;
-  const url = (process.env.DATABASE_URL || '').trim().replace(/^['"]|['"]$/g, '');
-  const noop = (() => Promise.resolve([])) as unknown as NeonQueryFunction<false, false>;
-  if (!url || !url.startsWith('postgres')) return (_sql = noop);
-  try {
-    _sql = neon(url);
-    return _sql;
-  } catch {
-    return (_sql = noop);
+
+  const url = (process.env.DATABASE_URL || process.env.DB_FALLBACK || '')
+    .trim()
+    .replace(/^['"]|['"]$/g, '');
+
+  if (!url || !url.startsWith('postgres')) {
+    if (process.env.BUILD_SKIP_DB === 'true') {
+      const noop = (() => Promise.resolve([])) as unknown as NeonQueryFunction<false, false>;
+      return (_sql = noop);
+    }
+    throw new Error(
+      'DATABASE_URL is missing. Set in .env.local. Optional local dev: DB_FALLBACK=postgresql://localhost:5432/dev'
+    );
   }
+
+  _sql = neon(url);
+  console.log('DB connected:', !!process.env.DATABASE_URL);
+  return _sql;
 }
 
 function sql(strings: TemplateStringsArray, ...values: unknown[]) {

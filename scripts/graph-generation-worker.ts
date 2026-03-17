@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 /**
  * HVAC Revenue Boost Graph Generation Worker
  * Generates graph nodes only (symptoms, causes, repairs, components).
@@ -5,9 +7,6 @@
  *
  * Usage: npx tsx scripts/graph-generation-worker.ts
  */
-
-import { config } from "dotenv";
-config({ path: ".env.local" });
 
 import sql from "@/lib/db";
 import { generateGraphNode, type GraphNodeOutput, type SymptomNode, type CauseNode, type RepairNode } from "@/lib/ai-graph-generator";

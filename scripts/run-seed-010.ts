@@ -1,11 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Run seed 010: Initial Knowledge Graph
  * DecisionGrid + HVAC Revenue Boost
  * Run AFTER migration 010. Idempotent.
  * Usage: npx tsx scripts/run-seed-010.ts
  */
-import * as dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
 import { readFileSync } from "fs";
 import { join } from "path";
 import { Client } from "pg";

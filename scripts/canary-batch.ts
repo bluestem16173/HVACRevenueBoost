@@ -1,34 +1,52 @@
+import "dotenv/config";
+
 /**
- * Canary Batch — Run 5–10 pages first after schema/stabilization changes.
+ * Canary Batch — Run 25 pages for schema/stabilization validation.
  *
- * Uses MASTER-PROMPT-CANARY when USE_CANARY=true (layout + sections).
- * Otherwise uses legacy generatePageContent.
+ * Uses MASTER-PROMPT-CANARY (layout + sections).
  *
- * Usage:
- *   npx tsx scripts/canary-batch.ts           # legacy
- *   USE_CANARY=true npx tsx scripts/canary-batch.ts  # master prompt
+ * Usage: npx tsx scripts/canary-batch.ts
  */
 
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
 import sql from '../lib/db';
 import { getSymptomWithCausesFromDB, getCauseDetails } from '../lib/diagnostic-engine';
 import { generatePageContent, renderToHtml } from '../lib/ai-generator';
 import { generateCanaryPage, canaryToContentJson } from '../lib/canary-generator';
+import { generateCoreOnlyPage, generateTwoStagePage } from '../lib/two-stage-generator';
 import { SYMPTOMS } from '../data/knowledge-graph';
 
 const CANARY_SLUGS = [
   'ac-blowing-warm-air',
   'ac-not-turning-on',
-  'ac-running-constantly',
-  'ice-on-outdoor-unit',
   'furnace-not-heating',
   'hvac-leaking-water',
+  'ac-running-constantly',
+  'strange-noises-hvac',
+  'high-electric-bills-hvac',
+  'uneven-cooling-heating',
   'hvac-unit-short-cycling',
+  'bad-odors-from-vents',
+  'heat-pump-not-switching',
+  'ice-on-outdoor-unit',
+  'humidity-too-high-home',
+  'furnace-blowing-cold-air',
+  'noisy-outdoor-condenser',
+  'hvac-tripping-breaker',
+  'thermostat-display-blank',
+  'weak-airflow-vents',
+  'furnace-clicking-no-ignition',
+  'ac-smells-musty',
+  'burning-smell-hvac',
+  'hvac-clunking-sound',
+  'constant-fan-running',
+  'blower-fan-not-working',
+  'low-refrigerant-ac',
 ];
 
 async function run() {
-  console.log(`🐤 Canary batch: ${CANARY_SLUGS.length} pages (MASTER-PROMPT-CANARY)`);
+  const useTwoStage = process.env.USE_TWO_STAGE === 'true';
+  const useCoreOnly = process.env.USE_CORE_ONLY !== 'false'; // default: core only (enrichment disabled)
+  console.log(`🐤 Canary batch: ${CANARY_SLUGS.length} pages (${useCoreOnly ? 'Stage 1 CORE only' : useTwoStage ? 'Two-Stage' : 'MASTER-PROMPT-CANARY'})`);
   const results: { slug: string; ok: boolean; layout?: string; error?: string }[] = [];
 
   for (const slug of CANARY_SLUGS) {
@@ -53,22 +71,40 @@ async function run() {
 
       let contentJson: any;
       if (graphSymptom) {
-        const canary = await generateCanaryPage(graphSymptom.name, {
-          pageType: 'symptom',
-          slug: pageSlug,
-          system: 'HVAC',
-          keyword: pageTitle,
-          graphCauses: (graphSymptom.causes || []).map((c: any) => ({ name: c.name })),
-        });
-        contentJson = {
-          layout: canary.layout,
-          sections: canary.sections,
-          ...canaryToContentJson(canary),
-          engine_version: canary.engine_version,
-          generated_at: new Date().toISOString(),
-        };
-        results.push({ slug, ok: true, layout: canary.layout });
-        console.log(`  ✓ layout=${canary.layout} sections=${Object.keys(canary.sections || {}).length}`);
+        const graphCauses = (graphSymptom.causes || []).map((c: any) => ({ name: c.name }));
+        const graphRepairs = (graphSymptom.causes || []).flatMap((c: any) =>
+          (c.repairDetails || c.repairs || []).map((r: any) => ({ name: r?.name || r }))
+        );
+
+        if (useCoreOnly || useTwoStage) {
+          // Stage 1 CORE only — enrichment disabled for canary
+          // queueEnrichment(slug) ← commented out
+          contentJson = await generateCoreOnlyPage(graphSymptom.name, {
+            slug: pageSlug,
+            system: 'HVAC',
+            graphCauses,
+            graphRepairs,
+          });
+          results.push({ slug, ok: true });
+          console.log(`  ✓ core only (${Object.keys(contentJson).length} keys)`);
+        } else {
+          const canary = await generateCanaryPage(graphSymptom.name, {
+            pageType: 'symptom',
+            slug: pageSlug,
+            system: 'HVAC',
+            keyword: pageTitle,
+            graphCauses,
+          });
+          contentJson = {
+            layout: canary.layout,
+            sections: canary.sections,
+            ...canaryToContentJson(canary),
+            engine_version: canary.engine_version,
+            generated_at: new Date().toISOString(),
+          };
+          results.push({ slug, ok: true, layout: canary.layout });
+          console.log(`  ✓ layout=${canary.layout} sections=${Object.keys(canary.sections || {}).length}`);
+        }
       } else {
         const aiData = await generatePageContent(pageSlug, 'symptom', pageTitle, {});
         const html = renderToHtml(aiData);

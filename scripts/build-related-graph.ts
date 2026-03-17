@@ -1,12 +1,12 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Phase 16: Related Nodes Graph Builder
  * Generates 4-8 related nodes per page for dense internal linking.
  * Relation types: related-problem, similar-cause, alternative-repair,
  *                 same-component-family, same-condition-family, same-system-cluster
  */
-import { config } from "dotenv";
-config({ path: ".env.local" });
-
 import sql from "@/lib/db";
 import { CLUSTERS } from "@/lib/clusters";
 import { CONDITIONS } from "@/lib/conditions";
