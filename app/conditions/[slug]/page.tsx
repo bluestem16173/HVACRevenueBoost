@@ -7,6 +7,7 @@ import {
   getDiagnosticTestsForCause,
   CONDITIONS,
 } from "@/lib/conditions";
+import { toSafeString } from "@/lib/content";
 import { getClusterForSymptom } from "@/lib/clusters";
 import { SYMPTOMS } from "@/data/knowledge-graph";
 
@@ -35,7 +36,8 @@ export default async function ConditionPage({ params }: { params: { slug: string
   const uniqueRepairs = Array.from(
     new Map(allRepairs.map((r: any) => [r.id || r.slug, r])).values()
   );
-  const componentSlugs = Array.from(new Set(uniqueRepairs.map((r: any) => r.component?.replace(/\s+/g, "-")).filter(Boolean)));
+  const toSlug = (v: unknown) => (typeof v === "string" ? v : toSafeString(v) ?? "").replace(/\s+/g, "-").trim();
+  const componentSlugs = Array.from(new Set(uniqueRepairs.map((r: { component?: unknown }) => toSlug(r.component)).filter(Boolean)));
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">

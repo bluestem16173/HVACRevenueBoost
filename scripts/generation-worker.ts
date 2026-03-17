@@ -40,6 +40,9 @@ async function runWorker() {
       { keyword: "compressor replacement", url: "/fix/compressor-replacement" }
     ];
 
+    let generatedCount = 0;
+    const MAX_PAGES = 50;
+
     const autoLinkContent = (html: string, entities: { keyword: string, url: string }[], maxLinks = 10) => {
       let linkedHtml = html;
       let linkCount = 0;
@@ -62,6 +65,10 @@ async function runWorker() {
     };
 
     for (const item of queueItems) {
+      if (generatedCount >= MAX_PAGES) {
+        console.log(`🛑 Reached limit of ${MAX_PAGES} pages. Stopping worker.`);
+        break;
+      }
       try {
         console.log(`🛠️ Generating: ${item.proposed_slug}`);
 
@@ -191,6 +198,7 @@ async function runWorker() {
         `;
 
         console.log(`✅ Success: ${pageSlug}`);
+        generatedCount++;
 
       } catch (err) {
         console.error(`❌ Failed to generate ${item.proposed_slug}:`, err);

@@ -2,6 +2,7 @@ import { SYMPTOMS } from "@/data/knowledge-graph";
 import { getDiagnosticSteps, getCauseDetails, getSymptomWithCausesFromDB, getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { getRelatedContent, getInternalLinksForPage } from "@/lib/seo-linking";
 import { buildLinksForPage } from "@/lib/link-engine";
+import { normalizePageData } from "@/lib/content";
 import SymptomPageTemplate from "@/templates/symptom-page";
 import { notFound } from "next/navigation";
 
@@ -19,10 +20,13 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
 
-  // Fetch the AI generated page from Neon (try both slug formats)
+  // Fetch AI-generated page from Neon (try both slug formats)
   const aiPage = await getDiagnosticPageFromDB(params.slug) || await getDiagnosticPageFromDB(`diagnose/${params.slug}`);
-  const htmlContent = aiPage?.content_json?.html_content || null;
-  const contentJson = aiPage?.content_json || null;
+  let rawContent: Record<string, unknown> | null = null;
+  if (aiPage?.content_json) {
+    const raw = aiPage.content_json;
+    rawContent = typeof raw === "string" ? (() => { try { return JSON.parse(raw) as Record<string, unknown>; } catch { return null; } })() : (raw as Record<string, unknown>);
+  }
 
   if (!symptomData) {
     symptomData = SYMPTOMS.find((s) => s.id === params.slug) as any;
@@ -50,9 +54,18 @@ export default async function SymptomPage({ params }: { params: { slug: string }
     tools = await getToolsFromDB();
   } catch(e) { /* silent fail for static gen */ }
 
+  const pageViewModel = normalizePageData({
+    rawContent,
+    pageType: "symptom",
+    slug: params.slug,
+    title: symptom.name,
+    graphCauses: causeDetails,
+  });
+
   return (
     <SymptomPageTemplate
       symptom={symptom}
+      pageViewModel={pageViewModel}
       causeIds={causeIds}
       causeDetails={causeDetails}
       diagnosticSteps={diagnosticSteps}
@@ -61,8 +74,6 @@ export default async function SymptomPage({ params }: { params: { slug: string }
       relatedLinks={relatedLinks}
       tools={tools}
       getCauseDetails={getCauseDetails}
-      htmlContent={htmlContent}
-      contentJson={contentJson}
     />
   );
 }

@@ -148,18 +148,51 @@ async function callWithRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> 
   throw lastError;
 }
 
+export type GenerateCoreDataOptions = {
+  pageType: string;
+  slug: string;
+  title?: string;
+  system?: string;
+  symptom?: string;
+  condition?: string;
+  environment?: string;
+  vehicle?: string;
+};
+
 export async function generateCoreData(
-  pageSlug: string,
-  pageType: string,
-  pageTitle: string,
+  pageSlugOrOptions: string | GenerateCoreDataOptions,
+  pageType?: string,
+  pageTitle?: string,
   context: { system?: string; symptom?: string; condition?: string; environment?: string; vehicle?: string } = {}
-) {
+): Promise<Record<string, unknown>> {
+  let pageSlug: string;
+  let resolvedPageType: string;
+  let resolvedTitle: string;
+
+  if (typeof pageSlugOrOptions === 'object') {
+    const opts = pageSlugOrOptions;
+    pageSlug = opts.slug;
+    resolvedPageType = opts.pageType;
+    resolvedTitle = opts.title ?? opts.slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+    context = {
+      system: opts.system,
+      symptom: opts.symptom,
+      condition: opts.condition,
+      environment: opts.environment,
+      vehicle: opts.vehicle,
+    };
+  } else {
+    pageSlug = pageSlugOrOptions;
+    resolvedPageType = pageType ?? 'symptom';
+    resolvedTitle = pageTitle ?? pageSlug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
+  }
+
   const system = context.system || 'Central Air Conditioner';
-  const symptom = context.symptom || pageTitle;
+  const symptom = context.symptom || resolvedTitle;
   const condition = context.condition || '';
   const environment = context.environment || 'Residential';
   const vehicle = context.vehicle || '';
-  const { pass1 } = getTokenBudget(pageType);
+  const { pass1 } = getTokenBudget(resolvedPageType);
 
   const userMsg = `Context:
 System: ${system}
@@ -168,39 +201,60 @@ Condition: ${condition}
 Environment: ${environment}
 Unit: ${vehicle}
 
-Page: ${pageSlug} (${pageType})
+Page: ${pageSlug} (${resolvedPageType})
+Use slug: ${pageSlug} and title: ${resolvedTitle} in your JSON output.
 
 Authoring intent: This content is for a highly technical repair knowledge graph used for SEO and lead generation. It should read like a field technician's structured diagnostic output, not a consumer blog post.`;
 
-  const { prompt, schema } = composePromptForPageType(pageType);
+  const { prompt, schema: schemaDef } = composePromptForPageType(resolvedPageType);
+  console.log("🚀 Generating:", pageSlug, "| type:", resolvedPageType);
+  console.log("🧠 Using Schema:", schemaDef.name);
   // Stage 1: lightweight prompt only — no master prompt (token stability)
   const systemPrompt = prompt;
 
-  return callWithRetry(async () => {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMsg },
-      ],
-      response_format: {
-        type: 'json_schema',
-        json_schema: {
-          name: 'core_page',
-          strict: true,
-          schema: schema as Record<string, unknown>,
+  const MAX_RETRIES = 2;
+  let lastError: unknown;
+  for (let retryCount = 0; retryCount <= MAX_RETRIES; retryCount++) {
+    try {
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userMsg },
+        ],
+        response_format: {
+          type: 'json_schema',
+          json_schema: {
+            name: schemaDef.name,
+            strict: false,
+            schema: schemaDef.schema as Record<string, unknown>,
+          },
         },
-      },
-      temperature: 0.2,
-      max_tokens: pass1,
-    });
+        temperature: 0.2,
+        max_tokens: pass1,
+      });
 
-    const contentStr = response.choices[0]?.message?.content;
-    if (!contentStr) throw new Error('Pass 1: empty response');
-    const parsed = safeJsonParse<Record<string, unknown>>(contentStr);
-    if (!parsed) throw new Error('Pass 1: unrecoverable JSON');
-    return parsed;
-  });
+      const contentStr = response.choices[0]?.message?.content;
+      if (!contentStr) throw new Error('Pass 1: empty response');
+      const parsed = safeJsonParse<Record<string, unknown>>(contentStr);
+      if (!parsed) throw new Error('Pass 1: unrecoverable JSON');
+      const isCause = (resolvedPageType || '').toLowerCase() === 'cause';
+      if (isCause && typeof (parsed.repairs as unknown[])?.[0] === 'string') {
+        throw new Error('Invalid repairs format: repairs must be objects with name, difficulty, cost');
+      }
+      return parsed;
+    } catch (err) {
+      lastError = err;
+      if (retryCount < MAX_RETRIES) {
+        console.warn("⚠️ Retry due to invalid format:", pageSlug);
+        await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
+      } else {
+        console.error("❌ Failed after retries:", pageSlug);
+        throw lastError;
+      }
+    }
+  }
+  throw lastError;
 }
 
 /** AI enrichment only — for pages built from DB graph. */
@@ -289,6 +343,7 @@ export async function generatePageContent(
   pageTitle: string,
   additionalContext: any = {}
 ) {
+  console.log("PAGE TYPE:", pageType);
   const graphSymptom = additionalContext.graphSymptom;
 
   if (graphSymptom) {

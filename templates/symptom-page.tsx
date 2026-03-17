@@ -1,5 +1,5 @@
 /**
- * Symptom Page Template — LOCKED
+ * Symptom Page Template — FINAL (unlocked for canary)
  * Canonical structure. See docs/TEMPLATE-LOCKED.md and public/mockup-diagnostic-page.html
  *
  * Hardened 21-point Master Content Prompt. HVAC Revenue Boost color scheme:
@@ -8,16 +8,22 @@
 import React from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 import DiyDifficultyMeter, { DiyLegalDisclaimer } from "@/components/DiyDifficultyMeter";
+
+const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
+import CauseCard from "@/components/CauseCard";
+import SystemCard from "@/components/SystemCard";
+import ServiceCTA from "@/components/ServiceCTA";
 import { getConditionsForSymptom } from "@/lib/conditions";
 import { getClusterForSymptom } from "@/lib/clusters";
 import { SECTION_MAP } from "@/components/sections";
 import { resolveLayout } from "@/lib/layout-resolver";
 import { normalizeToString } from "@/lib/utils";
+import type { BasePageViewModel } from "@/lib/content";
 
 export default function SymptomPageTemplate({
   symptom,
+  pageViewModel,
   causeIds,
   causeDetails,
   diagnosticSteps,
@@ -26,44 +32,59 @@ export default function SymptomPageTemplate({
   relatedLinks,
   tools,
   getCauseDetails,
-  htmlContent,
-  contentJson,
-}: any) {
+}: {
+  symptom: { id: string; name: string; description?: string };
+  pageViewModel: BasePageViewModel;
+  causeIds?: string[];
+  causeDetails?: unknown[];
+  diagnosticSteps?: unknown;
+  relatedContent?: { relatedSymptoms?: { id: string; name: string }[] };
+  internalLinks?: unknown;
+  relatedLinks?: { slug?: string; title?: string; label?: string; name?: string }[];
+  tools?: { name: string; description?: string; affiliateUrl?: string }[];
+  getCauseDetails?: (id: string) => unknown;
+}) {
   // Resolve causes from DB or static KG
-  const fullCauses = causeDetails?.length > 0
+  const fullCauses = (Array.isArray(causeDetails) && causeDetails.length > 0)
     ? causeDetails
-    : (causeIds || []).map((id: string) => getCauseDetails(id)).filter(Boolean);
-  const firstCause = fullCauses[0] || null;
+    : (causeIds || []).map((id: string) => getCauseDetails?.(id)).filter(Boolean);
+  const firstCause = fullCauses[0] as { name?: string; explanation?: string } | null;
   const cluster = getClusterForSymptom(symptom.id);
 
-  // New contentJson structure (21-point master prompt)
-  const {
-    fast_answer,
-    most_common_fix,
-    diagnostic_checklist,
-    diagnostic_tree_mermaid,
-    guided_diagnosis_filters,
-    causes: jsonCauses,
-    repairs: jsonRepairs,
-    components,
-    tools_required,
-    cost_estimates,
-    technician_insights,
-    common_mistakes,
-    environment_conditions,
-    prevention_tips,
-    faq,
-    schema_json,
-  } = contentJson || {};
-
-  // Fallbacks when new format not present
-  const fastAnswerText = fast_answer ?? (firstCause
+  // All content from normalized pageViewModel (never raw DB JSON)
+  const vm = pageViewModel;
+  const fastAnswerText = vm.fastAnswer ?? (firstCause
     ? `Likely caused by ${firstCause.name}. ${firstCause.explanation || ""}`
     : symptom.description);
 
-  const causes = jsonCauses?.length > 0
-    ? jsonCauses
-    : fullCauses.map((c: any) => ({
+  const causes = (vm.rankedCauses?.length ?? 0) > 0
+    ? vm.rankedCauses!.map((c) => ({
+        name: c.name,
+        symptoms: c.symptoms ?? c.explanation,
+        explanation: c.explanation ?? c.why,
+        indicator: c.indicator,
+        difficulty: c.difficulty ?? "Moderate",
+        difficultyColor: c.difficultyColor ?? "text-hvac-blue",
+        cost: c.cost ?? c.estimated_cost,
+        likelihood: c.likelihood,
+        risk: c.risk,
+        why: c.why,
+        diagnose_slug: c.diagnose_slug,
+        repair_slug: c.repair_slug,
+        estimated_cost: c.estimated_cost,
+        pillar: c.pillar,
+        faulty_item: c.faulty_item,
+        diy_friendly: c.diy_friendly,
+        repairs: (c.repairs ?? []).map((r) => ({
+          name: r.name,
+          description: r.explanation,
+          cost: r.cost ?? r.estimated_cost ?? c.estimated_cost,
+          difficulty: r.difficulty,
+          link: r.link ?? (r.slug ? `/fix/${r.slug}` : c.repair_slug ? `/fix/${c.repair_slug}` : undefined),
+          badges: {},
+        })),
+      }))
+    : (fullCauses as any[]).map((c: any) => ({
         name: c.name,
         symptoms: c.explanation,
         explanation: c.explanation,
@@ -81,36 +102,73 @@ export default function SymptomPageTemplate({
         })),
       }));
 
-  const repairs = jsonRepairs ?? fullCauses.flatMap((c: any) => (c.repairDetails || []).map((r: any) => ({
-    name: r.name,
-    difficulty: r.diyDifficulty === "rookie" ? "Easy" : "Moderate",
-    difficultyBg: r.diyDifficulty === "professional-only" ? "bg-hvac-safety" : "bg-hvac-gold",
-    cost: r.estimatedCost === "low" ? "$50–$150" : r.estimatedCost === "medium" ? "$150–$450" : "$450+",
-    diyText: r.diyDifficulty === "rookie" ? "Yes" : "Not recommended",
-    diyColor: r.diyDifficulty === "rookie" ? "text-green-600" : "text-hvac-safety",
-  })));
+  const allRepairsRaw = (vm.repairOptions?.length ?? 0) > 0
+    ? vm.repairOptions!.map((r) => {
+        const d = (r.difficulty ?? "").toLowerCase();
+        const isRookie = d === "rookie" || d === "easy";
+        const isPro = d.includes("professional") || d === "advanced";
+        return {
+          name: r.name,
+          difficulty: r.difficulty ?? "Moderate",
+          difficultyBg: isPro ? "bg-hvac-safety" : "bg-hvac-gold",
+          cost: r.cost ?? r.estimated_cost ?? "$50–$150",
+          diyText: isRookie ? "Yes" : "Not recommended",
+          diyColor: isRookie ? "text-green-600" : "text-hvac-safety",
+          _isLow: isRookie || d === "low",
+          _isPro: isPro,
+        };
+      })
+    : (fullCauses as any[]).flatMap((c: any) => (c.repairDetails || []).map((r: any) => {
+        const d = (r.diyDifficulty ?? "").toLowerCase();
+        const isRookie = d === "rookie" || d === "easy";
+        const isPro = d === "professional-only" || d.includes("professional") || d === "advanced";
+        return {
+          name: r.name,
+          difficulty: r.diyDifficulty === "rookie" ? "Easy" : "Moderate",
+          difficultyBg: isPro ? "bg-hvac-safety" : "bg-hvac-gold",
+          cost: r.estimatedCost === "low" ? "$50–$150" : r.estimatedCost === "medium" ? "$150–$450" : "$450+",
+          diyText: isRookie ? "Yes" : "Not recommended",
+          diyColor: isRookie ? "text-green-600" : "text-hvac-safety",
+          _isLow: isRookie || d === "low",
+          _isPro: isPro,
+        };
+      }));
 
-  const mermaidChart = diagnostic_tree_mermaid ?? contentJson?.mermaid_graph ?? (fullCauses?.length > 0
-    ? `graph TD\n  A[${symptom.name}] --> ${fullCauses.map((c: any, i: number) => `C${i}[${c.name}]`).join("\n  A --> ")}`
-    : null);
+  // Repair Difficulty Matrix: max 6 items, low+moderate only, NO professional
+  const repairs = allRepairsRaw
+    .filter((r: any) => !r._isPro)
+    .sort((a: any, b: any) => (a._isLow ? 0 : 1) - (b._isLow ? 0 : 1)) // low first
+    .slice(0, 6);
 
-  const checklist = diagnostic_checklist ?? [
+  const checklist = vm.checklist ?? vm.diagnosticFlow?.steps ?? [
     "Verify thermostat is set to cool",
     "Replace dirty air filter",
     "Reset HVAC breaker",
     "Check outdoor condenser coil",
   ];
 
-  const whenToCallWarnings = contentJson?.when_to_call_pro?.warnings ?? [
+  const whenToCallWarnings = vm.whenToCallProWarnings ?? [
     { type: "Electrical", description: "Contactors, capacitors, control boards require LOTO training." },
     { type: "Refrigerant", description: "EPA Section 608—illegal to vent or handle without license." },
     { type: "Gas", description: "Never modify furnace gas valves or heat exchangers." },
   ];
 
-  const resolvedRelatedLinks = relatedLinks?.map((l: any) => ({
-    url: l.slug?.startsWith("/") ? l.slug : `/${l.slug}`,
-    label: l.title ?? l.label ?? l.name,
-  })) ?? [];
+  const resolvedRelatedLinks = (vm.relatedLinks?.length ?? 0) > 0
+    ? vm.relatedLinks!.map((l) => ({ url: l.url, label: l.label }))
+    : relatedLinks?.map((l) => ({
+        url: (l.slug?.startsWith("/") ? l.slug : `/${l.slug}`) ?? "#",
+        label: l.title ?? l.label ?? l.name ?? "",
+      })) ?? [];
+
+  const mostCommonFixCard = vm.mostCommonFixCard;
+  const guidedFilters = vm.guidedFilters?.categories;
+  const components = vm.components ?? [];
+  const toolsRequired = vm.toolsRequired ?? [];
+  const technicianInsights = vm.technicianInsights ?? [];
+  const commonMistakes = vm.commonMistakes ?? [];
+  const environmentConditions = vm.environmentConditions ?? [];
+  const preventionTips = vm.preventionTips ?? [];
+  const faq = vm.faq ?? [];
 
   // Affiliate URL for replaceable parts (capacitor, filter, thermostat, etc.)
   const getPartAffiliateUrl = (name: string, component?: string) => {
@@ -119,7 +177,7 @@ export default function SymptomPageTemplate({
   };
 
   // JSON-LD Schema
-  const articleSchema = schema_json ?? {
+  const articleSchema = vm.schemaJson ?? {
     "@context": "https://schema.org",
     "@type": "TechArticle",
     "headline": `${symptom.name}: Professional HVAC Diagnostic Guide`,
@@ -128,10 +186,10 @@ export default function SymptomPageTemplate({
   };
 
   // Canary format: layout + sections — modular SECTION_MAP + resolveLayout (docs/MASTER-PROMPT-CANARY.md)
-  if (contentJson?.layout && contentJson?.sections && typeof contentJson.sections === "object") {
-    const layoutKey = contentJson.layout as string;
-    const layout = resolveLayout(layoutKey);
-    const sections = contentJson.sections as Record<string, unknown>;
+  const sectionsObj = vm.sections && typeof vm.sections === "object" ? vm.sections : {};
+  const hasCanarySections = vm.layout && Object.keys(sectionsObj).length > 0;
+  if (hasCanarySections && vm.layout) {
+    const layout = resolveLayout(vm.layout);
     return (
       <div className="min-h-screen bg-stone-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
         <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -161,7 +219,7 @@ export default function SymptomPageTemplate({
           </div>
           {layout.map((sectionKey) => {
             const Component = SECTION_MAP[sectionKey];
-            const data = sections[sectionKey];
+            const data = sectionsObj[sectionKey];
             if (!Component || data === undefined || data === null) return null;
             return (
               <Component
@@ -223,7 +281,7 @@ export default function SymptomPageTemplate({
           <div className="p-6 sm:p-8 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-hvac-brown-warm rounded-r-xl shadow-sm">
             <h3 className="text-xs font-black uppercase tracking-widest text-hvac-brown dark:text-amber-200 mb-3">Technician Statement</h3>
             <p className="text-base font-medium text-slate-800 dark:text-slate-200 leading-relaxed m-0">
-              {contentJson?.technician_statement ?? contentJson?.field_note ?? technician_insights?.[0] ?? contentJson?.why_this_happens ?? (
+              {vm.technicianStatement ?? (typeof technicianInsights[0] === "string" ? technicianInsights[0] : (technicianInsights[0] as { text?: string })?.text) ?? (
                 `In the field, ${normalizeToString(symptom.name).toLowerCase()} is one of the most common callbacks we see. The good news is that many cases are straightforward—a dirty filter, a tripped breaker, or a thermostat set to heat instead of cool. The trick is ruling out the simple stuff before we start digging into refrigerant levels or electrical components. Restricted airflow from a clogged filter is the number-one cause of reduced cooling; it forces the evaporator to work harder and can even cause ice buildup. If you're seeing weak airflow or ice on the coils, check the filter first. For refrigerant issues, compressor problems, or anything involving electrical work, that's when you should call a pro. EPA Section 608 certification is required for refrigerant handling, and high-voltage components can be dangerous. When in doubt, shut the system off and get a qualified technician out.`
               )}
             </p>
@@ -244,30 +302,30 @@ export default function SymptomPageTemplate({
         </section>
 
         {/* 3. MOST COMMON FIX — green border, reassuring */}
-        {(most_common_fix || firstCause) && (
+        {(mostCommonFixCard || firstCause) && (
           <section className="mb-12" id="common-fix">
             <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Most Common Fix</h2>
             <div className="bg-white dark:bg-slate-900 border-2 border-green-500 dark:border-green-600 p-6 rounded-xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
               <div>
                 <h3 className="text-2xl font-black text-hvac-navy dark:text-white m-0">
-                  {most_common_fix?.name ?? firstCause?.name ?? "Dirty Air Filter"}
+                  {mostCommonFixCard?.name ?? (firstCause as { name?: string })?.name ?? "Dirty Air Filter"}
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm max-w-md">
-                  {most_common_fix?.description ?? firstCause?.explanation ?? "Restricted airflow reduces cooling capacity."}
+                  {mostCommonFixCard?.description ?? (firstCause as { explanation?: string })?.explanation ?? "Restricted airflow reduces cooling capacity."}
                 </p>
               </div>
               <div className="flex flex-col gap-2 shrink-0 bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 w-full sm:w-auto">
                 <div className="flex justify-between gap-4 text-sm">
                   <span className="font-bold text-slate-500 uppercase tracking-widest">Est Cost:</span>
-                  <span className="font-black text-hvac-navy dark:text-white">{most_common_fix?.cost ?? "$50–$150"}</span>
+                  <span className="font-black text-hvac-navy dark:text-white">{mostCommonFixCard?.cost ?? "$50–$150"}</span>
                 </div>
                 <div className="flex justify-between gap-4 text-sm">
                   <span className="font-bold text-slate-500 uppercase tracking-widest">Difficulty:</span>
-                  <span className="font-black text-green-600 dark:text-green-400">{most_common_fix?.difficulty ?? "Easy"}</span>
+                  <span className="font-black text-green-600 dark:text-green-400">{mostCommonFixCard?.difficulty ?? "Easy"}</span>
                 </div>
                 <div className="flex justify-between gap-4 text-sm">
                   <span className="font-bold text-slate-500 uppercase tracking-widest">DIY:</span>
-                  <span className="font-black text-green-600 dark:text-green-400">{most_common_fix?.diy !== false ? "Yes" : "No"}</span>
+                  <span className="font-black text-green-600 dark:text-green-400">{mostCommonFixCard?.diy !== false ? "Yes" : "No"}</span>
                 </div>
               </div>
             </div>
@@ -277,10 +335,10 @@ export default function SymptomPageTemplate({
           </section>
         )}
 
-        {/* 4. SIMPLE DIY FIXES */}
+        {/* 4. 30-SECOND SUMMARY / SIMPLE DIY FIXES */}
         <section className="mb-12 bg-hvac-brown/5 dark:bg-hvac-brown/10 p-8 rounded-2xl border border-hvac-brown/20 dark:border-hvac-brown/30 shadow-sm" id="simple-diy-fixes">
           <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-6 m-0 flex items-center gap-2">
-            <span>⚡</span> Simple DIY Fixes
+            <span>⚡</span> 30-Second Summary
           </h2>
           <p className="text-slate-600 dark:text-slate-400 mb-6">Perform these checks immediately before replacing parts or calling a tech.</p>
           <p className="text-xs font-medium text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg px-4 py-2 mb-6">
@@ -296,31 +354,21 @@ export default function SymptomPageTemplate({
           </div>
         </section>
 
-        {/* 5. DIAGNOSTIC FLOWCHART — full width */}
-        {mermaidChart && (
-          <section className="mb-12" id="flowchart">
-            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Diagnostic Flowchart</h2>
-            <div className="w-full overflow-auto bg-hvac-brown/5 dark:bg-hvac-brown/10 border border-hvac-brown/20 dark:border-hvac-brown/30 rounded-xl p-6">
-              <MermaidDiagram chart={mermaidChart} title="Diagnostic Flowchart" className="w-full min-w-0" />
-            </div>
-          </section>
-        )}
-
-        {/* 6. GUIDED DIAGNOSIS FILTERS — Environment, Conditions, Noise columns */}
-        <section className="mb-16" id="guided-diagnosis">
+        {/* 5. NARROW DOWN THE PROBLEM — formerly Guided Diagnosis Filters */}
+        <section className="mb-16" id="narrow-down">
           <div className="bg-hvac-navy p-8 rounded-2xl shadow-lg">
-            <h2 className="text-2xl font-black text-white mb-2">Guided Diagnosis Filters</h2>
-            <p className="text-hvac-blue/90 mb-6 text-sm">Select environment, conditions, and noise to narrow down potential causes.</p>
+            <h2 className="text-2xl font-black text-white mb-2">Narrow Down the Problem</h2>
+            <p className="text-hvac-blue/90 mb-6 text-sm">Use these filters and the diagnostic flow below to narrow down which causes are most likely.</p>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-hvac-brown/30 p-5 rounded-xl border border-hvac-brown/50">
                 <h4 className="text-xs font-black text-hvac-gold uppercase tracking-widest mb-4">Environment</h4>
                 <div className="flex flex-wrap gap-2">
-                  {((guided_diagnosis_filters?.categories?.find((c: any) => c.name === "Environment")?.options) ?? [
+                  {((guidedFilters?.find((c) => c.name === "Environment")?.options) ?? [
                     { slug: "residential", label: "Residential" },
                     { slug: "extreme-heat", label: "Extreme Heat" },
                     { slug: "high-humidity", label: "High Humidity" },
                     { slug: "after-long-trip", label: "After Long Trip" },
-                  ]).map((opt: any) => (
+                  ]).map((opt: { slug: string; label: string }) => (
                     <Link key={opt.slug} href={`/conditions/${opt.slug}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded transition-colors">
                       {opt.label}
                     </Link>
@@ -330,7 +378,7 @@ export default function SymptomPageTemplate({
               <div className="bg-hvac-brown/30 p-5 rounded-xl border border-hvac-brown/50">
                 <h4 className="text-xs font-black text-hvac-gold uppercase tracking-widest mb-4">Conditions</h4>
                 <div className="flex flex-wrap gap-2">
-                  {(guided_diagnosis_filters?.categories?.find((c: any) => c.name === "Conditions")?.options ?? getConditionsForSymptom(symptom.id).map((c) => ({ slug: c.slug, label: c.name }))).map((opt: any) => (
+                  {(guidedFilters?.find((c) => c.name === "Conditions")?.options ?? getConditionsForSymptom(symptom.id).map((c) => ({ slug: c.slug, label: c.name }))).map((opt: { slug: string; label: string }) => (
                     <Link key={opt.slug} href={`/conditions/${opt.slug}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded transition-colors">
                       {opt.label}
                     </Link>
@@ -340,12 +388,12 @@ export default function SymptomPageTemplate({
               <div className="bg-hvac-brown/30 p-5 rounded-xl border border-hvac-brown/50">
                 <h4 className="text-xs font-black text-hvac-gold uppercase tracking-widest mb-4">Noise(s)</h4>
                 <div className="flex flex-wrap gap-2">
-                  {((guided_diagnosis_filters?.categories?.find((c: any) => c.name === "Noise")?.options) ?? [
+                  {((guidedFilters?.find((c) => c.name === "Noise")?.options) ?? [
                     { slug: "humming", label: "Humming" },
                     { slug: "clicking", label: "Clicking" },
                     { slug: "grinding", label: "Grinding" },
                     { slug: "no-unusual-noise", label: "No Unusual Noise" },
-                  ]).map((opt: any) => (
+                  ]).map((opt: { slug: string; label: string }) => (
                     <Link key={opt.slug} href={`/conditions/${opt.slug}`} className="px-3 py-2 bg-hvac-brown/50 hover:bg-hvac-blue text-white text-sm font-bold rounded transition-colors">
                       {opt.label}
                     </Link>
@@ -356,205 +404,300 @@ export default function SymptomPageTemplate({
           </div>
         </section>
 
-        {/* 7. CAUSES AT A GLANCE — top 3 only: 1 easy, 1 medium, 1 hard */}
-        {causes?.length > 0 && (() => {
-          const norm = (c: any) => normalizeToString(c.difficulty ?? "").toLowerCase();
-          const easy = causes.find((c: any) => norm(c) === "easy");
-          const moderate = causes.find((c: any) => norm(c) === "moderate");
-          const hard = causes.find((c: any) => norm(c) === "hard" || norm(c) === "advanced");
-          const uniq = [easy, moderate, hard].filter(Boolean);
-          const fill = causes.filter((c: any) => !uniq.includes(c));
-          const top3 = [...uniq, ...fill].slice(0, 3);
+        {/* 1. DIY VS PRO — STATIC chart: Only air filter is DIY; all others Pro (same on every page) */}
+        <section className="mb-12" id="diy-vs-pro">
+          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">DIY vs Professional</h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">Only clogged air filter is DIY-friendly. Electrical, chemical, and mechanical work require a professional.</p>
+          <MermaidDiagram
+            chart={`flowchart TD
+  A[Repair Type] --> B{Which system?}
+  B -->|Electrical| C[🔴 Professional Required]
+  B -->|Chemical / Refrigerant| D[🔴 Professional Required]
+  B -->|Mechanical| E[🔴 Professional Required]
+  B -->|Structural| F[🟢 DIY Possible]
+  F --> F1[Clogged air filter only]
+  F1 --> F2[⚠ May void warranty]`}
+            title="DIY vs Pro by System"
+            className="min-h-[280px]"
+          />
+          {/* 4 pillar boxes: neutral background + badge only (no red blocks) */}
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { slug: "electrical", label: "Electrical", badge: "🔴 Professional Required" },
+              { slug: "structural", label: "Structural (Ducting)", badge: "🟢 DIY Safe" },
+              { slug: "chemical", label: "Chemical (Refrigeration)", badge: "🔴 Professional Required" },
+              { slug: "mechanical", label: "Mechanical", badge: "🔴 Professional Required" },
+            ].map(({ slug, label, badge }) => (
+              <div key={slug} className="rounded-xl p-5 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm">
+                <h4 className="font-bold text-hvac-navy dark:text-white mb-2 uppercase tracking-wide">{label}</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  {slug === "structural" ? "Clogged air filter, dirty filter — replace monthly." : "Professional recommended for safety and warranty."}
+                </p>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{badge}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 2. COMMON CAUSES AT A GLANCE — 1 top reason per pillar, 4 columns (incl. Mechanical), green=Structural, red=others */}
+        {(() => {
+          const pillarOrder = ["Electrical", "Structural", "Chemical", "Mechanical"];
+          const inferPillar = (c: any) => {
+            const n = (c.name ?? "").toLowerCase();
+            if (/capacitor|breaker|contactor|electrical/i.test(n)) return "Electrical";
+            if (/filter|duct|blower|airflow|evaporator|clogged/i.test(n)) return "Structural";
+            if (/refrigerant|leak|charge/i.test(n)) return "Chemical";
+            return "Mechanical";
+          };
+          const byPillar = (causes ?? []).reduce((acc: Record<string, any[]>, c: any) => {
+            const p = c.pillar ? (c.pillar.includes("Duct") || c.pillar.includes("Airflow") ? "Structural" : c.pillar.includes("Refrig") ? "Chemical" : c.pillar) : inferPillar(c);
+            const key = p === "Ducting / Airflow" ? "Structural" : p === "Refrigeration" ? "Chemical" : p;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(c);
+            return acc;
+          }, {});
+          const placeholders: Record<string, { name: string; why?: string }> = {
+            Electrical: { name: "Bad capacitor or tripped breaker", why: "Power delivery issues prevent system from running." },
+            Structural: { name: "Clogged or dirty air filter", why: "Restricted airflow reduces cooling capacity." },
+            Chemical: { name: "Low refrigerant or leak", why: "Refrigerant level affects cooling. EPA certified pros only." },
+            Mechanical: { name: "Compressor or thermostat failure", why: "Component wear or control issues." },
+          };
+          const onePerPillar = pillarOrder.map((p) => byPillar[p]?.[0] ?? placeholders[p]);
+          const isDiyPillar = (p: string) => p === "Structural";
           return (
-            <section className="mb-16" id="causes-at-glance">
-              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Causes at a Glance</h2>
-              <div className="overflow-x-auto rounded-xl border border-hvac-brown/20 dark:border-hvac-brown/30">
-                <table className="w-full text-sm text-left">
-                  <thead className="bg-hvac-brown/10 dark:bg-hvac-brown/20 border-b border-hvac-brown/20">
-                    <tr>
-                      <th className="p-4 font-bold text-hvac-navy dark:text-slate-300 uppercase tracking-widest text-xs">Problem</th>
-                      <th className="p-4 font-bold text-hvac-navy dark:text-slate-300 uppercase tracking-widest text-xs">Likely Cause</th>
-                      <th className="p-4 font-bold text-hvac-navy dark:text-slate-300 uppercase tracking-widest text-xs">Difficulty</th>
-                      <th className="p-4 font-bold text-hvac-navy dark:text-slate-300 uppercase tracking-widest text-xs">DIY Friendly</th>
-                      <th className="p-4 font-bold text-hvac-navy dark:text-slate-300 uppercase tracking-widest text-xs">Cost</th>
-                      <th className="p-4 font-bold text-hvac-navy dark:text-slate-300 uppercase tracking-widest text-xs">Guide</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-hvac-brown/10">
-                    {top3.map((cause: any, idx: number) => {
-                      const origIdx = causes.findIndex((c: any) => c.name === cause.name);
-                      const diyFriendly = cause.diyFriendly ?? (fullCauses[origIdx]?.repairDetails?.[0]?.diyDifficulty === "rookie" ? "Yes" : "Not recommended");
-                      return (
-                        <tr key={idx} className="hover:bg-hvac-brown/5">
-                          <td className="p-4 font-medium text-slate-800 dark:text-slate-200">{symptom.name}</td>
-                          <td className="p-4 text-slate-600 dark:text-slate-400">{cause.name}</td>
-                          <td className="p-4">
-                            <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${cause.difficultyColor ?? "text-hvac-blue"}`}>
-                              {cause.difficulty ?? "Moderate"}
-                            </span>
-                          </td>
-                          <td className={`p-4 font-bold ${diyFriendly === "Yes" ? "text-green-600 dark:text-green-400" : "text-amber-600 dark:text-amber-400"}`}>
-                            {diyFriendly}
-                          </td>
-                          <td className="p-4 text-slate-600 dark:text-slate-400 font-bold">{cause.cost ?? "—"}</td>
-                          <td className="p-4">
-                            <a href={`#cause-${(origIdx >= 0 ? origIdx : idx) + 1}`} className="text-hvac-blue font-bold hover:underline">View →</a>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            <section className="mb-16" id="common-causes-at-glance">
+              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Common Causes at a Glance</h2>
+              <p className="text-slate-600 dark:text-slate-400 mb-6">Top reason in each category — one from each pillar. Mechanical included.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {pillarOrder.map((p, idx) => {
+                  const cause = onePerPillar[idx];
+                  const isDiy = isDiyPillar(p);
+                  const labels: Record<string, string> = { Electrical: "Electrical", Structural: "Structural (Ducting)", Chemical: "Chemical (Refrigeration)", Mechanical: "Mechanical" };
+                  const l = normalizeToString((cause as any).likelihood).toLowerCase();
+                  const r = normalizeToString((cause as any).risk).toLowerCase();
+                  const likelihood = (l === "high" || l === "medium" || l === "low" ? l : "medium") as "high" | "medium" | "low";
+                  const riskVal = (r === "high" || r === "medium" || r === "low" ? r : "medium") as "high" | "medium" | "low";
+                  const badge = isDiy ? "🟢 DIY Safe" : "🔴 Professional Required";
+                  return (
+                    <div key={p} className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
+                      <div className="p-4">
+                        <h4 className="text-xs font-black uppercase tracking-widest text-hvac-blue mb-2">{labels[p]}</h4>
+                        <CauseCard
+                          name={(cause as any).name}
+                          likelihood={likelihood}
+                          risk={riskVal}
+                          description={(cause as any).why ?? (cause as any).explanation ?? ""}
+                          diagnoseHref={(cause as any).diagnose_slug ? `/cause/${(cause as any).diagnose_slug}` : "#"}
+                          repairHref={(cause as any).repair_slug ? `/fix/${(cause as any).repair_slug}?ref=diag_${symptom.id}` : "#"}
+                          cost={(cause as any).estimated_cost ?? (cause as any).cost}
+                        />
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300 mt-2 block">{badge}</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </section>
           );
         })()}
 
-        {/* 8. COMMON CAUSES & POSSIBLE FIXES — 3–4 items, DIY rank, safety, cost, time */}
-        <section className="mb-16" id="common-causes">
+        {/* 3. WHY THAT SYSTEM FAILS — 2x2 grid, 50–75 word technical/field note per pillar */}
+        <section className="mb-16" id="why-system-fails">
           <h2 className="text-3xl font-black text-hvac-navy dark:text-white mb-8 border-b-2 border-hvac-brown/20 pb-4">
-            Common Causes & Possible Fixes
+            Why That System Fails
           </h2>
-          <div className="space-y-10">
-            {(causes ?? []).slice(0, 4).map((cause: any, idx: number) => {
-              const fullCause = fullCauses.find((c: any) => c.name === cause.name) ?? fullCauses[idx];
-              const rawRepairs = (fullCause?.repairDetails?.length ?? 0) > 0 ? fullCause.repairDetails : cause.repairs ?? [];
-              const toCost = (ec: string) => ec === "low" ? "$50–$150" : ec === "medium" ? "$150–$450" : "$450+";
-              const toDiyPro = (ec: string) => ec === "low" ? { diy: "$30–$50", pro: "$80–$150" } : ec === "medium" ? { diy: "$80–$150", pro: "$200–$500" } : { diy: "$100–$200", pro: "$1000–$2500" };
-              const diyRank = (d: string) => d === "rookie" ? "Beginner" : d === "moderate" ? "Intermediate" : d === "advanced" ? "Advanced" : "Pro Only";
-              const timeForRepair = (r: any) => {
-                const ec = r.estimatedCost ?? "low";
-                const diff = r.diyDifficulty ?? "moderate";
-                if (diff === "professional-only") return "Leave to pros";
-                if (/filter|drain/i.test(r.name)) return "5–15 min";
-                if (/capacitor|contactor|thermostat/i.test(r.name)) return "30–60 min";
-                if (ec === "high") return "2–4 hrs (pro)";
-                return "30–90 min";
-              };
-              const repairs = rawRepairs.map((r: any) => {
-                const ec = r.estimatedCost ?? (r.cost?.includes("450") ? "high" : r.cost?.includes("150") ? "medium" : "low");
-                const { diy, pro } = toDiyPro(ec);
-                return {
-                  name: r.name,
-                  cost: r.cost ?? toCost(ec),
-                  difficulty: r.difficulty ?? (r.diyDifficulty === "rookie" ? "Easy" : "Moderate"),
-                  diyRank: diyRank(r.diyDifficulty ?? "moderate"),
-                  safetyConcerns: r.safetyConcerns ?? [],
-                  time: r.time ?? timeForRepair(r),
-                  link: r.link ?? `/fix/${r.slug || r.id}`,
-                  diyCost: r.diyCost ?? diy,
-                  proCost: r.proCost ?? r.cost ?? pro,
-                };
-              });
-              const isEasy = normalizeToString(cause.difficulty ?? "").toLowerCase() === "easy";
-              const isHard = normalizeToString(cause.difficulty ?? "").toLowerCase() === "hard" || normalizeToString(cause.difficulty ?? "").toLowerCase() === "advanced";
-              const boxBg = isEasy ? "bg-green-50 dark:bg-green-900/20 border-green-200" : isHard ? "bg-red-50 dark:bg-red-900/20 border-red-200" : "bg-amber-50 dark:bg-amber-900/20 border-amber-200";
-              const boxBorder = isEasy ? "border-green-300" : isHard ? "border-red-300" : "border-amber-300";
-              return (
-                <div key={idx} id={`cause-${idx + 1}`} className="border-l-4 border-hvac-blue pl-6">
-                  <h3 className="text-2xl font-bold text-hvac-navy dark:text-white mb-2">{idx + 1}. {cause.name}</h3>
-                  <p className="text-slate-600 dark:text-slate-400 mb-2"><strong>Symptoms:</strong> {cause.symptoms ?? cause.explanation}</p>
-                  <p className="text-slate-600 dark:text-slate-400 mb-6"><strong>Why it happens:</strong> {cause.explanation}</p>
-
-                  {repairs.length > 0 ? repairs.map((repair: any, rIdx: number) => {
-                    const isPart = /replace|filter|capacitor|thermostat|contactor|motor/i.test(repair.name);
-                    const partUrl = repair.affiliate_link ?? (isPart ? getPartAffiliateUrl(repair.name, repair.component) : null);
-                    const diyCost = repair.diyCost ?? (isEasy ? "$30–$50" : isHard ? "$100–$200" : "$50–$100");
-                    const proCost = repair.proCost ?? repair.cost ?? (isEasy ? "$80–$150" : isHard ? "$1000–$2500" : "$200–$500");
-                    const safetyLabels: Record<string, string> = { refrigerant: "Refrigerant (EPA 608)", electrical: "Electrical", high_voltage: "High Voltage", gas: "Gas" };
-                    return (
-                      <div key={rIdx} className={`${boxBg} ${boxBorder} border-2 p-6 rounded-xl mb-4`}>
-                        <Link href={repair.link ?? `/fix/${repair.slug ?? repair.id}`} className="block font-bold text-hvac-navy dark:text-white text-lg mb-3">
-                          {repair.name} →
-                        </Link>
-                        <div className="flex flex-wrap gap-4">
-                          <div className="flex flex-col">
-                            <span className="text-xs font-black uppercase text-slate-500">DIY Rank</span>
-                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">{repair.diyRank}</span>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">
+            Technical field notes by category — 50–75 words each.
+          </p>
+          {(() => {
+            const systemCards = (vm.systemCards ?? []).slice(0, 4);
+            const cardByPillar = (p: string) => systemCards.find((c) =>
+              (p === "Electrical" && /electrical/i.test(c.system)) ||
+              (p === "Structural" && /structural|ducting|airflow/i.test(c.system)) ||
+              (p === "Chemical" && /chemical|refrigeration/i.test(c.system)) ||
+              (p === "Mechanical" && /mechanical/i.test(c.system))
+            );
+            const fieldNotes: Record<string, string> = {
+              Electrical: "Power delivery failures—capacitor, contactor, breaker—prevent compressor and fan from starting. High voltage at disconnect and capacitor requires multimeter testing. Contactor pitting causes intermittent engagement. Field note: Electrical issues account for ~30% of no-cool calls; always verify L1/L2 at disconnect before condemning compressor.",
+              Structural: "Restricted airflow from dirty filters, blocked vents, or duct restrictions reduces evaporator heat transfer. Low airflow raises suction pressure and can cause coil freeze. Field note: Filter replacement is the #1 field fix; check MERV rating and replace monthly during cooling season. Duct leaks or undersized returns increase static pressure.",
+              Chemical: "Low refrigerant charge or leaks reduce cooling capacity. Subcooling and superheat readings diagnose charge and metering. EPA 608 certification required for recovery and recharge. Field note: Never add charge without leak search; overcharge damages compressor. Leak detection and repair must precede refrigerant addition.",
+              Mechanical: "Compressor, evaporator/condenser coils, and thermostat failures cause reduced cooling. Compressor short-cycle or locked rotor indicates electrical or mechanical failure. Thermostat calibration drift causes overcooling or short cycles. Field note: Compressor replacement is major; verify refrigerant circuit integrity first.",
+            };
+            const rows = [
+              ["Electrical", "Structural"],
+              ["Chemical", "Mechanical"],
+            ];
+            return (
+              <>
+                <div className="max-w-7xl mx-auto px-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {rows.map((row, ri) =>
+                      row.map((p) => {
+                        const card = cardByPillar(p);
+                        const note = (card as any)?.why ?? (card as any)?.summary ?? fieldNotes[p];
+                        const isDiy = p === "Structural";
+                        const badge = isDiy ? "🟢 DIY Safe" : "🔴 Professional Required";
+                        return (
+                          <div key={p} className="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-white dark:bg-slate-900 shadow-sm">
+                            <div className="text-xs font-black uppercase tracking-widest text-hvac-blue mb-2">Field Note — {p}</div>
+                            <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-4">{note}</p>
+                            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{badge}</span>
                           </div>
-                          <div className="flex flex-col">
-                            <span className="text-xs font-black uppercase text-slate-500">Cost</span>
-                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">{repair.cost}</span>
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-xs font-black uppercase text-slate-500">Time</span>
-                            <span className="text-sm font-bold text-slate-700 dark:text-slate-300 mt-0.5">{repair.time}</span>
-                          </div>
-                        </div>
-                        {repair.safetyConcerns?.length > 0 && (
-                          <div className="mt-3">
-                            <span className="text-xs font-black uppercase text-amber-700 dark:text-amber-400">Safety:</span>
-                            <span className="text-xs text-amber-700 dark:text-amber-400 ml-2">
-                              {(repair.safetyConcerns as string[]).map((s) => safetyLabels[s] ?? s).join(", ")}
-                            </span>
-                          </div>
-                        )}
-                        <div className="flex flex-wrap gap-4 mt-4">
-                          <div className="flex flex-col">
-                            <span className="text-xs font-black uppercase text-slate-500">DIY</span>
-                            <button className="px-4 py-2 rounded-lg font-bold text-sm mt-1 bg-green-600 hover:bg-green-700 text-white">
-                              {diyCost}
-                            </button>
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-xs font-black uppercase text-slate-500">PRO</span>
-                            <button className="px-4 py-2 rounded-lg font-bold text-sm mt-1 bg-hvac-blue hover:bg-blue-800 text-white" data-open-lead-modal>
-                              {proCost}
-                            </button>
-                          </div>
-                        </div>
-                        {partUrl && (
-                          <a href={partUrl} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block text-xs font-bold text-hvac-blue hover:underline">
-                            Buy part →
-                          </a>
-                        )}
-                      </div>
-                    );
-                  }) : (
-                    <div className={`${boxBg} ${boxBorder} border-2 p-6 rounded-xl`}>
-                      <p className="text-slate-600 dark:text-slate-400 mb-4">Professional diagnostic recommended.</p>
-                      <button data-open-lead-modal className="bg-hvac-blue hover:bg-blue-800 text-white font-bold px-6 py-2 rounded-lg text-sm">
-                        Connect With Local Pro →
-                      </button>
-                    </div>
-                  )}
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
-              );
-            })}
+                <ServiceCTA variant="primary" />
+              </>
+            );
+          })()}
+        </section>
+
+        {/* 3. DISCLAIMER BLOCK — softened tone, authority-based */}
+        <section className="mb-16">
+          <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-l-4 border-hvac-blue rounded-r-xl">
+            <p className="text-sm font-medium text-slate-800 dark:text-slate-200 m-0">
+              {vm.disclaimer ?? "HVAC systems are complex and expensive. While some minor issues can be addressed safely, many repairs involve electrical or refrigerant components that require professional tools and certification."}
+            </p>
           </div>
         </section>
 
-        {/* 10. REPAIR DIFFICULTY MATRIX */}
-        {repairs?.length > 0 && (
-          <section className="mb-16">
-            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Repair Difficulty Matrix</h2>
-            <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
-              <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                  <tr>
-                    <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Repair</th>
-                    <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Difficulty</th>
-                    <th className="p-4 font-bold text-slate-700 dark:text-slate-300">Cost</th>
-                    <th className="p-4 font-bold text-slate-700 dark:text-slate-300 text-center">DIY Friendly?</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {repairs.map((repair: any, idx: number) => (
-                    <tr key={idx} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                      <td className="p-4 font-medium text-slate-800 dark:text-slate-200">{repair.name}</td>
-                      <td className="p-4">
-                        <div className={`w-2 h-2 rounded-full ${repair.difficultyBg ?? "bg-hvac-gold"} inline-block mr-2`}></div>
-                        {repair.difficulty}
-                      </td>
-                      <td className="p-4 text-slate-600 dark:text-slate-400">{repair.cost}</td>
-                      <td className={`p-4 text-center font-bold ${repair.diyColor ?? "text-hvac-gold"}`}>{repair.diyText}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        )}
+        {/* 4. PILLAR BREAKDOWN — 4 columns (incl. Mechanical), top 5 per system, green=Structural, red=others */}
+        {(() => {
+          const pillarOrder = ["electrical", "structural", "chemical", "mechanical"];
+          const labels: Record<string, string> = {
+            electrical: "Electrical",
+            structural: "Structural (Ducting)",
+            ducting_airflow: "Structural (Ducting)",
+            chemical: "Chemical (Refrigeration)",
+            refrigeration: "Chemical (Refrigeration)",
+            mechanical: "Mechanical",
+          };
+          const defaultItems: Record<string, { issue: string; explanation?: string; warning?: string; diy_pro: string }[]> = {
+            electrical: [{ issue: "Bad capacitor", explanation: "Prevents compressor/fan start", diy_pro: "Pro" }, { issue: "Tripped breaker", diy_pro: "Pro" }, { issue: "Faulty contactor", diy_pro: "Pro" }],
+            structural: [{ issue: "Clogged air filter", explanation: "Restricts airflow", diy_pro: "DIY" }, { issue: "Blocked vents", diy_pro: "DIY" }, { issue: "Blower motor", diy_pro: "Pro" }],
+            chemical: [{ issue: "Low refrigerant", explanation: "EPA certified pros only", diy_pro: "Pro" }, { issue: "Refrigerant leak", diy_pro: "Pro" }],
+            mechanical: [{ issue: "Compressor failure", diy_pro: "Pro" }, { issue: "Thermostat failure", diy_pro: "Pro" }, { issue: "Evaporator coil", diy_pro: "Pro" }],
+          };
+          const pb = vm.pillarBreakdown ?? {};
+          const grouped = vm.groupedCauses ?? {};
+          const getItemsForPillar = (slug: string) => {
+            const fromPb = pb[slug] ?? pb[slug === "structural" ? "ducting_airflow" : slug === "chemical" ? "refrigeration" : slug];
+            if (fromPb && fromPb.length > 0) return fromPb.slice(0, 5).map((x) => ({ issue: x.issue ?? x.explanation, explanation: x.explanation, warning: x.warning, diy_pro: x.diy_pro ?? "Pro" }));
+            const fromGrouped = grouped[slug] ?? grouped[slug === "structural" ? "ducting_airflow" : slug === "chemical" ? "refrigeration" : slug];
+            if (fromGrouped && fromGrouped.length > 0) return fromGrouped.slice(0, 5).map((c: any) => ({ issue: c.name, explanation: c.why, warning: !c.diy_safe ? "Pro recommended" : undefined, diy_pro: c.diy_safe ? "DIY" : "Pro" }));
+            return defaultItems[slug] ?? [];
+          };
+          const structuralCaveat = "🟢 Some work is DIY friendly. Due to significant cost, damage risk, etc., a pro is highly recommended along with regular service to maintain the system.";
+          const proRequired = "🔴 Professional Required";
+          return (
+            <section className="mb-16" id="pillar-breakdown">
+              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Pillar Breakdown</h2>
+              <p className="text-slate-600 dark:text-slate-400 mb-6">Up to Top 5 Reasons per system. Mechanical included. 4 columns aligned with pillars.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {pillarOrder.map((slug) => {
+                  const items = getItemsForPillar(slug);
+                  const isStructural = slug === "structural";
+                  return (
+                    <div key={slug} className="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-white dark:bg-slate-900 shadow-sm">
+                      <h3 className="text-lg font-bold text-hvac-navy dark:text-white mb-4 uppercase tracking-wide border-b border-slate-200 dark:border-slate-700 pb-2">
+                        {labels[slug] ?? slug.replace(/_/g, " ")}
+                      </h3>
+                      <ul className="space-y-3 list-none p-0">
+                        {items.map((item, i) => (
+                          <li key={i} className="flex flex-col gap-1">
+                            <span className="font-medium text-slate-800 dark:text-slate-200">• {item.issue}</span>
+                            {item.explanation && <span className="text-sm text-slate-600 dark:text-slate-400 ml-4">{item.explanation}</span>}
+                            {(item as { warning?: string }).warning && <span className="text-xs text-amber-700 dark:text-amber-400 ml-4">⚠ {(item as { warning?: string }).warning}</span>}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className="mt-4 text-xs font-medium text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-slate-700 pt-3">
+                        {isStructural ? structuralCaveat : proRequired}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })()}
+
+        {/* 5. DIY VS PRO — second Mermaid: Electrical, Chemical, Mechanical → Pro; Structural (filters, thermostat) → DIY with warranty caveat */}
+        <section className="mb-16" id="pillar-triage">
+          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Which System Is Failing?</h2>
+          <p className="text-slate-600 dark:text-slate-400 mb-6">These are the four systems that can break in any HVAC system. Narrow by pillar to diagnose.</p>
+          {(() => {
+            const symName = (symptom.name ?? "Symptom").replace(/"/g, "'");
+            const pillarTriageChart = vm.diagnosticFlowMermaid ?? vm.causeConfirmationMermaid ?? `flowchart TD
+  A["${symName}"] --> B{Which system is failing?}
+  B --> C[Electrical]
+  B --> D[Structural]
+  B --> E[Chemical]
+  B --> F[Mechanical]`;
+            return <MermaidDiagram chart={pillarTriageChart} title="Pillar Triage" className="min-h-[280px]" />;
+          })()}
+        </section>
+
+        {/* 6. ESTIMATED COST / REPAIR DIFFICULTY MATRIX — synced with pillar breakdown, cost only per item */}
+        {(() => {
+          const matrix = vm.repairDifficultyMatrix ?? {};
+          const pillarOrder = ["electrical", "structural", "chemical", "mechanical"];
+          const labels: Record<string, string> = {
+            electrical: "Electrical",
+            structural: "Structural (Ducting)",
+            ducting_airflow: "Structural (Ducting)",
+            chemical: "Chemical (Refrigeration)",
+            refrigeration: "Chemical (Refrigeration)",
+            mechanical: "Mechanical",
+          };
+          const structuralCaveat = "🟢 Some work is DIY friendly. Due to significant cost, damage risk, etc., a pro is highly recommended along with regular service to maintain the system.";
+          const proRequired = "🔴 Professional Required";
+          const defaultMatrix: Record<string, Array<{ name: string; difficulty: string; color: "green" | "yellow" | "red"; cost_range: string }>> = {
+            electrical: [{ name: "Capacitor replacement", difficulty: "moderate", color: "red", cost_range: "$150–$400" }, { name: "Breaker reset", difficulty: "easy", color: "red", cost_range: "$0–$50" }],
+            structural: [{ name: "Replace air filter", difficulty: "easy", color: "green", cost_range: "$10–$40" }, { name: "Clean vents", difficulty: "easy", color: "green", cost_range: "$0–$30" }],
+            chemical: [{ name: "Refrigerant recharge", difficulty: "advanced", color: "red", cost_range: "$200–$600" }],
+            mechanical: [{ name: "Thermostat replacement", difficulty: "moderate", color: "red", cost_range: "$100–$300" }, { name: "Compressor repair", difficulty: "advanced", color: "red", cost_range: "$1000+" }],
+          };
+          const getMatrixItems = (slug: string) => {
+            const fromMatrix = matrix[slug] ?? matrix[slug === "structural" ? "ducting_airflow" : slug === "chemical" ? "refrigeration" : slug];
+            return (fromMatrix && fromMatrix.length > 0) ? fromMatrix : defaultMatrix[slug] ?? [];
+          };
+          return (
+            <section className="mb-16" id="repair-matrix">
+              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Estimated Cost / Repair Difficulty Matrix</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">Repair items with estimated cost by pillar. Electrical, chemical, and mechanical require a professional.</p>
+              <div className="space-y-6">
+                {pillarOrder.map((slug) => {
+                  const items = getMatrixItems(slug);
+                  const isStructural = slug === "structural";
+                  return (
+                    <div key={slug} className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900 shadow-sm">
+                      <h3 className="text-lg font-bold text-hvac-navy dark:text-white mb-3 p-4 pb-0 uppercase tracking-wide">
+                        {labels[slug] ?? slug.replace(/_/g, " ")}
+                      </h3>
+                      <div className="overflow-x-auto overscroll-x-contain scroll-smooth p-4 pb-6" style={{ scrollbarWidth: "thin" }}>
+                        <div className="flex gap-4 min-w-max pb-2">
+                          {items.map((item, idx) => (
+                            <div key={idx} className="flex-shrink-0 w-48 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                              <div className="font-bold text-slate-800 dark:text-slate-200 mb-2">{item.name}</div>
+                              <div className="text-sm font-medium text-hvac-blue">{item.cost_range}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="px-4 pb-4 pt-3 text-xs font-medium text-slate-600 dark:text-slate-400 border-t border-slate-200 dark:border-slate-700 mt-2 mx-4">
+                        {isStructural ? structuralCaveat : proRequired}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+              <ServiceCTA variant="secondary" />
+            </section>
+          );
+        })()}
 
         {/* 11. PARTS LIKELY INVOLVED */}
         {components?.length > 0 && (
@@ -580,7 +723,7 @@ export default function SymptomPageTemplate({
         <section className="mb-16 w-full">
           <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Tools Required for Diagnosis</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-            {((tools_required?.length > 0 ? tools_required : tools?.map((t: any) => ({ name: t.name, reason: t.description, affiliateUrl: t.affiliateUrl ?? null })) ?? [
+            {((toolsRequired?.length > 0 ? toolsRequired : tools?.map((t: { name: string; description?: string; affiliateUrl?: string }) => ({ name: t.name, reason: t.description, affiliateUrl: t.affiliateUrl ?? null })) ?? [
               { name: "Multimeter", reason: "Check voltage at disconnect and capacitor", affiliateUrl: null },
               { name: "Coil cleaner", reason: "Remove evaporator buildup", affiliateUrl: null },
               { name: "Thermometer", reason: "Measure supply vs return air temp", affiliateUrl: null },
@@ -611,8 +754,8 @@ export default function SymptomPageTemplate({
         <section className="mb-16 w-full">
           <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Components for Fixes</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-            {((contentJson?.components_for_fixes ?? contentJson?.fix_components)?.length > 0
-              ? (contentJson?.components_for_fixes ?? contentJson?.fix_components).slice(0, 4)
+            {((vm.componentsForFixes?.length ?? 0) > 0
+              ? vm.componentsForFixes!.slice(0, 4)
               : [
                   { name: "Thermostat", description: "Programmable or smart thermostat replacement", proOnly: false, affiliateUrl: null },
                   { name: "Air Filter", description: "MERV 8–11 for most residential systems", proOnly: false, affiliateUrl: null },
@@ -681,8 +824,8 @@ export default function SymptomPageTemplate({
             { text: "Restricted airflow from a dirty filter is the number-one field fix for reduced cooling. Per ASHRAE fundamentals, less air means less heat transfer—the evaporator can't cool refrigerant enough. Check the filter first; it's often a 5-minute fix that prevents ice buildup and compressor strain.", cite: "ASHRAE Fundamentals, Ch. 32" },
             { text: "Refrigerant work requires EPA Section 608 certification. Venting or recharging without a license is illegal and can void warranties. Low refrigerant usually indicates a leak; adding charge without fixing the leak wastes money and risks compressor damage.", cite: "EPA 40 CFR Part 82" },
           ];
-          const insights = technician_insights?.length >= 2
-            ? technician_insights.slice(0, 2).map((t: string | { text?: string; cite?: string }) => typeof t === "string" ? { text: t, cite: "Top Rated Local Techs" } : { text: (t as any).text ?? String(t), cite: (t as any).cite ?? "Top Rated Local Techs" })
+          const insights = technicianInsights.length >= 2
+            ? technicianInsights.slice(0, 2).map((t: string | { text?: string; cite?: string }) => typeof t === "string" ? { text: t, cite: "Top Rated Local Techs" } : { text: (t as { text?: string }).text ?? String(t), cite: (t as { cite?: string }).cite ?? "Top Rated Local Techs" })
             : defaultInsights;
           return (
             <section className="mb-16 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-8 rounded-2xl">
@@ -709,7 +852,7 @@ export default function SymptomPageTemplate({
               ⚠️ What Happens If You Ignore This?
             </h2>
             <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed m-0">
-              {contentJson?.cost_of_delay ??
+              {vm.costOfDelay ??
                 "Running a failing system often leads to cascaded damage, increasing a $50 repair into a $2,500 compressor replacement."}
             </p>
           </div>
@@ -720,11 +863,11 @@ export default function SymptomPageTemplate({
           <section id="common-mistakes">
             <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Common DIY Mistakes</h2>
             <ul className="space-y-4 list-none p-0">
-              {(common_mistakes?.length > 0 ? common_mistakes : [
+              {(commonMistakes.length > 0 ? commonMistakes : [
                 { name: "Running the system with ice on coils", description: "Turn off, let thaw. Running the compressor while frozen strains the motor.", time: "5–30 min to thaw" },
                 { name: "Ignoring the filter", description: "Dirty filter is the #1 cause of airflow and cooling issues. Replace or clean monthly.", time: "5–15 min" },
                 { name: "Handling refrigerant yourself", description: "EPA Section 608 requires certification. Venting or recharging without a license is illegal.", time: "Leave to pros" },
-              ]).map((mistake: any, idx: number) => (
+              ]).map((mistake: { name: string; description?: string; time?: string }, idx: number) => (
                 <li key={idx} className="flex items-start gap-3">
                   <span className="text-hvac-safety font-black mt-1">✗</span>
                   <div>
@@ -742,10 +885,10 @@ export default function SymptomPageTemplate({
           <section>
             <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Environmental Factors</h2>
             <div className="space-y-4">
-              {(environment_conditions?.length > 0 ? environment_conditions : [
+              {(environmentConditions.length > 0 ? environmentConditions : [
                 { name: "Heavy use", description: "Extended runtime in hot weather increases wear on compressor and capacitor." },
                 { name: "High humidity", description: "More condensate; drain lines and coils work harder." },
-              ]).map((env: any, idx: number) => (
+              ]).map((env: { name: string; description?: string }, idx: number) => (
                 <div key={idx} className="bg-slate-50 dark:bg-slate-800 p-4 border border-slate-200 dark:border-slate-700 rounded-xl">
                   <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-1">{env.name}</h4>
                   <p className="text-sm text-slate-600 dark:text-slate-400 m-0">{env.description}</p>
@@ -763,11 +906,11 @@ export default function SymptomPageTemplate({
           </p>
           <div className="bg-slate-50 dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-700">
             <ul className="grid sm:grid-cols-3 gap-6 m-0 p-0 list-none">
-              {(prevention_tips?.length > 0 ? prevention_tips : [
+              {(preventionTips.length > 0 ? preventionTips : [
                 { name: "Filter maintenance", description: "Replace or clean monthly during heavy use" },
                 { name: "Annual tune-up", description: "Schedule professional maintenance yearly" },
                 { name: "Condenser care", description: "Clear debris from outdoor coil" },
-              ]).map((tip: any, idx: number) => (
+              ]).map((tip: { name: string; description?: string }, idx: number) => (
                 <li key={idx} className="text-center">
                   <div className="w-12 h-12 bg-hvac-navy text-hvac-gold rounded-full flex items-center justify-center mx-auto mb-3 font-black text-xl">
                     {idx + 1}
@@ -852,7 +995,7 @@ export default function SymptomPageTemplate({
               <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Narrow Your Diagnosis</h2>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">1–2 environments and 1–2 conditions to pinpoint the issue.</p>
               <div className="space-y-3">
-                {(environment_conditions?.slice(0, 2) ?? [
+                {(environmentConditions?.slice(0, 2) ?? [
                   { name: "Hot weather", description: "System under peak load" },
                   { name: "After long trip", description: "RV/home sat unused" },
                 ]).map((env: any, i: number) => (
@@ -879,7 +1022,7 @@ export default function SymptomPageTemplate({
                     {link.label} →
                   </Link>
                 ))}
-                {relatedContent?.relatedSymptoms?.slice(0, 2).map((s: any) => (
+                {relatedContent?.relatedSymptoms?.slice(0, 2).map((s: { id: string; name: string }) => (
                   <Link key={s.id} href={`/diagnose/${s.id}`} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 font-bold text-hvac-blue hover:border-hvac-blue hover:shadow transition-colors">
                     {s.name} →
                   </Link>
@@ -909,6 +1052,8 @@ export default function SymptomPageTemplate({
             </div>
           </div>
         </section>
+
+        <ServiceCTA variant="final" />
 
         {/* 24. FAQ — minimum 4 items */}
         <section className="mb-16" id="faq">

@@ -1,8 +1,13 @@
+/**
+ * Cause Page Template — Structured rendering only
+ * -----------------------------------------------
+ * NEVER renders raw DB HTML. All content from pageViewModel (translator layer).
+ * @see docs/MASTER-PROMPT-DECISIONGRID.md
+ */
 import Link from "next/link";
-
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
-import dynamic from "next/dynamic";
-const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
+import ServiceCTA from "@/components/ServiceCTA";
+import { toSafeString } from "@/lib/content";
 
 export default function CausePageTemplate({
   cause,
@@ -10,24 +15,26 @@ export default function CausePageTemplate({
   repairs,
   component,
   diagnosticTests,
-  htmlContent,
-  contentJson,
-}: any) {
-  const {
-    fast_answer,
-    diagnostic_tree_mermaid,
-    affected_symptoms,
-    repairs: jsonRepairs,
-    components,
-    tools_required,
-    cost_estimates,
-    technician_insights,
-    faq,
-  } = contentJson || {};
-
-  const displayRepairs = jsonRepairs?.length > 0 ? jsonRepairs : repairs;
-  const displayFastAnswer = fast_answer ?? cause?.explanation ?? cause?.description;
-  const hasContentJsonSections = !!(fast_answer || diagnostic_tree_mermaid || (affected_symptoms?.length > 0) || (jsonRepairs?.length > 0));
+  pageViewModel,
+}: {
+  cause: { name: string; explanation?: string; description?: string; difficulty?: string };
+  symptom: { name: string; slug: string } | null;
+  repairs: Array<{ id?: string; name: string; slug?: string; description?: string; skill_level?: string; repair_type?: string }>;
+  component: { name: string; slug: string } | null;
+  diagnosticTests: Array<{ id?: string; name: string; description?: string; test_steps?: string[]; tools_required?: string[] }>;
+  pageViewModel: {
+    fastAnswer?: string;
+    bodyText?: string;
+    repairOptions?: Array<{ name: string; difficulty?: string; cost?: string; link?: string; slug?: string }>;
+    faq?: Array<{ question: string; answer: string }>;
+    commonSymptoms?: Array<{ name: string; slug?: string; link?: string; description?: string }>;
+    technicianInsights?: Array<string | { text: string; cite?: string }>;
+  };
+}) {
+  const vm = pageViewModel;
+  const displayFastAnswer = vm.fastAnswer ?? toSafeString(cause?.explanation ?? cause?.description);
+  const displayRepairs = (vm.repairOptions?.length ?? 0) > 0 ? vm.repairOptions! : repairs;
+  const hasStructuredContent = !!(displayFastAnswer || vm.bodyText || (vm.commonSymptoms?.length ?? 0) > 0 || (displayRepairs?.length ?? 0) > 0);
 
   const summaryPoints = [
     { label: "Technical Cause", value: cause.name },
@@ -61,9 +68,7 @@ export default function CausePageTemplate({
         </h1>
       </section>
 
-      {htmlContent ? (
-        <div className="prose max-w-none w-full" dangerouslySetInnerHTML={{ __html: htmlContent }} />
-      ) : contentJson && hasContentJsonSections ? (
+      {hasStructuredContent ? (
         <>
           {displayFastAnswer && (
             <section className="mb-10">
@@ -72,18 +77,22 @@ export default function CausePageTemplate({
             </section>
           )}
 
-          {diagnostic_tree_mermaid && (
-            <section className="mb-10 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800">
-              <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-4">Diagnosis Flow</h2>
-              <MermaidDiagram chart={diagnostic_tree_mermaid} title="Diagnosis Flow" />
+          {vm.bodyText && (
+            <section className="mb-10">
+              <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-3">Technical Breakdown</h2>
+              <div className="prose prose-slate max-w-none text-slate-600 dark:text-slate-400 leading-relaxed">
+                {vm.bodyText.split(/\n\n+/).map((para, i) => (
+                  <p key={i} className="mb-4 last:mb-0">{para.trim()}</p>
+                ))}
+              </div>
             </section>
           )}
 
-          {affected_symptoms?.length > 0 && (
+          {(vm.commonSymptoms?.length ?? 0) > 0 && (
             <section className="mb-10">
               <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-4">Symptoms This Cause Creates</h2>
               <div className="grid gap-4">
-                {affected_symptoms.map((s: any, i: number) => (
+                {vm.commonSymptoms!.map((s, i) => (
                   <Link
                     key={i}
                     href={s.link || `/diagnose/${s.slug || ""}`}
@@ -97,45 +106,55 @@ export default function CausePageTemplate({
             </section>
           )}
 
-          {displayRepairs?.length > 0 && (
+          {displayRepairs.length > 0 && (
             <section className="mb-10">
               <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-4">Repair Options</h2>
               <div className="space-y-4">
-                {displayRepairs.map((repair: any, i: number) => (
-                  <div
-                    key={i}
-                    className="p-5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700"
-                  >
-                    <h3 className="font-bold text-hvac-navy dark:text-white m-0">{repair.name}</h3>
-                    {repair.description && <p className="text-slate-600 dark:text-slate-400 mt-2 m-0">{repair.description}</p>}
-                    {(repair.link || repair.slug) && (
-                      <Link
-                        href={repair.link || `/fix/${repair.slug}`}
-                        className="text-sm font-bold text-hvac-blue hover:underline mt-2 inline-block"
-                      >
-                        View Repair Guide →
-                      </Link>
-                    )}
-                  </div>
-                ))}
+                {displayRepairs.map((repair, i) => {
+                  const r = repair as { name: string; description?: string; link?: string; slug?: string };
+                  const repairHref = r.link ?? (r.slug ? `/fix/${r.slug}` : null);
+                  return (
+                    <div
+                      key={i}
+                      className="p-5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700"
+                    >
+                      <h3 className="font-bold text-hvac-navy dark:text-white m-0">{r.name}</h3>
+                      {r.description && (
+                        <p className="text-slate-600 dark:text-slate-400 mt-2 m-0">{r.description}</p>
+                      )}
+                      {repairHref && (
+                        <Link
+                          href={repairHref}
+                          className="text-sm font-bold text-hvac-blue hover:underline mt-2 inline-block"
+                        >
+                          View Repair Guide →
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </section>
           )}
 
-          {technician_insights?.length > 0 && (
+          {(vm.technicianInsights?.length ?? 0) > 0 && (
             <section className="mb-10 p-6 bg-amber-50 dark:bg-amber-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
               <h2 className="text-xl font-bold text-amber-900 dark:text-amber-200 mb-3">Technician Insights</h2>
-              {technician_insights.slice(0, 2).map((insight: string, i: number) => (
-                <p key={i} className="text-amber-900 dark:text-amber-200 text-sm mb-2 last:mb-0">{insight}</p>
+              {vm.technicianInsights!.slice(0, 2).map((insight, i) => (
+                <p key={i} className="text-amber-900 dark:text-amber-200 text-sm mb-2 last:mb-0">
+                  {typeof insight === "string" ? insight : insight.text}
+                </p>
               ))}
             </section>
           )}
 
-          {faq?.length > 0 && (
+          <ServiceCTA variant="secondary" />
+
+          {(vm.faq?.length ?? 0) > 0 && (
             <section className="mb-10">
               <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-4">FAQ</h2>
               <div className="space-y-4">
-                {faq.slice(0, 4).map((item: any, i: number) => (
+                {vm.faq!.slice(0, 4).map((item, i) => (
                   <div key={i} className="p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
                     <h3 className="text-lg font-bold text-hvac-navy dark:text-white m-0">{item.question}</h3>
                     <p className="text-slate-600 dark:text-slate-400 mt-2 m-0 text-sm">{item.answer}</p>
@@ -162,129 +181,127 @@ export default function CausePageTemplate({
         <>
           <ThirtySecondSummary points={summaryPoints} />
 
-      <section className="mb-16 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm leading-relaxed text-lg">
-        <h2 className="mt-0 text-hvac-navy dark:text-white border-0">Technical Explanation</h2>
-        <p className="mt-4">{cause.explanation || cause.description}</p>
-        <p className="mt-4 text-gray-600 dark:text-slate-400">
-          When this fault path is triggered, it typically requires immediate attention to prevent cascading failures
-          across the {component?.name || "system"}. Follow the diagnostic tests below to verify, then proceed to repair
-          options.
-        </p>
-      </section>
+          <section className="mb-16 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm leading-relaxed text-lg">
+            <h2 className="mt-0 text-hvac-navy dark:text-white border-0">Technical Explanation</h2>
+            <p className="mt-4">{cause.explanation || cause.description}</p>
+            <p className="mt-4 text-gray-600 dark:text-slate-400">
+              When this fault path is triggered, it typically requires immediate attention to prevent cascading failures
+              across the {component?.name || "system"}. Follow the diagnostic tests below to verify, then proceed to repair
+              options.
+            </p>
+          </section>
 
-      {/* Diagnostic Tests (Technician Workflow) */}
-      {diagnosticTests?.length > 0 && (
-        <section className="mb-16">
-          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-2 border-0">
-            Diagnostic Tests
-          </h2>
-          <p className="text-gray-600 dark:text-slate-400 mb-6">
-            Technician verification procedures to confirm this cause before repair.
-          </p>
-          <div className="space-y-6">
-            {diagnosticTests.map((test: any, idx: number) => (
-              <div
-                key={test.id || idx}
-                className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800"
-              >
-                <h3 className="text-lg font-bold text-hvac-navy dark:text-white m-0 mb-2">
-                  {test.name}
-                </h3>
-                {test.description && (
-                  <p className="text-sm text-gray-600 dark:text-slate-400 mb-4 m-0">{test.description}</p>
-                )}
-                {test.test_steps && Array.isArray(test.test_steps) && (
-                  <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-700 dark:text-slate-300">
-                    {test.test_steps.map((step: string, i: number) => (
-                      <li key={i}>{step}</li>
-                    ))}
-                  </ol>
-                )}
-                {test.tools_required && test.tools_required.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                      Tools required:
-                    </span>
-                    <span className="ml-2 text-sm text-slate-600 dark:text-slate-400">
-                      {test.tools_required.join(", ")}
-                    </span>
+          {diagnosticTests?.length > 0 && (
+            <section className="mb-16">
+              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-2 border-0">
+                Diagnostic Tests
+              </h2>
+              <p className="text-gray-600 dark:text-slate-400 mb-6">
+                Technician verification procedures to confirm this cause before repair.
+              </p>
+              <div className="space-y-6">
+                {diagnosticTests.map((test, idx) => (
+                  <div
+                    key={test.id || idx}
+                    className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800"
+                  >
+                    <h3 className="text-lg font-bold text-hvac-navy dark:text-white m-0 mb-2">
+                      {test.name}
+                    </h3>
+                    {test.description && (
+                      <p className="text-sm text-gray-600 dark:text-slate-400 mb-4 m-0">{test.description}</p>
+                    )}
+                    {Array.isArray(test.test_steps) && test.test_steps.length > 0 && (
+                      <ol className="list-decimal pl-5 space-y-2 text-sm text-slate-700 dark:text-slate-300">
+                        {test.test_steps.map((step, i) => (
+                          <li key={i}>{typeof step === "string" ? step : String(step)}</li>
+                        ))}
+                      </ol>
+                    )}
+                    {Array.isArray(test.tools_required) && test.tools_required.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                          Tools required:
+                        </span>
+                        <span className="ml-2 text-sm text-slate-600 dark:text-slate-400">
+                          {test.tools_required.join(", ")}
+                        </span>
+                      </div>
+                    )}
                   </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <section className="mt-16 pt-16 border-t border-slate-200 dark:border-slate-800">
+            <div className="grid md:grid-cols-12 gap-12 items-start">
+              <div className="md:col-span-7">
+                <h2 className="mt-0 text-3xl font-black text-hvac-navy dark:text-white border-0 leading-tight">
+                  Repair Options
+                </h2>
+                <p className="text-gray-600 dark:text-slate-400 mt-4 leading-relaxed">
+                  Based on the detected root cause ({cause.name}), these are the standard protocol repairs.
+                </p>
+                <ul className="mt-8 space-y-4 list-none p-0">
+                  {repairs?.map((r, idx) => (
+                    <li
+                      key={r.id || idx}
+                      className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700"
+                    >
+                      <h4 className="font-bold text-hvac-navy dark:text-white m-0">{r.name}</h4>
+                      <div className="flex gap-4 mt-2">
+                        <span className="text-xs text-gray-500 dark:text-slate-400">
+                          Difficulty:{" "}
+                          <strong className="text-hvac-navy dark:text-white uppercase tracking-widest">
+                            {r.skill_level || r.repair_type || "Variable"}
+                          </strong>
+                        </span>
+                        <Link
+                          href={`/fix/${r.slug}`}
+                          className="text-xs font-bold text-hvac-blue uppercase hover:underline"
+                        >
+                          View Manual →
+                        </Link>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                {(!repairs || repairs.length === 0) && (
+                  <p className="text-slate-500 dark:text-slate-400 italic mt-4">
+                    No repairs mapped for this cause. Professional diagnostic recommended.
+                  </p>
                 )}
               </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Repair Options */}
-      <section className="mt-16 pt-16 border-t border-slate-200 dark:border-slate-800">
-        <div className="grid md:grid-cols-12 gap-12 items-start">
-          <div className="md:col-span-7">
-            <h2 className="mt-0 text-3xl font-black text-hvac-navy dark:text-white border-0 leading-tight">
-              Repair Options
-            </h2>
-            <p className="text-gray-600 dark:text-slate-400 mt-4 leading-relaxed">
-              Based on the detected root cause ({cause.name}), these are the standard protocol repairs.
-            </p>
-            <ul className="mt-8 space-y-4 list-none p-0">
-              {repairs?.map((r: any, idx: number) => (
-                <li
-                  key={r.id || idx}
-                  className="bg-slate-50 dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700"
+              <div className="md:col-span-5 space-y-6">
+                <Link
+                  href="/repair"
+                  className="block p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium hover:border-hvac-blue transition-colors"
                 >
-                  <h4 className="font-bold text-hvac-navy dark:text-white m-0">{r.name}</h4>
-                  <div className="flex gap-4 mt-2">
-                    <span className="text-xs text-gray-500 dark:text-slate-400">
-                      Difficulty:{" "}
-                      <strong className="text-hvac-navy dark:text-white uppercase tracking-widest">
-                        {r.skill_level || r.repair_type || "Variable"}
-                      </strong>
-                    </span>
-                    <Link
-                      href={`/fix/${r.slug}`}
-                      className="text-xs font-bold text-hvac-blue uppercase hover:underline"
-                    >
-                      View Manual →
-                    </Link>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            {(!repairs || repairs.length === 0) && (
-              <p className="text-slate-500 dark:text-slate-400 italic mt-4">
-                No repairs mapped for this cause. Professional diagnostic recommended.
-              </p>
-            )}
-          </div>
-          <div className="md:col-span-5 space-y-6">
-            <Link
-              href="/repair"
-              className="block p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm font-medium hover:border-hvac-blue transition-colors"
-            >
-              <span className="font-bold text-hvac-navy dark:text-white">All Repair Guides</span>
-              <span className="block text-xs text-gray-500 mt-1">→ /repair</span>
-            </Link>
-            <div className="bg-hvac-navy text-white p-8 rounded-2xl text-center shadow-xl">
-              <h3 className="text-2xl font-black mb-4 border-0 text-white">
-                Need Professional Assistance?
-              </h3>
-              <p className="text-slate-300 mb-6 text-sm leading-relaxed">
-                Don&apos;t guess on expensive control boards and compressors. Have a certified technician run
-                diagnostic tests.
-              </p>
-              <button
-                data-open-lead-modal
-                className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm transition-colors shadow-md w-full"
-              >
-                Get HVAC Repair Quotes
-              </button>
+                  <span className="font-bold text-hvac-navy dark:text-white">All Repair Guides</span>
+                  <span className="block text-xs text-gray-500 mt-1">→ /repair</span>
+                </Link>
+                <div className="bg-hvac-navy text-white p-8 rounded-2xl text-center shadow-xl">
+                  <h3 className="text-2xl font-black mb-4 border-0 text-white">
+                    Need Professional Assistance?
+                  </h3>
+                  <p className="text-slate-300 mb-6 text-sm leading-relaxed">
+                    Don&apos;t guess on expensive control boards and compressors. Have a certified technician run
+                    diagnostic tests.
+                  </p>
+                  <button
+                    data-open-lead-modal
+                    className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm transition-colors shadow-md w-full"
+                  >
+                    Get HVAC Repair Quotes
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </section>
-      </>
+          </section>
+          <ServiceCTA variant="secondary" />
+        </>
       )}
     </div>
   );
 }
-
