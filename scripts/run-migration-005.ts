@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Run migration 005 on Neon.
  * Usage: npm run db:migrate-005
@@ -5,8 +8,6 @@
  * If connection fails locally, run the SQL in Neon Console:
  * https://console.neon.tech → Project → SQL Editor → paste from scripts/migrations/005-schema-improvements.sql
  */
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
 
 import { Client } from 'pg';
 

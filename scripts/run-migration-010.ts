@@ -1,9 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Run migration 010 (Schema completion and compatibility) on Neon.
  * Idempotent, non-destructive. Creates missing tables for workers, APIs, SEO.
  */
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Client } from 'pg';

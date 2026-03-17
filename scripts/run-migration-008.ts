@@ -1,9 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Run migration 008 (Shared graph schema) on Neon.
  * On existing UUID schema: runs statement-by-statement, skips conflicts.
  */
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Client } from 'pg';

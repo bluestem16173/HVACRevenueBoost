@@ -200,14 +200,16 @@ Do NOT explain the layout. Just return it as a string field: `"layout"`.
 
 You MUST:
 
-- Include at least 3 causes
-- Include at least 3 repairs
+- Include 3–4 causes (MAX 4)
+- Include 3–4 repairs (MAX 4)
 - Include valid mermaid diagram string
 - Ensure ALL arrays are non-empty
 - Keep technician_summary under 120 words
 - Keep answers concise (avoid long paragraphs)
 - Ensure all repair slugs are kebab-case
 - Avoid duplicate causes or repairs
+- FAQ: MAX 2 items
+- Diagnostic steps: MAX 4
 
 ---
 
@@ -218,7 +220,8 @@ You MUST:
 - Use short sentences
 - Use bullet-style phrasing
 - Keep descriptions under 2 lines
-- Limit steps to 3–5 max
+- Limit steps to 3–4 max
+- causes ≤ 4, repairs ≤ 4, faq ≤ 2 to avoid truncation
 
 **DO NOT:**
 

@@ -1,10 +1,11 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Run migration 011 (Seed schema compatibility) on Neon.
  * Ensures columns/tables exist for 010_seed_initial_knowledge_graph.
  * Usage: npm run db:migrate-011
  */
-import * as dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
 import { readFileSync } from "fs";
 import { join } from "path";
 import { Client } from "pg";

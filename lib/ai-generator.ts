@@ -2,7 +2,8 @@ import OpenAI from 'openai';
 import * as dotenv from 'dotenv';
 import { canBuildFromGraph, buildPageFromGraph } from './deterministic-page-builder';
 import { getMasterSystemPrompt } from '@/prompts/master';
-import { normalizeToString } from '@/lib/utils';
+import { normalizeToString, safeJsonParse } from '@/lib/utils';
+import { composePromptForPageType, validateCoreForPageType } from '@/lib/prompt-schema-router';
 dotenv.config({ path: '.env.local' });
 
 const openai = new OpenAI({
@@ -22,62 +23,6 @@ const TOKEN_BUDGETS: Record<string, { pass1: number; pass2: number }> = {
 function getTokenBudget(pageType: string) {
   return TOKEN_BUDGETS[pageType] || TOKEN_BUDGETS.default;
 }
-
-/** Pass 1: Strict JSON schema for core data (schema-critical) */
-const PASS1_SCHEMA = {
-  type: 'object' as const,
-  additionalProperties: false,
-  properties: {
-    summary: { type: 'string', description: '1 sentence summary' },
-    causes: {
-      type: 'array',
-      minItems: 3,
-      maxItems: 4,
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          name: { type: 'string' },
-          indicator: { type: 'string', description: 'short diagnostic clue' },
-        },
-        required: ['name', 'indicator'],
-      },
-    },
-    repairs: {
-      type: 'array',
-      minItems: 4,
-      maxItems: 10,
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          name: { type: 'string' },
-          difficulty: { type: 'string', enum: ['easy', 'moderate', 'advanced'] },
-          estimated_cost: { type: 'string' },
-          fix_summary: { type: 'string', description: '1 sentence' },
-        },
-        required: ['name', 'difficulty', 'estimated_cost', 'fix_summary'],
-      },
-    },
-    diagnostic_steps: {
-      type: 'array',
-      minItems: 4,
-      maxItems: 6,
-      items: {
-        type: 'object',
-        additionalProperties: false,
-        properties: {
-          step: { type: 'string' },
-          check_for: { type: 'string' },
-          next_if_true: { type: 'string' },
-          next_if_false: { type: 'string' },
-        },
-        required: ['step', 'check_for', 'next_if_true', 'next_if_false'],
-      },
-    },
-  },
-  required: ['summary', 'causes', 'repairs', 'diagnostic_steps'],
-};
 
 /** Pass 2: Strict JSON schema for enrichment */
 const PASS2_SCHEMA = {
@@ -136,22 +81,6 @@ export function composeSystemPrompt(pageTypePrompt: string): string {
   return `${master}\n\n---\n\n${pageTypePrompt}`;
 }
 
-/** Pass 1: Core structured data — schema enforces output shape */
-const PASS1_PROMPT = `Return only data needed for a technical diagnostic page. JSON only—no markdown, no explanations.
-
-CRITICAL: Each cause must include ≥ 2 repair options. Total repair options across all causes must be ≥ 5.
-
-Content rules:
-- Use concise technician-style wording.
-- Prioritize real-world diagnostic clues.
-- Avoid filler. Do not repeat causes or repairs.
-- Summary must be 1 sentence.
-- Generate exactly 3 causes.
-- Generate exactly 5 repairs (minimum).
-- Generate exactly 4 diagnostic steps.
-
-Causes must be plausible for the exact symptom/condition pair. Repairs must map logically to causes.`;
-
 /** Enrichment-only: when page is built from DB graph */
 const ENRICHMENT_ONLY_PROMPT = `Add enrichment to a page built from the knowledge graph. The causes and repairs are ALREADY set. Do NOT regenerate them.
 
@@ -170,17 +99,9 @@ Rules:
 - Field note should be 2-4 sentences maximum.
 - Confidence score should reflect how strongly the listed causes fit the symptom and condition.`;
 
-export function validateCoreData(core: any): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
-  if (!core?.causes?.length) errors.push('Missing causes');
-  if (core?.causes?.length < 3) errors.push('Need at least 3 causes');
-
-  const repairCount =
-    (core?.repairs?.length ?? 0) +
-    (core?.causes ?? []).reduce((sum: number, c: any) => sum + (c.repair_options?.length ?? 0), 0);
-  if (repairCount < 5) errors.push(`Need at least 5 total repair options (got ${repairCount})`);
-
-  return { valid: errors.length === 0, errors };
+/** Per-type core validation. Delegates to prompt-schema-router. */
+export function validateCoreData(core: any, pageType = 'symptom'): { valid: boolean; errors: string[] } {
+  return validateCoreForPageType(pageType, core as Record<string, unknown>);
 }
 
 export function mergeJSON(core: any, enrichment: any): any {
@@ -251,7 +172,9 @@ Page: ${pageSlug} (${pageType})
 
 Authoring intent: This content is for a highly technical repair knowledge graph used for SEO and lead generation. It should read like a field technician's structured diagnostic output, not a consumer blog post.`;
 
-  const systemPrompt = composeSystemPrompt(PASS1_PROMPT);
+  const { prompt, schema } = composePromptForPageType(pageType);
+  // Stage 1: lightweight prompt only — no master prompt (token stability)
+  const systemPrompt = prompt;
 
   return callWithRetry(async () => {
     const response = await openai.chat.completions.create({
@@ -265,7 +188,7 @@ Authoring intent: This content is for a highly technical repair knowledge graph 
         json_schema: {
           name: 'core_page',
           strict: true,
-          schema: PASS1_SCHEMA as Record<string, unknown>,
+          schema: schema as Record<string, unknown>,
         },
       },
       temperature: 0.2,
@@ -274,7 +197,9 @@ Authoring intent: This content is for a highly technical repair knowledge graph 
 
     const contentStr = response.choices[0]?.message?.content;
     if (!contentStr) throw new Error('Pass 1: empty response');
-    return JSON.parse(contentStr);
+    const parsed = safeJsonParse<Record<string, unknown>>(contentStr);
+    if (!parsed) throw new Error('Pass 1: unrecoverable JSON');
+    return parsed;
   });
 }
 
@@ -308,7 +233,9 @@ Generate: summary, field_note, repair_explanations (match repair names), mermaid
 
     const contentStr = response.choices[0]?.message?.content;
     if (!contentStr) throw new Error('Enrichment only: empty response');
-    return JSON.parse(contentStr);
+    const parsed = safeJsonParse<Record<string, unknown>>(contentStr);
+    if (!parsed) throw new Error('Enrichment only: unrecoverable JSON');
+    return parsed;
   });
 }
 
@@ -345,7 +272,9 @@ Generate: mermaid_graph, field_note, repair_explanations (match repair names), c
 
     const contentStr = response.choices[0]?.message?.content;
     if (!contentStr) throw new Error('Pass 2: empty response');
-    return JSON.parse(contentStr);
+    const parsed = safeJsonParse<Record<string, unknown>>(contentStr);
+    if (!parsed) throw new Error('Pass 2: unrecoverable JSON');
+    return parsed;
   });
 }
 
@@ -391,15 +320,21 @@ export async function generatePageContent(
   console.log('📦 Pass 1: Generating core data...');
   const core = await generateCoreData(pageSlug, pageType, pageTitle, context);
 
-  const { valid, errors } = validateCoreData(core);
+  const { valid, errors } = validateCoreData(core, pageType);
   if (!valid) {
     console.warn('⚠️ Core validation:', errors.join(', '));
   }
 
-  console.log('📦 Pass 2: Generating enrichment...');
-  const enrichment = await generateEnrichment(core, pageTitle, pageType);
-
-  const merged = mergeJSON(core, enrichment);
+  const symptomLike = ['symptom', 'symptom_condition', 'condition', 'diagnostic', 'diagnose'].includes(
+    (pageType || '').toLowerCase().replace(/-/g, '_')
+  );
+  let merged = { ...core };
+  const hasCausesAndRepairs = Array.isArray(core?.causes) && core.causes.length > 0 && Array.isArray(core?.repairs) && core.repairs.length > 0;
+  if (symptomLike && hasCausesAndRepairs) {
+    console.log('📦 Pass 2: Generating enrichment...');
+    const enrichment = await generateEnrichment(core, pageTitle, pageType);
+    merged = mergeJSON(core, enrichment);
+  }
 
   merged.title = merged.title || `${pageTitle} | Causes, Diagnosis, Repair Cost`;
   merged.slug = merged.slug || pageSlug;

@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Seed HVAC Revenue Boost Knowledge Graph
  * Run after migrations 004 and 005. Seeds initial nodes for generation pipeline.
@@ -5,9 +8,6 @@
  *
  * Usage: npx tsx scripts/seed-decisiongrid-graph.ts
  */
-
-import { config } from "dotenv";
-config({ path: ".env.local" });
 
 import sql from "@/lib/db";
 

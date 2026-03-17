@@ -1,5 +1,6 @@
-import * as dotenv from "dotenv";
+import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
+
 import { Client } from "pg";
 
 const url = (process.env.DATABASE_URL || "").trim().replace(/^['"]|['"]$/g, "");

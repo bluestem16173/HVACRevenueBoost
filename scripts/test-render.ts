@@ -1,9 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 import { neon } from '@neondatabase/serverless';
-import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import { renderToHtml } from '../lib/ai-generator';
 
-dotenv.config({ path: '.env.local' });
 const sql = neon(process.env.DATABASE_URL!);
 
 async function extractAndRenderHtml() {

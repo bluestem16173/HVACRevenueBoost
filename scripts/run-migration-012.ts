@@ -1,10 +1,11 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Run migration 012 (Fix seed failures) on Neon.
  * Addresses: causes/repairs description, vehicle_models, parts (UUID FK).
  * Usage: npm run db:migrate-012
  */
-import * as dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
 import { readFileSync } from "fs";
 import { join } from "path";
 import { Client } from "pg";

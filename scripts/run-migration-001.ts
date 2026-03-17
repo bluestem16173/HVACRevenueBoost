@@ -1,9 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Run migration 001 (Diagnostic tests + conditions) on Neon.
  * Requires: systems, symptoms, causes (from 004).
  */
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Client } from 'pg';

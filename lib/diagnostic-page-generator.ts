@@ -8,6 +8,7 @@
 import OpenAI from "openai";
 import * as dotenv from "dotenv";
 import { composeSystemPrompt } from "./ai-generator";
+import { safeJsonParse } from "@/lib/utils";
 dotenv.config({ path: ".env.local" });
 
 const openai = new OpenAI({
@@ -266,7 +267,9 @@ Produce structured JSON matching the schema. Ensure minimum 5 causes, 5 repairs,
 
     const contentStr = response.choices[0]?.message?.content;
     if (!contentStr) throw new Error("Empty AI response");
-    return JSON.parse(contentStr) as Record<string, unknown>;
+    const parsed = safeJsonParse<Record<string, unknown>>(contentStr);
+    if (!parsed) throw new Error("AI returned unrecoverable JSON");
+    return parsed;
   });
 }
 

@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Run migration 007 (Page Targets expansion) on Neon.
  * Usage: npx tsx scripts/run-migration-007.ts
@@ -5,8 +8,6 @@
  * Requires: 004-decisiongrid-alignment schema.
  * If connection fails locally, run the SQL in Neon Console.
  */
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Client } from 'pg';

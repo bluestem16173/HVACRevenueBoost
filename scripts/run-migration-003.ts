@@ -1,9 +1,10 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Run migration 003 (Related nodes graph) on Neon.
  * Creates related_nodes table for dense internal linking.
  */
-import * as dotenv from 'dotenv';
-dotenv.config({ path: '.env.local' });
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Client } from 'pg';

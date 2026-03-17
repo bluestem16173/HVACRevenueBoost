@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 /**
  * Seed HVAC diagnostic graph schema from static knowledge.
  * Run after: psql $DATABASE_URL -f scripts/migrations/002-hvac-diagnostic-graph-schema.sql
@@ -9,8 +12,6 @@
  */
 
 import { neon } from "@neondatabase/serverless";
-import { config } from "dotenv";
-config({ path: ".env.local" });
 import { CLUSTERS } from "../lib/clusters";
 import { CONDITIONS } from "../lib/conditions";
 import { CONDITION_PATTERNS } from "../lib/condition-patterns";
