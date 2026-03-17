@@ -205,6 +205,7 @@ You MUST:
 - Include valid mermaid diagram string
 - Ensure ALL arrays are non-empty
 - Keep technician_summary under 120 words
+- insights: 50–75 words each. Explain why failure occurs, how it worsens, why pro recommended. Technician tone. Avoid generic language.
 - Keep answers concise (avoid long paragraphs)
 - Ensure all repair slugs are kebab-case
 - Avoid duplicate causes or repairs

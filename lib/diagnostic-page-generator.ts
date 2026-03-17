@@ -22,6 +22,7 @@ export const DIAGNOSTIC_PAGE_SCHEMA = {
   properties: {
     header_context: {
       type: "object",
+      additionalProperties: false,
       properties: {
         system: { type: "string" },
         subsystem: { type: "string" },
@@ -34,6 +35,7 @@ export const DIAGNOSTIC_PAGE_SCHEMA = {
     intro: { type: "string", description: "2-3 sentence fast diagnostic intro" },
     most_common_cause: {
       type: "object",
+      additionalProperties: false,
       properties: {
         cause: { type: "string" },
         short_explanation: { type: "string" },
@@ -62,6 +64,7 @@ export const DIAGNOSTIC_PAGE_SCHEMA = {
       minItems: 5,
       items: {
         type: "object",
+        additionalProperties: false,
         properties: {
           problem: { type: "string" },
           likely_cause: { type: "string" },
@@ -75,6 +78,7 @@ export const DIAGNOSTIC_PAGE_SCHEMA = {
       type: "array",
       items: {
         type: "object",
+        additionalProperties: false,
         properties: {
           question: { type: "string" },
           if_no: { type: "string" },
@@ -88,6 +92,7 @@ export const DIAGNOSTIC_PAGE_SCHEMA = {
       minItems: 5,
       items: {
         type: "object",
+        additionalProperties: false,
         properties: {
           cause_name: { type: "string" },
           why_it_happens: { type: "string" },
@@ -108,6 +113,7 @@ export const DIAGNOSTIC_PAGE_SCHEMA = {
       minItems: 5,
       items: {
         type: "object",
+        additionalProperties: false,
         properties: {
           repair: { type: "string" },
           diy_cost: { type: "string" },
@@ -148,6 +154,7 @@ export const DIAGNOSTIC_PAGE_SCHEMA = {
       minItems: 4,
       items: {
         type: "object",
+        additionalProperties: false,
         properties: {
           question: { type: "string" },
           answer: { type: "string" },

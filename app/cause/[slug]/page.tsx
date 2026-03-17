@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import sql from "@/lib/db";
 import CausePageTemplate from "@/templates/cause-page";
 import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
+import { normalizePageData } from "@/lib/content";
 
 export const revalidate = 3600;
 
@@ -15,13 +16,15 @@ export default async function CausePage({ params }: { params: { slug: string } }
   `;
 
   const aiPage = await getDiagnosticPageFromDB(params.slug);
-  const htmlContent = aiPage?.content_json?.html_content || null;
-  const contentJson = aiPage?.content_json || null;
+  const rawContent = aiPage?.content_json;
+  const contentJson = typeof rawContent === "string" ? (() => { try { return JSON.parse(rawContent) as Record<string, unknown>; } catch { return null; } })() : (rawContent as Record<string, unknown> | null);
+  const legacyHtmlContent = contentJson?.html_content as string | null | undefined;
 
-  if (causeRes.length === 0 && !htmlContent) {
+  if (causeRes.length === 0 && !contentJson && !legacyHtmlContent) {
     notFound();
   }
-  const cause = causeRes[0] || { name: params.slug.replace(/-/g, ' '), explanation: 'AI Generated Diagnostic Report' };
+
+  const causeData = causeRes[0] ?? { name: params.slug.replace(/-/g, " "), explanation: "AI Generated Diagnostic Report", id: null, component_id: null, component_name: null, component_slug: null };
 
   // Repairs: prefer cause_id (core schema), fallback to component_id (5-tier)
   let repairsRes: any[] = [];
@@ -29,14 +32,14 @@ export default async function CausePage({ params }: { params: { slug: string } }
     repairsRes = await sql`
       SELECT id, name, slug, repair_type, skill_level 
       FROM repairs 
-      WHERE cause_id = ${cause.id}
+      WHERE cause_id = ${causeData.id}
       LIMIT 10
     `;
-    if (repairsRes.length === 0 && cause.component_id) {
+    if (repairsRes.length === 0 && causeData.component_id) {
       repairsRes = await sql`
         SELECT id, name, slug, repair_type, skill_level 
         FROM repairs 
-        WHERE component_id = ${cause.component_id}
+        WHERE component_id = ${causeData.component_id}
         LIMIT 10
       `;
     }
@@ -48,7 +51,7 @@ export default async function CausePage({ params }: { params: { slug: string } }
     SELECT s.name, s.slug 
     FROM symptoms s
     JOIN symptom_causes sc ON sc.symptom_id = s.id
-    WHERE sc.cause_id = ${cause.id}
+    WHERE sc.cause_id = ${causeData.id}
     LIMIT 1
   `;
 
@@ -59,24 +62,30 @@ export default async function CausePage({ params }: { params: { slug: string } }
       SELECT dt.id, dt.name, dt.slug, dt.description, dt.test_steps, dt.tools_required
       FROM diagnostic_tests dt
       JOIN cause_diagnostic_tests cdt ON cdt.test_id = dt.id
-      WHERE cdt.cause_id = ${cause.id}
+      WHERE cdt.cause_id = ${causeData.id}
       ORDER BY dt.name
     `;
   } catch {
     // Tables may not exist yet
   }
 
-  // We moved aiPage fetch up.
+  const pageViewModel = normalizePageData({
+    rawContent: contentJson,
+    pageType: "cause",
+    slug: params.slug,
+    title: causeData.name,
+    graphRepairs: repairsRes,
+    legacyHtmlContent: legacyHtmlContent ?? null,
+  });
 
   return (
     <CausePageTemplate
-      cause={cause}
-      symptom={symptomRes && symptomRes.length > 0 ? symptomRes[0] : null}
-      component={cause.component_name ? { name: cause.component_name, slug: cause.component_slug } : null}
+      cause={causeData as { name: string; explanation?: string; description?: string; difficulty?: string }}
+      symptom={symptomRes && symptomRes.length > 0 ? (symptomRes[0] as { name: string; slug: string }) : null}
+      component={causeData.component_name ? { name: causeData.component_name, slug: causeData.component_slug ?? "" } : null}
       repairs={repairsRes}
       diagnosticTests={diagnosticTests}
-      htmlContent={htmlContent}
-      contentJson={contentJson}
+      pageViewModel={pageViewModel}
     />
   );
 }
