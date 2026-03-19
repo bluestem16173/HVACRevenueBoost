@@ -69,13 +69,13 @@ async function runWorker() {
     const all = await sql`SELECT * FROM generation_queue` as any[];
     console.log('TOTAL ROWS:', all.length);
 
-    // 1. Fetch pending items (limit: CANARY_BATCH_SIZE or 1)
-    const batchLimit = parseInt(process.env.CANARY_BATCH_SIZE || "1", 10) || 1;
+    // 1. Fetch pending items (limit: CANARY_BATCH_SIZE or 50)
+    const batchLimit = parseInt(process.env.CANARY_BATCH_SIZE || "50", 10) || 50;
     console.log('🔍 Fetching queue items...');
     const items = await sql`
       SELECT * FROM generation_queue
       WHERE status = 'pending'
-        AND page_type IN ('symptom', 'cause', 'repair', 'component', 'system')
+        AND page_type IN ('symptom')
       ORDER BY created_at ASC
       LIMIT ${batchLimit}
     ` as any[];

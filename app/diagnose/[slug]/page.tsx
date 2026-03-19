@@ -14,8 +14,8 @@ export const revalidate = 3600;
 export const dynamicParams = true; // allow pages not in generateStaticParams to render via SSR
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const fullSlug = `conditions/${params.slug}`;
-  const aiPage = await getDiagnosticPageFromDB(fullSlug);
+  const aiPage = await getDiagnosticPageFromDB(`diagnose/${params.slug}`) 
+    ?? await getDiagnosticPageFromDB(`conditions/${params.slug}`);
   if (aiPage?.quality_status === 'noindex') {
     return { robots: { index: false, follow: true } };
   }
@@ -32,8 +32,9 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
 
-  const fullSlug = `conditions/${params.slug}`;
-  const aiPage = await getDiagnosticPageFromDB(fullSlug);
+  // Try diagnose/ prefix first (new worker format), fall back to conditions/ (legacy)
+  const aiPage = await getDiagnosticPageFromDB(`diagnose/${params.slug}`) 
+    ?? await getDiagnosticPageFromDB(`conditions/${params.slug}`);
   
   if (aiPage?.quality_status === "needs_regen") {
     notFound();
@@ -158,10 +159,18 @@ export default async function SymptomPage({ params }: { params: { slug: string }
           "Thermostat signals the system to begin cooling.",
           "Indoor unit absorbs heat from air.",
           "Outdoor unit releases collected heat.",
+          "Cycle repeats until set temperature is reached.",
         ],
     repairs,
-    relatedLinks: finalRelatedLinks
+    relatedLinks: finalRelatedLinks,
+    decisionTree: raw?.decision_tree ?? null,
+    subtitle: raw?.subtitle ?? null,
+    diagnosticFlow: raw?.diagnostic_flow ?? null,
+    quickTools: raw?.quick_tools ?? null,
+    clusterNav: raw?.cluster_nav ?? null,
+    topCauses: raw?.top_causes ?? null,
   };
+
 
   return (
     <SymptomPageTemplate

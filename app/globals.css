@@ -60,4 +60,84 @@
   .step-number {
     @apply bg-hvac-navy text-white w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-bold;
   }
+
+  /* ---- Decision Tree ---- */
+  .decision-tree-section {
+    @apply mb-14;
+  }
+  .decision-tree-card {
+    @apply bg-hvac-navy rounded-2xl p-8 shadow-xl text-white border border-slate-700;
+  }
+  .decision-tree-header {
+    @apply mb-6;
+  }
+  .decision-tree-icon {
+    @apply text-2xl;
+  }
+  .decision-tree-title {
+    @apply text-2xl font-black text-white mt-1 mb-1;
+  }
+  .decision-tree-subtitle {
+    @apply text-slate-400 text-sm;
+  }
+  .decision-tree-questions {
+    @apply space-y-6;
+  }
+  .decision-tree-question {
+    @apply border-b border-slate-700 pb-5 last:border-0;
+  }
+  .decision-tree-question-label {
+    @apply text-base font-semibold text-slate-200 mb-3;
+  }
+  .decision-tree-question-num {
+    @apply text-hvac-gold;
+  }
+  .decision-tree-options {
+    @apply flex flex-wrap gap-3;
+  }
+  .decision-tree-option {
+    @apply border border-slate-600 text-slate-300 px-4 py-2 rounded-lg text-sm font-medium transition-all hover:border-hvac-gold hover:text-hvac-gold cursor-pointer;
+  }
+  .decision-tree-option--selected {
+    @apply bg-hvac-gold text-hvac-navy border-hvac-gold font-bold;
+  }
+  .decision-tree-result {
+    @apply mt-6 bg-slate-800 rounded-xl p-6 border border-hvac-gold;
+  }
+  .decision-tree-result-header {
+    @apply flex items-center gap-2 mb-3;
+  }
+  .decision-tree-result-icon {
+    @apply text-xl;
+  }
+  .decision-tree-result-label {
+    @apply text-hvac-gold font-bold text-sm uppercase tracking-wide;
+  }
+  .decision-tree-result-cause {
+    @apply text-white font-semibold text-lg mb-2;
+  }
+  .decision-tree-result-action {
+    @apply text-slate-300 text-sm mb-4;
+  }
+  .decision-tree-cta {
+    @apply flex flex-wrap gap-3 mt-4;
+  }
+  .decision-tree-cta-btn--primary {
+    @apply bg-hvac-gold text-hvac-navy font-bold px-5 py-2 rounded-lg text-sm hover:brightness-110 transition-all inline-block;
+  }
+  .decision-tree-cta-btn--secondary {
+    @apply border border-hvac-gold text-hvac-gold font-semibold px-5 py-2 rounded-lg text-sm hover:bg-hvac-gold hover:text-hvac-navy transition-all inline-block;
+  }
+  .decision-tree-progress {
+    @apply mt-6;
+  }
+  .decision-tree-progress-bar {
+    @apply bg-slate-700 rounded-full h-2 overflow-hidden;
+  }
+  .decision-tree-progress-fill {
+    @apply bg-hvac-gold h-2 rounded-full transition-all duration-300;
+  }
+  .decision-tree-progress-text {
+    @apply text-slate-400 text-xs mt-2;
+  }
 }

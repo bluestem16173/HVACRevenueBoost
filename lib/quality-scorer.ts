@@ -32,10 +32,17 @@ export function calculateQualityScore(data: any, html: string = "", pageType: st
   }
 
   // 1. Completeness (0-30): Sections present
-  const hasSummary = Boolean(data.summary || data.fastAnswer || data.fast_answer || data.quick_answer);
-  const hasDiagnostic = Boolean(data.diagnosticFlowMermaid || data.diagnostic_steps || data.diagnosticOverview);
-  const hasToolsParts = Boolean(data.toolsRequired?.length > 0 || data.partsRequired?.length > 0);
-  const hasFaq = Boolean(data.faq?.length > 0);
+  const hasSummary = Boolean(data.summary || data.fastAnswer || data.fast_answer?.summary || data.quick_answer);
+  const hasDiagnostic = Boolean(data.diagnosticFlowMermaid || data.diagnostic_steps || data.narrow_down);
+  const hasToolsParts = Boolean(data.toolsRequired?.length > 0 || data.partsRequired?.length > 0 || data.repairs?.length > 0);
+  const hasFaq = Boolean(data.faq?.length > 0 || data.tech_observation);
+
+  // 🚨 RICH SCHEMA GATE: Symptom pages MUST have the strategic arrays
+  if (pageType === 'symptom') {
+    if (!data.system_explanation) { reasons.push('Missing system_explanation — score 0'); return { score: 0, status: 'needs_regen', breakdown: { completeness: 0, depth: 0, internalLinks: 0, structure: 0, confidence: 0, hygiene: 0 }, reasons }; }
+    if (!data.repair_matrix) { reasons.push('Missing repair_matrix — score 0'); return { score: 0, status: 'needs_regen', breakdown: { completeness: 0, depth: 0, internalLinks: 0, structure: 0, confidence: 0, hygiene: 0 }, reasons }; }
+    if (!data.environments) { reasons.push('Missing environments — score 0'); return { score: 0, status: 'needs_regen', breakdown: { completeness: 0, depth: 0, internalLinks: 0, structure: 0, confidence: 0, hygiene: 0 }, reasons }; }
+  }
 
   if (hasSummary) completeness += 10; else reasons.push("Missing fast answer / summary.");
   if (hasDiagnostic) completeness += 10; else reasons.push("Missing diagnostic flow or steps.");
@@ -69,17 +76,17 @@ export function calculateQualityScore(data: any, html: string = "", pageType: st
   }
 
   // 4. Content Uniqueness / Structure (0-20)
-  // Check sufficient causes and repairs without duplicate names
+  // Check sufficient causes and repairs  // 4. Content Uniqueness / Structure (0-20)
   let causeCount = 0;
   if (Array.isArray(data.systemCards)) causeCount += data.systemCards.length;
-  if (Array.isArray(data.rankedCauses)) causeCount += data.rankedCauses.length;
+  if (Array.isArray(data.top_causes)) causeCount += data.top_causes.length;
   if (Array.isArray(data.causes)) causeCount += data.causes.length;
   if (Array.isArray(data.primaryCauses)) causeCount += data.primaryCauses.length;
 
   let repairCount = 0;
   if (Array.isArray(data.repairOptions)) repairCount += data.repairOptions.length;
   if (Array.isArray(data.repairs)) repairCount += data.repairs.length;
-  if (data.repairDifficultyMatrix) repairCount += 4; // matrix usually has enough
+  if (data.repair_matrix?.electrical?.length === 3) repairCount += 9; // full matrix = 9 total
   if (Array.isArray(data.stepsOverview)) repairCount += data.stepsOverview.length;
 
   if (causeCount >= 3) structure += 10;
@@ -89,7 +96,7 @@ export function calculateQualityScore(data: any, html: string = "", pageType: st
   else { reasons.push("Too few repairs/steps (need at least 3)."); structure += Math.max(0, repairCount * 3); }
 
   // 5. Confidence Score Present (0-10)
-  if (data.confidence_score !== undefined || data.severity_indicator || data.riskLevel) {
+  if (data.confidence_score !== undefined || data.severity_indicator || data.riskLevel || data.tech_observation) {
     confidence = 10;
   } else {
     reasons.push("Missing AI confidence score or risk level indicators.");
