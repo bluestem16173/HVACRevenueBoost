@@ -11,14 +11,16 @@ import sql from '../lib/db';
 import { generateCoreData } from '../lib/ai-generator';
 import { contentToHtml } from '../lib/contentToHtml';
 import { normalizeToBaseSlug, buildSlug } from '../lib/slug-helpers';
+import { generateSeoLinks } from '../lib/seo/generateSeoLinks';
+import { calculateQualityScore, QualityResult } from '../lib/quality-scorer';
 
 const QUEUE_STATUS = { pending: 'pending', processing: 'processing', completed: 'completed' };
 
-/** Save page to DB, return page id. */
 async function savePageToDB(params: {
   slug: string;
   html: string;
   data: Record<string, unknown>;
+  quality: QualityResult;
   item: { proposed_title?: string; page_type: string; system_id?: number; symptom_id?: number; city?: string };
 }): Promise<number> {
   const title = params.item.proposed_title || params.slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
@@ -30,7 +32,7 @@ async function savePageToDB(params: {
     generated_at: new Date().toISOString(),
   };
   const result = await sql`
-    INSERT INTO pages (slug, title, page_type, system_id, symptom_id, city, status, content_json)
+    INSERT INTO pages (slug, title, page_type, system_id, symptom_id, city, status, quality_status, quality_score, quality_notes, last_scored_at, content_json)
     VALUES (
       ${params.slug},
       ${title},
@@ -38,13 +40,21 @@ async function savePageToDB(params: {
       ${params.item.system_id ?? null},
       ${params.item.symptom_id ?? null},
       ${params.item.city ?? null},
-      'published',
-      ${JSON.stringify(contentJson)}
+      ${params.quality.status},
+      ${params.quality.status},
+      ${params.quality.score},
+      ${JSON.stringify(params.quality) as any},
+      ${new Date().toISOString()},
+      ${JSON.stringify(contentJson) as any}
     )
     ON CONFLICT (slug) DO UPDATE SET
       title = EXCLUDED.title,
       page_type = EXCLUDED.page_type,
       status = EXCLUDED.status,
+      quality_status = EXCLUDED.quality_status,
+      quality_score = EXCLUDED.quality_score,
+      quality_notes = EXCLUDED.quality_notes,
+      last_scored_at = EXCLUDED.last_scored_at,
       content_json = EXCLUDED.content_json
     RETURNING id
   `;
@@ -64,8 +74,8 @@ async function runWorker() {
     console.log('🔍 Fetching queue items...');
     const items = await sql`
       SELECT * FROM generation_queue
-      WHERE status = ${QUEUE_STATUS.pending}
-        AND page_type IS NOT NULL AND page_type != ''
+      WHERE status = 'pending'
+        AND page_type IN ('symptom', 'cause', 'repair', 'component', 'system')
       ORDER BY created_at ASC
       LIMIT ${batchLimit}
     ` as any[];
@@ -111,18 +121,50 @@ async function runWorker() {
           title,
           validationMode,
         });
+
+        console.log('🔗 Retrieving SEO links...');
+        const [existing] = await sql`SELECT content_json FROM pages WHERE slug = ${fullSlug}`;
+        let seoLinks = existing?.content_json?.seo_links || existing?.content_json?.seoLinks;
+
+        if (!seoLinks || !seoLinks.link_strategy_summary) {
+          console.log('🔗 Generating Mega SEO links via Gemini Mega Prompt...');
+          seoLinks = await generateSeoLinks(fullSlug, pageType, data);
+        } else {
+          console.log('🔗 Reusing existing SEO links from previously generated page...');
+        }
+
+        data.seo_links = seoLinks;
+
         const html = contentToHtml(data);
-        console.log("Saving page:", fullSlug);
-        const pageId = await savePageToDB({ slug: fullSlug, html, data, item });
+        const quality = calculateQualityScore(data, html, pageType);
 
-        // 4. MARK COMPLETE
-        await sql`
-          UPDATE generation_queue
-          SET status = ${QUEUE_STATUS.completed}, page_id = ${pageId}
-          WHERE id = ${item.id}
-        `;
+        // INDEXING STRATEGY: Disable component indexing until 100-200 pages build authority
+        if (pageType === 'component' && quality.status === 'published') {
+          console.log(`🔒 Component ${fullSlug} defaults to noindex until target index volume reached.`);
+          quality.status = 'noindex';
+        }
 
-        console.log(`✅ [${item.id}] → completed`);
+        
+        console.log("Saving page:", fullSlug, "Score:", quality.score, "Status:", quality.status);
+        const pageId = await savePageToDB({ slug: fullSlug, html, data, quality, item });
+
+        // 4. MARK COMPLETE OR DELAY REGEN
+        if (quality.status === 'needs_regen') {
+          console.log(`⚠️ [${item.id}] Score too low (${quality.score}). Queuing delayed regen.`);
+          await sql`
+            UPDATE generation_queue
+            SET status = 'pending', page_id = ${pageId}, regeneration_attempts = COALESCE(regeneration_attempts, 0) + 1
+            WHERE id = ${item.id} AND COALESCE(regeneration_attempts, 0) < 3
+          `;
+        } else {
+          await sql`
+            UPDATE generation_queue
+            SET status = ${QUEUE_STATUS.completed}, page_id = ${pageId}
+            WHERE id = ${item.id}
+          `;
+        }
+
+        console.log(`✅ [${item.id}] → processed`);
         console.log('✅ Success:', fullSlug);
       } catch (err) {
         console.error(`❌ [${item.id}] → failed`);

@@ -211,8 +211,8 @@ Use slug: ${pageSlug} and title: ${resolvedTitle} in your JSON output.
 Authoring intent: This content is for a highly technical repair knowledge graph used for SEO and lead generation. It should read like a field technician's structured diagnostic output, not a consumer blog post.`;
 
   const validationMode = typeof pageSlugOrOptions === 'object' ? pageSlugOrOptions.validationMode : false;
-  const { prompt, schema } = composePromptForPageType(resolvedPageType, { validationMode });
-  return generateWithSchema(prompt, schema, userMsg, {
+  const prompt = composePromptForPageType(resolvedPageType, pageSlug, { validationMode });
+  return generateWithSchema(prompt, userMsg, {
     pageSlug,
     resolvedPageType,
     pass1,
@@ -221,52 +221,52 @@ Authoring intent: This content is for a highly technical repair knowledge graph 
 
 async function generateWithSchema(
   systemPrompt: string,
-  schemaDef: SchemaDef,
   userMsg: string,
   opts: { pageSlug: string; resolvedPageType: string; pass1: number }
 ): Promise<Record<string, unknown>> {
   const { pageSlug, resolvedPageType, pass1 } = opts;
-  console.log('🚀 Generating:', pageSlug, '| type:', resolvedPageType);
-  console.log('🧠 Using Schema:', schemaDef.name);
+  console.log('[GENERATOR] pageType:', resolvedPageType);
+  console.log('[GENERATOR] slug:', pageSlug);
+  console.log('[GENERATOR] model: gpt-4o');
+  console.log('[GENERATOR] promptVersion: master-v2-json-object');
+  console.log('[GENERATOR] validator: validate' + resolvedPageType.charAt(0).toUpperCase() + resolvedPageType.slice(1) + 'Page');
 
   const MAX_RETRIES = 2;
   let lastError: unknown;
   for (let retryCount = 0; retryCount <= MAX_RETRIES; retryCount++) {
     try {
       const response = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4o',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userMsg },
         ],
-        response_format: {
-          type: 'json_schema',
-          json_schema: {
-            name: schemaDef.name,
-            strict: false,
-            schema: schemaDef.schema as Record<string, unknown>,
-          },
-        },
+        response_format: { type: 'json_object' },
         temperature: 0.2,
-        max_tokens: pass1,
       });
 
       const contentStr = response.choices[0]?.message?.content;
       if (!contentStr) throw new Error('Pass 1: empty response');
       const parsed = safeJsonParse<Record<string, unknown>>(contentStr);
       if (!parsed) throw new Error('Pass 1: unrecoverable JSON');
-      const isCause = (resolvedPageType || '').toLowerCase() === 'cause';
-      if (isCause && typeof (parsed.repairs as unknown[])?.[0] === 'string') {
-        throw new Error('Invalid repairs format: repairs must be objects with name, difficulty, cost');
+      
+      console.log('[GENERATOR] top-level keys:', Object.keys(parsed || {}));
+      
+      const valResult = validateCoreForPageType(resolvedPageType, parsed);
+      if (!valResult.valid) {
+        throw new Error('Validation failed: ' + valResult.errors.join(', '));
       }
+
+      parsed.prompt_version = "master-v2-json-object";
+
       return parsed;
-    } catch (err) {
+    } catch (err: any) {
       lastError = err;
       if (retryCount < MAX_RETRIES) {
-        console.warn('⚠️ Retry due to invalid format:', pageSlug);
+        console.warn('⚠️ Retry due to invalid format:', pageSlug, err?.message || err);
         await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
       } else {
-        console.error('❌ Failed after retries:', pageSlug);
+        console.error('❌ Failed after retries:', pageSlug, err?.message || err);
         throw lastError;
       }
     }
@@ -641,7 +641,7 @@ function renderRepairPage(data: any): string {
 
   const DiagramWithBlurb = () => `
     <div class="mb-8">
-      <img src="/images/hvac-system-flow.svg" alt="HVAC system decision flow: DIY-friendly vs professional required" class="w-full max-w-2xl mx-auto rounded-xl shadow-sm" />
+      <img src="/images/hvac_system_main.svg.svg" alt="HVAC system decision flow: DIY-friendly vs professional required" class="w-full max-w-2xl mx-auto rounded-xl shadow-sm" />
       <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-sm text-slate-700 dark:text-slate-300 mt-4">
         Structural and mechanical issues are often DIY-friendly for simple fixes like airflow restrictions or minor cleaning. Electrical and refrigerant-related problems typically require professional service due to safety risks and system complexity.
       </div>
@@ -685,7 +685,7 @@ export function renderToHtml(aiData: any): string {
 
   const pageType = (aiData.pageType || aiData.page_type || '').toLowerCase();
   const isContext = pageType === 'context' || (aiData.whyThisHappensInThisContext && Array.isArray(aiData.mostLikelyCauses));
-  const isCondition = pageType === 'condition' || (aiData.whatThisMeans && Array.isArray(aiData.likelyCauses));
+  const isCondition = pageType === 'condition' || (aiData.whatThisMeans && (Array.isArray(aiData.likelyCauses) || Array.isArray(aiData.primaryCauses)));
   const isRepair = pageType === 'repair' || (aiData.stepsOverview && aiData.whatThisFixes);
 
   if (isRepair) {
@@ -748,29 +748,55 @@ export function renderToHtml(aiData: any): string {
   }
 
   if (isCondition) {
+    const hasLocked = typeof aiData.fastAnswer === 'object' && aiData.fastAnswer?.headline && typeof aiData.thirtySecondSummary === 'object' && aiData.thirtySecondSummary?.whatItUsuallyMeans;
+    if (hasLocked) {
+      return '<div data-condition-template="locked">Condition page uses React template.</div>';
+    }
     const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const renderList = (arr: unknown[]) =>
       Array.isArray(arr) ? arr.map((s) => `<li>${esc(String(s))}</li>`).join('') : '';
     const severity = aiData.severity as { level?: string; reason?: string } | undefined;
     const costRange = aiData.costRange as { low?: string; high?: string } | undefined;
-    const causes = ((aiData.likelyCauses as string[]) ?? []).slice(0, 3);
-    const repairs = ((aiData.repairOptions as string[]) ?? []).slice(0, 2);
-    const continueBlock = causes.length > 0 ? `<div class="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl mt-6"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Continue Diagnosis</h3><ul class="list-disc pl-5 space-y-1 text-sm">${causes.map((c) => `<li>Check: ${link(`cause/${slugify(c)}`, c)}</li>`).join('')}</ul></div>` : '';
-    const fixBlock = repairs.length > 0 ? `<div class="bg-blue-50 dark:bg-slate-800 p-4 rounded-xl mt-6"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Fix This Issue</h3><ul class="list-disc pl-5 space-y-1 text-sm">${repairs.map((r) => `<li>${link(`fix/${slugify(r)}`, r)}</li>`).join('')}</ul></div>` : '';
+    const costBreakdown = aiData.costBreakdown as { diy?: string; professional?: string } | undefined;
+    const primaryCauses = (aiData.primaryCauses as { name?: string; likelihood?: string; why?: string }[]) ?? [];
+    const likelyCauses = (aiData.likelyCauses as string[]) ?? [];
+    const causes = primaryCauses.length ? primaryCauses.map((c) => c.name ?? c) : likelyCauses;
+    const repairOpts = aiData.repairOptions;
+    const repairItems = Array.isArray(repairOpts)
+      ? repairOpts.map((r: unknown) => (typeof r === 'object' && r && 'name' in r) ? (r as { name: string }).name : String(r))
+      : [];
+    const continueBlock = causes.length > 0 ? `<div class="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl mt-6"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Continue Diagnosis</h3><ul class="list-disc pl-5 space-y-1 text-sm">${causes.map((c) => `<li>Check: ${link(`cause/${slugify(typeof c === 'string' ? c : '' + c)}`, typeof c === 'string' ? c : '' + c)}</li>`).join('')}</ul></div>` : '';
+    const fixBlock = repairItems.length > 0 ? `<div class="bg-blue-50 dark:bg-slate-800 p-4 rounded-xl mt-6"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Fix This Issue</h3><ul class="list-disc pl-5 space-y-1 text-sm">${repairItems.slice(0, 4).map((r) => `<li>${link(`fix/${slugify(r)}`, r)}</li>`).join('')}</ul></div>` : '';
+    const mermaidRaw = String(aiData.diagnosticFlowMermaid || '').trim();
+    const mermaidBlock = mermaidRaw
+      ? `<div class="mermaid my-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl overflow-x-auto">${mermaidRaw}</div>`
+      : '';
+    const symptoms = (aiData.symptomsYoullNotice as string[]) ?? (aiData.commonSymptoms as string[]) ?? [];
+    const howToConfirm = (aiData.howToConfirm as string[]) ?? (aiData.diagnosticOverview as string[]) ?? [];
+    const whenSerious = (aiData.whenItGetsSerious as string[]) ?? [];
+    const related = (aiData.relatedConditions as string[]) ?? [];
+    const cta = aiData.cta as string | undefined;
     return `
-    <h1>${esc(aiData.fastAnswer ?? '')}</h1>
-    <h2>What This Means</h2>
+    <h1>${esc(aiData.title ?? aiData.fastAnswer ?? '')}</h1>
+    <p class="text-lg text-slate-600 dark:text-slate-400 mb-6">${esc(aiData.fastAnswer ?? '')}</p>
+    <h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-2">What This Problem Means</h2>
     <p>${esc(aiData.whatThisMeans ?? '')}</p>
-    ${(aiData.commonSymptoms as string[])?.length ? `<h2>Common Symptoms</h2><ul>${renderList(aiData.commonSymptoms)}</ul>` : ''}
-    ${(aiData.likelyCauses as string[])?.length ? `<h2>Likely Causes</h2><ul>${renderList(aiData.likelyCauses)}</ul>` : ''}
-    ${(aiData.diagnosticOverview as string[])?.length ? `<h2>Diagnostic Overview</h2><ul>${renderList(aiData.diagnosticOverview)}</ul>` : ''}
-    ${(aiData.repairOptions as string[])?.length ? `<h2>Repair Options</h2><ul>${renderList(aiData.repairOptions)}</ul>` : ''}
+    ${primaryCauses.length ? `<h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-2">Primary Causes</h2><div class="space-y-3">${primaryCauses.map((c) => `<div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg"><strong>${esc(c.name ?? '')}</strong> (${esc(c.likelihood ?? '')})<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">${esc(c.why ?? '')}</p></div>`).join('')}</div>` : ''}
+    ${likelyCauses.length && !primaryCauses.length ? `<h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-2">Likely Causes</h2><ul>${renderList(likelyCauses)}</ul>` : ''}
+    ${mermaidBlock}
+    ${symptoms.length ? `<h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-2">Symptoms You'll Notice</h2><ul>${renderList(symptoms)}</ul>` : ''}
+    ${howToConfirm.length ? `<h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-2">How to Confirm</h2><ol class="list-decimal pl-6 space-y-2">${howToConfirm.map((s) => `<li>${esc(String(s))}</li>`).join('')}</ol>` : ''}
+    ${repairItems.length ? `<h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-2">Repair Options (DIY vs Pro)</h2><ul>${repairItems.map((r) => `<li>${link(`fix/${slugify(r)}`, r)}</li>`).join('')}</ul>` : ''}
+    ${(costBreakdown?.diy || costBreakdown?.professional) ? `<p class="mt-4"><strong>Cost:</strong> DIY ${esc(costBreakdown.diy ?? '')} | Pro ${esc(costBreakdown.professional ?? '')}</p>` : ''}
+    ${(costRange?.low || costRange?.high) ? `<p class="mt-2"><strong>Cost range:</strong> ${esc(costRange.low ?? '')} – ${esc(costRange.high ?? '')}</p>` : ''}
     ${severity ? `<p><strong>Severity:</strong> ${esc(severity.level ?? '')} — ${esc(severity.reason ?? '')}</p>` : ''}
-    ${costRange ? `<p><strong>Cost range:</strong> ${esc(costRange.low ?? '')} – ${esc(costRange.high ?? '')}</p>` : ''}
-    ${(aiData.whenToAct as string[])?.length ? `<h2>When to Act</h2><ul>${renderList(aiData.whenToAct)}</ul>` : ''}
+    ${whenSerious.length ? `<h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-2">When It Gets Serious</h2><ul class="list-disc pl-5 text-amber-800 dark:text-amber-200">${renderList(whenSerious)}</ul>` : ''}
+    ${(aiData.whenToAct as string[])?.length ? `<h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-2">When to Act</h2><ul>${renderList(aiData.whenToAct)}</ul>` : ''}
+    ${related.length ? `<h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-2">Related Conditions</h2><ul>${renderList(related)}</ul>` : ''}
+    ${cta ? `<div class="mt-8 p-4 bg-hvac-navy text-white rounded-xl"><p class="font-bold">${esc(cta)}</p><a href="/repair" class="inline-block mt-2 text-hvac-gold font-bold hover:underline">Get Local HVAC Quotes →</a></div>` : ''}
     ${continueBlock}
     ${fixBlock}
-    ${(aiData.faq as { question: string; answer: string }[])?.length ? `<h2>FAQ</h2>${(aiData.faq as { question: string; answer: string }[]).map((f) => `<div><strong>${esc(f.question)}</strong><p>${esc(f.answer)}</p></div>`).join('')}` : ''}
+    ${(aiData.faq as { question: string; answer: string }[])?.length ? `<h2 class="text-2xl font-bold text-slate-900 dark:text-white mt-8 mb-2">FAQ</h2>${(aiData.faq as { question: string; answer: string }[]).map((f) => `<div class="mb-4"><strong>${esc(f.question)}</strong><p class="mt-1 text-slate-600 dark:text-slate-400">${esc(f.answer)}</p></div>`).join('')}` : ''}
   `;
   }
 
@@ -781,6 +807,10 @@ export function renderToHtml(aiData: any): string {
       <div class="fast-answer mb-10">
         <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Fast Answer</h2>
         <div class="text-[15px] text-slate-800 leading-relaxed font-medium">${formatTextSafe(String(fastAnswer))}</div>
+        <div class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg text-sm text-slate-800 font-medium space-y-2">
+          <p><em>If this sounds like your issue, you'll need to diagnose the root cause immediately.</em></p>
+          <p>Most homeowners fix this by comparing prices. <a href="/repair" class="underline font-bold text-hvac-blue hover:text-blue-800">Get quotes from local HVAC pros</a> to avoid worsening damage.</p>
+        </div>
       </div>
     `;
   }
@@ -1116,6 +1146,29 @@ export function renderToHtml(aiData: any): string {
     }
     html += `</div>`;
   }
+
+  // --- MONETIZATION LAYER (Lead Gen CTA + Affiliate Block) ---
+  html += `
+    <div class="affiliate-block bg-white p-6 rounded-lg my-12 border border-slate-200 shadow-sm text-center">
+      <h3 class="text-lg font-bold uppercase tracking-wider text-slate-900 mb-4">Recommended Tools</h3>
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <a href="#" class="px-4 py-2 border border-hvac-navy text-hvac-navy font-bold rounded-md hover:bg-hvac-navy hover:text-white transition">Air Filter</a>
+        <a href="#" class="px-4 py-2 border border-hvac-navy text-hvac-navy font-bold rounded-md hover:bg-hvac-navy hover:text-white transition">Multimeter</a>
+        <a href="#" class="px-4 py-2 border border-hvac-navy text-hvac-navy font-bold rounded-md hover:bg-hvac-navy hover:text-white transition">Coil Cleaner</a>
+      </div>
+    </div>
+  `;
+
+  html += `
+    <section class="cta bg-hvac-navy text-white text-center p-8 rounded-xl my-12 shadow-md">
+      <h2 class="text-2xl font-bold mb-2">Need Help Fixing This?</h2>
+      <p class="text-slate-200 mb-6">Get quotes from local HVAC pros.</p>
+      <a href="/repair" class="bg-hvac-gold text-slate-900 font-extrabold px-8 py-3 rounded-md hover:bg-yellow-400 transition cursor-pointer text-lg inline-block">Get Free Estimates</a>
+    </section>
+  `;
+
+  // --- RELATED Graph Links (SEO) ---
+  // SEO links are now rendered defensively in React templates, not injected as string html
 
   return html;
 }

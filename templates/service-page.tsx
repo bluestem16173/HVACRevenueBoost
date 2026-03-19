@@ -47,6 +47,7 @@ export default function ServicePageTemplate({
   localContractors,
   htmlContent,
   symptomSlug,
+  qualityScore = 100,
 }: any) {
   const isWeakAirflow = (symptomSlug || symptom?.slug || symptom?.id || "").includes("airflow");
   const isHighDesert = ["tempe", "phoenix", "scottsdale", "mesa", "chandler", "tucson", "las-vegas", "henderson"].includes(
@@ -292,28 +293,30 @@ export default function ServicePageTemplate({
       </section>
 
       {/* 9. Local HVAC CTA */}
-      <section className="local-cta py-12">
-        <div className="max-w-[900px] mx-auto px-5">
-          <div className="bg-hvac-navy text-white p-10 rounded-2xl text-center">
-            <h2 className="text-2xl font-bold text-white mb-4">
-              Need HVAC Repair in {city?.name}?
-            </h2>
-            <p className="text-slate-300 mb-6 leading-relaxed max-w-[600px] mx-auto">
-              If airflow remains weak after replacing the air filter or inspecting vents, the issue may involve the
-              blower motor, evaporator coil, or duct system.
-            </p>
-            <p className="text-slate-400 text-sm mb-8">
-              Schedule professional HVAC service in {city?.name}.
-            </p>
-            <button
-              data-open-lead-modal
-              className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-bold px-8 py-4 rounded-xl uppercase tracking-wider transition-colors"
-            >
-              Get {city?.name} Repair Quotes
-            </button>
+      {qualityScore >= 80 && (
+        <section className="local-cta py-12">
+          <div className="max-w-[900px] mx-auto px-5">
+            <div className="bg-hvac-navy text-white p-10 rounded-2xl text-center">
+              <h2 className="text-2xl font-bold text-white mb-4">
+                Need HVAC Repair in {city?.name}?
+              </h2>
+              <p className="text-slate-300 mb-6 leading-relaxed max-w-[600px] mx-auto">
+                If airflow remains weak after replacing the air filter or inspecting vents, the issue may involve the
+                blower motor, evaporator coil, or duct system.
+              </p>
+              <p className="text-slate-400 text-sm mb-8">
+                Schedule professional HVAC service in {city?.name}.
+              </p>
+              <button
+                data-open-lead-modal
+                className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-bold px-8 py-4 rounded-xl uppercase tracking-wider transition-colors"
+              >
+                Get {city?.name} Repair Quotes
+              </button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Diagnostic Pathway (upward links) */}
       <section className="max-w-[900px] mx-auto px-5 py-8">

@@ -1,17 +1,18 @@
 /**
  * Conditional diagrams for symptom pages — uses getImageForPage (LOCKED).
  * Frontend handles images; AI does not generate diagrams.
+ * Uses <img> for SVGs — Next.js Image can fail with .svg.svg in dev.
  */
-import Image from "next/image";
 import { getImageForPage } from "@/lib/image-for-page";
+import { PLACEHOLDER_IMAGE } from "@/lib/image-fallbacks";
 
 const TITLES: Record<string, string> = {
-  "/images/hvac-rv-system.svg": "RV AC System",
-  "/images/hvac-heat-pump.svg": "Heat Pump Reversible Cycle",
-  "/images/hvac-ac-cycle.svg": "AC Cooling Cycle",
-  "/images/hvac-airflow-duct.svg": "HVAC Airflow & Ductwork",
-  "/images/hvac-mini-split.svg": "Mini Split System",
-  "/images/hvac-system-main.svg": "HVAC System Overview",
+  "/images/hvac_rv_system.svg.svg": "RV AC System",
+  "/images/hvac_heat_pump.svg.svg": "Heat Pump Reversible Cycle",
+  "/images/hvac_ac_cycle.svg.svg": "AC Cooling Cycle",
+  "/images/hvac_airflow_duct.svg.svg": "HVAC Airflow & Ductwork",
+  "/images/hvac_mini_split.svg.svg": "Mini Split System",
+  "/images/hvac_system_main.svg.svg": "HVAC System Overview",
 };
 
 export default function ConditionalDiagram({
@@ -28,12 +29,10 @@ export default function ConditionalDiagram({
         {title}
       </h2>
       <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden bg-white dark:bg-slate-900">
-        <Image
-          src={src}
-          alt={`${title} diagram`}
-          width={600}
-          height={280}
-          className="w-full h-auto"
+        <img
+          src={src || PLACEHOLDER_IMAGE}
+          alt={title ? `${title} diagram` : "HVAC illustration"}
+          className="w-full h-auto object-cover"
         />
       </div>
     </section>

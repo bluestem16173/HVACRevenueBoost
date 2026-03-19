@@ -7,6 +7,10 @@
  */
 import React from "react";
 import Link from "next/link";
+import { ChevronDown, CloudRain, Wind, ThermometerSnowflake, Power, AlertTriangle } from "lucide-react";
+import Image from "next/image";
+import { injectLinks } from "../lib/seo/injectLinks";
+import { SeoLinks } from "../lib/seo/types";
 import dynamic from "next/dynamic";
 import DiyDifficultyMeter, { DiyLegalDisclaimer } from "@/components/DiyDifficultyMeter";
 
@@ -23,6 +27,7 @@ import ConditionalDiagram from "@/components/ConditionalDiagram";
 import AmazonDisclosure from "@/components/AmazonDisclosure";
 import { resolveLayout } from "@/lib/layout-resolver";
 import { normalizeToString } from "@/lib/utils";
+import { getImageSrc, PLACEHOLDER_IMAGE } from "@/lib/image-fallbacks";
 import type { BasePageViewModel } from "@/lib/content";
 
 export default function SymptomPageTemplate({
@@ -34,19 +39,23 @@ export default function SymptomPageTemplate({
   relatedContent,
   internalLinks,
   relatedLinks,
+  seoLinks,
   tools,
   getCauseDetails,
+  qualityScore = 100,
 }: {
   symptom: { id: string; name: string; description?: string };
   pageViewModel: BasePageViewModel;
   causeIds?: string[];
-  causeDetails?: unknown[];
-  diagnosticSteps?: unknown;
-  relatedContent?: { relatedSymptoms?: { id: string; name: string }[] };
-  internalLinks?: unknown;
-  relatedLinks?: { slug?: string; title?: string; label?: string; name?: string }[];
-  tools?: { name: string; description?: string; affiliateUrl?: string }[];
-  getCauseDetails?: (id: string) => unknown;
+  causeDetails?: any[];
+  diagnosticSteps?: any[];
+  relatedContent?: any;
+  internalLinks?: any[];
+  relatedLinks?: any;
+  seoLinks?: SeoLinks | any;
+  tools?: any[];
+  getCauseDetails?: (id: string) => any;
+  qualityScore?: number;
 }) {
   // Resolve causes from DB or static KG
   const fullCauses = (Array.isArray(causeDetails) && causeDetails.length > 0)
@@ -60,6 +69,16 @@ export default function SymptomPageTemplate({
   const fastAnswerText = vm.fastAnswer ?? (firstCause
     ? `Likely caused by ${firstCause.name}. ${firstCause.explanation || ""}`
     : symptom.description);
+
+  let fastAnswerHtml = fastAnswerText;
+  if (seoLinks?.contextual_links?.quick_answer) {
+    fastAnswerHtml = injectLinks(fastAnswerText, seoLinks.contextual_links.quick_answer, 1);
+  }
+
+  let descriptionHtml = symptom.description;
+  if (seoLinks?.contextual_links?.short_explanation) {
+    descriptionHtml = injectLinks(symptom.description || "", seoLinks.contextual_links.short_explanation, 1);
+  }
 
   const causes = (vm.rankedCauses?.length ?? 0) > 0
     ? vm.rankedCauses!.map((c) => ({
@@ -159,7 +178,7 @@ export default function SymptomPageTemplate({
 
   const resolvedRelatedLinks = (vm.relatedLinks?.length ?? 0) > 0
     ? vm.relatedLinks!.map((l) => ({ url: l.url, label: l.label }))
-    : relatedLinks?.map((l) => ({
+    : relatedLinks?.map((l: any) => ({
         url: (l.slug?.startsWith("/") ? l.slug : `/${l.slug}`) ?? "#",
         label: l.title ?? l.label ?? l.name ?? "",
       })) ?? [];
@@ -281,9 +300,10 @@ export default function SymptomPageTemplate({
             {symptom.name}: Professional Diagnostic & Repair Guide
           </h1>
 
-          <div className="mt-6 text-gray-600 dark:text-slate-400 text-lg leading-relaxed">
-            {symptom.description}
-          </div>
+          <div 
+            className="mt-6 text-gray-600 dark:text-slate-400 text-lg leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: descriptionHtml || "" }}
+          />
         </section>
 
         <SystemOverviewBlock variant="symptom" />
@@ -304,14 +324,17 @@ export default function SymptomPageTemplate({
         </section>
 
         {/* 3. FAST ANSWER — 2–3 sentence explanation */}
-        <section className="mb-12" id="fast-answer">
-          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Fast Answer</h2>
-          <div className="p-6 bg-hvac-blue/5 dark:bg-hvac-blue/10 border-l-4 border-hvac-blue rounded-r-xl">
-            <p className="text-xl font-medium text-slate-800 dark:text-slate-200 m-0 leading-relaxed">
-              {fastAnswerText}
-            </p>
-          </div>
-        </section>
+        {fastAnswerText && fastAnswerText.length >= 80 && (
+          <section className="mb-12" id="fast-answer">
+            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Fast Answer</h2>
+            <div className="p-6 bg-hvac-blue/5 dark:bg-hvac-blue/10 border-l-4 border-hvac-blue rounded-r-xl">
+              <p 
+                className="text-xl font-medium text-slate-800 dark:text-slate-200 m-0 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: fastAnswerHtml || "" }}
+              />
+            </div>
+          </section>
+        )}
 
         {/* 4. CONDITIONAL DIAGRAM — AC Cycle | Heat Pump | RV */}
         <ConditionalDiagram symptomSlug={symptom.id} />
@@ -563,7 +586,7 @@ export default function SymptomPageTemplate({
                     )}
                   </div>
                 </div>
-                <ServiceCTA variant="primary" />
+                {qualityScore >= 80 && <ServiceCTA variant="primary" />}
               </>
             );
           })()}
@@ -709,7 +732,7 @@ export default function SymptomPageTemplate({
                   );
                 })}
               </div>
-              <ServiceCTA variant="secondary" />
+              {qualityScore >= 80 && <ServiceCTA variant="secondary" />}
             </section>
           );
         })()}
@@ -732,33 +755,37 @@ export default function SymptomPageTemplate({
           </ul>
         </section>
 
-        {/* 13. TOOLS REQUIRED — always 4 slots, affiliate-ready */}
-        <section className="mb-16 w-full">
-          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Tools You May Need</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-            {normalizeTools(
-              toolsRequired?.length > 0 ? toolsRequired : tools?.map((t: { name: string; description?: string; affiliateUrl?: string }) => ({ name: t.name, reason: t.description, description: t.description, affiliate_url: t.affiliateUrl ?? null, image_url: null })) ?? []
-            ).map((tool: any, idx: number) => {
-              const t = { ...tool, affiliateUrl: tool.affiliateUrl ?? tool.affiliate_url ?? null };
-              return (
-                <div key={idx} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col">
-                  <div className="aspect-square bg-slate-100 dark:bg-slate-800 rounded-lg mb-3 flex items-center justify-center text-slate-400 dark:text-slate-500 text-xs">
-                    Image
+        {/* 13. TOOLS REQUIRED — conditionally render if valid */}
+        {toolsRequired?.length >= 2 && (
+          <section className="mb-16 w-full">
+            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Tools You May Need</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
+              {normalizeTools(
+                toolsRequired?.length > 0 ? toolsRequired : tools?.map((t: { name: string; description?: string; affiliateUrl?: string }) => ({ name: t.name, reason: t.description, description: t.description, affiliate_url: t.affiliateUrl ?? null, image_url: null })) ?? []
+              ).map((tool: any, idx: number) => {
+                const t = { ...tool, affiliateUrl: tool.affiliateUrl ?? tool.affiliate_url ?? null };
+                return (
+                  <div key={idx} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col">
+                    <img
+                      src={getImageSrc(t) || PLACEHOLDER_IMAGE}
+                      alt={t.name}
+                      className="w-full h-32 object-contain mb-3"
+                    />
+                    <div className="font-bold text-slate-700 dark:text-slate-300">{t.name}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex-1">{t.reason ?? t.description}</div>
+                    {t.affiliateUrl ? (
+                      <a href={t.affiliateUrl} target="_blank" rel="noopener noreferrer" className="mt-3 text-xs font-bold text-hvac-blue hover:underline">
+                        View on Amazon →
+                      </a>
+                    ) : (
+                      <span className="mt-3 text-xs text-slate-400 dark:text-slate-500 italic">Affiliate link coming soon</span>
+                    )}
                   </div>
-                  <div className="font-bold text-slate-700 dark:text-slate-300">{t.name}</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex-1">{t.reason ?? t.description}</div>
-                  {t.affiliateUrl ? (
-                    <a href={t.affiliateUrl} target="_blank" rel="noopener noreferrer" className="mt-3 text-xs font-bold text-hvac-blue hover:underline">
-                      View on Amazon →
-                    </a>
-                  ) : (
-                    <span className="mt-3 text-xs text-slate-400 dark:text-slate-500 italic">Affiliate link coming soon</span>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* 13b. COMPONENTS FOR FIXES — always 4 slots, same UI everywhere */}
         <section className="mb-16 w-full">
@@ -773,9 +800,11 @@ export default function SymptomPageTemplate({
                       Pro Only
                     </span>
                   )}
-                  <div className="aspect-square bg-slate-100 dark:bg-slate-800 rounded-lg mb-3 flex items-center justify-center text-slate-400 dark:text-slate-500 text-xs">
-                    Image
-                  </div>
+                  <img
+                    src={getImageSrc(p) || PLACEHOLDER_IMAGE}
+                    alt={p.name || "HVAC illustration"}
+                    className="w-full h-32 object-contain mb-3"
+                  />
                   <div className="font-bold text-slate-700 dark:text-slate-300">{p.name}</div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex-1">{p.description ?? p.reason}</div>
                   {p.affiliateUrl ? (
@@ -1083,6 +1112,64 @@ export default function SymptomPageTemplate({
             })()}
           </div>
         </section>
+
+        {/* 14. SEO LINKS INJECTION */}
+        {seoLinks?.entity_connections && (Object.values(seoLinks.entity_connections).some((arr: any) => arr && arr.length > 0)) && (
+          <section className="mb-16 w-full">
+            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Explore Related Content</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50 dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800">
+              {seoLinks.entity_connections.related_symptoms?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2 text-sm uppercase tracking-wider">Symptoms</h3>
+                  <ul className="space-y-2">
+                    {seoLinks.entity_connections.related_symptoms.map((l: any) => (
+                      <li key={l.slug}>
+                        <Link href={`/diagnose/${l.slug}`} className="text-hvac-blue hover:text-blue-700 font-medium text-sm transition-colors">{l.anchor}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {seoLinks.entity_connections.related_causes?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2 text-sm uppercase tracking-wider">Causes</h3>
+                  <ul className="space-y-2">
+                    {seoLinks.entity_connections.related_causes.map((l: any) => (
+                      <li key={l.slug}>
+                        <Link href={`/causes/${l.slug}`} className="text-hvac-blue hover:text-blue-700 font-medium text-sm transition-colors">{l.anchor}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {seoLinks.entity_connections.related_repairs?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2 text-sm uppercase tracking-wider">Repairs</h3>
+                  <ul className="space-y-2">
+                    {seoLinks.entity_connections.related_repairs.map((l: any) => (
+                      <li key={l.slug}>
+                        <Link href={`/fix/${l.slug}`} className="text-hvac-blue hover:text-blue-700 font-medium text-sm transition-colors">{l.anchor}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {seoLinks.entity_connections.related_components?.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2 text-sm uppercase tracking-wider">Components</h3>
+                  <ul className="space-y-2">
+                    {seoLinks.entity_connections.related_components.map((l: any) => (
+                      <li key={l.slug}>
+                        <Link href={`/components/${l.slug}`} className="text-hvac-blue hover:text-blue-700 font-medium text-sm transition-colors">{l.anchor}</Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import "dotenv/config";
  *        CANARY_BATCH_SIZE=5 npx tsx scripts/canary-batch.ts
  *        USE_CANARY_5=true npx tsx scripts/canary-batch.ts   # Fixed 5 slugs (no page_targets)
  *        CANARY_SLUGS=ac-not-cooling,heat-pump-not-heating npx tsx scripts/canary-batch.ts
+ *        CANARY_PAGE_TYPE=condition npx tsx scripts/canary-batch.ts   # Generate condition pages (locked schema)
  *
  * Requires: page_targets (unless USE_CANARY_5 or CANARY_SLUGS is set).
  */
@@ -68,13 +69,18 @@ async function run() {
   const slugsEnv = process.env.CANARY_SLUGS?.trim();
   let targets: { slug: string; page_type: string }[];
 
+  const pageTypeOverride = process.env.CANARY_PAGE_TYPE?.trim() || "";
+  const defaultPageType = pageTypeOverride || "symptom";
+
   if (slugsEnv) {
-    targets = slugsEnv.split(",").map((s) => ({ slug: s.trim(), page_type: "symptom" })).filter((t) => t.slug);
+    targets = slugsEnv.split(",").map((s) => ({ slug: s.trim(), page_type: defaultPageType })).filter((t) => t.slug);
   } else if (targetSlug) {
     const fromTargets = await sql`SELECT slug, page_type FROM page_targets WHERE slug = ${targetSlug} LIMIT 1`;
-    targets = (fromTargets as any[]).length > 0 ? (fromTargets as any[]) : [{ slug: targetSlug, page_type: 'symptom' }];
+    const rows = fromTargets as { slug: string; page_type: string }[];
+    const pt = rows?.[0]?.page_type;
+    targets = [{ slug: targetSlug, page_type: pageTypeOverride || pt || "symptom" }];
   } else if (process.env.USE_CANARY_5 === "true") {
-    targets = CANARY_5_SLUGS.map((slug) => ({ slug, page_type: "symptom" }));
+    targets = CANARY_5_SLUGS.map((slug) => ({ slug, page_type: defaultPageType }));
   } else {
     targets = await sql`
       SELECT slug, page_type FROM page_targets ORDER BY RANDOM() LIMIT ${limit}

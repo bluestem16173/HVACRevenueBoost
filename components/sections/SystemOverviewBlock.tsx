@@ -4,8 +4,9 @@
  * Static block explaining how HVAC systems work. Reduces bounce, improves dwell time.
  * 3 variants: symptom (full), cause (modified), repair (light).
  * Do NOT generate this content via AI — handled by frontend.
+ * Uses <img> for SVGs — Next.js Image can fail with .svg.svg in dev.
  */
-import Image from "next/image";
+import { PLACEHOLDER_IMAGE } from "@/lib/image-fallbacks";
 
 export type SystemOverviewVariant = "symptom" | "cause" | "repair";
 
@@ -47,13 +48,10 @@ export default function SystemOverviewBlock({
 
       <div className="grid md:grid-cols-2 gap-6 items-center">
         <div className="w-full">
-          <Image
-            src="/images/hvac-system-main.svg"
+          <img
+            src="/images/hvac_system_main.svg.svg"
             alt="HVAC system diagram showing thermostat, furnace, evaporator coil, condenser, and ductwork"
-            width={800}
-            height={520}
-            className="rounded-lg border border-slate-200 dark:border-slate-700 w-full h-auto"
-            priority
+            className="rounded-lg border border-slate-200 dark:border-slate-700 w-full h-auto object-cover"
           />
         </div>
 

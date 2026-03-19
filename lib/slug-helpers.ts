@@ -36,10 +36,11 @@ export function buildSlug(baseSlug: string, pageType: SlugPageType | string): st
     case "repair":
     case "fix":
       return `repairs/${baseSlug}`;
-    case "system":
-    case "component":
     case "symptom_condition":
     case "condition":
+      return `conditions/${baseSlug}`;
+    case "system":
+    case "component":
     case "location_hub":
     case "city":
     case "diagnostic":

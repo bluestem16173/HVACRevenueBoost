@@ -7,10 +7,20 @@ import { buildLinksForPage } from "@/lib/link-engine";
 import { normalizePageData } from "@/lib/content";
 import SymptomPageTemplate from "@/templates/symptom-page";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 
 // Enable ISR
 export const revalidate = 3600;
 export const dynamicParams = true; // allow pages not in generateStaticParams to render via SSR
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const fullSlug = `conditions/${params.slug}`;
+  const aiPage = await getDiagnosticPageFromDB(fullSlug);
+  if (aiPage?.quality_status === 'noindex') {
+    return { robots: { index: false, follow: true } };
+  }
+  return {};
+}
 
 export async function generateStaticParams() {
   return SYMPTOMS.map((s) => ({
@@ -22,15 +32,21 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
 
-  // Fetch AI-generated page from Neon (DB stores full slug: conditions/xxx)
   const fullSlug = `conditions/${params.slug}`;
   const aiPage = await getDiagnosticPageFromDB(fullSlug);
+  
+  if (aiPage?.quality_status === "needs_regen") {
+    notFound();
+  }
+
   let rawContent: Record<string, unknown> | null = null;
   const pageContent = aiPage?.content_json ?? (aiPage as any)?.content;
   if (pageContent) {
     const raw = pageContent;
     rawContent = typeof raw === "string" ? (() => { try { return JSON.parse(raw) as Record<string, unknown>; } catch { return null; } })() : (raw as Record<string, unknown>);
   }
+  
+  const qualityScore = aiPage?.quality_score ?? 100;
 
   if (!symptomData) {
     symptomData = SYMPTOMS.find((s) => s.id === params.slug) as any;
@@ -114,6 +130,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   return (
     <SymptomPageTemplate
       symptom={symptom}
+      qualityScore={qualityScore}
       pageViewModel={{ ...pageViewModel, components: mergedComponents }}
       causeIds={causeIds}
       causeDetails={causeDetails}
@@ -121,6 +138,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
       relatedContent={relatedContent}
       internalLinks={internalLinks}
       relatedLinks={relatedLinks}
+      seoLinks={pageContent?.seo_links || pageContent?.seoLinks}
       tools={tools}
       getCauseDetails={getCauseDetails}
     />
