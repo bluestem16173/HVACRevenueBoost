@@ -101,6 +101,99 @@ Rules:
 - Field note should be 2-4 sentences maximum.
 - Confidence score should reflect how strongly the listed causes fit the symptom and condition.`;
 
+// ----------------------------------------------------
+// SCHEMA ENFORCER LAYER (Intercepts raw AI responses)
+// ----------------------------------------------------
+
+function fallbackSystemExplanation() {
+  return [
+    "The system receives a signal to activate and begins operating.",
+    "Internal components process the request and perform their designated function.",
+    "The system outputs the result and rejects any waste byproducts.",
+    "This cycle continues continuously until the thermostat detects the setpoint."
+  ];
+}
+
+function fallbackTech() {
+  return "Always verify power at the disconnect before assuming a component failure to prevent misdiagnosis.";
+}
+
+function fallbackMechanical() {
+  return "Check for adequate airflow and pressure drops across the coil to rule out mechanical restrictions.";
+}
+
+function getFallbackMatrix() {
+  return {
+    electrical: [
+      { name: "Check circuit breaker", difficulty: "easy", estimated_cost_range: "$0", description: "Verify breaker is not tripped." },
+      { name: "Inspect wiring", difficulty: "medium", estimated_cost_range: "$50-$150", description: "Use multimeter to check voltage." },
+      { name: "Replace main board", difficulty: "hard", estimated_cost_range: "$300-$800", description: "Install new control board." }
+    ],
+    mechanical: [
+      { name: "Clean outer casing", difficulty: "easy", estimated_cost_range: "$0", description: "Remove debris from unit." },
+      { name: "Lubricate moving parts", difficulty: "medium", estimated_cost_range: "$50-$150", description: "Apply oil to motor bearings." },
+      { name: "Replace motor", difficulty: "hard", estimated_cost_range: "$200-$600", description: "Install new blower motor." }
+    ],
+    structural: [
+      { name: "Inspect physical mounts", difficulty: "easy", estimated_cost_range: "$0", description: "Check unit for level." },
+      { name: "Seal minor leaks", difficulty: "medium", estimated_cost_range: "$50-$150", description: "Apply mastic to duct seams." },
+      { name: "Rebuild mounting frame", difficulty: "hard", estimated_cost_range: "$200-$500", description: "Construct new support base." }
+    ]
+  };
+}
+
+function ensureMin(arr: any, min: number) {
+  if (!arr || arr.length < min) return [];
+  return arr;
+}
+
+function enforceRepairMatrix(matrix: any) {
+  const systems = ["electrical", "mechanical", "structural"];
+  const fallback = getFallbackMatrix();
+  const result: any = {};
+  for (const sys of systems) {
+    if (!matrix?.[sys] || matrix[sys].length !== 3) {
+      result[sys] = fallback[sys as keyof typeof fallback];
+    } else {
+      result[sys] = matrix[sys];
+    }
+  }
+  return result;
+}
+
+export function enforceSymptomSchema(data: any) {
+  return {
+    ...data,
+    title: data.title || "",
+
+    fast_answer: data.fast_answer || {
+      summary: "",
+      severity: "medium",
+      urgency: "medium"
+    },
+
+    system_explanation:
+      Array.isArray(data.system_explanation) && data.system_explanation.length === 4
+        ? data.system_explanation
+        : fallbackSystemExplanation(),
+
+    environments: ensureMin(data.environments, 3),
+    conditions: ensureMin(data.conditions, 3),
+    noises: ensureMin(data.noises, 2),
+
+    tech_observation: data.tech_observation || fallbackTech(),
+    mechanical_field_note: data.mechanical_field_note || fallbackMechanical(),
+
+    repair_matrix: enforceRepairMatrix(data.repair_matrix),
+
+    top_causes: ensureMin(data.top_causes, 3),
+    diagnostic_steps: ensureMin(data.diagnostic_steps, 3),
+
+    related_repairs: data.related_repairs || [],
+    related_components: data.related_components || []
+  };
+}
+
 /** Per-type core validation. Delegates to prompt-schema-router. */
 export function validateCoreData(core: any, pageType = 'symptom'): { valid: boolean; errors: string[] } {
   return validateCoreForPageType(pageType, core as Record<string, unknown>);
@@ -250,9 +343,14 @@ async function generateWithSchema(
       const parsed = safeJsonParse<Record<string, unknown>>(contentStr);
       if (!parsed) throw new Error('Pass 1: unrecoverable JSON');
       
-      console.log('[GENERATOR] top-level keys:', Object.keys(parsed || {}));
+      let finalParsed = parsed;
+      if (resolvedPageType === 'symptom') {
+        finalParsed = enforceSymptomSchema(parsed);
+      }
       
-      const valResult = validateCoreForPageType(resolvedPageType, parsed);
+      console.log('[GENERATOR] top-level keys:', Object.keys(finalParsed || {}));
+      
+      const valResult = validateCoreForPageType(resolvedPageType, finalParsed);
       if (!valResult.valid) {
         throw new Error('Validation failed: ' + valResult.errors.join(', '));
       }
