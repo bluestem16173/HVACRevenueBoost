@@ -11,6 +11,8 @@ import { ChevronDown, CloudRain, Wind, ThermometerSnowflake, Power, AlertTriangl
 import Image from "next/image";
 import { injectLinks } from "../lib/seo/injectLinks";
 import { SeoLinks } from "../lib/seo/types";
+import { ELECTRICAL_NOTE, CHEMICAL_NOTE, MECHANICAL_NOTE, STRUCTURAL_NOTE, FIELD_NOTE, DIY_PRO_NOTE } from "@/lib/static-notes";
+import { RepairItem } from "@/lib/monetization/repairs";
 import dynamic from "next/dynamic";
 import DiyDifficultyMeter, { DiyLegalDisclaimer } from "@/components/DiyDifficultyMeter";
 
@@ -59,13 +61,10 @@ export default function SymptomPageTemplate({
   getCauseDetails?: (id: string) => any;
   qualityScore?: number;
   scalingData?: {
-    conditions: string[];
-    environments: string[];
-    noises: string[];
+    narrowDownSteps?: string[];
     systemExplanation: string[];
-    techObservation: string;
-    mechanicalFieldNote?: string;
-    repairMatrix: Record<string, any[]>;
+    repairs?: RepairItem[];
+    relatedLinks?: any;
   };
 }) {
   // Resolve causes from DB or static KG
@@ -324,7 +323,7 @@ export default function SymptomPageTemplate({
           <div className="bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 p-4 text-sm rounded-r-xl shadow-sm">
             <strong className="text-hvac-brown dark:text-amber-200 uppercase tracking-widest text-xs">Technician Insight:</strong>
             <p className="mt-2 text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
-              {scalingData?.techObservation || "In the field, this issue is commonly tied to airflow or refrigerant imbalance. Proper diagnosis is recommended before repair."}
+              {FIELD_NOTE}
             </p>
           </div>
         </section>
@@ -424,56 +423,15 @@ export default function SymptomPageTemplate({
 
         {/* 5. NARROW DOWN THE PROBLEM — strictly mapped from AI prompt slice */}
         <section className="mb-16" id="narrow-down">
-          <div className="bg-hvac-navy p-8 rounded-2xl shadow-lg">
+          <div className="bg-hvac-navy p-8 rounded-2xl shadow-lg text-white">
             <h2 className="text-2xl font-black text-white mb-2">Narrow Down the Problem</h2>
-            <p className="text-hvac-blue/90 mb-6 text-sm">Use these filters and the diagnostic flow below to narrow down which causes are most likely.</p>
-            <div className="grid md:grid-cols-3 gap-6">
-              
-              {/* Data Driven Filter Block */}
-              <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
-                <h3 className="text-xs font-bold text-hvac-gold uppercase tracking-widest mb-4">Reported Conditions</h3>
-                <div className="flex flex-wrap gap-2">
-                  {(scalingData?.conditions || []).map((cond: string, idx: number) => (
-                    <span key={idx} className="bg-slate-700/50 text-slate-200 text-xs px-3 py-1.5 rounded-md border border-slate-600">
-                      {cond}
-                    </span>
-                  ))}
-                  {(!scalingData?.conditions || scalingData.conditions.length === 0) && (
-                    <span className="text-slate-400 text-xs italic">Awaiting AI condition analysis...</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Environment Block */}
-              <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
-                <h3 className="text-xs font-bold text-hvac-gold uppercase tracking-widest mb-4">Environment</h3>
-                <div className="flex flex-wrap gap-2">
-                  {(scalingData?.environments || []).map((envItem: string, idx: number) => (
-                    <span key={idx} className="bg-slate-700/50 text-slate-200 text-xs px-3 py-1.5 rounded-md border border-slate-600">
-                      {envItem}
-                    </span>
-                  ))}
-                  {(!scalingData?.environments || scalingData.environments.length === 0) && (
-                    <span className="text-slate-400 text-xs italic">Awaiting AI env analysis...</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Noise(s) Block */}
-              <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
-                <h3 className="text-xs font-bold text-hvac-gold uppercase tracking-widest mb-4">Noise(s)</h3>
-                <div className="flex flex-wrap gap-2">
-                  {(scalingData?.noises || []).map((noiseItem: string, idx: number) => (
-                    <span key={idx} className="bg-slate-700/50 text-slate-200 text-xs px-3 py-1.5 rounded-md border border-slate-600">
-                      {noiseItem}
-                    </span>
-                  ))}
-                  {(!scalingData?.noises || scalingData.noises.length === 0) && (
-                    <span className="text-slate-400 text-xs italic">Awaiting AI noise analysis...</span>
-                  )}
-                </div>
-              </div>
-
+            <p className="text-hvac-blue/90 mb-6 text-sm">Use this interactive diagnostic flow to identify the most likely cause.</p>
+            <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
+              <ul className="list-disc pl-6 space-y-3 text-slate-200">
+                {(scalingData?.narrowDownSteps || []).map((step: string, i: number) => (
+                  <li key={i} className="text-base font-medium">{step}</li>
+                ))}
+              </ul>
             </div>
           </div>
         </section>
@@ -592,10 +550,10 @@ export default function SymptomPageTemplate({
               (p === "Mechanical" && /mechanical/i.test(c.system))
             );
             const fieldNotes: Record<string, string> = {
-              Electrical: "Power delivery failures—capacitor, contactor, breaker—prevent compressor and fan from starting. High voltage at disconnect and capacitor requires multimeter testing. Contactor pitting causes intermittent engagement. Field note: Electrical issues account for ~30% of no-cool calls; always verify L1/L2 at disconnect before condemning compressor.",
-              Structural: "Restricted airflow from dirty filters, blocked vents, or duct restrictions reduces evaporator heat transfer. Low airflow raises suction pressure and can cause coil freeze. Field note: Filter replacement is the #1 field fix; check MERV rating and replace monthly during cooling season. Duct leaks or undersized returns increase static pressure.",
-              Chemical: "Low refrigerant charge or leaks reduce cooling capacity. Subcooling and superheat readings diagnose charge and metering. EPA 608 certification required for recovery and recharge. Field note: Never add charge without leak search; overcharge damages compressor. Leak detection and repair must precede refrigerant addition.",
-              Mechanical: scalingData?.mechanicalFieldNote || "Compressor, evaporator/condenser coils, and thermostat failures cause reduced cooling. Compressor short-cycle or locked rotor indicates electrical or mechanical failure. Thermostat calibration drift causes overcooling or short cycles. Field note: Compressor replacement is major; verify refrigerant circuit integrity first.",
+              Electrical: ELECTRICAL_NOTE,
+              Structural: STRUCTURAL_NOTE,
+              Chemical: CHEMICAL_NOTE,
+              Mechanical: MECHANICAL_NOTE,
             };
             const rows = [
               ["Electrical", "Structural"],
@@ -607,12 +565,11 @@ export default function SymptomPageTemplate({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {rows.map((row, ri) =>
                       row.map((p) => {
-                        const card = cardByPillar(p);
-                        const note = p === "Mechanical" ? fieldNotes[p] : ((card as any)?.why ?? (card as any)?.summary ?? fieldNotes[p]);
+                        const note = fieldNotes[p];
                         const isDiy = p === "Structural";
                         const badge = isDiy ? "🟢 DIY Safe" : "🔴 Professional Required";
                         return (
-                          <div key={p} className="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-white dark:bg-slate-900 shadow-sm">
+                          <div key={p} className="rounded-xl border border-slate-200 dark:border-slate-700 p-5 bg-white dark:bg-slate-900 shadow-sm flex flex-col justify-between">
                             <div className="text-xs font-black uppercase tracking-widest text-hvac-blue mb-2">Field Note — {p}</div>
                             <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed mb-4">{note}</p>
                             <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{badge}</span>
@@ -632,7 +589,7 @@ export default function SymptomPageTemplate({
         <section className="mb-16">
           <div className="p-6 bg-slate-50 dark:bg-slate-800/50 border-l-4 border-hvac-blue rounded-r-xl">
             <p className="text-sm font-medium text-slate-800 dark:text-slate-200 m-0">
-              {vm.disclaimer ?? "HVAC systems are complex and expensive. While some minor issues can be addressed safely, many repairs involve electrical or refrigerant components that require professional tools and certification."}
+              {DIY_PRO_NOTE}
             </p>
           </div>
         </section>
@@ -715,55 +672,44 @@ export default function SymptomPageTemplate({
         </section>
 
         {/* Monetization Scaled Repair Difficulty Matrix */}
-        {(scalingData?.repairMatrix && Object.keys(scalingData.repairMatrix).length > 0) && (
-          <section className="mb-16">
-            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-6">Repair Difficulty Matrix</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {(scalingData?.repairs && scalingData.repairs.length > 0) && (
+          <section className="mb-16" id="repair-monetization">
+            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-6">Repair Cost & Difficulty</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-              {Object.entries(scalingData.repairMatrix).map(([system, items]) => (
-                <div key={system} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm">
-                  
-                  <h3 className="font-semibold text-lg uppercase tracking-wide text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
-                    {system}
+              {scalingData.repairs.map((r, i) => (
+                <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                  <h3 className="font-semibold text-lg text-slate-800 dark:text-slate-200 mb-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+                    {r.repair}
                   </h3>
+                  <div className="flex flex-col gap-3 mt-2 text-sm text-slate-700 dark:text-slate-300">
+                    <p><span className="font-medium text-slate-500">Cause:</span> {r.cause}</p>
+                    <p><span className="font-medium text-slate-500">Est. Cost:</span> <span className="font-black text-green-600 dark:text-green-400">${r.cost_low} – ${r.cost_high}</span></p>
+                    
+                    <div className="flex gap-2 mt-1">
+                      <span className={`font-medium uppercase tracking-wider px-2 py-1 rounded text-[10px] w-fit ${
+                        r.difficulty === 'easy' ? 'bg-green-100 text-green-700 dark:bg-green-900/30' :
+                        r.difficulty === 'moderate' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30' :
+                        'bg-red-100 text-red-700 dark:bg-red-900/30'
+                      }`}>
+                        {r.difficulty}
+                      </span>
+                      <span className={`font-medium uppercase tracking-wider px-2 py-1 rounded text-[10px] w-fit ${
+                        r.urgency === 'low' ? 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400' :
+                        r.urgency === 'medium' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                        'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                      }`}>
+                        Urgency: {r.urgency}
+                      </span>
+                    </div>
 
-                  <div className="flex flex-col gap-3">
-                    {items.map((item, i) => (
-                      <div 
-                        key={i}
-                        className="flex-1 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-xs flex flex-col justify-between"
-                      >
-                        <div className="font-bold text-sm text-slate-700 dark:text-slate-300 mb-1">{item.name}</div>
-                        
-                        <div className="flex flex-col gap-1 items-start mt-2">
-                          <div className="font-black text-green-600 dark:text-green-400 text-sm whitespace-nowrap">
-                            {item.estimated_cost_range}
-                          </div>
-                          <div className={`font-medium uppercase tracking-wider px-2 py-1 rounded text-[10px] w-fit ${
-                            item.difficulty?.toLowerCase() === 'easy' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
-                            item.difficulty?.toLowerCase() === 'medium' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
-                            'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                          }`}>
-                            {item.difficulty}
-                          </div>
-                        </div>
-
-                        {/* Affiliate stub */}
-                        <div className="mt-3 pt-2 border-t border-slate-200 dark:border-slate-700">
-                          <a 
-                            href={item.affiliate_link || "#get-quote"} 
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-hvac-blue dark:text-blue-400 font-semibold hover:underline flex items-center justify-between"
-                          >
-                            <span>View Parts</span>
-                            <span>→</span>
-                          </a>
-                        </div>
-                      </div>
-                    ))}
+                    <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+                      <a href="#get-quote" className="text-hvac-blue dark:text-blue-400 font-semibold hover:underline flex items-center justify-between">
+                        <span>Get a Quote</span>
+                        <span>→</span>
+                      </a>
+                    </div>
                   </div>
-
                 </div>
               ))}
 
@@ -1054,20 +1000,25 @@ export default function SymptomPageTemplate({
           </div>
         </section>
 
-        {/* 22. RELATED PROBLEMS */}
+        {/* 22. RELATED CAUSES & REPAIRS */}
         <section className="mb-16">
             <div>
-              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Related Problems</h2>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">1–2 environments and 1–2 conditions that share causes.</p>
+              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Related Conditions & Causes</h2>
               <div className="flex flex-wrap gap-3">
-                {resolvedRelatedLinks.slice(0, 2).map((link: any, idx: number) => (
-                  <Link key={idx} href={link.url} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 font-bold text-hvac-blue hover:border-hvac-blue hover:shadow transition-colors">
-                    {link.label} →
+                {(scalingData?.relatedLinks?.causes || []).map((slug: string, idx: number) => (
+                  <Link key={idx} href={`/diagnose/${slug}`} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 font-bold text-hvac-blue hover:border-hvac-blue hover:shadow transition-colors">
+                    {slug.replace(/-/g, ' ')} →
                   </Link>
                 ))}
-                {relatedContent?.relatedSymptoms?.slice(0, 2).map((s: { id: string; name: string }) => (
-                  <Link key={s.id} href={`/diagnose/${s.id}`} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 font-bold text-hvac-blue hover:border-hvac-blue hover:shadow transition-colors">
-                    {s.name} →
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Related Repairs & Components</h2>
+              <div className="flex flex-wrap gap-3">
+                {[...(scalingData?.relatedLinks?.repairs || []), ...(scalingData?.relatedLinks?.components || [])].map((slug: string, idx: number) => (
+                  <Link key={idx} href={`/repair/hvac/${slug}`} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:border-slate-400 transition-colors">
+                    {slug.replace(/-/g, ' ')} →
                   </Link>
                 ))}
               </div>
