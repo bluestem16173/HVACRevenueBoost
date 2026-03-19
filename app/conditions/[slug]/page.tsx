@@ -10,19 +10,50 @@ import {
 import { toSafeString } from "@/lib/content";
 import { getClusterForSymptom } from "@/lib/clusters";
 import { SYMPTOMS } from "@/data/knowledge-graph";
+import { getPageBySlug, getAllPagesByType } from "@/lib/db";
 
 export const revalidate = 3600;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  return CONDITIONS.map((c) => ({ slug: c.slug }));
+  const staticFromGraph = CONDITIONS.map((c) => ({ slug: c.slug }));
+  const dbPages = await getAllPagesByType("symptom");
+  const fromDb = dbPages
+    .filter((p) => p.slug?.startsWith("conditions/"))
+    .map((p) => ({ slug: p.slug.replace("conditions/", "") }));
+  const seen = new Set(staticFromGraph.map((s) => s.slug));
+  const extra = fromDb.filter((s) => !seen.has(s.slug));
+  return [...staticFromGraph, ...extra];
 }
 
 export default async function ConditionPage({ params }: { params: { slug: string } }) {
-  const condition = getCondition(params.slug);
+  const fullSlug = `conditions/${params.slug}`;
+  const page = await getPageBySlug(fullSlug);
 
-  if (!condition) {
-    notFound();
+  // AI-generated page in DB: render directly
+  if (page) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+        <nav className="max-w-4xl mx-auto px-4 py-4 text-sm text-gray-500">
+          <Link href="/" className="hover:text-hvac-blue">Home</Link>
+          <span className="mx-2">/</span>
+          <Link href="/diagnose" className="hover:text-hvac-blue">Diagnostics</Link>
+          <span className="mx-2">/</span>
+          <span className="text-gray-900 dark:text-white font-medium">{page.title}</span>
+        </nav>
+        <section className="max-w-4xl mx-auto px-4 py-12">
+          <h1 className="text-4xl md:text-5xl font-black text-hvac-navy dark:text-white leading-tight mb-6">
+            {page.title}
+          </h1>
+          <div dangerouslySetInnerHTML={{ __html: page.html }} />
+        </section>
+      </div>
+    );
   }
+
+  // Static knowledge-graph condition
+  const condition = getCondition(params.slug);
+  if (!condition) notFound();
 
   const causes = getCauseDetailsForCondition(condition);
   const symptom = SYMPTOMS.find((s) => s.id === condition.symptomId);
@@ -92,7 +123,7 @@ export default async function ConditionPage({ params }: { params: { slug: string
                 className="p-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl"
               >
                 <Link
-                  href={`/cause/${cause.id}`}
+                  href={`/causes/${cause.id}`}
                   className="block group"
                 >
                   <h3 className="font-bold text-hvac-navy dark:text-white mb-2 group-hover:text-hvac-blue transition-colors">

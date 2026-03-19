@@ -43,10 +43,9 @@ export default async function CitySymptomPage({
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
 
-  // Fetch the AI generated page from Neon
-  // The generator script saves slugs exactly like: repair/las-vegas/ac-blowing-warm-air
-  const dbSlug = `repair/${params.city}/${params.slug}`;
-  const aiPage = await getDiagnosticPageFromDB(dbSlug);
+  // Fetch the AI generated page from Neon (DB stores full slug: repairs/city/symptom)
+  const fullSlug = `repairs/${params.city}/${params.slug}`;
+  const aiPage = await getDiagnosticPageFromDB(fullSlug);
   const htmlContent = aiPage?.content_json?.html_content || null;
 
   if (!symptomData) {

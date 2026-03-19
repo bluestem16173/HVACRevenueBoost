@@ -8,10 +8,12 @@
  */
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import SystemOverviewBlock from "@/components/sections/SystemOverviewBlock";
 import { normalizeToString } from "@/lib/utils";
 import ServiceCTA from "@/components/ServiceCTA";
 import { toSafeString } from "@/lib/content";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
+import { normalizeItems } from "@/lib/text-format";
 
 const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
@@ -38,6 +40,7 @@ export default function RepairPageTemplate({
     whenToUse?: string[];
     timeRequired?: string;
     riskLevel?: string;
+    difficulty?: { level: string; reason?: string };
     costRepair?: { diy: string; professional: string };
     toolsRequired?: Array<{ name: string; reason?: string; description?: string }>;
     partsNeeded?: Array<{ name: string; description?: string }>;
@@ -64,11 +67,14 @@ export default function RepairPageTemplate({
   const costDisplay = vm.costRepair
     ? `${vm.costRepair.diy} DIY / ${vm.costRepair.professional} Pro`
     : (repair.repair_type === "low" ? "$150 - $350" : repair.repair_type === "high" ? "$800+" : "$350 - $800");
+  const difficultyLabel = vm.difficulty?.level
+    ? (vm.difficulty.reason ? `${vm.difficulty.level} — ${vm.difficulty.reason}` : vm.difficulty.level)
+    : repair.skill_level || vm.timeRequired || "Professional Recommended";
   const summaryPoints = [
     { label: "Repair Type", value: repair.name },
     { label: "Cost Estimate", value: costDisplay },
     { label: "Target Component", value: component?.name || "System Level" },
-    { label: "Skill Level", value: repair.skill_level || vm.timeRequired || "Professional Recommended" },
+    { label: "Difficulty", value: difficultyLabel },
   ];
 
   return (
@@ -89,6 +95,8 @@ export default function RepairPageTemplate({
           How to {normalizeToString(repair.name).toLowerCase()}
         </h1>
       </section>
+
+      <SystemOverviewBlock variant="repair" />
 
       <ThirtySecondSummary points={summaryPoints} />
 
@@ -220,7 +228,7 @@ export default function RepairPageTemplate({
               </Link>
             ))}
             {(vm.relatedCauses ?? []).map((c, i) => (
-              <Link key={`c-${i}`} href={`/cause/${c}`} className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm font-medium text-hvac-blue hover:bg-slate-200 dark:hover:bg-slate-700">
+              <Link key={`c-${i}`} href={`/causes/${c}`} className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg text-sm font-medium text-hvac-blue hover:bg-slate-200 dark:hover:bg-slate-700">
                 {c.replace(/-/g, " ")}
               </Link>
             ))}
@@ -264,10 +272,14 @@ export default function RepairPageTemplate({
             <div className="mt-8">
               <h4 className="text-hvac-navy dark:text-white font-black text-xs uppercase tracking-widest mb-4">Required Tools</h4>
               <ul className="space-y-3 list-none p-0">
-                {tools?.map((t, i) => (
+                {normalizeItems(displayTools).map((t: any, i: number) => (
                   <li key={t.slug ?? t.name ?? i} className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg p-3">
-                    <Link href={`/tools/${t.slug ?? ""}`} className="font-bold text-hvac-blue hover:underline block">{t.name ?? "Tool"}</Link>
-                    <span className="text-xs text-gray-500 dark:text-slate-400 mt-1 block">{t.description}</span>
+                    {t.slug ? (
+                      <Link href={`/tools/${t.slug}`} className="font-bold text-hvac-blue hover:underline block">{t.name ?? "Tool"}</Link>
+                    ) : (
+                      <span className="font-bold text-slate-700 dark:text-slate-300 block">{t.name ?? "Tool"}</span>
+                    )}
+                    <span className="text-xs text-gray-500 dark:text-slate-400 mt-1 block">{t.description ?? t.reason}</span>
                   </li>
                 ))}
               </ul>
@@ -277,7 +289,7 @@ export default function RepairPageTemplate({
               <p className="text-sm text-gray-600 dark:text-slate-400 m-0">
                 This manual is intended for systems suffering from <strong>{cause?.name || "a detected fault"}</strong>.
               </p>
-              <Link href={`/cause/${cause?.slug}`} className="text-xs font-bold text-hvac-blue uppercase hover:underline mt-4 inline-block">Review Root Cause Analysis →</Link>
+              <Link href={`/causes/${cause?.slug}`} className="text-xs font-bold text-hvac-blue uppercase hover:underline mt-4 inline-block">Review Root Cause Analysis →</Link>
             </div>
           </div>
           <div className="md:col-span-5">

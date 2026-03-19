@@ -1,42 +1,110 @@
-# Symptom Page Template — LOCKED
+# Page Templates — LOCKED
 
-**Status:** Canonical template. Do not change section order or structure without explicit approval.
-
-**Reference mockup:** `/mockup-diagnostic-page.html` (served from `public/`)
+**Status:** Canonical. Do not change section order without explicit approval.
 
 ---
 
-## Section Order (Do Not Reorder)
+## 1. Symptom Page Template (Money Pages)
 
-1. **Hero** — Badge, H1, intro paragraph
-2. **Tech Field Note** — Yellow box, conversational tone from HVAC tech, physics/mechanics/science, max 120 words, cite source
-3. **Fast Answer** — Blue callout
-4. **Most Common Fix** — Green border, cost/difficulty/DIY
-5. **Quick Diagnostic Checklist** — With DIY blurb: "RV/home owners assume risk. If uncomfortable, contact a professional."
-6. **Diagnostic Flowchart** — Mermaid diagram
-7. **Guided Diagnosis Filters** — Navy panel (optional)
-8. **Interactive Diagnostic Tree** — Modal trigger (opens popup)
-9. **Causes at a Glance** — Table with **Difficulty**, **DIY Friendly** (Yes | Not recommended), Guide
-10. **Common Causes & Fixes** — Each with DIY meter, **affiliate link** for parts (Buy part →)
-11. **Repair Difficulty Matrix** — Repair | Difficulty | Cost | DIY Friendly?
-12. **Typical Repair Costs** — Stepwise: green (DIY) → yellow (warning + link) → red (cost of delay + link)
-13. **What Happens If You Ignore** — Cost of delay, neglect/mismanagement
-14. **Common Mistakes** — With **time estimate** (minutes to hours)
-15. **Narrow Your Diagnosis** | **Related Problems** — 1–2 environments, 1–2 conditions each
-16. **Prevention Tips**
-17. **When to Call an HVAC Technician** — Red safety box
-18. **Get Local HVAC Repair Help** — Navy CTA
-19. **FAQ** — Min 4 questions
+**Route:** `/diagnose/[slug]`
+
+### Section Order (Final)
+
+| # | Section | Required | Notes |
+|---|---------|----------|-------|
+| 1 | **Hero** | ✅ | H1: "{Symptom Name}", 2–3 sentence intro |
+| 2 | **Primary HVAC Diagram** | ✅ | Always. `SystemOverviewBlock` — thermostat, indoor/outdoor unit, ductwork |
+| 3 | **2–3 Sentence Explanation** | ✅ | Summary / Fast Answer — what’s wrong, what to do next |
+| 4 | **Conditional Diagram** | ⚙️ | AC Cycle OR Heat Pump OR RV — based on symptom context |
+| 5 | **System Cards** | ✅ | 4 pillars: Electrical, Mechanical, Chemical (refrigerant), Structural (ducts) |
+| 6 | **Cause List** | ✅ | Top 4–6 causes with difficulty, DIY/pro |
+| 7 | **Repair Matrix** | ✅ | Repair | Difficulty | Cost | DIY? |
+| 8 | **CTA** | ✅ | Get Local HVAC Quotes / Connect With Pro |
+
+### Conditional Diagram Logic
+
+- **AC Cycle** — default for cooling symptoms (ac-blowing-warm-air, ice-on-outdoor-unit, etc.)
+- **Heat Pump** — when symptom slug contains `heat-pump`
+- **RV** — when symptom is in RV context (hub/rv-ac) or slug contains `rv`
 
 ---
 
-## Key Rules
+## 2. Cause Page Template
 
-- **Tech Field Note** must be conversational, technical (physics/mechanics), max 120 words, cite ASHRAE or local techs
-- **DIY blurb** under checklist: "RV/home owners assume risk. If uncomfortable, contact a professional."
-- **Diagnostic Tree** opens in modal, not inline
-- **Causes at a Glance** includes DIY Friendly column
-- **Repair cards** for parts include affiliate "Buy part →" link
-- **Repair costs** stepwise green→yellow→red with cost of delay and CTA links
-- **Common mistakes** include time estimate (e.g. "5–15 min", "Leave to pros")
-- **Narrow/Related** show 1–2 environments and 1–2 conditions
+**Route:** `/cause/[slug]`
+
+### Section Order
+
+1. Hero (Cause name + context)
+2. System Overview Block (variant: cause)
+3. Fast Answer / Technical Breakdown
+4. Symptoms This Cause Creates
+5. Repair Options
+6. CTA
+
+---
+
+## 3. Repair Page Template
+
+**Route:** `/fix/[slug]`
+
+### Section Order
+
+1. Hero (How to {Repair})
+2. System Overview Block (variant: repair)
+3. Thirty-Second Summary
+4. Fast Answer
+5. What This Fixes
+6. Steps / Tools / Parts
+7. Cost
+8. CTA
+
+---
+
+## Symptom AI Schema (LOCKED — Production)
+
+**Prompt:** `SYMPTOM_PROMPT_LOCKED`  
+**Schema:** `SYMPTOM_SCHEMA_LOCKED`  
+**Minimal token. No Mermaid, FAQs, or summaries. Max 2 issues per system.**
+
+```json
+{
+  "title": "",
+  "quick_answer": "",
+  "systems": [
+    {
+      "name": "Electrical | Mechanical | Chemical | Structural",
+      "issues": [
+        {
+          "cause": "",
+          "signs": "",
+          "check": "",
+          "fix": "",
+          "difficulty": "Easy | Moderate | Hard",
+          "pro_required": true
+        }
+      ]
+    }
+  ],
+  "top_causes": ["", "", ""],
+  "when_to_call_pro": ""
+}
+```
+
+**Field mapping:** signs (was symptoms), check (was diagnosis), fix (was repair), pro_required (was professional_required).
+
+## Image Logic (getImageForPage)
+
+```ts
+// lib/image-for-page.ts
+if (slug.includes("rv")) return "/images/hvac-rv-system.svg";
+if (slug.includes("mini-split")) return "/images/hvac-mini-split.svg";
+if (slug.includes("heat-pump")) return "/images/hvac-heat-pump.svg";
+if (slug.includes("airflow") || slug.includes("room-hot")) return "/images/hvac-airflow-duct.svg";
+if (slug.includes("cooling") || slug.includes("not-cold") || slug.includes("warm-air")) return "/images/hvac-ac-cycle.svg";
+return "/images/hvac-system-main.svg";
+```
+
+## Generation Flow
+
+Seed `generation_queue` with `(type, slug)` e.g. `('symptom', 'ac-not-cooling')`. Worker uses LOCKED prompt + schema.

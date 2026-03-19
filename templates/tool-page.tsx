@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
+import AmazonDisclosure from "@/components/AmazonDisclosure";
 
 export default function ToolPageTemplate({ tool, repairs }: any) {
   const summaryPoints = [
@@ -46,6 +47,7 @@ export default function ToolPageTemplate({ tool, repairs }: any) {
             Check Price on Amazon
           </a>
         </div>
+        <AmazonDisclosure />
       </section>
 
       <section className="mt-24 pt-24 border-t border-slate-200">

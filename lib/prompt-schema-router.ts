@@ -1,13 +1,296 @@
 /**
  * Prompt + Schema Router — Page-Type-Specific Generation
  * ------------------------------------------------------
- * Stage 1: Lightweight prompts and schemas (no master prompt).
- * Each page type gets its own prompt and JSON schema.
+ * Unified master prompt + per-type schemas.
+ * One prompt, dynamic by pageType. Schemas enforce output structure.
  */
 
 import type { PageType } from "@/lib/page-types";
 
-/** Symptom page — FINAL PILLAR DIAGNOSTIC SYSTEM (LOCKED UX) */
+/** Unified master prompt — all page types. Replace {{pageType}} when composing. */
+const MASTER_PROMPT = `You are a senior HVAC diagnostic engineer, repair technician, and UX content architect.
+
+🎯 GOAL
+Generate structured, high-signal HVAC content that fits a modular UI system.
+
+This is NOT a blog.
+This is a DECISION + ACTION page.
+
+Users want:
+→ what is wrong
+→ what it means
+→ what to do next
+
+---
+
+📐 GLOBAL RULES (CRITICAL)
+
+- OUTPUT VALID JSON ONLY
+
+---
+
+SYSTEM OVERVIEW BLOCK (STATIC — DO NOT GENERATE)
+
+- This section is handled by the frontend component <SystemOverviewBlock />
+- Do NOT include HVAC system explanation, diagrams, or general system descriptions in the JSON output
+- Begin content generation AFTER the system overview block
+- NO markdown
+- NO commentary
+- NO extra fields
+- KEEP RESPONSES CONCISE
+- USE SHORT, DIRECT SENTENCES
+- NO fluff
+- NO repetition
+
+---
+
+🔀 SYSTEM GROUPING RULES (CRITICAL)
+
+The 4 HVAC systems must be grouped into 2 decision categories:
+
+DIY-Friendly Systems: ducting_airflow (Structural), mechanical
+Professional Required Systems: electrical, refrigeration (Chemical)
+
+- Electrical and Refrigeration: position together as requiring professional diagnosis/repair
+- Structural and Mechanical: position together as often DIY-friendly (depending on complexity)
+- Each system must include 1–2 sentence explanation of why it causes the issue and clear repair direction (DIY vs professional leaning)
+
+---
+
+📋 DECISION GUIDANCE (REQUIRED FOR SYMPTOM + REPAIR PAGES)
+
+- Structural and Mechanical issues are often DIY-friendly for simple fixes (filters, airflow, minor cleaning)
+- Electrical and Refrigeration issues typically require professional service due to safety and system complexity
+- Always recommend professional help if user is unsure or system is complex
+
+---
+
+📣 CTA REQUIREMENT
+
+Every page must end with a strong action block:
+- Encourage local HVAC repair for electrical/refrigeration issues
+- Reinforce safety and complexity
+- Provide clear next step: "Get Local HVAC Quotes" or "Call Technician"
+
+---
+
+🧠 STYLE RULES
+
+- Write like a technician, not a blogger
+- Prioritize clarity over explanation
+- Use bullets instead of paragraphs when possible
+- Avoid generic phrases like "it depends"
+- Prefer actionable guidance
+
+---
+
+📊 CONTEXT
+
+Page Type: {{pageType}}
+
+---
+
+# 🟦 SYMPTOM PAGE
+
+If pageType = "symptom":
+
+GOAL: Diagnose the problem quickly and guide next steps.
+
+LOCKED STRUCTURE: Hero → Primary HVAC Diagram → 2–3 sentence summary → Conditional diagram (AC/Heat Pump/RV) → System Cards (4 pillars) → Cause List (top 4–6) → Repair Matrix → CTA.
+
+Required: pageType, title, slug, fastAnswer, summary30, diagnosticFlowMermaid, systemCards (4), disclaimer, pillarBreakdown, repairDifficultyMatrix, repairOptions, faq.
+
+ALTERNATIVE SCHEMA (accepted): systems array with name (Electrical|Mechanical|Chemical|Structural) and likely_issues (cause, symptoms, repair, difficulty, professional_required). top_causes, repair_summary. Will be normalized to pillar format.
+
+Pillars: Ducting/Airflow, Electrical, Refrigeration (Chemical), Mechanical. Each systemCard needs: system, summary, why (50–75 word Field Insight), risk_level, diy_range, warning, diagnose_slug, repair_slug.
+
+---
+
+# 🟥 REPAIR PAGE
+
+If pageType = "repair":
+
+GOAL: Help the user FIX the issue.
+
+Structure: fastAnswer, whatThisFixes, whenToUse, toolsRequired, partsRequired, stepsOverview (4–10), whenNotToDIY, commonMistakes, cost, pillarBreakdown, repairDifficultyMatrix, rootCausesByPillar, faq.
+
+Pillars (exact keys): ducting_airflow, electrical, refrigeration, mechanical. repairDifficultyMatrix: 3–6 repairs per pillar (name, difficulty, color, cost_range). rootCausesByPillar: 3–6 causes per pillar (name, cost, difficulty). pillarBreakdown: 2–5 issues per pillar (issue, explanation, warning, diy_pro).
+
+---
+
+# 🟨 CAUSE PAGE
+
+If pageType = "cause":
+
+GOAL: Explain ONE root cause clearly.
+
+Structure: slug, title, summary, explanation, affected_symptoms (max 4), repairs (objects: name, difficulty, cost; max 4).
+
+Rules: Repairs MUST be objects, not strings. Be concise. Technician-style.
+
+---
+
+# 🟩 CONTEXT PAGE
+
+If pageType = "context":
+
+GOAL: Explain why a symptom occurs in a SPECIFIC context.
+
+Structure: fastAnswer, whyThisHappensInThisContext, mostLikelyCauses (cause, likelihood, why), whatMakesThisDifferent, quickChecks, whenToWorry, relatedRepairs, faq.
+
+Rules: MUST differ from base symptom page. Adjust cause likelihood based on context.
+
+---
+
+# 🟪 CONDITION PAGE
+
+If pageType = "condition":
+
+GOAL: Provide overview and route users.
+
+Structure: fastAnswer, whatThisMeans, commonSymptoms, likelyCauses, diagnosticOverview, repairOptions, severity (level, reason), costRange (low, high), whenToAct, faq.
+
+Rules: Keep high-level. Focus on routing users.
+
+---
+
+📤 FINAL INSTRUCTION
+
+Return ONLY valid JSON matching the correct schema for the page type. The API enforces the schema — include all required fields.`;
+
+/** QA/Validation prompt — for test runs. Append to master for stricter output. Replace {{pageType}} when composing. */
+export const VALIDATION_PROMPT = `You are a senior HVAC engineer and QA validator for a production content system.
+
+🎯 GOAL
+Generate HIGH-QUALITY structured content AND validate correctness for the given page type.
+
+This is a TEST RUN.
+
+Your output must:
+- strictly match the schema
+- reflect correct page intent
+- be concise, clean, and UI-ready
+
+---
+
+📐 GLOBAL RULES
+
+- OUTPUT VALID JSON ONLY
+- NO markdown
+- NO commentary
+- NO extra fields
+- NO null values
+- KEEP OUTPUT TIGHT
+- NO fluff
+
+---
+
+🧠 VALIDATION RULES (CRITICAL)
+
+- The output MUST match the correct page type intent
+- DO NOT mix page types
+- DO NOT include irrelevant sections
+
+---
+
+📊 PAGE TYPE: {{pageType}}
+
+---
+
+# 🟥 REPAIR PAGE VALIDATION
+
+If pageType = "repair":
+
+- MUST include actionable step-by-step fix
+- MUST include tools + parts
+- MUST include difficulty + cost
+- MUST include safety warnings
+- MUST NOT include diagnostic flow or system cards
+
+---
+
+# 🟦 SYMPTOM PAGE VALIDATION
+
+If pageType = "symptom":
+
+- MUST include diagnostic logic
+- MUST include EXACTLY 4 systemCards
+- MUST include quickChecks
+- MUST NOT include repair instructions
+
+---
+
+# 🟩 CONTEXT PAGE VALIDATION
+
+If pageType = "context":
+
+- MUST differ from base symptom page
+- MUST adjust cause likelihood based on context
+- MUST be shorter and focused
+- MUST NOT repeat generic causes
+
+---
+
+# 📦 OUTPUT STRUCTURE
+
+Return JSON matching the schema for the given page type.
+
+---
+
+📌 FINAL CHECK BEFORE OUTPUT
+
+Ensure:
+
+- No duplicated sections
+- No mismatched fields
+- No verbose paragraphs
+- Clean, structured data
+
+---
+
+📤 OUTPUT
+
+Return ONLY valid JSON.`;
+
+/** Symptom page — FINAL PILLAR DIAGNOSTIC SYSTEM (LOCKED UX) — used when master section insufficient */
+/** LOCKED symptom prompt — minimal token, no fluff, frontend handles structure */
+const SYMPTOM_PROMPT_LOCKED = `You are an HVAC diagnostic expert.
+
+Task: Generate structured diagnostic data for the symptom provided in the user message.
+
+Rules:
+- Output JSON only (no markdown, no commentary)
+- Be concise and practical
+- No general HVAC explanations
+- Each field must be 1–2 short sentences maximum. No long explanations.
+- Do not use "\n" or escape characters. Use plain sentences or simple bullet phrases.
+- Always include all four systems: Electrical, Mechanical, Chemical, Structural
+- Max 2 issues per system
+- Top causes must be distinct and not repeated from the same system
+
+Schema:
+{
+  "title": "",
+  "quick_answer": "",
+  "systems": [
+    {
+      "name": "Electrical | Mechanical | Chemical | Structural",
+      "issues": [
+        {
+          "cause": "",
+          "signs": "",
+          "check": "",
+          "fix": "",
+          "difficulty": "Easy | Moderate | Hard",
+          "pro_required": true
+        }
+      ]
+    }
+  ],
+  "top_causes": ["", "", ""],
+  "when_to_call_pro": ""
+}`;
+
 const SYMPTOM_PROMPT = `You are a senior HVAC diagnostic engineer and UX architect.
 
 🎯 GOAL
@@ -53,11 +336,81 @@ REQUIRED PILLARS: Ducting/Airflow, Electrical, Refrigeration (Chemical), Mechani
 MONETIZATION: electrical → professional CTA. refrigeration → professional CTA. advanced mechanical → CTA.
 Backward compat: rankedCauses, causeConfirmationMermaid, groupedCauses also accepted.`;
 
-const CONDITION_PROMPT = `Return only data needed for a symptom+condition page. JSON only—no markdown.
-- Summary: 1 sentence.
-- Causes: 3 causes with name + indicator.
-- Repairs: 5+ repairs with name, difficulty, estimated_cost, fix_summary.
-- Diagnostic steps: 4 steps. Use concise technician-style wording.`;
+const CONTEXT_PROMPT = `You are a senior HVAC diagnostic specialist.
+
+GOAL:
+Explain why a symptom occurs in a SPECIFIC context.
+
+OUTPUT VALID JSON ONLY.
+
+SCHEMA:
+
+{
+  "fastAnswer": "string",
+  "whyThisHappensInThisContext": "string",
+  "mostLikelyCauses": [
+    {
+      "cause": "string",
+      "likelihood": "High | Medium | Low",
+      "why": "string"
+    }
+  ],
+  "whatMakesThisDifferent": ["string"],
+  "quickChecks": ["string"],
+  "whenToWorry": ["string"],
+  "relatedRepairs": ["string"],
+  "faq": [
+    {
+      "question": "string",
+      "answer": "string"
+    }
+  ]
+}
+
+RULES:
+- Focus on how context changes diagnosis
+- Do not repeat generic symptom content
+- Keep concise
+`;
+
+const CONDITION_PROMPT = `You are an HVAC system expert.
+
+GOAL:
+Provide a high-level overview of a condition and route users to diagnosis and repair.
+
+OUTPUT VALID JSON ONLY.
+
+SCHEMA:
+
+{
+  "fastAnswer": "string",
+  "whatThisMeans": "string",
+  "commonSymptoms": ["string"],
+  "likelyCauses": ["string"],
+  "diagnosticOverview": ["string"],
+  "repairOptions": ["string"],
+  "severity": {
+    "level": "low | moderate | high",
+    "reason": "string"
+  },
+  "costRange": {
+    "low": "string",
+    "high": "string"
+  },
+  "whenToAct": ["string"],
+  "faq": [
+    {
+      "question": "string",
+      "answer": "string"
+    }
+  ]
+}
+
+RULES:
+- Keep high-level
+- Do not go deep technical
+- Focus on routing users
+`;
 
 const CAUSE_PROMPT = `You are a senior HVAC diagnostic engineer.
 
@@ -92,13 +445,15 @@ Explain a root cause of an HVAC issue and provide structured repair options.
 const REPAIR_PROMPT = `You are a senior HVAC technician. Generate a REPAIR PAGE in STRICT JSON format.
 
 🎯 OBJECTIVE
-Structured repair page for symptom → cause → repair flow. Translator-compatible. Mermaid-safe.
+Structured repair page matching symptom page design. Use PILLARS: Electrical, Structural (Ducting), Chemical (Refrigeration), Mechanical.
 
 ⚠️ CRITICAL RULES
 - OUTPUT VALID JSON ONLY. No markdown. No commentary. Must parse with JSON.parse().
-- MERMAID: If included, return as plain string ONLY. No \`\`\`mermaid blocks, no HTML, no JSX.
-- ARRAYS: Always arrays. STRINGS: Always strings. No mixing types.
-- NO HTML. NO FLUFF. No long paragraphs.
+- PILLAR KEYS: ducting_airflow, electrical, refrigeration, mechanical (exact keys).
+- repairDifficultyMatrix: 3–6 items per pillar. Each: name, difficulty (easy|moderate|advanced), color (green|yellow|red), cost_range.
+- rootCausesByPillar: 3–6 root causes per pillar. Each: name, cost, difficulty. Bullet-style issues.
+- pillarBreakdown: 2–5 issues per pillar. Each: issue, explanation, warning, diy_pro.
+- COLOR: green=DIY, yellow=caution, red=professional.
 
 📋 REQUIRED STRUCTURE
 {
@@ -113,18 +468,19 @@ Structured repair page for symptom → cause → repair flow. Translator-compati
   "riskLevel": "low"|"medium"|"high",
   "toolsRequired": ["string"],
   "partsRequired": ["string"],
-  "repairFlowMermaid": "string",
   "stepsOverview": ["string"],
   "whenNotToDIY": ["string"],
   "commonMistakes": ["string"],
   "cost": {"diy": "string", "professional": "string"},
+  "pillarBreakdown": {"ducting_airflow": [{"issue":"string","explanation":"string","warning":"string","diy_pro":"string"}], "electrical": [...], "refrigeration": [...], "mechanical": [...]},
+  "repairDifficultyMatrix": {"ducting_airflow": [{"name":"string","difficulty":"easy|moderate|advanced","color":"green|yellow|red","cost_range":"string"}], ...},
+  "rootCausesByPillar": {"ducting_airflow": [{"name":"string","cost":"string","difficulty":"string"}], ...},
   "relatedSymptoms": ["string"],
   "relatedCauses": ["string"],
   "faq": [{"question": "string", "answer": "string"}]
 }
 
-repairFlowMermaid: OPTIONAL. If used: flowchart TD A --> B. Plain string only.
-Be concise. Technician-style.`;
+Be concise. Technician-style. Match symptom page pillar design.`;
 
 const COMPONENT_PROMPT = `Return only data needed for a component page. JSON only—no markdown.
 - Role: 1-2 sentences on what this component does.
@@ -368,43 +724,144 @@ const SYMPTOM_SCHEMA = {
   } as Record<string, unknown>,
 };
 
+/** LOCKED symptom schema — minimal token, no FAQs/summaries */
+const SYMPTOM_SCHEMA_LOCKED = {
+  name: "SYMPTOM_SCHEMA_LOCKED",
+  schema: {
+    type: "object" as const,
+    additionalProperties: true,
+    required: ["title", "quick_answer", "systems", "top_causes", "when_to_call_pro"],
+    properties: {
+      title: { type: "string" },
+      quick_answer: { type: "string" },
+      systems: {
+        type: "array",
+        minItems: 4,
+        maxItems: 4,
+        items: {
+          type: "object",
+          additionalProperties: true,
+          required: ["name", "issues"],
+          properties: {
+            name: { type: "string", enum: ["Electrical", "Mechanical", "Chemical", "Structural"] },
+            issues: {
+              type: "array",
+              maxItems: 2,
+              items: {
+                type: "object",
+                additionalProperties: true,
+                required: ["cause", "fix", "difficulty", "pro_required"],
+                properties: {
+                  cause: { type: "string" },
+                  signs: { type: "string" },
+                  check: { type: "string" },
+                  fix: { type: "string" },
+                  difficulty: { type: "string", enum: ["Easy", "Moderate", "Hard"] },
+                  pro_required: { type: "boolean" },
+                },
+              },
+            },
+          },
+        },
+      },
+      top_causes: {
+        type: "array",
+        minItems: 1,
+        items: { type: "string" },
+      },
+      when_to_call_pro: { type: "string" },
+    },
+  } as Record<string, unknown>,
+};
+
+const CONTEXT_SCHEMA = {
+  name: "CONTEXT_SCHEMA",
+  schema: {
+    type: "object" as const,
+    additionalProperties: false,
+    required: ["fastAnswer", "whyThisHappensInThisContext", "mostLikelyCauses", "whatMakesThisDifferent", "quickChecks", "whenToWorry", "relatedRepairs", "faq"],
+    properties: {
+      fastAnswer: { type: "string" },
+      whyThisHappensInThisContext: { type: "string" },
+      mostLikelyCauses: {
+        type: "array",
+        minItems: 2,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["cause", "likelihood", "why"],
+          properties: {
+            cause: { type: "string" },
+            likelihood: { type: "string", enum: ["High", "Medium", "Low"] },
+            why: { type: "string" },
+          },
+        },
+      },
+      whatMakesThisDifferent: { type: "array", items: { type: "string" }, minItems: 1 },
+      quickChecks: { type: "array", items: { type: "string" }, minItems: 1 },
+      whenToWorry: { type: "array", items: { type: "string" }, minItems: 1 },
+      relatedRepairs: { type: "array", items: { type: "string" } },
+      faq: {
+        type: "array",
+        minItems: 2,
+        items: {
+          type: "object",
+          additionalProperties: false,
+          required: ["question", "answer"],
+          properties: {
+            question: { type: "string" },
+            answer: { type: "string" },
+          },
+        },
+      },
+    },
+  } as Record<string, unknown>,
+};
+
 const CONDITION_SCHEMA = {
   name: "CONDITION_SCHEMA",
   schema: {
     type: "object" as const,
     additionalProperties: false,
-    required: ["summary", "causes", "repairs", "diagnostic_steps"],
+    required: ["fastAnswer", "whatThisMeans", "commonSymptoms", "likelyCauses", "diagnosticOverview", "repairOptions", "severity", "costRange", "whenToAct", "faq"],
     properties: {
-      summary: { type: "string" },
-      causes: {
+      fastAnswer: { type: "string" },
+      whatThisMeans: { type: "string" },
+      commonSymptoms: { type: "array", items: { type: "string" } },
+      likelyCauses: { type: "array", items: { type: "string" } },
+      diagnosticOverview: { type: "array", items: { type: "string" } },
+      repairOptions: { type: "array", items: { type: "string" } },
+      severity: {
+        type: "object",
+        additionalProperties: false,
+        required: ["level", "reason"],
+        properties: {
+          level: { type: "string", enum: ["low", "moderate", "high"] },
+          reason: { type: "string" },
+        },
+      },
+      costRange: {
+        type: "object",
+        additionalProperties: false,
+        required: ["low", "high"],
+        properties: {
+          low: { type: "string" },
+          high: { type: "string" },
+        },
+      },
+      whenToAct: { type: "array", items: { type: "string" } },
+      faq: {
         type: "array",
+        minItems: 2,
         items: {
           type: "object",
           additionalProperties: false,
-          required: ["name", "indicator"],
+          required: ["question", "answer"],
           properties: {
-            name: { type: "string" },
-            indicator: { type: "string" },
+            question: { type: "string" },
+            answer: { type: "string" },
           },
         },
-      },
-      repairs: {
-        type: "array",
-        items: {
-          type: "object",
-          additionalProperties: false,
-          required: ["name", "difficulty", "estimated_cost", "fix_summary"],
-          properties: {
-            name: { type: "string" },
-            difficulty: { type: "string" },
-            estimated_cost: { type: "string" },
-            fix_summary: { type: "string" },
-          },
-        },
-      },
-      diagnostic_steps: {
-        type: "array",
-        items: { type: "string" },
       },
     },
   } as Record<string, unknown>,
@@ -461,7 +918,7 @@ const REPAIR_SCHEMA = {
   schema: {
     type: "object" as const,
     additionalProperties: false,
-    required: ["pageType", "title", "slug", "fastAnswer", "whatThisFixes", "whenToUse", "difficulty", "timeRequired", "riskLevel", "toolsRequired", "stepsOverview", "whenNotToDIY", "commonMistakes", "cost", "faq"],
+    required: ["pageType", "title", "slug", "fastAnswer", "whatThisFixes", "whenToUse", "difficulty", "timeRequired", "riskLevel", "toolsRequired", "stepsOverview", "whenNotToDIY", "commonMistakes", "cost", "pillarBreakdown", "repairDifficultyMatrix", "rootCausesByPillar", "faq"],
     properties: {
       pageType: { type: "string", enum: ["repair"] },
       title: { type: "string" },
@@ -489,6 +946,213 @@ const REPAIR_SCHEMA = {
       },
       relatedSymptoms: { type: "array", items: { type: "string" } },
       relatedCauses: { type: "array", items: { type: "string" } },
+      repairOptions: {
+        type: "array",
+        items: {
+          type: "object",
+          additionalProperties: false,
+          properties: { name: { type: "string" }, difficulty: { type: "string" }, cost: { type: "string" } },
+          required: ["name", "difficulty", "cost"],
+        },
+      },
+      pillarBreakdown: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          ducting_airflow: {
+            type: "array",
+            maxItems: 5,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["issue", "explanation", "warning", "diy_pro"],
+              properties: {
+                issue: { type: "string" },
+                explanation: { type: "string" },
+                warning: { type: "string" },
+                diy_pro: { type: "string" },
+              },
+            },
+          },
+          electrical: {
+            type: "array",
+            maxItems: 5,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["issue", "explanation", "warning", "diy_pro"],
+              properties: {
+                issue: { type: "string" },
+                explanation: { type: "string" },
+                warning: { type: "string" },
+                diy_pro: { type: "string" },
+              },
+            },
+          },
+          refrigeration: {
+            type: "array",
+            maxItems: 5,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["issue", "explanation", "warning", "diy_pro"],
+              properties: {
+                issue: { type: "string" },
+                explanation: { type: "string" },
+                warning: { type: "string" },
+                diy_pro: { type: "string" },
+              },
+            },
+          },
+          mechanical: {
+            type: "array",
+            maxItems: 5,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["issue", "explanation", "warning", "diy_pro"],
+              properties: {
+                issue: { type: "string" },
+                explanation: { type: "string" },
+                warning: { type: "string" },
+                diy_pro: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+      repairDifficultyMatrix: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          ducting_airflow: {
+            type: "array",
+            maxItems: 6,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["name", "difficulty", "color", "cost_range"],
+              properties: {
+                name: { type: "string" },
+                difficulty: { type: "string", enum: ["easy", "moderate", "advanced"] },
+                color: { type: "string", enum: ["green", "yellow", "red"] },
+                cost_range: { type: "string" },
+              },
+            },
+          },
+          electrical: {
+            type: "array",
+            maxItems: 6,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["name", "difficulty", "color", "cost_range"],
+              properties: {
+                name: { type: "string" },
+                difficulty: { type: "string", enum: ["easy", "moderate", "advanced"] },
+                color: { type: "string", enum: ["green", "yellow", "red"] },
+                cost_range: { type: "string" },
+              },
+            },
+          },
+          refrigeration: {
+            type: "array",
+            maxItems: 6,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["name", "difficulty", "color", "cost_range"],
+              properties: {
+                name: { type: "string" },
+                difficulty: { type: "string", enum: ["easy", "moderate", "advanced"] },
+                color: { type: "string", enum: ["green", "yellow", "red"] },
+                cost_range: { type: "string" },
+              },
+            },
+          },
+          mechanical: {
+            type: "array",
+            maxItems: 6,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["name", "difficulty", "color", "cost_range"],
+              properties: {
+                name: { type: "string" },
+                difficulty: { type: "string", enum: ["easy", "moderate", "advanced"] },
+                color: { type: "string", enum: ["green", "yellow", "red"] },
+                cost_range: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+      rootCausesByPillar: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          ducting_airflow: {
+            type: "array",
+            minItems: 0,
+            maxItems: 6,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["name", "cost", "difficulty"],
+              properties: {
+                name: { type: "string" },
+                cost: { type: "string" },
+                difficulty: { type: "string", enum: ["easy", "moderate", "advanced"] },
+              },
+            },
+          },
+          electrical: {
+            type: "array",
+            minItems: 0,
+            maxItems: 6,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["name", "cost", "difficulty"],
+              properties: {
+                name: { type: "string" },
+                cost: { type: "string" },
+                difficulty: { type: "string", enum: ["easy", "moderate", "advanced"] },
+              },
+            },
+          },
+          refrigeration: {
+            type: "array",
+            minItems: 0,
+            maxItems: 6,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["name", "cost", "difficulty"],
+              properties: {
+                name: { type: "string" },
+                cost: { type: "string" },
+                difficulty: { type: "string", enum: ["easy", "moderate", "advanced"] },
+              },
+            },
+          },
+          mechanical: {
+            type: "array",
+            minItems: 0,
+            maxItems: 6,
+            items: {
+              type: "object",
+              additionalProperties: false,
+              required: ["name", "cost", "difficulty"],
+              properties: {
+                name: { type: "string" },
+                cost: { type: "string" },
+                difficulty: { type: "string", enum: ["easy", "moderate", "advanced"] },
+              },
+            },
+          },
+        },
+      },
       faq: {
         type: "array",
         minItems: 4,
@@ -565,28 +1229,54 @@ export type PromptSchemaResult = {
   schema: SchemaDef;
 };
 
-/** Route prompt and schema by page type. Stage 1 only — no master prompt. */
-export function composePromptForPageType(pageType: string): PromptSchemaResult {
+/** Build master prompt with pageType injected. */
+function buildMasterPrompt(pageType: string): string {
+  return MASTER_PROMPT.replace(/\{\{pageType\}\}/g, pageType);
+}
+
+/** Build validation prompt with pageType injected. */
+function buildValidationPrompt(pageType: string): string {
+  return VALIDATION_PROMPT.replace(/\{\{pageType\}\}/g, pageType);
+}
+
+export type ComposePromptOptions = {
+  /** Use QA/validation prompt for stricter test-run output */
+  validationMode?: boolean;
+};
+
+/** Route prompt and schema by page type. Uses unified master prompt for symptom/repair/cause/context/condition. */
+export function composePromptForPageType(pageType: string, opts?: ComposePromptOptions): PromptSchemaResult {
   const normalized = (pageType || "symptom").toLowerCase().replace(/-/g, "_");
+  const validationMode = opts?.validationMode ?? false;
+  const master = buildMasterPrompt(normalized);
+  const validation = buildValidationPrompt(normalized);
+
+  // When validationMode: SWAP to VALIDATION_PROMPT only (test run)
+  const basePrompt = (p: string) => (validationMode ? validation : p);
+
   switch (normalized) {
+    case "repair":
+      return { prompt: basePrompt(master), schema: REPAIR_SCHEMA };
     case "symptom":
-      return { prompt: SYMPTOM_PROMPT, schema: SYMPTOM_SCHEMA };
+      return { prompt: basePrompt(SYMPTOM_PROMPT_LOCKED), schema: SYMPTOM_SCHEMA_LOCKED };
+    case "context":
+      return { prompt: basePrompt(master), schema: CONTEXT_SCHEMA };
+    case "cause":
+      return { prompt: basePrompt(master), schema: CAUSE_SCHEMA };
     case "symptom_condition":
     case "condition":
-      return { prompt: CONDITION_PROMPT, schema: CONDITION_SCHEMA };
-    case "cause":
-      return { prompt: CAUSE_PROMPT, schema: CAUSE_SCHEMA };
-    case "repair":
-      return { prompt: REPAIR_PROMPT, schema: REPAIR_SCHEMA };
+      return { prompt: basePrompt(master), schema: CONDITION_SCHEMA };
+    case "city":
+      return { prompt: basePrompt(buildMasterPrompt("repair")), schema: REPAIR_SCHEMA }; // city+repair → repair
     case "component":
-      return { prompt: COMPONENT_PROMPT, schema: COMPONENT_SCHEMA };
+      return { prompt: basePrompt(COMPONENT_PROMPT), schema: COMPONENT_SCHEMA };
     case "system":
-      return { prompt: SYSTEM_PROMPT, schema: SYSTEM_SCHEMA };
+      return { prompt: basePrompt(SYSTEM_PROMPT), schema: SYSTEM_SCHEMA };
     case "diagnostic":
     case "diagnose":
-      return { prompt: DIAGNOSTIC_PROMPT, schema: DIAGNOSTIC_SCHEMA };
+      return { prompt: basePrompt(DIAGNOSTIC_PROMPT), schema: DIAGNOSTIC_SCHEMA };
     default:
-      return { prompt: SYMPTOM_PROMPT, schema: SYMPTOM_SCHEMA };
+      return { prompt: basePrompt(master), schema: SYMPTOM_SCHEMA };
   }
 }
 
@@ -596,16 +1286,32 @@ export function validateCoreForPageType(pageType: string, core: Record<string, u
   const normalized = (pageType || "symptom").toLowerCase().replace(/-/g, "_");
 
   switch (normalized) {
-    case "symptom":
-    case "symptom_condition":
+    case "context": {
+      const mostLikely = core?.mostLikelyCauses as unknown[] | undefined;
+      if (!mostLikely?.length) errors.push("Missing mostLikelyCauses");
+      if (mostLikely && mostLikely.length < 2) errors.push("Need at least 2 mostLikelyCauses");
+      break;
+    }
     case "condition":
+    case "symptom_condition": {
+      const whatThisMeans = core?.whatThisMeans;
+      const likelyCauses = core?.likelyCauses as unknown[] | undefined;
+      if (!whatThisMeans) errors.push("Missing whatThisMeans");
+      if (!likelyCauses?.length) errors.push("Missing likelyCauses");
+      break;
+    }
+    case "symptom":
     case "diagnostic":
     case "diagnose": {
       const rankedCauses = core?.rankedCauses as unknown[] | undefined;
       const causes = core?.causes as unknown[] | undefined;
+      const systems = core?.systems as unknown[] | undefined;
+      const topCauses = core?.top_causes as unknown[] | undefined;
       const hasRanked = rankedCauses && rankedCauses.length >= 4;
       const hasCauses = causes && causes.length >= 2;
-      if (!hasRanked && !hasCauses) errors.push("Missing rankedCauses or causes");
+      const hasSystems = systems && systems.length >= 1;
+      const hasTopCauses = topCauses && topCauses.length >= 1;
+      if (!hasRanked && !hasCauses && !hasSystems && !hasTopCauses) errors.push("Missing rankedCauses, causes, systems, or top_causes");
       if (hasCauses && !hasRanked) {
         const repairs = core?.repairs as unknown[] | undefined;
         const repairCount = (repairs?.length ?? 0) + (causes ?? []).reduce((sum: number, c: unknown) => {

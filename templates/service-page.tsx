@@ -162,7 +162,7 @@ export default function ServicePageTemplate({
                 )}
                 {cause?.slug && (
                   <Link
-                    href={`/cause/${cause.slug}`}
+                    href={`/causes/${cause.slug}`}
                     className="inline-block mt-3 text-xs font-bold text-hvac-blue hover:underline uppercase tracking-wider"
                   >
                     Full Analysis →
@@ -325,7 +325,7 @@ export default function ServicePageTemplate({
             {symptom?.name} Diagnostic
           </Link>
           {causeDetails?.[0] && (
-            <Link href={`/cause/${causeDetails[0].slug || causeDetails[0].id}`} className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors">
+            <Link href={`/causes/${causeDetails[0].slug || causeDetails[0].id}`} className="px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:border-hvac-blue transition-colors">
               {causeDetails[0].name} Cause
             </Link>
           )}

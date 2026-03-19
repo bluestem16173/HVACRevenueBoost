@@ -1,6 +1,7 @@
+import { normalizeItems } from "@/lib/text-format";
+
 export default function Tools({ data }: { data: any }) {
-  const tools = Array.isArray(data) ? data : [];
-  if (tools.length === 0) return null;
+  const tools = normalizeItems(Array.isArray(data) ? data : []);
   return (
     <section className="mb-16">
       <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Tools Required</h2>

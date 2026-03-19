@@ -34,7 +34,9 @@ export default async function RepairPage({ params }: { params: { slug: string } 
     LIMIT 1
   `;
 
-  const aiPage = await getDiagnosticPageFromDB(params.slug) ?? await getDiagnosticPageFromDB(`fix/${params.slug}`);
+  // DB stores full slug: repairs/xxx
+  const fullSlug = `repairs/${params.slug}`;
+  const aiPage = await getDiagnosticPageFromDB(fullSlug);
   const rawContent = aiPage?.content_json;
   const contentJson = typeof rawContent === "string" ? (() => { try { return JSON.parse(rawContent) as Record<string, unknown>; } catch { return null; } })() : (rawContent as Record<string, unknown> | null);
 

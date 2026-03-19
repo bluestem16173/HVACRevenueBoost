@@ -7,6 +7,7 @@
 import Link from "next/link";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 import ServiceCTA from "@/components/ServiceCTA";
+import SystemOverviewBlock from "@/components/sections/SystemOverviewBlock";
 import { toSafeString } from "@/lib/content";
 
 export default function CausePageTemplate({
@@ -67,6 +68,8 @@ export default function CausePageTemplate({
           {cause.name} – Symptoms & Technical Breakdown
         </h1>
       </section>
+
+      <SystemOverviewBlock variant="cause" />
 
       {hasStructuredContent ? (
         <>
