@@ -11,6 +11,7 @@ import React from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { normalizeToString } from "@/lib/utils";
+import { normalizeItems } from "@/lib/text-format";
 
 const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
@@ -246,8 +247,8 @@ export function renderSection({
     }
 
     case "tools": {
-      const tools = Array.isArray(s) ? s : (s as { tools?: unknown[] }).tools ?? [];
-      if (!Array.isArray(tools) || tools.length === 0) return null;
+      const toolsRaw = Array.isArray(s) ? s : (s as { tools?: unknown[] }).tools ?? [];
+      const tools = normalizeItems(Array.isArray(toolsRaw) ? toolsRaw : []);
       return (
         <section className="mb-16">
           <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Tools Required</h2>
@@ -264,8 +265,8 @@ export function renderSection({
     }
 
     case "components": {
-      const comps = Array.isArray(s) ? s : (s as { components?: unknown[] }).components ?? [];
-      if (!Array.isArray(comps) || comps.length === 0) return null;
+      const compsRaw = Array.isArray(s) ? s : (s as { components?: unknown[] }).components ?? [];
+      const comps = normalizeItems(Array.isArray(compsRaw) ? compsRaw : []);
       return (
         <section className="mb-16">
           <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Components</h2>

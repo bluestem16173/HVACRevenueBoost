@@ -29,8 +29,8 @@ async function populate() {
             city
           )
           VALUES (
-            'city', 
-            'queued', 
+            'repair', 
+            'pending', 
             ${proposedSlug}, 
             ${proposedTitle}, 
             ${symptom.id}, 
@@ -64,8 +64,8 @@ async function populate() {
           proposed_title
         )
         VALUES (
-          'component', 
-          'queued', 
+            'component', 
+            'pending', 
           ${proposedSlug}, 
           ${proposedTitle}
         )

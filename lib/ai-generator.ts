@@ -1,9 +1,11 @@
 import OpenAI from 'openai';
 import * as dotenv from 'dotenv';
 import { canBuildFromGraph, buildPageFromGraph } from './deterministic-page-builder';
+import { slugify, link } from './link-helpers';
 import { getMasterSystemPrompt } from '@/prompts/master';
 import { normalizeToString, safeJsonParse } from '@/lib/utils';
-import { composePromptForPageType, validateCoreForPageType } from '@/lib/prompt-schema-router';
+import { formatTextSafe, formatTitle, formatBullets } from '@/lib/text-format';
+import { composePromptForPageType, validateCoreForPageType, type SchemaDef } from '@/lib/prompt-schema-router';
 dotenv.config({ path: '.env.local' });
 
 const openai = new OpenAI({
@@ -157,6 +159,8 @@ export type GenerateCoreDataOptions = {
   condition?: string;
   environment?: string;
   vehicle?: string;
+  /** Use QA/validation prompt for stricter test-run output */
+  validationMode?: boolean;
 };
 
 export async function generateCoreData(
@@ -206,11 +210,24 @@ Use slug: ${pageSlug} and title: ${resolvedTitle} in your JSON output.
 
 Authoring intent: This content is for a highly technical repair knowledge graph used for SEO and lead generation. It should read like a field technician's structured diagnostic output, not a consumer blog post.`;
 
-  const { prompt, schema: schemaDef } = composePromptForPageType(resolvedPageType);
-  console.log("🚀 Generating:", pageSlug, "| type:", resolvedPageType);
-  console.log("🧠 Using Schema:", schemaDef.name);
-  // Stage 1: lightweight prompt only — no master prompt (token stability)
-  const systemPrompt = prompt;
+  const validationMode = typeof pageSlugOrOptions === 'object' ? pageSlugOrOptions.validationMode : false;
+  const { prompt, schema } = composePromptForPageType(resolvedPageType, { validationMode });
+  return generateWithSchema(prompt, schema, userMsg, {
+    pageSlug,
+    resolvedPageType,
+    pass1,
+  });
+}
+
+async function generateWithSchema(
+  systemPrompt: string,
+  schemaDef: SchemaDef,
+  userMsg: string,
+  opts: { pageSlug: string; resolvedPageType: string; pass1: number }
+): Promise<Record<string, unknown>> {
+  const { pageSlug, resolvedPageType, pass1 } = opts;
+  console.log('🚀 Generating:', pageSlug, '| type:', resolvedPageType);
+  console.log('🧠 Using Schema:', schemaDef.name);
 
   const MAX_RETRIES = 2;
   let lastError: unknown;
@@ -246,10 +263,10 @@ Authoring intent: This content is for a highly technical repair knowledge graph 
     } catch (err) {
       lastError = err;
       if (retryCount < MAX_RETRIES) {
-        console.warn("⚠️ Retry due to invalid format:", pageSlug);
+        console.warn('⚠️ Retry due to invalid format:', pageSlug);
         await new Promise((r) => setTimeout(r, 1000 * (retryCount + 1)));
       } else {
-        console.error("❌ Failed after retries:", pageSlug);
+        console.error('❌ Failed after retries:', pageSlug);
         throw lastError;
       }
     }
@@ -399,8 +416,363 @@ export async function generatePageContent(
   return merged;
 }
 
+/** Escape HTML for safe output */
+function esc(s: string): string {
+  return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+/** Repair page renderer — Fix → Steps → Cost → Decision → CTA (no diagnostic overload) */
+function renderRepairPage(data: any): string {
+  const Hero = (d: any) => `
+    <div class="space-y-4 text-center mb-10">
+      <h1 class="text-3xl font-bold text-slate-900">${esc(d.title || '')}</h1>
+      <p class="text-slate-600 text-lg">${esc(d.fastAnswer || d.fast_answer || '')}</p>
+    </div>`;
+
+  const MostLikelyFix = (d: any) => {
+    const fix = d.mostLikelyFix || d.whatThisFixes || d.fastAnswer || d.fast_answer;
+    if (!fix) return '';
+    return `
+    <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-8">
+      <strong class="text-amber-900">Most Likely Fix:</strong> <span class="text-amber-900">${esc(fix)}</span>
+    </div>`;
+  };
+
+  const StepsSection = (d: any) => {
+    const steps = d.stepByStep || d.stepsOverview || [];
+    if (!Array.isArray(steps) || steps.length === 0) return '';
+    return `
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8">
+      <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">How to Fix This</h2>
+      <ol class="space-y-3 list-decimal list-inside">
+        ${steps.map((step: unknown, i: number) => {
+          const text = typeof step === 'string' ? step : (step as { step?: string; action?: string })?.step || (step as { step?: string; action?: string })?.action || '';
+          return `
+          <li class="flex gap-3">
+            <span class="font-bold text-blue-600">${i + 1}.</span>
+            <span class="text-slate-800">${esc(text)}</span>
+          </li>
+        `;
+        }).join('')}
+      </ol>
+    </div>`;
+  };
+
+  const CostDifficulty = (d: any) => {
+    const cost = d.cost || d.costEstimate;
+    const costPro = cost?.professional ?? cost?.diy ?? '—';
+    const diff = d.difficulty?.level ?? d.difficulty ?? '—';
+    const time = d.timeRequired || (d.timeEstimate?.professional ?? '');
+    return `
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8">
+      <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Difficulty & Cost</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="bg-slate-50 p-4 rounded-xl">
+          <strong class="text-slate-700">Difficulty:</strong> <span class="text-slate-900">${esc(String(diff))}</span>
+        </div>
+        <div class="bg-slate-50 p-4 rounded-xl">
+          <strong class="text-slate-700">Professional Cost:</strong> <span class="text-slate-900 font-semibold">${esc(String(costPro))}</span>
+        </div>
+        ${time ? `<div class="sm:col-span-2 bg-slate-50 p-4 rounded-xl"><strong class="text-slate-700">Time:</strong> ${esc(time)}</div>` : ''}
+      </div>
+    </div>`;
+  };
+
+  const ToolsParts = (d: any) => {
+    const tools = d.toolsRequired || d.tools || [];
+    const parts = d.partsRequired || d.parts || [];
+    if ((!Array.isArray(tools) || tools.length === 0) && (!Array.isArray(parts) || parts.length === 0)) return '';
+    return `
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8">
+      <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Tools & Parts Needed</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h3 class="font-semibold text-slate-800 mb-2">Tools</h3>
+          <ul class="list-disc pl-5 space-y-1 text-slate-700">${(tools || []).map((t: any) => `<li>${esc(typeof t === 'string' ? t : t?.name || '')}</li>`).join('')}</ul>
+        </div>
+        <div>
+          <h3 class="font-semibold text-slate-800 mb-2">Parts</h3>
+          <ul class="list-disc pl-5 space-y-1 text-slate-700">${(parts || []).map((p: any) => `<li>${esc(typeof p === 'string' ? p : p?.name || '')}</li>`).join('')}</ul>
+        </div>
+      </div>
+    </div>`;
+  };
+
+  const SafetySection = (d: any) => {
+    const warnings = d.safetyWarnings || d.whenNotToDIY || [];
+    if (!Array.isArray(warnings) || warnings.length === 0) return '';
+    return `
+    <div class="bg-red-50 border border-red-200 p-4 rounded-xl mb-8">
+      <h3 class="font-semibold text-red-900 mb-2">Safety Warnings</h3>
+      <ul class="list-disc pl-5 text-red-800 space-y-1">${warnings.map((s: string) => `<li>${esc(s)}</li>`).join('')}</ul>
+    </div>`;
+  };
+
+  const PILLAR_ORDER = ['ducting_airflow', 'electrical', 'refrigeration', 'mechanical'];
+  const PILLAR_LABELS: Record<string, string> = {
+    ducting_airflow: 'Structural (Ducting)',
+    electrical: 'Electrical',
+    refrigeration: 'Chemical (Refrigeration)',
+    mechanical: 'Mechanical',
+  };
+  const diffColor = (c: string) => {
+    const x = (c || '').toLowerCase();
+    if (x.includes('advanced') || x.includes('pro') || x.includes('red')) return 'bg-red-100 text-red-800 border-red-200';
+    if (x.includes('moderate') || x.includes('yellow')) return 'bg-amber-100 text-amber-800 border-amber-200';
+    return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+  };
+
+  const RepairOptionsByPillar = (d: any) => {
+    const matrix = d.repairDifficultyMatrix;
+    if (typeof matrix !== 'object' || matrix === null) {
+      const repairs = d.repairOptions || d.repairs || [];
+      const items = Array.isArray(repairs) ? repairs.slice(0, 5) : [];
+      if (items.length === 0) return '';
+      const names = items.map((r: any) => typeof r === 'string' ? r : r?.name ?? '').filter(Boolean);
+      return `
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8">
+      <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Top Repair Options</h2>
+      <ul class="list-disc pl-5 space-y-2 text-slate-700">${names.map((n) => `<li>${link(`fix/${slugify(n)}`, n)}</li>`).join('')}</ul>
+    </div>`;
+    }
+    let html = `
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8">
+      <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Repair Options by System</h2>
+      <p class="text-sm text-slate-600 mb-6">🟢 DIY Safe | 🟡 Moderate Skill | 🔴 Professional Required</p>
+      <div class="space-y-6">`;
+    for (const slug of PILLAR_ORDER) {
+      const items = matrix[slug] || [];
+      if (items.length === 0) continue;
+      html += `
+        <div class="rounded-xl border border-slate-200 overflow-hidden">
+          <h3 class="text-lg font-bold text-slate-900 bg-slate-50 px-4 py-3 border-b border-slate-200">${esc(PILLAR_LABELS[slug] ?? slug)}</h3>
+          <ul class="p-4 space-y-3">`;
+      for (const item of items.slice(0, 6)) {
+        const name = item.name || '';
+        const cost = item.cost_range || item.cost || '—';
+        const diff = item.difficulty || '—';
+        html += `
+            <li class="flex flex-wrap items-center gap-2">
+              <span class="font-medium text-slate-800">${link(`fix/${slugify(name)}`, name)}</span>
+              <span class="text-sm font-semibold text-slate-600">${esc(cost)}</span>
+              <span class="inline-block border px-2 py-0.5 rounded text-xs font-bold ${diffColor(diff)}">${esc(diff)}</span>
+            </li>`;
+      }
+      html += `</ul></div>`;
+    }
+    html += `</div></div>`;
+    return html;
+  };
+
+  const RootCausesByPillar = (d: any) => {
+    const causes = d.rootCausesByPillar;
+    if (typeof causes !== 'object' || causes === null) {
+      const flat = d.relatedCauses || d.relatedSymptoms || [];
+      if (!Array.isArray(flat) || flat.length === 0) return '';
+      return `
+    <div class="bg-slate-50 p-4 rounded-xl mb-8">
+      <h3 class="font-semibold text-slate-800 mb-2">Possible Causes</h3>
+      <ul class="list-disc pl-5 text-slate-700 space-y-1">${flat.map((c: string) => `<li>${esc(c)}</li>`).join('')}</ul>
+    </div>`;
+    }
+    let html = `
+    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-sm mb-8">
+      <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Technical Root Causes by System</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">`;
+    for (const slug of PILLAR_ORDER) {
+      const items = causes[slug] || [];
+      if (items.length === 0) continue;
+      html += `
+        <div class="rounded-xl border border-slate-200 p-4 bg-white">
+          <h3 class="font-bold text-slate-900 mb-3 uppercase tracking-wide">${esc(PILLAR_LABELS[slug] ?? slug)}</h3>
+          <ul class="space-y-2">`;
+      for (const item of items.slice(0, 6)) {
+        const name = typeof item === 'string' ? item : (item.name || '');
+        const cost = typeof item === 'object' && item ? (item.cost || '') : '';
+        const diff = typeof item === 'object' && item ? (item.difficulty || '') : '';
+        html += `
+            <li class="flex flex-col gap-0.5">
+              <span class="font-medium text-slate-800">• ${esc(name)}</span>
+              ${cost ? `<span class="text-sm text-slate-600">${esc(cost)}</span>` : ''}
+              ${diff ? `<span class="inline-block w-fit border px-1.5 py-0.5 rounded text-xs font-bold ${diffColor(diff)}">${esc(diff)}</span>` : ''}
+            </li>`;
+      }
+      html += `</ul></div>`;
+    }
+    html += `</div></div>`;
+    return html;
+  };
+
+  const PillarBreakdown = (d: any) => {
+    const pb = d.pillarBreakdown;
+    if (typeof pb !== 'object' || pb === null) return '';
+    let html = `
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-8">
+      <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Pillar Breakdown</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">`;
+    for (const slug of PILLAR_ORDER) {
+      const items = pb[slug] || [];
+      if (items.length === 0) continue;
+      html += `
+        <div class="rounded-xl border border-slate-200 p-4">
+          <h3 class="font-bold text-slate-900 mb-3 uppercase tracking-wide">${esc(PILLAR_LABELS[slug] ?? slug)}</h3>
+          <ul class="space-y-2">`;
+      for (const x of items.slice(0, 5)) {
+        const issue = x.issue || x.explanation || '';
+        const expl = x.explanation && x.issue ? x.explanation : '';
+        html += `
+            <li class="flex flex-col gap-0.5">
+              <span class="font-medium text-slate-800">• ${esc(issue)}</span>
+              ${expl ? `<span class="text-sm text-slate-600 ml-4">${esc(expl)}</span>` : ''}
+            </li>`;
+      }
+      html += `</ul></div>`;
+    }
+    html += `</div></div>`;
+    return html;
+  };
+
+  const cityFromSlug = (d: any) => {
+    const slug = d.slug || d.proposed_slug || '';
+    const m = slug.match(/repair\/([^/]+)\//);
+    return m ? m[1].charAt(0).toUpperCase() + m[1].slice(1) : (d.city || '');
+  };
+  const city = cityFromSlug(data);
+
+  const DiagramWithBlurb = () => `
+    <div class="mb-8">
+      <img src="/images/hvac-system-flow.svg" alt="HVAC system decision flow: DIY-friendly vs professional required" class="w-full max-w-2xl mx-auto rounded-xl shadow-sm" />
+      <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl text-sm text-slate-700 dark:text-slate-300 mt-4">
+        Structural and mechanical issues are often DIY-friendly for simple fixes like airflow restrictions or minor cleaning. Electrical and refrigerant-related problems typically require professional service due to safety risks and system complexity.
+      </div>
+    </div>`;
+
+  const CTASection = (compact = false) => {
+    const cityPhrase = city ? ` in ${city}` : '';
+    return compact
+      ? `
+    <div class="bg-slate-900 text-white p-4 rounded-xl text-center my-8">
+      <p class="font-semibold mb-2">Need a pro? <a href="/repair" class="text-amber-400 hover:text-amber-300 underline">Get local HVAC quotes</a></p>
+    </div>`
+      : `
+    <div class="bg-slate-900 text-white p-6 rounded-2xl text-center mt-10">
+      <h3 class="text-xl font-semibold mb-2">Need HVAC Repair${cityPhrase}?</h3>
+      <p class="mb-4 text-slate-300">Electrical and refrigerant issues are best handled by licensed technicians.</p>
+      <a href="/repair" class="inline-block bg-amber-400 text-slate-900 px-6 py-2 rounded-lg font-semibold hover:bg-amber-300 transition-colors">Get Local HVAC Quotes</a>
+    </div>`;
+  };
+
+  return `
+    <div class="max-w-4xl mx-auto px-4 py-10 space-y-0">
+      ${Hero(data)}
+      ${MostLikelyFix(data)}
+      ${DiagramWithBlurb()}
+      ${CTASection(true)}
+      ${StepsSection(data)}
+      ${CostDifficulty(data)}
+      ${ToolsParts(data)}
+      ${SafetySection(data)}
+      ${PillarBreakdown(data)}
+      ${RepairOptionsByPillar(data)}
+      ${RootCausesByPillar(data)}
+      ${CTASection(false)}
+    </div>
+  `;
+}
+
 export function renderToHtml(aiData: any): string {
   let html = '';
+
+  const pageType = (aiData.pageType || aiData.page_type || '').toLowerCase();
+  const isContext = pageType === 'context' || (aiData.whyThisHappensInThisContext && Array.isArray(aiData.mostLikelyCauses));
+  const isCondition = pageType === 'condition' || (aiData.whatThisMeans && Array.isArray(aiData.likelyCauses));
+  const isRepair = pageType === 'repair' || (aiData.stepsOverview && aiData.whatThisFixes);
+
+  if (isRepair) {
+    return renderRepairPage(aiData);
+  }
+
+  if (isContext) {
+    const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const renderList = (arr: unknown[]) =>
+      Array.isArray(arr) ? arr.map((s) => `<li>${esc(String(s))}</li>`).join('') : '';
+    const renderCauseCards = (causes: unknown[]) =>
+      Array.isArray(causes)
+        ? causes
+            .map(
+              (c: any) =>
+                `<div class="mb-4 p-4 bg-slate-50 rounded-lg"><strong>${esc(c?.cause ?? '')}</strong> (${esc(c?.likelihood ?? '')})<p class="mt-2 text-sm text-slate-600">${esc(c?.why ?? '')}</p></div>`
+            )
+            .join('')
+        : '';
+
+    const symptomSlug = aiData.parentSymptom || (aiData.slug || 'ac-blowing-warm-air').replace(/-while-.*$/, '').replace(/-when-.*$/, '').replace(/-in-.*$/, '') || 'ac-blowing-warm-air';
+    const causes = (aiData.mostLikelyCauses ?? []).slice(0, 3);
+    const repairs = (aiData.relatedRepairs ?? []).slice(0, 2);
+    const causeLinks = causes.map((c: any) => link(`cause/${slugify(c?.cause ?? '')}`, c?.cause ?? '')).join(', ');
+    const repairLinks = repairs.map((r: string) => link(`fix/${slugify(r)}`, r)).join(', ');
+
+    const continueBlock = causes.length > 0
+      ? `<div class="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl mt-6"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Continue Diagnosis</h3><ul class="list-disc pl-5 space-y-1 text-sm">${causes.map((c: any) => `<li>Check: ${link(`cause/${slugify(c?.cause ?? '')}`, c?.cause ?? '')}</li>`).join('')}</ul></div>`
+      : '';
+    const fixBlock = repairs.length > 0
+      ? `<div class="bg-blue-50 dark:bg-slate-800 p-4 rounded-xl mt-6"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Fix This Issue</h3><ul class="list-disc pl-5 space-y-1 text-sm">${repairs.map((r: string) => `<li>${link(`fix/${slugify(r)}`, r)}</li>`).join('')}</ul></div>`
+      : '';
+
+    return `
+    <h1>${esc(aiData.fastAnswer ?? '')}</h1>
+
+    <h2>Why This Happens</h2>
+    <p>${esc(aiData.whyThisHappensInThisContext ?? '')}</p>
+
+    <h2>Most Likely Causes</h2>
+    ${renderCauseCards(aiData.mostLikelyCauses ?? [])}
+
+    <h2>What Makes This Different</h2>
+    <ul>${renderList(aiData.whatMakesThisDifferent ?? [])}</ul>
+
+    <h2>Quick Checks</h2>
+    <ul>${renderList(aiData.quickChecks ?? [])}</ul>
+
+    <h2>When to Worry</h2>
+    <ul>${renderList(aiData.whenToWorry ?? [])}</ul>
+
+    <h2>Related</h2>
+    <p>Start with ${link(`diagnose/${slugify(symptomSlug)}`, 'full diagnosis')}</p>
+    ${causeLinks ? `<p>Common causes: ${causeLinks}</p>` : ''}
+    ${repairLinks ? `<p>Repairs: ${repairLinks}</p>` : ''}
+
+    ${continueBlock}
+    ${fixBlock}
+  `;
+  }
+
+  if (isCondition) {
+    const esc = (s: string) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const renderList = (arr: unknown[]) =>
+      Array.isArray(arr) ? arr.map((s) => `<li>${esc(String(s))}</li>`).join('') : '';
+    const severity = aiData.severity as { level?: string; reason?: string } | undefined;
+    const costRange = aiData.costRange as { low?: string; high?: string } | undefined;
+    const causes = ((aiData.likelyCauses as string[]) ?? []).slice(0, 3);
+    const repairs = ((aiData.repairOptions as string[]) ?? []).slice(0, 2);
+    const continueBlock = causes.length > 0 ? `<div class="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl mt-6"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Continue Diagnosis</h3><ul class="list-disc pl-5 space-y-1 text-sm">${causes.map((c) => `<li>Check: ${link(`cause/${slugify(c)}`, c)}</li>`).join('')}</ul></div>` : '';
+    const fixBlock = repairs.length > 0 ? `<div class="bg-blue-50 dark:bg-slate-800 p-4 rounded-xl mt-6"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Fix This Issue</h3><ul class="list-disc pl-5 space-y-1 text-sm">${repairs.map((r) => `<li>${link(`fix/${slugify(r)}`, r)}</li>`).join('')}</ul></div>` : '';
+    return `
+    <h1>${esc(aiData.fastAnswer ?? '')}</h1>
+    <h2>What This Means</h2>
+    <p>${esc(aiData.whatThisMeans ?? '')}</p>
+    ${(aiData.commonSymptoms as string[])?.length ? `<h2>Common Symptoms</h2><ul>${renderList(aiData.commonSymptoms)}</ul>` : ''}
+    ${(aiData.likelyCauses as string[])?.length ? `<h2>Likely Causes</h2><ul>${renderList(aiData.likelyCauses)}</ul>` : ''}
+    ${(aiData.diagnosticOverview as string[])?.length ? `<h2>Diagnostic Overview</h2><ul>${renderList(aiData.diagnosticOverview)}</ul>` : ''}
+    ${(aiData.repairOptions as string[])?.length ? `<h2>Repair Options</h2><ul>${renderList(aiData.repairOptions)}</ul>` : ''}
+    ${severity ? `<p><strong>Severity:</strong> ${esc(severity.level ?? '')} — ${esc(severity.reason ?? '')}</p>` : ''}
+    ${costRange ? `<p><strong>Cost range:</strong> ${esc(costRange.low ?? '')} – ${esc(costRange.high ?? '')}</p>` : ''}
+    ${(aiData.whenToAct as string[])?.length ? `<h2>When to Act</h2><ul>${renderList(aiData.whenToAct)}</ul>` : ''}
+    ${continueBlock}
+    ${fixBlock}
+    ${(aiData.faq as { question: string; answer: string }[])?.length ? `<h2>FAQ</h2>${(aiData.faq as { question: string; answer: string }[]).map((f) => `<div><strong>${esc(f.question)}</strong><p>${esc(f.answer)}</p></div>`).join('')}` : ''}
+  `;
+  }
 
   // Section 1 - Fast Answer
   const fastAnswer = aiData.fast_answer || aiData.quick_answer || aiData.problem_summary;
@@ -408,7 +780,7 @@ export function renderToHtml(aiData: any): string {
     html += `
       <div class="fast-answer mb-10">
         <h2 class="text-xl font-extrabold uppercase tracking-wide text-slate-900 border-b-2 border-slate-900 pb-2 mb-4">Fast Answer</h2>
-        <div class="text-[15px] text-slate-800 leading-relaxed font-medium whitespace-pre-wrap">${fastAnswer}</div>
+        <div class="text-[15px] text-slate-800 leading-relaxed font-medium">${formatTextSafe(String(fastAnswer))}</div>
       </div>
     `;
   }
@@ -718,6 +1090,31 @@ export function renderToHtml(aiData: any): string {
       html += `<li><span class="inline-block bg-slate-100 border border-slate-200 text-slate-700 text-[11px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-sm">${rel.name}</span></li>`;
     });
     html += `</ul></div>`;
+  }
+
+  // Link blocks — 1 parent, 2 causes, 1 repair (minimum viable)
+  const causes = (aiData.rankedCauses ?? aiData.causes ?? aiData.mostLikelyCauses ?? []).slice(0, 3);
+  const repairs = (aiData.repairOptions ?? aiData.repairs ?? aiData.relatedRepairs ?? []).slice(0, 2);
+  const causeNames = causes.map((c: any) => (typeof c === 'string' ? c : c?.name ?? c?.cause ?? '')).filter(Boolean);
+  const repairNames = repairs.map((r: any) => (typeof r === 'string' ? r : r?.name ?? '')).filter(Boolean);
+
+  if (causeNames.length > 0 || repairNames.length > 0) {
+    html += `<div class="link-blocks mt-8 space-y-4">`;
+    if (causeNames.length > 0) {
+      html += `<div class="bg-gray-50 dark:bg-slate-800 p-4 rounded-xl"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Continue Diagnosis</h3><ul class="list-disc pl-5 space-y-1 text-sm">`;
+      causeNames.slice(0, 3).forEach((name: string) => {
+        html += `<li>Check: ${link(`cause/${slugify(name)}`, name)}</li>`;
+      });
+      html += `</ul></div>`;
+    }
+    if (repairNames.length > 0) {
+      html += `<div class="bg-blue-50 dark:bg-slate-800 p-4 rounded-xl"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Fix This Issue</h3><ul class="list-disc pl-5 space-y-1 text-sm">`;
+      repairNames.slice(0, 2).forEach((name: string) => {
+        html += `<li>${link(`fix/${slugify(name)}`, name)}</li>`;
+      });
+      html += `</ul></div>`;
+    }
+    html += `</div>`;
   }
 
   return html;

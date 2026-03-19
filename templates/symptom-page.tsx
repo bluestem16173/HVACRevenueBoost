@@ -17,6 +17,10 @@ import ServiceCTA from "@/components/ServiceCTA";
 import { getConditionsForSymptom } from "@/lib/conditions";
 import { getClusterForSymptom } from "@/lib/clusters";
 import { SECTION_MAP } from "@/components/sections";
+import { normalizeItems, normalizeComponents, normalizeTools } from "@/lib/text-format";
+import SystemOverviewBlock from "@/components/sections/SystemOverviewBlock";
+import ConditionalDiagram from "@/components/ConditionalDiagram";
+import AmazonDisclosure from "@/components/AmazonDisclosure";
 import { resolveLayout } from "@/lib/layout-resolver";
 import { normalizeToString } from "@/lib/utils";
 import type { BasePageViewModel } from "@/lib/content";
@@ -218,6 +222,12 @@ export default function SymptomPageTemplate({
             <span className="text-green-600 dark:text-green-400">✔</span> Reviewed by Certified HVAC Technicians
           </div>
           {layout.map((sectionKey) => {
+            if (sectionKey === "system_overview") {
+              return <SystemOverviewBlock key="system_overview" variant="symptom" />;
+            }
+            if (sectionKey === "conditional_diagram") {
+              return <ConditionalDiagram key="conditional_diagram" symptomSlug={symptom.id} />;
+            }
             const Component = SECTION_MAP[sectionKey];
             const data = sectionsObj[sectionKey];
             if (!Component || data === undefined || data === null) return null;
@@ -276,6 +286,8 @@ export default function SymptomPageTemplate({
           </div>
         </section>
 
+        <SystemOverviewBlock variant="symptom" />
+
         {/* 2. TECHNICIAN STATEMENT — yellow box, 120–150 words conversational, above fast answer */}
         <section className="mb-12">
           <div className="p-6 sm:p-8 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-hvac-brown-warm rounded-r-xl shadow-sm">
@@ -291,7 +303,7 @@ export default function SymptomPageTemplate({
           </div>
         </section>
 
-        {/* 3. FAST ANSWER */}
+        {/* 3. FAST ANSWER — 2–3 sentence explanation */}
         <section className="mb-12" id="fast-answer">
           <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Fast Answer</h2>
           <div className="p-6 bg-hvac-blue/5 dark:bg-hvac-blue/10 border-l-4 border-hvac-blue rounded-r-xl">
@@ -301,7 +313,10 @@ export default function SymptomPageTemplate({
           </div>
         </section>
 
-        {/* 3. MOST COMMON FIX — green border, reassuring */}
+        {/* 4. CONDITIONAL DIAGRAM — AC Cycle | Heat Pump | RV */}
+        <ConditionalDiagram symptomSlug={symptom.id} />
+
+        {/* 5. MOST COMMON FIX — green border, reassuring */}
         {(mostCommonFixCard || firstCause) && (
           <section className="mb-12" id="common-fix">
             <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Most Common Fix</h2>
@@ -487,7 +502,7 @@ export default function SymptomPageTemplate({
                           likelihood={likelihood}
                           risk={riskVal}
                           description={(cause as any).why ?? (cause as any).explanation ?? ""}
-                          diagnoseHref={(cause as any).diagnose_slug ? `/cause/${(cause as any).diagnose_slug}` : "#"}
+                          diagnoseHref={(cause as any).diagnose_slug ? `/causes/${(cause as any).diagnose_slug}` : "#"}
                           repairHref={(cause as any).repair_slug ? `/fix/${(cause as any).repair_slug}?ref=diag_${symptom.id}` : "#"}
                           cost={(cause as any).estimated_cost ?? (cause as any).cost}
                         />
@@ -699,37 +714,32 @@ export default function SymptomPageTemplate({
           );
         })()}
 
-        {/* 11. PARTS LIKELY INVOLVED */}
-        {components?.length > 0 && (
-          <section className="mb-16">
-            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Parts Likely Involved</h2>
-            <ul className="space-y-3 list-none p-0">
-              {components.map((comp: any, idx: number) => (
-                <li key={idx}>
-                  <Link
-                    href={comp.link ?? "#"}
-                    className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 hover:border-hvac-blue transition-colors"
-                  >
-                    <span className="font-bold text-slate-700 dark:text-slate-300">{comp.name}</span>
-                    <span className="text-hvac-blue text-sm">View Component →</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        {/* 11. PARTS LIKELY INVOLVED — always 4 slots, DB rule-based + affiliate-ready */}
+        <section className="mb-16">
+          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Parts Likely Involved</h2>
+          <ul className="space-y-3 list-none p-0">
+            {normalizeComponents(components ?? []).map((comp: any, idx: number) => (
+              <li key={idx}>
+                <Link
+                  href={comp.link ?? "#"}
+                  className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded border border-slate-200 dark:border-slate-700 hover:border-hvac-blue transition-colors"
+                >
+                  <span className="font-bold text-slate-700 dark:text-slate-300">{comp.name}</span>
+                  <span className="text-hvac-blue text-sm">{comp.link ? "View Component →" : ""}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-        {/* 13. TOOLS REQUIRED — single row, full width, image placeholder for Amazon affiliate */}
+        {/* 13. TOOLS REQUIRED — always 4 slots, affiliate-ready */}
         <section className="mb-16 w-full">
-          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Tools Required for Diagnosis</h2>
+          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Tools You May Need</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-            {((toolsRequired?.length > 0 ? toolsRequired : tools?.map((t: { name: string; description?: string; affiliateUrl?: string }) => ({ name: t.name, reason: t.description, affiliateUrl: t.affiliateUrl ?? null })) ?? [
-              { name: "Multimeter", reason: "Check voltage at disconnect and capacitor", affiliateUrl: null },
-              { name: "Coil cleaner", reason: "Remove evaporator buildup", affiliateUrl: null },
-              { name: "Thermometer", reason: "Measure supply vs return air temp", affiliateUrl: null },
-              { name: "Inspection mirror", reason: "View hard-to-reach coil areas", affiliateUrl: null },
-            ]).slice(0, 4)).map((tool: any, idx: number) => {
-              const t = { ...tool, affiliateUrl: tool.affiliateUrl ?? null };
+            {normalizeTools(
+              toolsRequired?.length > 0 ? toolsRequired : tools?.map((t: { name: string; description?: string; affiliateUrl?: string }) => ({ name: t.name, reason: t.description, description: t.description, affiliate_url: t.affiliateUrl ?? null, image_url: null })) ?? []
+            ).map((tool: any, idx: number) => {
+              const t = { ...tool, affiliateUrl: tool.affiliateUrl ?? tool.affiliate_url ?? null };
               return (
                 <div key={idx} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col">
                   <div className="aspect-square bg-slate-100 dark:bg-slate-800 rounded-lg mb-3 flex items-center justify-center text-slate-400 dark:text-slate-500 text-xs">
@@ -750,19 +760,11 @@ export default function SymptomPageTemplate({
           </div>
         </section>
 
-        {/* 13b. COMPONENTS FOR FIXES — top 4 items, Amazon placeholder, pro-only label */}
+        {/* 13b. COMPONENTS FOR FIXES — always 4 slots, same UI everywhere */}
         <section className="mb-16 w-full">
           <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Components for Fixes</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-            {((vm.componentsForFixes?.length ?? 0) > 0
-              ? vm.componentsForFixes!.slice(0, 4)
-              : [
-                  { name: "Thermostat", description: "Programmable or smart thermostat replacement", proOnly: false, affiliateUrl: null },
-                  { name: "Air Filter", description: "MERV 8–11 for most residential systems", proOnly: false, affiliateUrl: null },
-                  { name: "Refrigerant", description: "EPA 608 required—licensed pros only", proOnly: true, affiliateUrl: null },
-                  { name: "Circuit Breaker", description: "HVAC disconnect or panel breaker", proOnly: false, affiliateUrl: null },
-                ]
-            ).map((item: any, idx: number) => {
+            {normalizeItems(vm.componentsForFixes ?? []).map((item: any, idx: number) => {
               const p = { ...item, proOnly: item.proOnly ?? false, affiliateUrl: item.affiliateUrl ?? null };
               return (
                 <div key={idx} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col relative">
@@ -787,6 +789,7 @@ export default function SymptomPageTemplate({
               );
             })}
           </div>
+          <AmazonDisclosure />
         </section>
 
         {/* 12. TYPICAL REPAIR COSTS — horizontal row */}

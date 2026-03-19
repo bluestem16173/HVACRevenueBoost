@@ -47,7 +47,7 @@ export default function DiagnosticFlowchart({ symptomName, causes }: DiagnosticF
           chartDef += `  click ${repairId} "/fix/${repair.slug}" "View Repair Manual"\n`;
         });
       }
-      chartDef += `  click ${causeId} "/cause/${cause.slug}" "View Cause Details"\n`;
+      chartDef += `  click ${causeId} "/causes/${cause.slug}" "View Cause Details"\n`;
     });
 
     chartDef += `  classDef topic fill:#0f172a,stroke:#0f172a,color:#ffffff,rx:10,ry:10,padding:20px;\n`;

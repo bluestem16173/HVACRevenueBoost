@@ -264,6 +264,8 @@ export interface BasePageViewModel {
   timeRequired?: string;
   /** Repair pages: risk level */
   riskLevel?: string;
+  /** Repair pages: difficulty (level + reason) */
+  difficulty?: { level: string; reason?: string };
   /** Repair pages: cost breakdown */
   costRepair?: { diy: string; professional: string };
   /** Repair pages: related symptom slugs */

@@ -18,6 +18,7 @@ import {
   normalizeToolOrPartItems,
   normalizeRepairSteps,
 } from "./safeHelpers";
+import { titleCase } from "../text-format";
 import type {
   BasePageViewModel,
   CauseSummaryRow,
@@ -142,6 +143,77 @@ function rankCauses(causes: RankedCauseCard[]): RankedCauseCard[] {
     .slice(0, 8);
 }
 
+/** Normalize rankedCauses from LOCKED format: systems[].issues or systems[].likely_issues */
+function normalizeRankedCausesFromSystems(raw: RawContent): RankedCauseCard[] | null {
+  const systems = raw?.systems;
+  if (!Array.isArray(systems) || systems.length === 0) return null;
+  const out: RankedCauseCard[] = [];
+  const pillarMap: Record<string, string> = {
+    Electrical: "Electrical",
+    Mechanical: "Mechanical",
+    Chemical: "Chemical",
+    Structural: "Structural",
+  };
+  for (const sys of systems) {
+    const o = (typeof sys === "object" && sys !== null ? sys : {}) as Record<string, unknown>;
+    const systemName = toSafeString(o.name) ?? "";
+    const pillar = pillarMap[systemName] ?? (systemName || "Mechanical");
+    const issues = Array.isArray(o.issues) ? o.issues : Array.isArray(o.likely_issues) ? o.likely_issues : [];
+    for (const issue of issues) {
+      const i = (typeof issue === "object" && issue !== null ? issue : {}) as Record<string, unknown>;
+      const cause = toSafeString(i.cause);
+      if (!cause) continue;
+      const proRequired = i.pro_required === true || i.professional_required === true;
+      const diff = toSafeString(i.difficulty)?.toLowerCase() ?? "moderate";
+      const diyFriendly = proRequired ? "pro" : (diff === "easy" ? "easy" : diff === "hard" ? "pro" : "moderate");
+      const why = toSafeString(i.check) ?? toSafeString(i.signs) ?? toSafeString(i.diagnosis) ?? toSafeString(i.symptoms) ?? "";
+      const fix = toSafeString(i.fix) ?? toSafeString(i.repair);
+      out.push({
+        name: cause,
+        likelihood: "medium",
+        risk: proRequired ? "high" : "medium",
+        why,
+        diagnose_slug: "",
+        repair_slug: "",
+        estimated_cost: "",
+        pillar,
+        faulty_item: cause,
+        diy_friendly: diyFriendly,
+        repairs: fix ? [{ name: fix, link: "", slug: "" }] : [],
+      });
+    }
+  }
+  return out.length > 0 ? rankCauses(out) : null;
+}
+
+/** Normalize rankedCauses from top_causes (LOCKED format) when systems empty. Supports string[] or {cause,confidence}[] */
+function normalizeRankedCausesFromTopCauses(raw: RawContent): RankedCauseCard[] | null {
+  const arr = raw?.top_causes;
+  if (!Array.isArray(arr) || arr.length === 0) return null;
+  const out: RankedCauseCard[] = [];
+  for (const item of arr) {
+    const cause = typeof item === "string" ? item.trim() : toSafeString((item as Record<string, unknown>)?.cause);
+    if (!cause) continue;
+    const conf = typeof item === "object" && item !== null
+      ? toSafeString((item as Record<string, unknown>).confidence)?.toLowerCase() ?? "medium"
+      : "medium";
+    out.push({
+      name: cause,
+      likelihood: conf === "high" ? "high" : conf === "low" ? "low" : "medium",
+      risk: "medium",
+      why: "",
+      diagnose_slug: "",
+      repair_slug: "",
+      estimated_cost: "",
+      pillar: "Mechanical",
+      faulty_item: cause,
+      diy_friendly: "moderate",
+      repairs: [],
+    });
+  }
+  return out.length > 0 ? rankCauses(out) : null;
+}
+
 /** Normalize rankedCauses from new card-grid format (raw.rankedCauses) */
 function normalizeRankedCausesFromRaw(raw: RawContent): RankedCauseCard[] | null {
   const arr = raw?.rankedCauses;
@@ -179,6 +251,10 @@ function buildRankedCauses(
   repairs: RepairOptionCard[],
   raw: RawContent
 ): RankedCauseCard[] {
+  const fromSystems = normalizeRankedCausesFromSystems(raw ?? {});
+  if (fromSystems && fromSystems.length > 0) return fromSystems;
+  const fromTopCauses = normalizeRankedCausesFromTopCauses(raw ?? {});
+  if (fromTopCauses && fromTopCauses.length > 0) return fromTopCauses;
   const fromRaw = normalizeRankedCausesFromRaw(raw ?? {});
   if (fromRaw && fromRaw.length > 0) return fromRaw;
 
@@ -483,9 +559,11 @@ function normalizeDiagnosticFlow(raw: RawContent): DiagnosticFlowPlaceholderData
   };
 }
 
-/** Normalize FAQ — uses defensive normalizeFaqItems */
+/** Normalize FAQ — uses defensive normalizeFaqItems. LOCKED format: seo_faq */
 function normalizeFaq(raw: RawContent): FAQItem[] {
-  return normalizeFaqItems(raw?.faq);
+  const fromFaq = normalizeFaqItems(raw?.faq);
+  if (fromFaq.length > 0) return fromFaq;
+  return normalizeFaqItems(raw?.seo_faq);
 }
 
 /** Normalize related links */
@@ -540,16 +618,20 @@ function normalizeGuidedFilters(raw: RawContent): { categories?: GuidedFilterCat
   return categories.length > 0 ? { categories } : undefined;
 }
 
-/** Normalize when_to_call_pro.warnings */
+/** Normalize when_to_call_pro — LOCKED format: string or { warnings: [] } */
 function normalizeWhenToCallProWarnings(raw: RawContent): WhenToCallWarning[] {
-  const wtcp = raw?.when_to_call_pro as { warnings?: unknown[] } | undefined;
-  if (!Array.isArray(wtcp?.warnings)) return [];
+  const wtcp = raw?.when_to_call_pro;
+  if (typeof wtcp === "string" && wtcp.trim()) {
+    return [{ type: "Professional", description: wtcp.trim() }];
+  }
+  const obj = wtcp as { warnings?: unknown[] } | undefined;
+  if (!Array.isArray(obj?.warnings)) return [];
   const defaults: WhenToCallWarning[] = [
     { type: "Electrical", description: "Contactors, capacitors, control boards require LOTO training." },
     { type: "Refrigerant", description: "EPA Section 608—illegal to vent or handle without license." },
     { type: "Gas", description: "Never modify furnace gas valves or heat exchangers." },
   ];
-  const mapped = wtcp.warnings.map((w: unknown) => {
+  const mapped = obj.warnings.map((w: unknown) => {
     const o = (typeof w === "object" && w !== null ? w : {}) as Record<string, unknown>;
     const type = toSafeString(o.type);
     const description = toSafeString(o.description);
@@ -659,7 +741,9 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
   const bodyText = strippedLegacyHtml || undefined;
 
   const fastAnswer =
+    toSafeString(raw?.quick_answer) ??
     toSafeString(raw?.fast_answer) ??
+    toSafeString(raw?.fastAnswer) ??
     toSafeString(raw?.summary) ??
     toSafeString(raw?.problem_summary) ??
     toSafeString(raw?.content) ??
@@ -675,6 +759,32 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
 
   const causesTable = normalizeCauses(raw, graphCauses);
   let repairOptions = normalizeRepairs(raw, graphCauses, graphRepairs);
+  if (repairOptions.length === 0 && Array.isArray(raw?.systems)) {
+    const seen = new Set<string>();
+    for (const sys of raw.systems as unknown[]) {
+      const so = sys as Record<string, unknown>;
+      const issues = Array.isArray(so?.issues) ? so.issues : Array.isArray(so?.likely_issues) ? so.likely_issues : [];
+      for (const i of issues as unknown[]) {
+        const io = i as Record<string, unknown>;
+        const repair = toSafeString(io?.fix ?? io?.repair);
+        const diff = toSafeString(io?.difficulty);
+        if (repair && !seen.has(repair)) {
+          seen.add(repair);
+          repairOptions.push({
+            name: repair,
+            difficulty: diff,
+            cost: "",
+            estimated_cost: "",
+            fix_summary: undefined,
+            explanation: undefined,
+            link: undefined,
+            slug: undefined,
+            id: undefined,
+          });
+        }
+      }
+    }
+  }
   if (repairOptions.length === 0 && Array.isArray(raw?.repairOptions) && raw.repairOptions.length > 0) {
     repairOptions = (raw.repairOptions as unknown[]).map((r: unknown) => {
       const o = (typeof r === "object" && r !== null ? r : {}) as Record<string, unknown>;
@@ -728,11 +838,11 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
   const partsNeeded = Array.isArray(partsNeededRaw) && partsNeededRaw.every((x) => typeof x === "string")
     ? (partsNeededRaw as string[]).map((s) => ({ name: s.trim(), description: undefined })).filter((x) => x.name)
     : normalizeToolOrPartItems(partsNeededRaw);
-  const repairStepsOverviewRaw = raw?.step_overview ?? raw?.repair_steps ?? raw?.repairStepsOverview ?? raw?.stepsOverview;
+  const repairStepsOverviewRaw = raw?.step_overview ?? raw?.repair_steps ?? raw?.repairStepsOverview ?? raw?.stepsOverview ?? raw?.stepByStep;
   const repairStepsOverview = Array.isArray(repairStepsOverviewRaw) && repairStepsOverviewRaw.every((x) => typeof x === "string")
     ? (repairStepsOverviewRaw as string[]).map((s, i) => ({ step: i + 1, action: s.trim(), description: s.trim() })).filter((x) => x.action)
     : normalizeRepairSteps(repairStepsOverviewRaw);
-  const whenNotToDiy = toStringArray(raw?.when_not_to_diy ?? raw?.whenNotToDiy ?? raw?.safety_warnings);
+  const whenNotToDiy = toStringArray(raw?.when_not_to_diy ?? raw?.whenNotToDiy ?? raw?.safety_warnings ?? raw?.whenToCallPro ?? raw?.safetyWarnings);
 
   const sections: Record<string, unknown> = {};
   if (raw?.sections && typeof raw.sections === "object" && Object.keys(raw.sections as object).length > 0) {
@@ -747,10 +857,11 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
   if (Array.isArray(raw?.components_for_fixes) && raw.components_for_fixes.length > 0) sections.components_for_fixes = raw.components_for_fixes;
   if (Array.isArray(raw?.fix_components) && raw.fix_components.length > 0) sections.fix_components = raw.fix_components;
 
+  const displayTitle = titleCase(title || toSafeString(raw?.title) || slug || "");
   return {
     pageType: (pageType as BasePageViewModel["pageType"]) ?? "symptom",
     slug,
-    title,
+    title: displayTitle || title,
     metaTitle: toSafeString(raw?.meta_title),
     metaDescription: toSafeString(raw?.meta_description) ?? fastAnswer ?? summary30,
     intro: summary30,
@@ -851,12 +962,29 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
     partsNeeded: partsNeeded.length > 0 ? partsNeeded : undefined,
     repairStepsOverview: repairStepsOverview.length > 0 ? repairStepsOverview : undefined,
     whenNotToDiy: whenNotToDiy.length > 0 ? whenNotToDiy : undefined,
-    whatThisFixes: toSafeString(raw?.whatThisFixes ?? raw?.what_this_fixes),
+    whatThisFixes: toSafeString(raw?.whatThisFixes ?? raw?.what_this_fixes ?? raw?.repairOverview),
     whenToUse: (() => { const a = toStringArray(raw?.whenToUse ?? raw?.when_to_use); return a.length > 0 ? a : undefined; })(),
-    timeRequired: toSafeString(raw?.timeRequired ?? raw?.time_required),
+    timeRequired: (() => {
+      const t = raw?.timeRequired ?? raw?.time_required;
+      if (typeof t === "string" && t) return t;
+      const te = raw?.timeEstimate as { diy?: string; professional?: string } | undefined;
+      if (te && typeof te === "object" && (te.diy || te.professional)) {
+        const parts = [te.diy && `DIY: ${te.diy}`, te.professional && `Pro: ${te.professional}`].filter(Boolean);
+        return parts.length > 0 ? parts.join(" | ") : undefined;
+      }
+      return undefined;
+    })(),
     riskLevel: toSafeString(raw?.riskLevel ?? raw?.risk_level),
+    difficulty: (() => {
+      const d = raw?.difficulty;
+      if (typeof d === "object" && d !== null) {
+        const o = d as { level?: string; reason?: string };
+        if (o.level) return { level: o.level, reason: toSafeString(o.reason) };
+      }
+      return undefined;
+    })(),
     costRepair: (() => {
-      const c = raw?.cost;
+      const c = raw?.cost ?? raw?.costEstimate;
       if (typeof c !== "object" || c === null) return undefined;
       const o = c as Record<string, unknown>;
       const diy = toSafeString(o.diy);

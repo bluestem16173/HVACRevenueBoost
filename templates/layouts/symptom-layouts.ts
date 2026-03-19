@@ -8,8 +8,10 @@
 export const SYMPTOM_LAYOUTS: Record<string, string[]> = {
   diagnostic_first: [
     "hero",
+    "system_overview",
     "technician_summary",
     "fast_answer",
+    "conditional_diagram",
     "most_common_fix",
     "diagnostic_flow",
     "guided_filters",
@@ -30,7 +32,9 @@ export const SYMPTOM_LAYOUTS: Record<string, string[]> = {
   ],
   repair_first: [
     "hero",
+    "system_overview",
     "fast_answer",
+    "conditional_diagram",
     "most_common_fix",
     "repairs",
     "repair_matrix",
@@ -51,7 +55,9 @@ export const SYMPTOM_LAYOUTS: Record<string, string[]> = {
   ],
   cost_first: [
     "hero",
+    "system_overview",
     "fast_answer",
+    "conditional_diagram",
     "costs",
     "most_common_fix",
     "repairs",
@@ -72,7 +78,9 @@ export const SYMPTOM_LAYOUTS: Record<string, string[]> = {
   ],
   scenario_first: [
     "hero",
+    "system_overview",
     "guided_filters",
+    "conditional_diagram",
     "fast_answer",
     "causes",
     "most_common_fix",
