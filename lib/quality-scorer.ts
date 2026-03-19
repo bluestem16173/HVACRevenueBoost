@@ -148,6 +148,12 @@ export function calculateQualityScore(data: any, html: string = "", pageType: st
     status = 'published'; // High tier
   }
 
+  // Immediately flag for regeneration if the generator pipeline detected fragile schema arrays
+  if (data._quality_flags && Array.isArray(data._quality_flags) && data._quality_flags.length > 0) {
+    status = 'needs_regen';
+    reasons.push(`Quality flags triggered regen: ${data._quality_flags.join(', ')}`);
+  }
+
   return {
     score: totalScore,
     status,

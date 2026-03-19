@@ -8,7 +8,7 @@ import { normalizePageData } from "@/lib/content";
 import SymptomPageTemplate from "@/templates/symptom-page";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-
+import { GENERIC_NARROW_DOWN, GENERIC_REPAIRS } from "@/lib/ai-generator";
 // Enable ISR
 export const revalidate = 3600;
 export const dynamicParams = true; // allow pages not in generateStaticParams to render via SSR
@@ -128,60 +128,39 @@ export default async function SymptomPage({ params }: { params: { slug: string }
     : pageViewModel.components ?? [];
 
   const raw = rawContent as any;
+
+  const FALLBACK_LINKS = {
+    causes: ["low-refrigerant", "dirty-filter", "bad-capacitor"],
+    repairs: ["replace-filter", "recharge-refrigerant", "replace-capacitor"],
+    components: ["compressor", "evaporator-coil"]
+  };
+
+  const repairs = raw?.repairs?.length >= 3 ? raw.repairs : GENERIC_REPAIRS;
+  const narrowDownSteps = raw?.narrow_down || GENERIC_NARROW_DOWN;
+
+  const quickHackLinks = raw?.related || {
+    causes: (raw?.causes || []).slice(0, 3).map((c: any) => c.slug || c.id || c.name || c),
+    repairs: (raw?.repairs || []).slice(0, 3).map((r: any) => r.slug || r.id || r.name || r),
+    components: (mergedComponents || []).slice(0, 2).map((c: any) => c.slug || c.link || c.name)
+  };
+
+  const finalRelatedLinks = {
+    causes: quickHackLinks.causes?.length >= 3 ? quickHackLinks.causes : FALLBACK_LINKS.causes,
+    repairs: quickHackLinks.repairs?.length >= 3 ? quickHackLinks.repairs : FALLBACK_LINKS.repairs,
+    components: quickHackLinks.components?.length >= 2 ? quickHackLinks.components : FALLBACK_LINKS.components,
+  };
+
   const scalingData = {
-    conditions: raw?.conditions?.length 
-      ? raw.conditions.slice(0, 5)
-      : [
-          "System runs but does not cool",
-          "Cooling is inconsistent",
-          "Airflow is weak from vents"
-        ],
-    environments: raw?.environments?.length
-      ? raw.environments.slice(0, 5)
-      : [
-          "High outdoor temperatures",
-          "After extended runtime",
-          "Peak afternoon heat"
-        ],
-    noises: raw?.noises?.length
-      ? raw.noises.slice(0, 4)
-      : [
-          "No unusual noise",
-          "Buzzing sound",
-          "Clicking noise"
-        ],
+    narrowDownSteps,
     systemExplanation: raw?.system_explanation?.length === 4 
       ? raw.system_explanation 
       : [
           "Thermostat signals the system to begin cooling.",
           "Indoor unit absorbs heat from air.",
           "Outdoor unit releases collected heat.",
-          "Refrigerant cycles continuously to maintain cooling."
         ],
-    techObservation: raw?.tech_observation || "In the field, this issue is commonly tied to airflow or refrigerant imbalance. Proper diagnosis is recommended before repair.",
-    mechanicalFieldNote: raw?.mechanical_field_note || "Compressor, evaporator/condenser coils, and thermostat failures cause reduced cooling. Compressor short-cycle or locked rotor indicates electrical or mechanical failure. Thermostat calibration drift causes overcooling or short cycles. Field note: Compressor replacement is major; verify refrigerant circuit integrity first.",
-    repairMatrix: raw?.repair_matrix || {
-      electrical: [
-        { name: "Replace thermostat batteries", difficulty: "easy", estimated_cost_range: "$10–$30" },
-        { name: "Replace capacitor", difficulty: "medium", estimated_cost_range: "$100–$300" },
-        { name: "Control board replacement", difficulty: "hard", estimated_cost_range: "$400–$900" }
-      ],
-      mechanical: [
-        { name: "Replace air filter", difficulty: "easy", estimated_cost_range: "$10–$40" },
-        { name: "Clean evaporator coil", difficulty: "medium", estimated_cost_range: "$150–$400" },
-        { name: "Blower motor replacement", difficulty: "hard", estimated_cost_range: "$400–$1,200" }
-      ],
-      structural: [
-        { name: "Clear drain line", difficulty: "easy", estimated_cost_range: "$50–$150" },
-        { name: "Seal duct leaks", difficulty: "medium", estimated_cost_range: "$200–$600" },
-        { name: "Duct replacement", difficulty: "hard", estimated_cost_range: "$1,000–$5,000" }
-      ],
-      chemical: [
-        { name: "Acid wash condenser", difficulty: "medium", estimated_cost_range: "$150–$350" },
-        { name: "Recharge refrigerant", difficulty: "hard", estimated_cost_range: "$200–$600" },
-        { name: "Fix refrigerant leak", difficulty: "hard", estimated_cost_range: "$500–$1,500" }
-      ]
-    }
+    repairs,
+    relatedLinks: finalRelatedLinks
   };
 
   return (

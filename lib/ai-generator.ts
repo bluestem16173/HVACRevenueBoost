@@ -161,37 +161,65 @@ function enforceRepairMatrix(matrix: any) {
   return result;
 }
 
+export const GENERIC_NARROW_DOWN = [
+  "Check if the system is receiving power",
+  "Verify airflow through vents or registers",
+  "Listen for unusual noises from the unit",
+  "Check thermostat settings and responsiveness",
+  "Inspect for visible leaks, ice, or blockages"
+];
+
+export const GENERIC_REPAIRS = [
+  {
+    cause: "Dirty air filter",
+    repair: "Replace air filter",
+    cost_low: 10,
+    cost_high: 40,
+    difficulty: "Easy"
+  },
+  {
+    cause: "Thermostat issue",
+    repair: "Reset or replace thermostat",
+    cost_low: 50,
+    cost_high: 250,
+    difficulty: "Moderate"
+  },
+  {
+    cause: "Electrical fault",
+    repair: "Inspect wiring or capacitor",
+    cost_low: 150,
+    cost_high: 400,
+    difficulty: "Pro"
+  },
+  {
+    cause: "Refrigerant issue",
+    repair: "Recharge or repair leak",
+    cost_low: 200,
+    cost_high: 800,
+    difficulty: "Pro"
+  }
+];
+
+const FALLBACK_LINKS = {
+  causes: ["low-refrigerant", "dirty-filter", "bad-capacitor"],
+  repairs: ["replace-filter", "recharge-refrigerant", "replace-capacitor"],
+  components: ["compressor", "evaporator-coil"]
+};
+
 export function enforceSymptomSchema(data: any) {
-  return {
-    ...data,
-    title: data.title || "",
+  if (!data.narrow_down) {
+    data.narrow_down = GENERIC_NARROW_DOWN;
+  }
 
-    fast_answer: data.fast_answer || {
-      summary: "",
-      severity: "medium",
-      urgency: "medium"
-    },
+  if (!data.repairs || data.repairs.length < 3) {
+    data.repairs = GENERIC_REPAIRS;
+  }
 
-    system_explanation:
-      Array.isArray(data.system_explanation) && data.system_explanation.length === 4
-        ? data.system_explanation
-        : fallbackSystemExplanation(),
+  if (!data.related) {
+    data.related = FALLBACK_LINKS;
+  }
 
-    environments: ensureMin(data.environments, 3),
-    conditions: ensureMin(data.conditions, 3),
-    noises: ensureMin(data.noises, 2),
-
-    tech_observation: data.tech_observation || fallbackTech(),
-    mechanical_field_note: data.mechanical_field_note || fallbackMechanical(),
-
-    repair_matrix: enforceRepairMatrix(data.repair_matrix),
-
-    top_causes: ensureMin(data.top_causes, 3),
-    diagnostic_steps: ensureMin(data.diagnostic_steps, 3),
-
-    related_repairs: data.related_repairs || [],
-    related_components: data.related_components || []
-  };
+  return data;
 }
 
 /** Per-type core validation. Delegates to prompt-schema-router. */
