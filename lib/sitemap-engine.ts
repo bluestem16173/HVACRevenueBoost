@@ -132,7 +132,7 @@ export async function getSymptomEntries(): Promise<SitemapEntry[]> {
   try {
     const pages = await sql`
       SELECT slug, created_at FROM pages
-      WHERE status = 'published' AND slug LIKE 'diagnose/%'
+      WHERE quality_status = 'published' AND quality_score >= 70 AND slug LIKE 'diagnose/%'
       LIMIT 50000
     `;
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
@@ -168,7 +168,7 @@ export async function getCauseEntries(): Promise<SitemapEntry[]> {
   try {
     const pages = await sql`
       SELECT slug, created_at FROM pages
-      WHERE status = 'published' AND slug LIKE 'cause/%'
+      WHERE quality_status = 'published' AND quality_score >= 70 AND slug LIKE 'cause/%'
       LIMIT 50000
     `;
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
@@ -195,7 +195,7 @@ export async function getRepairEntries(): Promise<SitemapEntry[]> {
   try {
     const pages = await sql`
       SELECT slug, created_at FROM pages
-      WHERE status = 'published' AND slug LIKE 'fix/%'
+      WHERE quality_status = 'published' AND quality_score >= 70 AND slug LIKE 'fix/%'
       LIMIT 50000
     `;
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
@@ -239,7 +239,7 @@ export async function getComponentEntries(): Promise<SitemapEntry[]> {
   try {
     const pages = await sql`
       SELECT slug, created_at FROM pages
-      WHERE status = 'published' AND slug LIKE 'components/%'
+      WHERE quality_status = 'published' AND quality_score >= 70 AND slug LIKE 'components/%'
       LIMIT 50000
     `;
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
@@ -259,7 +259,7 @@ export async function getLocalEntries(): Promise<SitemapEntry[]> {
   try {
     const pages = await sql`
       SELECT slug, created_at FROM pages
-      WHERE status = 'published' AND slug LIKE 'repair/%'
+      WHERE quality_status = 'published' AND quality_score >= 70 AND slug LIKE 'repair/%'
       LIMIT 100000
     `;
     if (!pages || (pages as any[]).length === 0) {

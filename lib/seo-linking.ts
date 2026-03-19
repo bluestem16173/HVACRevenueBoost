@@ -27,6 +27,28 @@ export function getRelatedContent(currentSymptom: any) {
   };
 }
 
+export function buildRelatedLinks(slug: string, type: string) {
+  return {
+    diagnose: [`${slug}-symptom`, `airflow-issues`, `ac-not-cooling`],
+    conditions: [`${slug}`, `low-refrigerant`, `dirty-coils`],
+    repairs: [`replace-filter`, `recharge-refrigerant`, `clean-coils`]
+  };
+}
+
+export async function getRelatedPages(type: string, currentSlug: string) {
+  try {
+    const data = await sql`
+      SELECT slug FROM pages
+      WHERE page_type = ${type}
+        AND slug != ${currentSlug}
+      LIMIT 5
+    `;
+    return data.map((p: any) => p.slug) || [];
+  } catch (error) {
+    return [];
+  }
+}
+
 /**
  * DECISIONGRID NEON LINKING
  * Fetches link graph data from the internal_links table.

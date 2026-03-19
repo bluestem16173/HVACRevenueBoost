@@ -11,6 +11,23 @@ import { toSafeString } from "@/lib/content";
 import { getClusterForSymptom } from "@/lib/clusters";
 import { SYMPTOMS } from "@/data/knowledge-graph";
 import { getPageBySlug, getAllPagesByType } from "@/lib/db";
+import MermaidInit from "@/components/MermaidInit";
+import ConditionPageTemplate from "@/templates/ConditionPageTemplate";
+
+/** Detect if content_json uses the locked condition schema (fastAnswer.headline, thirtySecondSummary, etc.) */
+function hasLockedConditionSchema(cj: Record<string, unknown> | null | undefined): boolean {
+  if (!cj) return false;
+  const fa = cj.fastAnswer;
+  const tss = cj.thirtySecondSummary;
+  return (
+    typeof fa === "object" &&
+    fa !== null &&
+    "headline" in fa &&
+    typeof tss === "object" &&
+    tss !== null &&
+    "whatItUsuallyMeans" in tss
+  );
+}
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -30,10 +47,31 @@ export default async function ConditionPage({ params }: { params: { slug: string
   const fullSlug = `conditions/${params.slug}`;
   const page = await getPageBySlug(fullSlug);
 
-  // AI-generated page in DB: render directly
+  // AI-generated page in DB: render via template (locked schema) or fallback HTML
   if (page) {
+    const cj = page.content_json as Record<string, unknown> | null | undefined;
+    const useTemplate = hasLockedConditionSchema(cj);
+
+    if (useTemplate && cj) {
+      console.log("PAGE DATA:", JSON.stringify(cj, null, 2));
+      return (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+          <nav className="max-w-5xl mx-auto px-4 py-4 text-sm text-gray-500">
+            <Link href="/" className="hover:text-hvac-blue">Home</Link>
+            <span className="mx-2">/</span>
+            <Link href="/diagnose" className="hover:text-hvac-blue">Diagnostics</Link>
+            <span className="mx-2">/</span>
+            <span className="text-gray-900 dark:text-white font-medium">{page.title}</span>
+          </nav>
+          <ConditionPageTemplate page={cj as any} />
+        </div>
+      );
+    }
+
+    const hasMermaid = page.html?.includes('class="mermaid"');
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+        {hasMermaid && <MermaidInit />}
         <nav className="max-w-4xl mx-auto px-4 py-4 text-sm text-gray-500">
           <Link href="/" className="hover:text-hvac-blue">Home</Link>
           <span className="mx-2">/</span>
@@ -41,7 +79,7 @@ export default async function ConditionPage({ params }: { params: { slug: string
           <span className="mx-2">/</span>
           <span className="text-gray-900 dark:text-white font-medium">{page.title}</span>
         </nav>
-        <section className="max-w-4xl mx-auto px-4 py-12">
+        <section className="max-w-4xl mx-auto px-4 py-12 prose prose-slate dark:prose-invert">
           <h1 className="text-4xl md:text-5xl font-black text-hvac-navy dark:text-white leading-tight mb-6">
             {page.title}
           </h1>

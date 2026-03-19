@@ -6,10 +6,20 @@ import { getInternalLinksForPage } from "@/lib/seo-linking";
 import { getContractorsByCity } from "@/lib/db";
 import ServicePageTemplate from "@/templates/service-page";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
 
 // Enable ISR
 export const revalidate = 3600;
 export const dynamicParams = true; // allow pages not in generateStaticParams to render via SSR
+
+export async function generateMetadata({ params }: { params: { city: string, slug: string } }): Promise<Metadata> {
+  const fullSlug = `repairs/${params.city}/${params.slug}`;
+  const aiPage = await getDiagnosticPageFromDB(fullSlug);
+  if (aiPage?.quality_status === 'noindex') {
+    return { robots: { index: false, follow: true } };
+  }
+  return {};
+}
 
 export async function generateStaticParams() {
   const combinations = [];
@@ -46,7 +56,13 @@ export default async function CitySymptomPage({
   // Fetch the AI generated page from Neon (DB stores full slug: repairs/city/symptom)
   const fullSlug = `repairs/${params.city}/${params.slug}`;
   const aiPage = await getDiagnosticPageFromDB(fullSlug);
+  
+  if (aiPage?.quality_status === "needs_regen") {
+    notFound();
+  }
+
   const htmlContent = aiPage?.content_json?.html_content || null;
+  const qualityScore = aiPage?.quality_score ?? 100;
 
   if (!symptomData) {
     symptomData = SYMPTOMS.find(s => s.id === params.slug) as any;
@@ -78,6 +94,7 @@ export default async function CitySymptomPage({
       localContractors={localContractors}
       htmlContent={htmlContent}
       symptomSlug={params.slug}
+      qualityScore={qualityScore}
     />
   );
 }

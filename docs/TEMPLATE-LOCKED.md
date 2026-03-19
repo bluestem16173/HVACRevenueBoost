@@ -97,12 +97,12 @@
 
 ```ts
 // lib/image-for-page.ts
-if (slug.includes("rv")) return "/images/hvac-rv-system.svg";
-if (slug.includes("mini-split")) return "/images/hvac-mini-split.svg";
-if (slug.includes("heat-pump")) return "/images/hvac-heat-pump.svg";
-if (slug.includes("airflow") || slug.includes("room-hot")) return "/images/hvac-airflow-duct.svg";
-if (slug.includes("cooling") || slug.includes("not-cold") || slug.includes("warm-air")) return "/images/hvac-ac-cycle.svg";
-return "/images/hvac-system-main.svg";
+if (slug.includes("rv")) return "/images/hvac_rv_system.svg.svg";
+if (slug.includes("mini-split")) return "/images/hvac_mini_split.svg.svg";
+if (slug.includes("heat-pump")) return "/images/hvac_heat_pump.svg.svg";
+if (slug.includes("airflow") || slug.includes("room-hot")) return "/images/hvac_airflow_duct.svg.svg";
+if (slug.includes("cooling") || slug.includes("not-cold") || slug.includes("warm-air")) return "/images/hvac_ac_cycle.svg.svg";
+return "/images/hvac_system_main.svg.svg";
 ```
 
 ## Generation Flow
