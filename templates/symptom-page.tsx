@@ -17,6 +17,11 @@ import dynamic from "next/dynamic";
 import DiyDifficultyMeter, { DiyLegalDisclaimer } from "@/components/DiyDifficultyMeter";
 
 const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
+const DecisionTree = dynamic(() => import("@/components/DecisionTree"), { ssr: false });
+const AdaptiveDiagnosticPanel = dynamic(() => import("@/components/AdaptiveDiagnosticPanel"), { ssr: false });
+const AdaptiveRepairMatrix = dynamic(() => import("@/components/AdaptiveRepairMatrix"), { ssr: false });
+
+
 import CauseCard from "@/components/CauseCard";
 import SystemCard from "@/components/SystemCard";
 import ServiceCTA from "@/components/ServiceCTA";
@@ -65,6 +70,17 @@ export default function SymptomPageTemplate({
     systemExplanation: string[];
     repairs?: RepairItem[];
     relatedLinks?: any;
+    decisionTree?: any;
+    subtitle?: string | null;
+    diagnosticFlow?: Array<{ step: number; title: string; actions: string[]; interpretation: string; field_insight?: string; related_causes?: string[] }> | null;
+    quickTools?: Array<{ name: string; why: string; href: string }> | null;
+    clusterNav?: string[] | null;
+    topCauses?: Array<{ name: string; explanation: string; severity?: string; likelihood?: string }> | null;
+    repairMatrix?: {
+      electrical?: Array<{ name: string; difficulty: string; estimated_cost_range?: string; description?: string }>;
+      mechanical?: Array<{ name: string; difficulty: string; estimated_cost_range?: string; description?: string }>;
+      structural?: Array<{ name: string; difficulty: string; estimated_cost_range?: string; description?: string }>;
+    } | null;
   };
 }) {
   // Resolve causes from DB or static KG
@@ -173,12 +189,35 @@ export default function SymptomPageTemplate({
     .sort((a: any, b: any) => (a._isLow ? 0 : 1) - (b._isLow ? 0 : 1)) // low first
     .slice(0, 6);
 
-  const checklist = vm.checklist ?? vm.diagnosticFlow?.steps ?? [
-    "Verify thermostat is set to cool",
-    "Replace dirty air filter",
-    "Reset HVAC breaker",
-    "Check outdoor condenser coil",
-  ];
+  const rawChecklist = vm.checklist ?? vm.diagnosticFlow?.steps ?? null;
+  // Also accept new diagnostic_flow format from scalingData
+  const diagnosticFlowSteps = scalingData?.diagnosticFlow;
+  const checklist: string[] = (() => {
+    // Priority 1: scalingData.diagnosticFlow (new schema)
+    if (Array.isArray(diagnosticFlowSteps) && diagnosticFlowSteps.length > 0) {
+      return diagnosticFlowSteps.map((s: any) =>
+        typeof s === "string" ? s :
+        typeof s?.title === "string" ? s.title :
+        typeof s?.instruction === "string" ? s.instruction : null
+      ).filter(Boolean) as string[];
+    }
+    // Priority 2: vm.checklist (legacy)
+    if (Array.isArray(rawChecklist) && rawChecklist.length > 0) {
+      return rawChecklist.map((item: any) =>
+        typeof item === "string" ? item :
+        typeof item?.instruction === "string" ? item.instruction :
+        typeof item?.text === "string" ? item.text :
+        null
+      ).filter(Boolean) as string[];
+    }
+    // Fallback
+    return [
+      "Verify thermostat is set to cool and set below room temperature",
+      "Replace dirty air filter — a clogged filter is the #1 cause of reduced airflow",
+      "Reset the HVAC breaker at the panel and wait 30 seconds before restarting",
+      "Check outdoor condenser coil for debris, ice, or blockage",
+    ];
+  })();
 
   const whenToCallWarnings = vm.whenToCallProWarnings ?? [
     { type: "Electrical", description: "Contactors, capacitors, control boards require LOTO training." },
@@ -341,32 +380,13 @@ export default function SymptomPageTemplate({
           </section>
         )}
 
-        {/* 4. AC CYCLE EXPLANATION BLOCK (UX Upgraded) */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-6">System Explanation</h2>
-          <div className="grid md:grid-cols-2 gap-6 items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-            
-            {/* Image */}
-            <div className="flex justify-center bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
-              <img 
-                src={getImageForPage(symptom.id)}
-                alt="HVAC Diagnostic Cycle"
-                className="max-h-[260px] w-auto object-contain rounded-lg shadow-sm"
-              />
-            </div>
+        {/* ADAPTIVE DIAGNOSTIC PANEL 🔥 — Decision Tree + Diagnostic Flow with shared cause ID state */}
+        <AdaptiveDiagnosticPanel
+          decisionTree={scalingData?.decisionTree ?? null}
+          diagnosticFlow={scalingData?.diagnosticFlow ?? []}
+          slug={symptom.id}
+        />
 
-            {/* Explanation */}
-            <div className="space-y-4 text-sm">
-              {(scalingData?.systemExplanation || []).map((item, i) => (
-                <div key={i} className="flex gap-3 items-start">
-                  <span className="text-blue-500 text-lg mt-0.5">•</span>
-                  <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{item}</p>
-                </div>
-              ))}
-            </div>
-
-          </div>
-        </section>
 
         {/* 5. MOST COMMON FIX — green border, reassuring */}
         {(mostCommonFixCard || firstCause) && (
@@ -421,20 +441,30 @@ export default function SymptomPageTemplate({
           </div>
         </section>
 
-        {/* 5. NARROW DOWN THE PROBLEM — strictly mapped from AI prompt slice */}
-        <section className="mb-16" id="narrow-down">
-          <div className="bg-hvac-navy p-8 rounded-2xl shadow-lg text-white">
-            <h2 className="text-2xl font-black text-white mb-2">Narrow Down the Problem</h2>
-            <p className="text-hvac-blue/90 mb-6 text-sm">Use this interactive diagnostic flow to identify the most likely cause.</p>
-            <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700">
-              <ul className="list-disc pl-6 space-y-3 text-slate-200">
-                {(scalingData?.narrowDownSteps || []).map((step: string, i: number) => (
-                  <li key={i} className="text-base font-medium">{step}</li>
-                ))}
-              </ul>
+        {/* NARROW DOWN removed — replaced by Diagnostic Flow steps above */}
+
+        {/* QUICK TOOLS — what you need to diagnose this issue */}
+        {scalingData?.quickTools && scalingData.quickTools.length > 0 && (
+          <section className="mb-12" id="quick-tools">
+            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">🔧 Tools You&apos;ll Need</h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-6 text-sm">These tools are used in the diagnostic flow for this symptom.</p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {scalingData.quickTools.map((tool, i) => (
+                <a
+                  key={i}
+                  href={tool.href || `https://www.amazon.com/s?k=${encodeURIComponent("HVAC " + tool.name)}&tag=hvacrevenue-20`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col gap-2 p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:border-hvac-gold hover:shadow-md transition-all"
+                >
+                  <span className="font-bold text-hvac-navy dark:text-white text-sm">{tool.name}</span>
+                  <span className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{tool.why}</span>
+                  <span className="text-xs font-bold text-hvac-gold mt-auto">View on Amazon →</span>
+                </a>
+              ))}
             </div>
-          </div>
-        </section>
+          </section>
+        )}
 
         {/* 1. DIY VS PRO — STATIC chart: Only air filter is DIY; all others Pro (same on every page) */}
         <section className="mb-12" id="diy-vs-pro">
@@ -670,6 +700,11 @@ export default function SymptomPageTemplate({
             return <MermaidDiagram chart={pillarTriageChart} title="Pillar Triage" className="min-h-[280px]" />;
           })()}
         </section>
+
+        {/* ADAPTIVE REPAIR MATRIX — highlights items matching the diagnosis */}
+        {scalingData?.repairMatrix && (
+          <AdaptiveRepairMatrix repairMatrix={scalingData.repairMatrix} />
+        )}
 
         {/* Monetization Scaled Repair Difficulty Matrix */}
         {(scalingData?.repairs && scalingData.repairs.length > 0) && (

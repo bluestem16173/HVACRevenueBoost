@@ -30,7 +30,7 @@ export function buildSlug(baseSlug: string, pageType: SlugPageType | string): st
     case "symptom":
     case "diagnose":
     case "topic":
-      return `conditions/${baseSlug}`;
+      return `diagnose/${baseSlug}`;
     case "cause":
       return `causes/${baseSlug}`;
     case "repair":
