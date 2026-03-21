@@ -31,9 +31,11 @@ const VARIANTS = {
 export default function SystemOverviewBlock({
   variant = "symptom",
   data,
+  systemExplanation,
 }: {
   variant?: SystemOverviewVariant;
   data?: { variant?: SystemOverviewVariant };
+  systemExplanation?: string[];
 }) {
   const v: SystemOverviewVariant = ["symptom", "cause", "repair"].includes(data?.variant ?? variant)
     ? (data?.variant ?? variant) as SystemOverviewVariant
@@ -47,33 +49,46 @@ export default function SystemOverviewBlock({
       </h2>
 
       <div className="grid md:grid-cols-2 gap-6 items-center">
-        <div className="w-full">
+        <div className="w-full space-y-4">
           <img
             src="/images/hvac_system_main.svg.svg"
             alt="HVAC system diagram showing thermostat, furnace, evaporator coil, condenser, and ductwork"
             className="rounded-lg border border-slate-200 dark:border-slate-700 w-full h-auto object-cover"
           />
+          <img
+            src="/images/hvac_ac_cycle.svg.svg"
+            alt="HVAC AC cycle diagram"
+            className="rounded-lg border border-slate-200 dark:border-slate-700 w-full h-auto object-cover"
+          />
         </div>
 
-        <div className="space-y-4 text-sm md:text-base">
+        <div className="space-y-4 text-sm md:text-base h-full flex flex-col justify-center">
           <p className="text-slate-700 dark:text-slate-300">
             {config.intro}
           </p>
 
-          <ul className="list-disc pl-5 space-y-2 text-slate-700 dark:text-slate-300">
-            <li>
-              <strong>Thermostat:</strong> Signals the system to turn on when temperature changes
-            </li>
-            <li>
-              <strong>Indoor Unit:</strong> Heats or cools air using coils and a blower
-            </li>
-            <li>
-              <strong>Outdoor Unit:</strong> Releases or absorbs heat through the condenser
-            </li>
-            <li>
-              <strong>Ductwork:</strong> Distributes conditioned air throughout your home
-            </li>
-          </ul>
+          {systemExplanation && systemExplanation.length > 0 ? (
+            <ul className="list-disc pl-5 space-y-2 text-slate-700 dark:text-slate-300">
+              {systemExplanation.map((point, idx) => (
+                <li key={idx}>{point.replace(/^\d+\.\s*/, '')}</li>
+              ))}
+            </ul>
+          ) : (
+            <ul className="list-disc pl-5 space-y-2 text-slate-700 dark:text-slate-300">
+              <li>
+                <strong>Thermostat:</strong> Signals the system to turn on when temperature changes
+              </li>
+              <li>
+                <strong>Indoor Unit:</strong> Heats or cools air using coils and a blower
+              </li>
+              <li>
+                <strong>Outdoor Unit:</strong> Releases or absorbs heat through the condenser
+              </li>
+              <li>
+                <strong>Ductwork:</strong> Distributes conditioned air throughout your home
+              </li>
+            </ul>
+          )}
 
           <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm">
             ⚠️ {config.microCta}

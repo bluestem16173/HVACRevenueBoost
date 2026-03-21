@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import MobileStickyCallButton from "@/components/MobileStickyCallButton";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "HVAC Diagnostic Authority | Professional Repair Manual",
@@ -19,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} min-h-screen bg-slate-50 text-slate-900`}>
+      <body className="font-sans min-h-screen bg-slate-50 text-slate-900">
         <header className="bg-hvac-navy text-white py-4 shadow-lg sticky top-0 z-50">
           <div className="container mx-auto px-4 flex justify-between items-center">
             <Link href="/" className="text-2xl font-black tracking-tighter flex items-center gap-2">

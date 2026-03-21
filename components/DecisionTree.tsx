@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -98,12 +98,30 @@ export default function DecisionTree({ tree, slug, onCauseIdentified }: Props) {
   const [showResult, setShowResult] = useState(false);
   const [winningCauseId, setWinningCauseId] = useState<string | null>(null);
 
+  const visibleQuestions = tree?.questions ?? [];
+  const allAnswered = visibleQuestions.length > 0 && Object.keys(answers).length >= visibleQuestions.length;
+
+  const computedCause = useMemo(() => {
+    if (!tree.causes?.length) return null;
+    return computeWeightedCause(tree.causes, answers);
+  }, [tree.causes, answers]);
+
+  useEffect(() => {
+    if (!(allAnswered || showResult)) return;
+    if (!computedCause) return;
+
+    const cId = computedCause.name;
+
+    if (cId && cId !== winningCauseId) {
+      setWinningCauseId(cId);
+      onCauseIdentified?.(cId);
+    }
+  }, [computedCause, allAnswered, showResult, winningCauseId, onCauseIdentified]);
+
   if (!tree?.questions?.length) return null;
 
   // Progress: only show questions that are relevant
-  const visibleQuestions = tree.questions;
   const progress = (Object.keys(answers).length / visibleQuestions.length) * 100;
-  const allAnswered = Object.keys(answers).length >= visibleQuestions.length;
 
   // Pick current question
   const currentQ = visibleQuestions[currentIndex];
@@ -115,34 +133,25 @@ export default function DecisionTree({ tree, slug, onCauseIdentified }: Props) {
   let confidence = 0;
 
   if (allAnswered || showResult) {
-    if (tree.causes?.length) {
-      const result = computeWeightedCause(tree.causes, answers);
-      if (result) {
-        primaryCause = result.name;
-        recommended = result.recommended_action;
-        ctaLabel = result.cta_label ?? "See Repair Guide";
-        // Confidence: max possible score vs actual
-        const maxScore = tree.causes.reduce((acc, c) => {
-          const max = Object.values(c.score_map).reduce((s, v) => s + v, 0);
-          return Math.max(acc, max);
-        }, 0);
-        const achieved = tree.causes.reduce((acc, c) => {
-          if (c.name !== primaryCause) return acc;
-          let s = 0;
-          for (const [key, w] of Object.entries(c.score_map)) {
-            const [qid, val] = key.split(":");
-            if (answers[qid] === val) s += w;
-          }
-          return s;
-        }, 0);
-        confidence = maxScore > 0 ? Math.round((achieved / maxScore) * 100) : 75;
-        // Emit cause ID for adaptive Diagnostic Flow highlighting
-        const cId = (result as any).id ?? null;
-        if (cId && cId !== winningCauseId) {
-          setWinningCauseId(cId);
-          onCauseIdentified?.(cId);
+    if (computedCause) {
+      primaryCause = computedCause.name;
+      recommended = computedCause.recommended_action;
+      ctaLabel = computedCause.cta_label ?? "See Repair Guide";
+      // Confidence: max possible score vs actual
+      const maxScore = tree.causes!.reduce((acc, c) => {
+        const max = Object.values(c.score_map).reduce((s, v) => s + v, 0);
+        return Math.max(acc, max);
+      }, 0);
+      const achieved = tree.causes!.reduce((acc, c) => {
+        if (c.name !== primaryCause) return acc;
+        let s = 0;
+        for (const [key, w] of Object.entries(c.score_map)) {
+          const [qid, val] = key.split(":");
+          if (answers[qid] === val) s += w;
         }
-      }
+        return s;
+      }, 0);
+      confidence = maxScore > 0 ? Math.round((achieved / maxScore) * 100) : 75;
     } else if (tree.outcomes?.length) {
       const result = matchLegacyOutcome(tree.outcomes, answers);
       if (result) {

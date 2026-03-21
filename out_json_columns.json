@@ -1,0 +1,57 @@
+[
+  {
+    "table_name": "diagnostic_tests",
+    "column_name": "test_steps",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "event_logs",
+    "column_name": "data",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "link_rules",
+    "column_name": "rule_spec",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "page_patterns",
+    "column_name": "template_spec",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "page_targets",
+    "column_name": "raw_response",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "pages",
+    "column_name": "content_json",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "pages",
+    "column_name": "data",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "pages",
+    "column_name": "quality_notes",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "pattern_expansion_logs",
+    "column_name": "details",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "symptoms",
+    "column_name": "query_variations",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "weekly_site_reports",
+    "column_name": "report_json",
+    "data_type": "jsonb"
+  }
+]

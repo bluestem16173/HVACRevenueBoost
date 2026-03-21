@@ -1,0 +1,3 @@
+decisionTree keys: causes,questions
+diagnostic_flow length: 1
+fastAnswer: Check the thermostat settings.

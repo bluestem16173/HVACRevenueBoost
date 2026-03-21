@@ -17,8 +17,8 @@ import "dotenv/config";
  */
 
 import sql from '../lib/db';
-import { generateCoreData } from '../lib/ai-generator';
-import { contentToHtml } from '../lib/contentToHtml';
+import { generateTwoStagePage } from '../lib/two-stage-generator';
+import { normalizeAuthorityJson, finalizeAuthorityJson } from '../lib/finalizeAuthoritySymptomJson';
 import { normalizeToBaseSlug, buildSlug } from '../lib/slug-helpers';
 
 const DEFAULT_LIMIT = 5;
@@ -28,13 +28,10 @@ async function savePageToDB(
   data: Record<string, unknown>,
   opts: { slug: string; title: string; pageType: string }
 ): Promise<void> {
-  const html = contentToHtml(data);
-  console.log('🧾 HTML length:', html.length);
   const contentJson = {
     ...data,
     title: opts.title,
     slug: opts.slug,
-    html_content: html || '',
     generated_at: new Date().toISOString(),
   };
   await sql`
@@ -96,7 +93,9 @@ async function run() {
     const title = proposed_slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
     try {
       console.log(`\n▶ ${proposed_slug} (${page_type})`);
-      const data = await generateCoreData({ slug: proposed_slug, pageType: page_type, title });
+      const raw = await generateTwoStagePage(title, { slug: proposed_slug, system: 'HVAC', pageType: page_type });
+      const normalized = normalizeAuthorityJson(raw);
+      const data = finalizeAuthorityJson(normalized, page_type);
 
       const baseSlug = normalizeToBaseSlug(proposed_slug);
       const fullSlug = buildSlug(baseSlug, page_type);

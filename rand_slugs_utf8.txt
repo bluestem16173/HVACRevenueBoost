@@ -1,0 +1,22 @@
+--- START LIST ---
+http://localhost:3000/repair/miami/ac-smells-musty
+http://localhost:3000/repair/nashville/ac-smells-musty
+http://localhost:3000/repair/columbus/ac-running-constantly
+http://localhost:3000/repair/plano/bad-odors-from-vents
+http://localhost:3000/repair/charlotte/strange-noises-hvac
+http://localhost:3000/repair/atlanta/burning-smell-hvac
+http://localhost:3000/diagnose/ac-not-cooling
+http://localhost:3000/repair/tempe/weak-airflow-vents
+http://localhost:3000/repair/houston/weak-airflow-vents
+http://localhost:3000/repair/charlotte/burning-smell-hvac
+http://localhost:3000/repair/dallas/high-electric-bills-hvac
+http://localhost:3000/repair/scottsdale/burning-smell-hvac
+http://localhost:3000/repair/chandler/uneven-cooling-heating
+http://localhost:3000/inspect-system
+http://localhost:3000/repair/jacksonville/furnace-clicking-no-ignition
+http://localhost:3000/repair/denver/strange-noises-hvac
+http://localhost:3000/repair/jacksonville/ac-blowing-warm-air
+http://localhost:3000/repair/phoenix/constant-fan-running
+http://localhost:3000/repair/las-vegas/high-electric-bills-hvac
+http://localhost:3000/repair/miami/ac-not-turning-on
+--- END LIST ---

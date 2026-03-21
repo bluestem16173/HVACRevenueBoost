@@ -807,10 +807,24 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
   const faq = normalizeFaq(raw);
   const relatedLinks = normalizeRelatedLinks(raw?.relatedLinks as unknown[] | undefined);
 
-  const checklist =
-    Array.isArray(raw?.diagnostic_checklist)
-      ? toStringArray(raw.diagnostic_checklist)
-      : diagnosticFlow.steps;
+  const getChecklist = (data: any) => {
+    if (Array.isArray(data?.diagnostic_flow) && data.diagnostic_flow.length > 0) {
+      return data.diagnostic_flow.map((s: any) => typeof s === "string" ? s : s.title).filter(Boolean);
+    }
+    if (Array.isArray(data?.narrow_down) && data.narrow_down.length > 0) {
+      return data.narrow_down.map((s: any) => typeof s === "string" ? s : s.question || s.title || s.step).filter(Boolean);
+    }
+    if (Array.isArray(data?.conditions) && data.conditions.length > 0) {
+      return data.conditions;
+    }
+    return [
+      "Verify thermostat is set to cool and set below room temperature",
+      "Replace dirty air filter — a clogged filter is the #1 cause of reduced airflow",
+      "Reset the HVAC breaker at the panel and wait 30 seconds before restarting",
+      "Check outdoor condenser coil for debris, ice, or blockage",
+    ];
+  };
+  const checklist = getChecklist(raw);
 
   const whenToCallProWarnings = normalizeWhenToCallProWarnings(raw ?? undefined);
   const warnings = whenToCallProWarnings.map((w) => `${w.type}: ${w.description}`);
@@ -871,7 +885,7 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
     causesTable,
     rankedCauses,
     repairOptions,
-    diagnosticFlow,
+    diagnosticFlow: Array.isArray(raw?.diagnosticFlow) ? raw.diagnosticFlow : diagnosticFlow,
     faq,
     relatedLinks,
     warnings,
@@ -907,6 +921,9 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
       return { name: toSafeString(o.name) ?? "", description: toSafeString(o.description) };
     }) : undefined,
     schemaJson: (raw?.schema_json as Record<string, unknown>) ?? undefined,
+    decisionTree: (typeof (raw?.decision_tree ?? raw?.mermaid_graph ?? raw?.diagnosticFlowMermaid) === 'object' && (raw?.decision_tree ?? raw?.mermaid_graph ?? raw?.diagnosticFlowMermaid) !== null)
+      ? (raw?.decision_tree ?? raw?.mermaid_graph ?? raw?.diagnosticFlowMermaid) as Record<string, unknown>
+      : toSafeString(raw?.decision_tree ?? raw?.mermaid_graph ?? raw?.diagnosticFlowMermaid) ?? null,
     diagnosticFlowMermaid: toSafeString(raw?.diagnosticFlowMermaid ?? raw?.diagnostic_flow_mermaid ?? raw?.diagnostic_tree_mermaid ?? raw?.mermaid_graph) ?? null,
     causeConfirmationMermaid: toSafeString(raw?.causeConfirmationMermaid ?? raw?.cause_confirmation_mermaid) ?? null,
     repairFlowMermaid: toSafeString(raw?.repairFlowMermaid ?? raw?.repair_flow_mermaid) ?? null,

@@ -1,0 +1,106 @@
+{
+  "seo": {
+    "metaTitle": "AC Blowing Warm Air - Quick Diagnosis & Repair",
+    "metaDescription": "Is your AC blowing warm air? Learn how to diagnose the issue and get fast professional help to restore your comfort."
+  },
+  "slug": "diagnose/ac-blowing-warm-air",
+  "intro": "If your air conditioning unit is blowing warm air, it's crucial to address the issue quickly to restore comfort in your home. Let's diagnose the problem and find the best solution.",
+  "title": "Ac Blowing Warm Air",
+  "_status": "finalized",
+  "primaryCTA": {
+    "url": "{{GHL_CTA_URL}}",
+    "subtext": "Don't suffer in the heat—get a quick diagnosis and repair.",
+    "headline": "Get Your AC Fixed Now!",
+    "buttonText": "Fix This Now"
+  },
+  "leadSignals": {
+    "reason": "High severity issue with potential refrigerant or electrical problems.",
+    "callNow": true
+  },
+  "quickChecks": [
+    "Ensure the thermostat is set to 'cool' and the temperature is lower than the current room temperature.",
+    "Check the circuit breaker for any tripped switches.",
+    "Inspect the air filters and replace them if they are dirty."
+  ],
+  "_prompt_hash": "a138d9d0270bd67ee6e7ad1d24eeddb854ce03c70c39065cb351f5e1be29385e",
+  "finalized_at": "2026-03-21T04:47:47.251Z",
+  "generated_at": "2026-03-21T04:47:47.260Z",
+  "likelyIssues": [
+    {
+      "issue": "Refrigerant Leak",
+      "severity": "high",
+      "description": "A refrigerant leak can prevent your AC from cooling properly and needs immediate professional attention.",
+      "requiresPro": true
+    },
+    {
+      "issue": "Dirty Air Filters",
+      "severity": "medium",
+      "description": "Clogged filters can restrict airflow and cause warm air to blow. This can often be fixed by the homeowner.",
+      "requiresPro": false
+    },
+    {
+      "issue": "Electrical Issues",
+      "severity": "high",
+      "description": "Problems with the electrical components can cause the AC to malfunction, requiring professional repair.",
+      "requiresPro": true
+    }
+  ],
+  "urgencyLevel": "high",
+  "decision_tree": "graph TD; A[AC Blowing Warm Air] --> B{Is the thermostat set correctly?}; B -->|Yes| C{Is the AC unit running?}; B -->|No| D[Adjust the thermostat to a lower temperature]; C -->|Yes| E{Is there a refrigerant leak?}; C -->|No| F[Check for power supply issues]; E -->|Yes| G[Call a professional for refrigerant refill]; E -->|No| H[Inspect for dirty filters or coils]; H -->|Yes| I[Clean or replace filters]; H -->|No| J[Call a professional for further diagnosis];",
+  "repairOptions": [
+    {
+      "time": "30 minutes",
+      "type": "DIY",
+      "option": "Clean or replace air filters",
+      "description": "Simple task that can improve airflow and cooling efficiency.",
+      "estimatedCost": "$10 - $50"
+    },
+    {
+      "time": "1-2 hours",
+      "type": "professional",
+      "option": "Refrigerant refill",
+      "description": "Professional service needed to safely refill refrigerant and check for leaks.",
+      "estimatedCost": "$150 - $400"
+    },
+    {
+      "time": "1-3 hours",
+      "type": "professional",
+      "option": "Electrical repair",
+      "description": "Requires a technician to diagnose and fix electrical issues.",
+      "estimatedCost": "$100 - $300"
+    }
+  ],
+  "diagnosticFlow": [
+    {
+      "no": "Adjust the thermostat to a lower temperature.",
+      "yes": "Proceed to check if the AC unit is running.",
+      "step": 0,
+      "question": "Is the thermostat set correctly?",
+      "next_step": 1
+    },
+    {
+      "no": "Check for power supply issues.",
+      "yes": "Check for refrigerant leaks.",
+      "step": 1,
+      "question": "Is the AC unit running?",
+      "next_step": 2
+    },
+    {
+      "no": "Inspect for dirty filters or coils.",
+      "yes": "Call a professional for refrigerant refill.",
+      "step": 2,
+      "question": "Is there a refrigerant leak?",
+      "next_step": 3
+    },
+    {
+      "no": "Call a professional for further diagnosis.",
+      "yes": "Clean or replace filters.",
+      "step": 3,
+      "question": "Are the filters or coils dirty?",
+      "next_step": 4
+    }
+  ],
+  "systemExplanation": [
+    "An air conditioning system works by removing heat from the indoor air and circulating cool air back into the space. If it's blowing warm air, something is disrupting this process."
+  ]
+}

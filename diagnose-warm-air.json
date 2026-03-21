@@ -1,0 +1,210 @@
+{
+  "faq": [
+    {
+      "answer": "Leaks in the system or improper charging during installation.",
+      "question": "What causes low refrigerant levels?"
+    },
+    {
+      "answer": "At least once a year or during regular maintenance.",
+      "question": "How often should I check refrigerant levels?"
+    }
+  ],
+  "slug": "diagnose/ac-blowing-warm-air",
+  "title": "AC Blowing Warm Air",
+  "causes": [
+    {
+      "cost": "$50–$450",
+      "name": "Thermostat malfunction",
+      "repairs": [
+        {
+          "link": "/fix/recharge-refrigerant",
+          "name": "Recharge refrigerant",
+          "slug": "recharge-refrigerant"
+        }
+      ],
+      "difficulty": "Easy",
+      "explanation": "",
+      "difficultyColor": "text-hvac-blue"
+    },
+    {
+      "cost": "$50–$450",
+      "name": "Clogged air filter",
+      "repairs": [
+        {
+          "link": "/fix/recharge-refrigerant",
+          "name": "Recharge refrigerant",
+          "slug": "recharge-refrigerant"
+        }
+      ],
+      "difficulty": "Moderate",
+      "explanation": "",
+      "difficultyColor": "text-hvac-blue"
+    },
+    {
+      "cost": "$50–$450",
+      "name": "Low refrigerant levels",
+      "repairs": [
+        {
+          "link": "/fix/recharge-refrigerant",
+          "name": "Recharge refrigerant",
+          "slug": "recharge-refrigerant"
+        }
+      ],
+      "difficulty": "Easy",
+      "explanation": "This issue occurs when the refrigerant charge is insufficient for the system to operate effectively. It can lead to overheating and compressor damage if not addressed promptly.",
+      "difficultyColor": "text-hvac-blue"
+    }
+  ],
+  "layout": "diagnostic_first",
+  "repairs": [
+    {
+      "cost": "$50–$150",
+      "name": "Replace thermostat",
+      "diyText": "Not recommended",
+      "diyColor": "text-hvac-safety",
+      "difficulty": "moderate",
+      "difficultyBg": "bg-hvac-gold"
+    },
+    {
+      "cost": "$50–$150",
+      "name": "Clean or replace air filter",
+      "diyText": "Yes",
+      "diyColor": "text-green-600",
+      "difficulty": "easy",
+      "difficultyBg": "bg-hvac-gold"
+    },
+    {
+      "cost": "Varies based on refrigerant type and labor",
+      "name": "Recharge refrigerant",
+      "diyText": "Not recommended",
+      "diyColor": "text-hvac-safety",
+      "difficulty": "advanced",
+      "difficultyBg": "bg-hvac-safety"
+    }
+  ],
+  "summary": "Warm air from the AC can indicate several issues.",
+  "sections": {},
+  "subtitle": "Insufficient refrigerant can lead to inadequate cooling performance.",
+  "top_causes": [
+    {
+      "cost": "$50–$450",
+      "name": "Thermostat malfunction",
+      "repairs": [
+        {
+          "link": "/fix/recharge-refrigerant",
+          "name": "Recharge refrigerant",
+          "slug": "recharge-refrigerant"
+        }
+      ],
+      "difficulty": "Easy",
+      "explanation": "",
+      "difficultyColor": "text-hvac-blue"
+    },
+    {
+      "cost": "$50–$450",
+      "name": "Clogged air filter",
+      "repairs": [
+        {
+          "link": "/fix/recharge-refrigerant",
+          "name": "Recharge refrigerant",
+          "slug": "recharge-refrigerant"
+        }
+      ],
+      "difficulty": "Moderate",
+      "explanation": "",
+      "difficultyColor": "text-hvac-blue"
+    },
+    {
+      "cost": "$50–$450",
+      "name": "Low refrigerant levels",
+      "repairs": [
+        {
+          "link": "/fix/recharge-refrigerant",
+          "name": "Recharge refrigerant",
+          "slug": "recharge-refrigerant"
+        }
+      ],
+      "difficulty": "Easy",
+      "explanation": "This issue occurs when the refrigerant charge is insufficient for the system to operate effectively. It can lead to overheating and compressor damage if not addressed promptly.",
+      "difficultyColor": "text-hvac-blue"
+    }
+  ],
+  "fast_answer": "Check the thermostat settings.",
+  "quick_tools": [],
+  "generated_at": "2026-03-20T10:47:01.052Z",
+  "decision_tree": "graph TD\nA[AC blowing warm air?] --> B{Is compressor running?}\nB -->|Yes| C[Check refrigerant level]\nB -->|No| D[Check capacitor or power]",
+  "repair_matrix": [
+    {
+      "cost": "$50–$150",
+      "name": "Replace thermostat",
+      "diyText": "Not recommended",
+      "diyColor": "text-hvac-safety",
+      "difficulty": "moderate",
+      "difficultyBg": "bg-hvac-gold"
+    },
+    {
+      "cost": "$50–$150",
+      "name": "Clean or replace air filter",
+      "diyText": "Yes",
+      "diyColor": "text-green-600",
+      "difficulty": "easy",
+      "difficultyBg": "bg-hvac-gold"
+    },
+    {
+      "cost": "Varies based on refrigerant type and labor",
+      "name": "Recharge refrigerant",
+      "diyText": "Not recommended",
+      "diyColor": "text-hvac-safety",
+      "difficulty": "advanced",
+      "difficultyBg": "bg-hvac-safety"
+    }
+  ],
+  "engine_version": "7.0.0-TwoStage-GraphAware",
+  "internal_links": [
+    {
+      "slug": "thermostat-malfunction",
+      "type": "symptom",
+      "anchor": "Thermostat malfunction"
+    },
+    {
+      "slug": "clogged-air-filter",
+      "type": "symptom",
+      "anchor": "Clogged air filter"
+    }
+  ],
+  "tools_required": [
+    {
+      "name": "Refrigerant gauge",
+      "reason": "To measure the pressure of the refrigerant in the system"
+    },
+    {
+      "name": "Refrigerant canister",
+      "reason": "To supply the necessary refrigerant for recharging"
+    },
+    {
+      "name": "Wrench",
+      "reason": "To open and close service ports"
+    }
+  ],
+  "diagnosticFlow": [
+    {
+      "step": 1,
+      "question": "Check refrigerant levels",
+      "yes": "Levels are normal -> check capacitor",
+      "no": "Levels are low -> recharge",
+      "next_step": null
+    }
+  ],
+  "diagnostic_steps": [
+    "Inspect the thermostat settings.",
+    "Check the air filter for clogs.",
+    "Examine the refrigerant levels."
+  ],
+  "system_explanation": [
+    "1. Low refrigerant levels detected",
+    "2. Cooling system struggles to maintain temperature",
+    "3. Reduced efficiency and potential system damage",
+    "4. Continuous cycle of inadequate cooling"
+  ],
+  "diagnostic_tree_mermaid": "graph TD; A[Check refrigerant levels] -->|Low| B[Recharge refrigerant]; A -->|Normal| C[Check other components]"
+}

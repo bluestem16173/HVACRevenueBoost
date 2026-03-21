@@ -1,0 +1,45 @@
+{
+  "count_last_24h": "199",
+  "recent_pages": [
+    {
+      "slug": "/rv/demo-smoke-test-3",
+      "created_at": "2026-03-21T20:19:13.153Z"
+    },
+    {
+      "slug": "/rv/demo-smoke-test-2",
+      "created_at": "2026-03-21T20:19:13.009Z"
+    },
+    {
+      "slug": "/rv/demo-smoke-test-1",
+      "created_at": "2026-03-21T20:19:12.799Z"
+    },
+    {
+      "slug": "/rv-fridge-not-working-on-propane",
+      "created_at": "2026-03-21T18:17:53.208Z"
+    },
+    {
+      "slug": "/rv-fridge-not-working-on-electric",
+      "created_at": "2026-03-21T18:17:35.187Z"
+    },
+    {
+      "slug": "/rv-alternator-not-charging-house-battery",
+      "created_at": "2026-03-21T18:17:14.733Z"
+    },
+    {
+      "slug": "/rv-appliances-not-working-on-120v",
+      "created_at": "2026-03-21T18:16:59.384Z"
+    },
+    {
+      "slug": "/rv-appliances-not-working-on-12v",
+      "created_at": "2026-03-21T18:16:38.217Z"
+    },
+    {
+      "slug": "/rv-fuse-keeps-blowing",
+      "created_at": "2026-03-21T18:16:08.118Z"
+    },
+    {
+      "slug": "/rv-gfci-outlet-keeps-tripping",
+      "created_at": "2026-03-21T18:15:44.813Z"
+    }
+  ]
+}

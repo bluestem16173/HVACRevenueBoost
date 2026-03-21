@@ -138,7 +138,7 @@ export async function GET(
 
     // Conditions
     if (filename === "conditions-index") {
-      const entries = getConditionEntries();
+      const entries = await getConditionEntries();
       const chunks = chunkEntries(entries);
       const sitemaps = chunks.map((_, i) => ({
         loc: `${BASE_URL}/sitemaps/conditions-${i + 1}.xml`,
@@ -149,7 +149,7 @@ export async function GET(
     }
     if (filename.startsWith("conditions-")) {
       const idx = parseInt(filename.replace("conditions-", "").replace(".xml", ""), 10);
-      const entries = getConditionEntries();
+      const entries = await getConditionEntries();
       const chunks = chunkEntries(entries);
       const chunk = chunks[idx - 1] || [];
       return xmlResponse(toUrlSetXml(chunk));

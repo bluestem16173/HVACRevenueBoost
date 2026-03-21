@@ -1,187 +1,206 @@
 import "dotenv/config";
-
-/**
- * HVAC Revenue Boost Generation Worker (Neon Edition)
- * ---------------------------------------------------
- * Processes the 'generation_queue' and upserts into 'pages'.
- * Claim → Process → Complete (or requeue on failure).
- */
-
 import sql from '../lib/db';
-import { generateCoreData } from '../lib/ai-generator';
-import { contentToHtml } from '../lib/contentToHtml';
+import { generateTwoStagePage, EXPECTED_PROMPT_HASH } from '../lib/two-stage-generator';
 import { normalizeToBaseSlug, buildSlug } from '../lib/slug-helpers';
-import { generateSeoLinks } from '../lib/seo/generateSeoLinks';
-import { calculateQualityScore, QualityResult } from '../lib/quality-scorer';
+import { normalizeAuthorityJson, finalizeAuthorityJson } from '../lib/finalizeAuthoritySymptomJson';
 
-const QUEUE_STATUS = { pending: 'pending', processing: 'processing', completed: 'completed' };
+const QUEUE_STATUS = { pending: 'pending', processing: 'processing', completed: 'completed', failed: 'failed' };
 
-async function savePageToDB(params: {
-  slug: string;
-  html: string;
-  data: Record<string, unknown>;
-  quality: QualityResult;
-  item: { proposed_title?: string; page_type: string; system_id?: number; symptom_id?: number; city?: string };
-}): Promise<number> {
-  const title = params.item.proposed_title || params.slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
-  const contentJson = {
-    ...params.data,
-    title,
-    slug: params.slug,
-    html_content: params.html,
-    generated_at: new Date().toISOString(),
-  };
-  const result = await sql`
-    INSERT INTO pages (slug, title, page_type, system_id, symptom_id, city, status, quality_status, quality_score, quality_notes, last_scored_at, content_json)
-    VALUES (
-      ${params.slug},
-      ${title},
-      ${params.item.page_type},
-      ${params.item.system_id ?? null},
-      ${params.item.symptom_id ?? null},
-      ${params.item.city ?? null},
-      ${params.quality.status},
-      ${params.quality.status},
-      ${params.quality.score},
-      ${JSON.stringify(params.quality) as any},
-      ${new Date().toISOString()},
-      ${JSON.stringify(contentJson) as any}
-    )
-    ON CONFLICT (slug) DO UPDATE SET
-      title = EXCLUDED.title,
-      page_type = EXCLUDED.page_type,
-      status = EXCLUDED.status,
-      quality_status = EXCLUDED.quality_status,
-      quality_score = EXCLUDED.quality_score,
-      quality_notes = EXCLUDED.quality_notes,
-      last_scored_at = EXCLUDED.last_scored_at,
-      content_json = EXCLUDED.content_json
-    RETURNING id
-  `;
-  return result[0]?.id as number;
-}
+let isWorkerRunning = false;
 
-async function runWorker() {
-  console.log('🚀 Starting HVAC Revenue Boost Worker (Neon)...');
-  console.log('DB URL:', process.env.DATABASE_URL);
+export async function runWorker(options: { limit?: number, manual?: boolean } = {}) {
+  // Prevent overlapping runs in the same process
+  if (isWorkerRunning) {
+    console.log("⚠️ Worker is already running. Skipping execution.");
+    return { success: false, reason: "Already running" };
+  }
+  isWorkerRunning = true;
+
+  console.log('🚀 Starting Authority HVAC Worker...');
+  try {
+    await sql`INSERT INTO system_logs (event_type, message) VALUES ('worker_start', 'Worker started')`;
+  } catch(e) {}
+
+  let processedCount = 0;
+  let failedCount = 0;
 
   try {
-    const all = await sql`SELECT * FROM generation_queue` as any[];
-    console.log('TOTAL ROWS:', all.length);
+    // Basic DB-based lock (Advisory Lock) to prevent overlapping cron runs
+    let lockAcquired = false;
+    try {
+      const lockRes = await sql`SELECT pg_try_advisory_lock(999999) as locked`;
+      lockAcquired = lockRes[0]?.locked;
+    } catch {
+      // Ignore if unsupported
+      lockAcquired = true; 
+    }
 
-    // 1. Fetch pending items (limit: CANARY_BATCH_SIZE or 50)
-    const batchLimit = parseInt(process.env.CANARY_BATCH_SIZE || "50", 10) || 50;
-    console.log('🔍 Fetching queue items...');
+    if (!lockAcquired) {
+      console.log("⚠️ Global DB lock already held. Another worker is running.");
+      isWorkerRunning = false;
+      return { success: false, reason: "DB lock held" };
+    }
+
+    // Enforce Auto Mode unless manual trigger
+    if (!options.manual) {
+      const autoModeState = await sql`SELECT value FROM system_state WHERE key = 'auto_mode' LIMIT 1` as any[];
+      if (autoModeState[0]?.value === 'OFF') {
+        console.log("🛑 Auto Mode is OFF. Cron execution blocked. Use manual run.");
+        isWorkerRunning = false;
+        try { await sql`SELECT pg_advisory_unlock(999999)`; } catch {}
+        return { success: false, reason: "Auto Mode OFF" };
+      }
+    }
+
+    const batchLimit = options.limit || parseInt(process.env.CANARY_BATCH_SIZE || "50", 10) || 50;
     const items = await sql`
       SELECT * FROM generation_queue
       WHERE status = 'pending'
-        AND page_type IN ('symptom')
       ORDER BY created_at ASC
       LIMIT ${batchLimit}
     ` as any[];
-    console.log('📦 FOUND ITEMS:', items.length);
-    if (process.env.GENERATION_VALIDATION_MODE === 'true') {
-      console.log('🔬 Validation mode: ON (QA/test run)');
-    }
 
-    for (const item of items) {
-      const proposedSlug = item.proposed_slug;
-      const pageTypeForSlug = item.proposed_slug?.startsWith("repair/") ? "repair" : (item.page_type || "symptom");
-      const baseSlug = normalizeToBaseSlug(proposedSlug || "");
-      const fullSlug = buildSlug(baseSlug, pageTypeForSlug);
+    console.log(`📦 Fetched ${items.length} pending jobs.`);
 
-      console.log({ baseSlug, fullSlug, pageType: pageTypeForSlug });
-
-      // 2. CLAIM — only claim if still pending (prevents race conditions)
-      const claimed = await sql`
-        UPDATE generation_queue SET status = ${QUEUE_STATUS.processing}
-        WHERE id = ${item.id} AND status = ${QUEUE_STATUS.pending}
-        RETURNING id
-      `;
-      if (claimed.length === 0) {
-        console.log(`⏭️ [${item.id}] skipped (already claimed)`);
-        continue;
-      }
-      console.log(`🔄 [${item.id}] → processing`);
-      console.log("TYPE:", item.page_type, "SLUG:", item.proposed_slug);
-      console.log('🛠️ Generating:', proposedSlug);
-
+    for (const job of items) {
       try {
+        const proposedSlug = job.proposed_slug;
+        const pageTypeForSlug = job.proposed_slug?.startsWith("repair/") ? "repair" : (job.page_type || "symptom");
+        const baseSlug = normalizeToBaseSlug(proposedSlug || "");
+        const fullSlugRaw = buildSlug(baseSlug, pageTypeForSlug);
+        const fullSlug = fullSlugRaw.replace(/\/+/g, '/');
 
-        // 3. PROCESS — use page_type from DB; override for repair/city/symptom slugs
-        let pageType = item.page_type;
-        if (item.proposed_slug?.startsWith("repair/")) {
-          pageType = "repair";
-        }
-        const title = item.proposed_title || `HVAC Repair in ${item.city}`;
-        const validationMode = process.env.GENERATION_VALIDATION_MODE === 'true';
-        const data = await generateCoreData({
-          slug: proposedSlug,
-          pageType,
-          title,
-          validationMode,
-        });
-
-        console.log('🔗 Retrieving SEO links...');
-        const [existing] = await sql`SELECT content_json FROM pages WHERE slug = ${fullSlug}`;
-        let seoLinks = existing?.content_json?.seo_links || existing?.content_json?.seoLinks;
-
-        if (!seoLinks || !seoLinks.link_strategy_summary) {
-          console.log('🔗 Generating Mega SEO links via Gemini Mega Prompt...');
-          seoLinks = await generateSeoLinks(fullSlug, pageType, data);
-        } else {
-          console.log('🔗 Reusing existing SEO links from previously generated page...');
-        }
-
-        data.seo_links = seoLinks;
-
-        const html = contentToHtml(data);
-        const quality = calculateQualityScore(data, html, pageType);
-
-        // INDEXING STRATEGY: Disable component indexing until 100-200 pages build authority
-        if (pageType === 'component' && quality.status === 'published') {
-          console.log(`🔒 Component ${fullSlug} defaults to noindex until target index volume reached.`);
-          quality.status = 'noindex';
-        }
-
-        
-        console.log("Saving page:", fullSlug, "Score:", quality.score, "Status:", quality.status);
-        const pageId = await savePageToDB({ slug: fullSlug, html, data, quality, item });
-
-        // 4. MARK COMPLETE OR DELAY REGEN
-        if (quality.status === 'needs_regen') {
-          console.log(`⚠️ [${item.id}] Score too low (${quality.score}). Queuing delayed regen.`);
-          await sql`
-            UPDATE generation_queue
-            SET status = 'pending', page_id = ${pageId}, regeneration_attempts = COALESCE(regeneration_attempts, 0) + 1
-            WHERE id = ${item.id} AND COALESCE(regeneration_attempts, 0) < 3
-          `;
-        } else {
-          await sql`
-            UPDATE generation_queue
-            SET status = ${QUEUE_STATUS.completed}, page_id = ${pageId}
-            WHERE id = ${item.id}
-          `;
-        }
-
-        console.log(`✅ [${item.id}] → processed`);
-        console.log('✅ Success:', fullSlug);
-      } catch (err) {
-        console.error(`❌ [${item.id}] → failed`);
-        console.error('❌ Failed:', item.proposed_slug, err);
-
-        // 5. REQUEUE on failure
-        await sql`
-          UPDATE generation_queue SET status = ${QUEUE_STATUS.pending} WHERE id = ${item.id}
+        // Claim
+        const claimed = await sql`
+          UPDATE generation_queue SET status = ${QUEUE_STATUS.processing}, started_at = NOW()
+          WHERE id = ${job.id} AND status = ${QUEUE_STATUS.pending}
+          RETURNING id
         `;
+        if (claimed.length === 0) continue;
+
+        try { await sql`INSERT INTO system_logs (event_type, message) VALUES ('job_claimed', ${'Claimed ' + fullSlug})`; } catch(e) {}
+        console.log(`🚀 Generating: ${fullSlug}`);
+
+        const result = await generateTwoStagePage(proposedSlug, {
+          slug: proposedSlug,
+          system: "HVAC",
+          pageType: pageTypeForSlug,
+          coreOnly: false
+        }) as any;
+
+        // Prompt lock validation (to prevent silent drift)
+        if (result._prompt_hash !== EXPECTED_PROMPT_HASH) {
+          throw new Error(`❌ WRONG PROMPT USED (Expected ${EXPECTED_PROMPT_HASH}, got ${result._prompt_hash})`);
+        }
+
+        result.slug = fullSlug;
+
+        const normalized = normalizeAuthorityJson(result);
+        const final = finalizeAuthorityJson(normalized, pageTypeForSlug);
+
+        const existingPage = await sql`SELECT id FROM pages WHERE slug = ${fullSlug}`;
+        if (existingPage.length > 0) {
+          await sql`
+            UPDATE pages
+            SET 
+              content_json = ${JSON.stringify(final) as any},
+              status = 'generated',
+              updated_at = NOW(),
+              system_id = COALESCE(${job.system_id || null}, system_id, 'HVAC')
+            WHERE slug = ${fullSlug}
+          `;
+        } else {
+          await sql`
+            INSERT INTO pages (slug, status, content_json, updated_at, page_type, system_id)
+            VALUES (${fullSlug}, 'generated', ${JSON.stringify(final) as any}, NOW(), ${pageTypeForSlug}, COALESCE(${job.system_id || null}, 'HVAC'))
+          `;
+        }
+
+        await sql`
+          UPDATE generation_queue
+          SET status = ${QUEUE_STATUS.completed}, finished_at = NOW()
+          WHERE id = ${job.id}
+        `;
+
+        console.log(`✅ Success: ${fullSlug}`);
+        
+        // Log telemetry
+        try {
+          await sql`
+            INSERT INTO system_logs (event_type, message, metadata) 
+            VALUES ('worker_success', ${'Generated ' + fullSlug}, ${JSON.stringify({ slug: fullSlug }) as any})
+          `;
+        } catch(e) {}
+
+        processedCount++;
+
+      } catch (err: any) {
+        console.error(`❌ FAILED: ${job.proposed_slug}`, err);
+        const errorMsg = err.message || String(err);
+        await sql`
+          UPDATE generation_queue 
+          SET status = ${QUEUE_STATUS.failed}, error_log = ${errorMsg}, attempts = COALESCE(attempts, 0) + 1
+          WHERE id = ${job.id}
+        `;
+
+        try {
+          await sql`
+            INSERT INTO system_logs (event_type, message, metadata) 
+            VALUES ('worker_failed', ${'Failed ' + job.proposed_slug}, ${JSON.stringify({ slug: job.proposed_slug, error: errorMsg }) as any})
+          `;
+        } catch(e) {}
+
+        failedCount++;
       }
     }
 
-  } catch (error) {
+    try {
+      await sql`SELECT pg_advisory_unlock(999999)`;
+    } catch {}
+
+  } catch (error: any) {
     console.error('Worker Fatal Error:', error);
+    try { await sql`SELECT pg_advisory_unlock(999999)`; } catch {}
   }
 
   console.log('🏁 Worker batch complete.');
+  try { await sql`INSERT INTO system_logs (event_type, message) VALUES ('worker_end', 'Worker completed batch')`; } catch(e) {}
+  isWorkerRunning = false;
+
+  return { success: true, processedCount, failedCount };
 }
 
-runWorker();
+// Allow direct execution if called from command line
+if (require.main === module) {
+  console.log("🔄 Starting Queue Drain Mode...");
+
+  const startPolling = async () => {
+    while (true) {
+      try {
+        const result = await runWorker();
+        
+        if (result?.success === false) {
+          console.log("🛑 Exiting: ", result?.reason);
+          break;
+        }
+
+        // If no jobs were processed or failed, the queue is empty
+        if (result?.processedCount === 0 && result?.failedCount === 0) {
+          console.log("🏁 No jobs left in queue, exiting");
+          break;
+        }
+
+        // Wait 1 second between batches to avoid flooding DB
+        await new Promise(res => setTimeout(res, 1000));
+      } catch (err) {
+        console.error("Loop error:", err);
+        break;
+      }
+    }
+  }
+
+  startPolling().catch(err => {
+    console.error("Fatal polling error:", err);
+    process.exit(1);
+  });
+}

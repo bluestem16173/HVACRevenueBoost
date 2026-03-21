@@ -8,10 +8,9 @@ import { normalizePageData } from "@/lib/content";
 import SymptomPageTemplate from "@/templates/symptom-page";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { GENERIC_NARROW_DOWN, GENERIC_REPAIRS } from "@/lib/ai-generator";
-// Enable ISR
+
 export const revalidate = 3600;
-export const dynamicParams = true; // allow pages not in generateStaticParams to render via SSR
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const aiPage = await getDiagnosticPageFromDB(`diagnose/${params.slug}`) 
@@ -32,7 +31,6 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
 
-  // Try diagnose/ prefix first (new worker format), fall back to conditions/ (legacy)
   const aiPage = await getDiagnosticPageFromDB(`diagnose/${params.slug}`) 
     ?? await getDiagnosticPageFromDB(`conditions/${params.slug}`);
   
@@ -53,7 +51,6 @@ export default async function SymptomPage({ params }: { params: { slug: string }
     symptomData = SYMPTOMS.find((s) => s.id === params.slug) as any;
   }
 
-  // Allow rendering from AI content alone when symptom not in graph (canary-generated pages)
   if (!symptomData && rawContent) {
     const c = rawContent;
     const title = (c.title as string) ?? params.slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
@@ -63,7 +60,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
       name: title,
       slug: params.slug,
       description: (c.fastAnswer as string) ?? (c.problem_summary as string) ?? "",
-      causes: rankedCauses.map((r: any) => r.slug ?? r.id ?? r.name).filter(Boolean),
+      causes: rankedCauses.map((r: any) => (r || {}).slug ?? (r || {}).id ?? (r || {}).name).filter(Boolean),
     };
     isFromDB = false;
   }
@@ -77,7 +74,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   const causeDetails = isFromDB
     ? (symptom.causes || [])
     : (symptom.causes || []).map((cId: string) => getCauseDetails(cId)).filter(Boolean);
-  const causeIds = causeDetails.map((c: any) => c.slug || c.id);
+  const causeIds = causeDetails.map((c: any) => (c || {}).slug || (c || {}).id);
 
   const diagnosticSteps = getDiagnosticSteps(causeIds);
   const relatedContent = getRelatedContent(symptomData);
@@ -105,9 +102,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
         affiliateUrl: t.affiliate_url ?? null,
       }));
     }
-  } catch (e) {
-    /* silent fail for static gen */
-  }
+  } catch (e) {}
 
   const pageViewModel = normalizePageData({
     rawContent,
@@ -117,13 +112,10 @@ export default async function SymptomPage({ params }: { params: { slug: string }
     graphCauses: causeDetails,
   });
 
-  // Fetch components from DB (rule-based mapping). Prefer over AI when available.
   let dbComponents: Array<{ name: string; slug: string; description?: string; link: string }> = [];
   try {
     dbComponents = await getComponentsForPage(params.slug);
-  } catch (e) {
-    /* silent fail for static gen */
-  }
+  } catch (e) {}
   const mergedComponents = dbComponents.length > 0
     ? dbComponents.map((c) => ({ name: c.name, link: c.link, description: c.description }))
     : pageViewModel.components ?? [];
@@ -136,13 +128,28 @@ export default async function SymptomPage({ params }: { params: { slug: string }
     components: ["compressor", "evaporator-coil"]
   };
 
+  const GENERIC_NARROW_DOWN = [
+    "Check if the system is receiving power",
+    "Verify airflow through vents or registers",
+    "Listen for unusual noises from the unit",
+    "Check thermostat settings and responsiveness",
+    "Inspect for visible leaks, ice, or blockages"
+  ];
+
+  const GENERIC_REPAIRS = [
+    { cause: "Dirty air filter", repair: "Replace air filter", cost_low: 10, cost_high: 40, difficulty: "Easy" },
+    { cause: "Thermostat issue", repair: "Reset or replace thermostat", cost_low: 50, cost_high: 250, difficulty: "Moderate" },
+    { cause: "Electrical fault", repair: "Inspect wiring or capacitor", cost_low: 150, cost_high: 400, difficulty: "Pro" },
+    { cause: "Refrigerant issue", repair: "Recharge or repair leak", cost_low: 200, cost_high: 800, difficulty: "Pro" }
+  ];
+
   const repairs = raw?.repairs?.length >= 3 ? raw.repairs : GENERIC_REPAIRS;
   const narrowDownSteps = raw?.narrow_down || GENERIC_NARROW_DOWN;
 
   const quickHackLinks = raw?.related || {
-    causes: (raw?.causes || []).slice(0, 3).map((c: any) => c.slug || c.id || c.name || c),
-    repairs: (raw?.repairs || []).slice(0, 3).map((r: any) => r.slug || r.id || r.name || r),
-    components: (mergedComponents || []).slice(0, 2).map((c: any) => c.slug || c.link || c.name)
+    causes: (raw?.causes || []).slice(0, 3).map((c: any) => c?.slug || c?.id || c?.name || c),
+    repairs: (raw?.repairs || []).slice(0, 3).map((r: any) => r?.slug || r?.id || r?.name || r),
+    components: (mergedComponents || []).slice(0, 2).map((c: any) => c?.slug || c?.link || c?.name)
   };
 
   const finalRelatedLinks = {
@@ -163,12 +170,13 @@ export default async function SymptomPage({ params }: { params: { slug: string }
         ],
     repairs,
     relatedLinks: finalRelatedLinks,
-    decisionTree: raw?.decision_tree ?? null,
+    decisionTree: pageViewModel.decisionTree ?? null,
     subtitle: raw?.subtitle ?? null,
-    diagnosticFlow: raw?.diagnostic_flow ?? null,
-    quickTools: raw?.quick_tools ?? null,
+    diagnosticFlow: raw?.diagnostic_flow ?? raw?.diagnosticFlow ?? (raw?.narrow_down ? raw.narrow_down.map((n: any, i: number) => ({ step: i + 1, title: n.question, actions: [n.yes_leads_to ? `Yes: ${n.yes_leads_to}` : null, n.no_leads_to ? `No: ${n.no_leads_to}` : null].filter(Boolean), interpretation: "Use this to isolate the core issue." })) : null),
+    quickTools: raw?.quick_tools ?? raw?.quickTools ?? null,
     clusterNav: raw?.cluster_nav ?? null,
-    topCauses: raw?.top_causes ?? null,
+    topCauses: raw?.top_causes ?? raw?.topCauses ?? null,
+    primaryCTA: raw?.primaryCTA ?? null, 
   };
 
 

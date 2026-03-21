@@ -97,14 +97,9 @@ export function getCauseDetails(causeId: string) {
 export async function getDiagnosticPageFromDB(slug: string): Promise<any | null> {
   try {
     const results = await sql`
-      SELECT 
-        p.*,
-        s.name as system_name,
-        sym.name as symptom_name
-      FROM pages p
-      LEFT JOIN systems s ON p.system_id = s.id
-      LEFT JOIN symptoms sym ON p.symptom_id = sym.id
-      WHERE p.slug = ${slug}
+      SELECT *
+      FROM pages
+      WHERE slug = ${slug}
       LIMIT 1
     `;
     return results[0] || null;

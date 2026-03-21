@@ -1,0 +1,47 @@
+{
+  "symptomCounts": [
+    {
+      "status": "completed",
+      "count": "66"
+    },
+    {
+      "status": "pending",
+      "count": "27"
+    },
+    {
+      "status": "processing",
+      "count": "3"
+    },
+    {
+      "status": "queued",
+      "count": "150"
+    }
+  ],
+  "symptomPendingSamples": [
+    {
+      "id": "8a47095a-6198-49a9-9ac4-eebea9b88363",
+      "proposed_slug": "ac-temperature-not-reaching-set-point",
+      "page_type": "symptom"
+    },
+    {
+      "id": "96a9a438-b58b-49f0-9350-e73eef29b66b",
+      "proposed_slug": "ac-drip-pan-overflowing",
+      "page_type": "symptom"
+    },
+    {
+      "id": "e2df20a2-b85c-4302-a545-6a8162c1ab22",
+      "proposed_slug": "humidity-too-high-home",
+      "page_type": "symptom"
+    },
+    {
+      "id": "bf6a4bb4-9f4f-40f9-a41e-7c28c7df9183",
+      "proposed_slug": "ac-cooling-only-downstairs",
+      "page_type": "symptom"
+    },
+    {
+      "id": "0333dc46-d469-4a2a-a698-c386d5566a2b",
+      "proposed_slug": "air-duct-mold-smell",
+      "page_type": "symptom"
+    }
+  ]
+}

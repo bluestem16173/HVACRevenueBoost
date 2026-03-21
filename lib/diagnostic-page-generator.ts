@@ -7,7 +7,6 @@
 
 import OpenAI from "openai";
 import * as dotenv from "dotenv";
-import { composeSystemPrompt } from "./ai-generator";
 import { safeJsonParse } from "@/lib/utils";
 dotenv.config({ path: ".env.local" });
 
@@ -27,120 +26,76 @@ export const DIAGNOSTIC_PAGE_SCHEMA = {
         system: { type: "string" },
         subsystem: { type: "string" },
         problem: { type: "string" },
-        breadcrumb_path: { type: "string" },
-        most_common_cause: { type: "string" },
       },
-      required: ["system", "subsystem", "problem", "most_common_cause"],
+      required: ["system", "subsystem", "problem"],
     },
-    intro: { type: "string", description: "2-3 sentence fast diagnostic intro" },
-    most_common_cause: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        cause: { type: "string" },
-        short_explanation: { type: "string" },
-        first_diagnostic_step: { type: "string" },
-      },
-      required: ["cause", "short_explanation", "first_diagnostic_step"],
+    systemExplanation: {
+      type: "array",
+      items: { type: "string" },
+      minItems: 3,
+      description: "Bullet points explaining how the system works",
     },
-    why_this_happens: {
+    decision_tree: {
       type: "string",
-      description: "Technical/educational explanation of the science behind the symptom. E.g. HVAC systems rely on refrigerant to transfer heat... When refrigerant levels drop, the evaporator coil cannot absorb enough heat. Builds authority and topic expertise.",
+      description: "Mermaid format decision tree (graph TD)",
     },
-    toc: {
+    diagnosticFlow: {
       type: "array",
-      items: { type: "string" },
-      minItems: 12,
-      description: "Anchor list for In This Guide",
-    },
-    diagnostic_flow: {
-      type: "array",
-      items: { type: "string" },
-      minItems: 4,
-      description: "Flowchart nodes: problem -> causes",
-    },
-    causes_table: {
-      type: "array",
-      minItems: 5,
+      minItems: 3,
       items: {
         type: "object",
         additionalProperties: false,
         properties: {
-          problem: { type: "string" },
-          likely_cause: { type: "string" },
-          fix_link: { type: "string" },
-        },
-        required: ["problem", "likely_cause", "fix_link"],
-      },
-    },
-    troubleshoot_intro: { type: "string" },
-    diagnostic_tree: {
-      type: "array",
-      items: {
-        type: "object",
-        additionalProperties: false,
-        properties: {
+          step: { type: "number" },
           question: { type: "string" },
-          if_no: { type: "string" },
-          if_yes: { type: "string" },
+          yes: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              action: { type: "string" },
+            },
+            required: ["action"],
+          },
+          no: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              action: { type: "string" },
+            },
+            required: ["action"],
+          },
         },
-        required: ["question", "if_no", "if_yes"],
+        required: ["step", "question", "yes", "no"],
       },
     },
-    causes: {
+    rankedCauses: {
       type: "array",
-      minItems: 5,
+      minItems: 1,
       items: {
         type: "object",
         additionalProperties: false,
         properties: {
-          cause_name: { type: "string" },
-          why_it_happens: { type: "string" },
-          symptoms: { type: "array", items: { type: "string" } },
-          repair_steps: { type: "array", items: { type: "string" } },
-          difficulty_level: { type: "string", enum: ["easy", "moderate", "advanced", "professional"] },
+          cause: { type: "string" },
+          probability: { type: "string" },
+          explanation: { type: "string" },
         },
-        required: ["cause_name", "why_it_happens", "symptoms", "repair_steps", "difficulty_level"],
+        required: ["cause", "probability", "explanation"],
       },
     },
-    related_problems: {
+    fixes: {
       type: "array",
-      items: { type: "string" },
-      minItems: 3,
-    },
-    repair_costs: {
-      type: "array",
-      minItems: 5,
+      minItems: 1,
       items: {
         type: "object",
         additionalProperties: false,
         properties: {
-          repair: { type: "string" },
-          diy_cost: { type: "string" },
-          professional_cost: { type: "string" },
+          fix: { type: "string" },
+          cost: { type: "string" },
+          difficulty: { type: "string" },
+          tools: { type: "array", items: { type: "string" } },
         },
-        required: ["repair", "diy_cost", "professional_cost"],
+        required: ["fix", "cost", "difficulty", "tools"],
       },
-    },
-    toolkit: {
-      type: "array",
-      items: { type: "string" },
-      minItems: 3,
-    },
-    common_mistakes: {
-      type: "array",
-      items: { type: "string" },
-      minItems: 3,
-    },
-    prevention: {
-      type: "array",
-      items: { type: "string" },
-      minItems: 3,
-    },
-    when_to_call_technician: {
-      type: "array",
-      items: { type: "string" },
-      minItems: 2,
     },
     continue_troubleshooting: {
       type: "array",
@@ -165,23 +120,13 @@ export const DIAGNOSTIC_PAGE_SCHEMA = {
   },
   required: [
     "header_context",
-    "intro",
-    "most_common_cause",
-    "why_this_happens",
-    "toc",
-    "diagnostic_flow",
-    "causes_table",
-    "troubleshoot_intro",
-    "diagnostic_tree",
-    "causes",
-    "related_problems",
-    "repair_costs",
-    "toolkit",
-    "common_mistakes",
-    "prevention",
-    "when_to_call_technician",
+    "systemExplanation",
+    "decision_tree",
+    "diagnosticFlow",
+    "rankedCauses",
+    "fixes",
     "continue_troubleshooting",
-    "faq",
+    "faq"
   ],
 };
 
@@ -251,7 +196,7 @@ ${graphCauses.length > 0 ? `Known causes from knowledge graph: ${graphCauses.map
 
 Produce structured JSON matching the schema. Ensure minimum 5 causes, 5 repairs, 4 FAQ.`;
 
-  const systemPrompt = composeSystemPrompt(DIAGNOSTIC_PAGE_PROMPT);
+  const systemPrompt = DIAGNOSTIC_PAGE_PROMPT;
 
   return callWithRetry(async () => {
     const response = await openai.chat.completions.create({

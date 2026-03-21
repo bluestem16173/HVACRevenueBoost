@@ -49,6 +49,9 @@ function resolveSectionData(
       case "most_common_fix":
         return vm.mostCommonFixCard ?? vm.mostCommonFix ? { fix: vm.mostCommonFixCard ?? vm.mostCommonFix } : null;
       case "diagnostic_flow":
+        if (Array.isArray(vm.diagnosticFlow)) {
+          return vm.diagnosticFlow.length ? { steps: vm.diagnosticFlow, hasDiagram: true } : null;
+        }
         return vm.diagnosticFlow?.steps?.length
           ? { steps: vm.diagnosticFlow.steps, hasDiagram: false }
           : null;

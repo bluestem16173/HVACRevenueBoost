@@ -26,6 +26,8 @@ export type SitemapLayer =
 export interface SitemapEntry {
   loc: string;
   lastmod: string;
+  changefreq?: string;
+  priority?: number;
 }
 
 function escapeXml(s: string) {
@@ -45,20 +47,22 @@ function toLastmod(d: Date): string {
 export function getStaticEntries(): SitemapEntry[] {
   const now = toLastmod(new Date());
   const routes = [
-    "",
-    "/repair",
-    "/diagnose",
-    "/hvac",
-    "/hvac-air-conditioning",
-    "/hvac-heating-systems",
-    "/hvac-airflow-ductwork",
-    "/hvac-electrical-controls",
-    "/hvac-thermostats-controls",
-    "/hvac-maintenance",
+    { url: "", priority: 1.0, changefreq: "daily" as const },
+    { url: "/repair", priority: 0.9, changefreq: "weekly" as const },
+    { url: "/diagnose", priority: 0.9, changefreq: "weekly" as const },
+    { url: "/hvac", priority: 0.8, changefreq: "weekly" as const },
+    { url: "/hvac-air-conditioning", priority: 0.8, changefreq: "weekly" as const },
+    { url: "/hvac-heating-systems", priority: 0.8, changefreq: "weekly" as const },
+    { url: "/hvac-airflow-ductwork", priority: 0.8, changefreq: "weekly" as const },
+    { url: "/hvac-electrical-controls", priority: 0.8, changefreq: "weekly" as const },
+    { url: "/hvac-thermostats-controls", priority: 0.8, changefreq: "weekly" as const },
+    { url: "/hvac-maintenance", priority: 0.8, changefreq: "weekly" as const },
   ];
   return routes.map((r) => ({
-    loc: `${BASE_URL}${r}`,
+    loc: `${BASE_URL}${r.url}`,
     lastmod: now,
+    changefreq: r.changefreq,
+    priority: r.priority,
   }));
 }
 
@@ -70,13 +74,15 @@ export async function getSystemEntries(): Promise<SitemapEntry[]> {
     return (rows as any[]).map((r) => ({
       loc: `${BASE_URL}/system/${r.slug}`,
       lastmod: now,
+      changefreq: "weekly",
+      priority: 0.8,
     }));
   } catch {
     return [
-      { loc: `${BASE_URL}/system/residential-ac`, lastmod: now },
-      { loc: `${BASE_URL}/system/rv-ac`, lastmod: now },
-      { loc: `${BASE_URL}/system/mini-split`, lastmod: now },
-      { loc: `${BASE_URL}/system/rooftop-hvac`, lastmod: now },
+      { loc: `${BASE_URL}/system/residential-ac`, lastmod: now, changefreq: "weekly", priority: 0.8 },
+      { loc: `${BASE_URL}/system/rv-ac`, lastmod: now, changefreq: "weekly", priority: 0.8 },
+      { loc: `${BASE_URL}/system/mini-split`, lastmod: now, changefreq: "weekly", priority: 0.8 },
+      { loc: `${BASE_URL}/system/rooftop-hvac`, lastmod: now, changefreq: "weekly", priority: 0.8 },
     ];
   }
 }
@@ -89,6 +95,8 @@ export async function getDiagnosticEntries(): Promise<SitemapEntry[]> {
     return (rows as any[]).map((r) => ({
       loc: `${BASE_URL}/diagnostic/${r.slug}`,
       lastmod: now,
+      changefreq: "weekly",
+      priority: 0.8,
     }));
   } catch {
     return [];
@@ -103,12 +111,16 @@ export async function getCityEntries(): Promise<SitemapEntry[]> {
     const fromDb = (rows as any[]).map((r) => ({
       loc: `${BASE_URL}/repair/${r.slug}`,
       lastmod: now,
+      changefreq: "monthly",
+      priority: 0.6,
     }));
     if (fromDb.length > 0) return fromDb;
   } catch {}
   return CITIES.map((c) => ({
     loc: `${BASE_URL}/repair/${c.slug}`,
     lastmod: now,
+    changefreq: "monthly",
+    priority: 0.6,
   }));
 }
 
@@ -118,26 +130,35 @@ export function getClusterEntries(): SitemapEntry[] {
   return CLUSTERS.map((c) => ({
     loc: `${BASE_URL}/cluster/${c.slug}`,
     lastmod: now,
+    changefreq: "weekly",
+    priority: 0.9,
   }));
 }
 
-/** Symptom pages from static + DB */
+/** Symptom pages from static + DB (URGENT SEO TARGETS) */
 export async function getSymptomEntries(): Promise<SitemapEntry[]> {
   const now = toLastmod(new Date());
   const staticEntries: SitemapEntry[] = SYMPTOMS.map((s) => ({
     loc: `${BASE_URL}/diagnose/${s.id}`,
     lastmod: now,
+    changefreq: "weekly",
+    priority: 0.9,
   }));
 
   try {
     const pages = await sql`
-      SELECT slug, created_at FROM pages
-      WHERE quality_status = 'published' AND quality_score >= 70 AND slug LIKE 'diagnose/%'
+      SELECT slug, created_at, updated_at FROM pages
+      WHERE slug LIKE 'diagnose/%'
+        AND (status = 'published' OR status = 'generated' OR quality_status = 'published')
+        AND (quality_status IS NULL OR quality_status != 'noindex')
+      ORDER BY updated_at DESC
       LIMIT 50000
     `;
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
       loc: `${BASE_URL}/${p.slug}`,
       lastmod: toLastmod(new Date(p.created_at || Date.now())),
+      changefreq: "weekly",
+      priority: 0.9,
     }));
     const seen = new Set(staticEntries.map((e) => e.loc));
     const unique = dbEntries.filter((e) => !seen.has(e.loc));
@@ -147,13 +168,36 @@ export async function getSymptomEntries(): Promise<SitemapEntry[]> {
   }
 }
 
-/** Condition pages */
-export function getConditionEntries(): SitemapEntry[] {
+/** Condition pages — static knowledge graph + AI-generated from DB */
+export async function getConditionEntries(): Promise<SitemapEntry[]> {
   const now = toLastmod(new Date());
-  return CONDITIONS.map((c) => ({
+  const staticEntries: SitemapEntry[] = CONDITIONS.map((c) => ({
     loc: `${BASE_URL}/conditions/${c.slug}`,
     lastmod: now,
+    changefreq: "monthly",
+    priority: 0.7,
   }));
+
+  try {
+    const pages = await sql`
+      SELECT slug, created_at, updated_at FROM pages
+      WHERE slug LIKE 'conditions/%'
+        AND (status = 'published' OR status = 'generated')
+      ORDER BY updated_at DESC
+      LIMIT 10000
+    `;
+    const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
+      loc: `${BASE_URL}/${p.slug}`,
+      lastmod: toLastmod(new Date(p.updated_at || p.created_at || Date.now())),
+      changefreq: "monthly",
+      priority: 0.7,
+    }));
+    const seen = new Set(staticEntries.map((e) => e.loc));
+    const unique = dbEntries.filter((e) => !seen.has(e.loc));
+    return [...staticEntries, ...unique];
+  } catch {
+    return staticEntries;
+  }
 }
 
 /** Cause pages - from knowledge graph + DB */
@@ -163,6 +207,8 @@ export async function getCauseEntries(): Promise<SitemapEntry[]> {
   const staticEntries: SitemapEntry[] = causes.map((slug) => ({
     loc: `${BASE_URL}/cause/${slug}`,
     lastmod: now,
+    changefreq: "monthly",
+    priority: 0.7,
   }));
 
   try {
@@ -174,6 +220,8 @@ export async function getCauseEntries(): Promise<SitemapEntry[]> {
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
       loc: `${BASE_URL}/${p.slug}`,
       lastmod: toLastmod(new Date(p.created_at || Date.now())),
+      changefreq: "monthly",
+      priority: 0.7,
     }));
     const seen = new Set(staticEntries.map((e) => e.loc));
     const unique = dbEntries.filter((e) => !seen.has(e.loc));
@@ -183,13 +231,15 @@ export async function getCauseEntries(): Promise<SitemapEntry[]> {
   }
 }
 
-/** Repair pages */
+/** Repair pages (MONEY PAGES) */
 export async function getRepairEntries(): Promise<SitemapEntry[]> {
   const now = toLastmod(new Date());
   const repairs = Object.keys(REPAIRS);
   const staticEntries: SitemapEntry[] = repairs.map((slug) => ({
     loc: `${BASE_URL}/fix/${slug}`,
     lastmod: now,
+    changefreq: "weekly",
+    priority: 1.0,
   }));
 
   try {
@@ -201,6 +251,8 @@ export async function getRepairEntries(): Promise<SitemapEntry[]> {
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
       loc: `${BASE_URL}/${p.slug}`,
       lastmod: toLastmod(new Date(p.created_at || Date.now())),
+      changefreq: "weekly",
+      priority: 1.0,
     }));
     const seen = new Set(staticEntries.map((e) => e.loc));
     const unique = dbEntries.filter((e) => !seen.has(e.loc));
@@ -234,6 +286,8 @@ export async function getComponentEntries(): Promise<SitemapEntry[]> {
   const staticEntries: SitemapEntry[] = components.map((slug) => ({
     loc: `${BASE_URL}/components/${slug}`,
     lastmod: now,
+    changefreq: "monthly",
+    priority: 0.5,
   }));
 
   try {
@@ -245,6 +299,8 @@ export async function getComponentEntries(): Promise<SitemapEntry[]> {
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
       loc: `${BASE_URL}/${p.slug}`,
       lastmod: toLastmod(new Date(p.created_at || Date.now())),
+      changefreq: "monthly",
+      priority: 0.5,
     }));
     const seen = new Set(staticEntries.map((e) => e.loc));
     const unique = dbEntries.filter((e) => !seen.has(e.loc));
@@ -273,6 +329,8 @@ export async function getLocalEntries(): Promise<SitemapEntry[]> {
           entries.push({
             loc: `${BASE_URL}/repair/${city.slug}/${symptom}`,
             lastmod: now,
+            changefreq: "weekly",
+            priority: 0.9,
           });
         }
       }
@@ -282,6 +340,8 @@ export async function getLocalEntries(): Promise<SitemapEntry[]> {
     return (pages as any[]).map((p) => ({
       loc: `${BASE_URL}/${p.slug}`,
       lastmod: toLastmod(new Date(p.created_at || now)),
+      changefreq: "weekly",
+      priority: 0.9,
     }));
   } catch {
     const now = toLastmod(new Date());
@@ -293,6 +353,8 @@ export async function getLocalEntries(): Promise<SitemapEntry[]> {
         entries.push({
           loc: `${BASE_URL}/repair/${city.slug}/${symptom}`,
           lastmod: now,
+          changefreq: "weekly",
+          priority: 0.9,
         });
       }
     }
@@ -317,7 +379,9 @@ ${entries
   .map(
     (e) => `  <url>
     <loc>${escapeXml(e.loc)}</loc>
-    <lastmod>${e.lastmod}</lastmod>
+    <lastmod>${e.lastmod}</lastmod>${
+      e.changefreq ? `\n    <changefreq>${e.changefreq}</changefreq>` : ""
+    }${e.priority !== undefined ? `\n    <priority>${e.priority.toFixed(1)}</priority>` : ""}
   </url>`
   )
   .join("\n")}

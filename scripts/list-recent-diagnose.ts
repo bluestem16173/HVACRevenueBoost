@@ -13,7 +13,8 @@ async function run() {
 
   console.log(`\n📋 ${rows.length} recently generated symptom pages:\n`);
   rows.forEach(r => {
-    const localUrl = `http://localhost:3002/${r.slug}`;
+    const port = process.env.DEV_PORT || process.env.PORT || "3000";
+    const localUrl = `http://localhost:${port}/${r.slug}`;
     console.log(`  [${r.quality_score}] ${String(r.status).padEnd(12)} ${localUrl}`);
   });
 
