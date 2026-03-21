@@ -22,7 +22,8 @@ export type SlugPageType =
   | "component"
   | "symptom_condition"
   | "location_hub"
-  | "diagnostic";
+  | "diagnostic"
+  | "tool";
 
 export function buildSlug(baseSlug: string, pageType: SlugPageType | string): string {
   const t = (pageType || "").toLowerCase();
@@ -36,6 +37,8 @@ export function buildSlug(baseSlug: string, pageType: SlugPageType | string): st
     case "repair":
     case "fix":
       return `repairs/${baseSlug}`;
+    case "tool":
+      return `tools/${baseSlug}`;
     case "symptom_condition":
     case "condition":
       return `conditions/${baseSlug}`;

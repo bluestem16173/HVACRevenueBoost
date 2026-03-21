@@ -29,6 +29,9 @@
     "db:master-seed": "npx tsx scripts/run-master-migration.ts seed",
     "db:master-verify": "npx tsx scripts/run-master-migration.ts verify",
     "canary": "npx tsx scripts/canary-batch.ts",
+    "analyze-pages": "npx tsx scripts/analyze-pages-export.ts",
+    "seed:tier1": "npx tsx scripts/seed-tier1-conditions.ts",
+    "worker": "npx tsx scripts/generation-worker.ts",
     "pr": "node scripts/open-pr.js"
   },
   "dependencies": {
@@ -50,6 +53,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "csv-parse": "^6.2.1",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
     "pg": "^8.20.0",

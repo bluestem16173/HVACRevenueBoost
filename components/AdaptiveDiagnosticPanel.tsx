@@ -4,12 +4,16 @@ import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 
 const DecisionTree = dynamic(() => import("@/components/DecisionTree"), { ssr: false });
+const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
 interface DiagnosticStep {
   step: number;
-  title: string;
-  actions: string[];
-  interpretation: string;
+  title?: string;
+  question?: string;
+  actions?: string[];
+  yes?: string | { action: string; next_step?: number; likely_cause?: string };
+  no?: string | { action: string; next_step?: number; likely_cause?: string };
+  interpretation?: string;
   field_insight?: string;
   related_causes?: string[];
 }
@@ -82,7 +86,7 @@ export default function AdaptiveDiagnosticPanel({ decisionTree, diagnosticFlow, 
             isRecommended ? "text-hvac-navy" : "text-white"
           }`}
         >
-          {step.title}
+          {step.title || step.question}
           {isRecommended && (
             <span className="ml-2 text-xs font-black uppercase tracking-widest opacity-70">
               ← Likely Match
@@ -103,6 +107,18 @@ export default function AdaptiveDiagnosticPanel({ decisionTree, diagnosticFlow, 
             ))}
           </ul>
         )}
+        {step.yes && (
+          <div className="text-sm text-slate-700 dark:text-slate-300 flex items-start gap-2">
+            <span className="text-green-600 font-bold shrink-0">Yes:</span>
+            {typeof step.yes === "string" ? step.yes : step.yes.action}
+          </div>
+        )}
+        {step.no && (
+          <div className="text-sm text-slate-700 dark:text-slate-300 flex items-start gap-2">
+            <span className="text-hvac-safety font-bold shrink-0">No:</span>
+            {typeof step.no === "string" ? step.no : step.no.action}
+          </div>
+        )}
         {step.interpretation && (
           <p className="text-sm font-medium text-slate-600 dark:text-slate-400 border-l-2 border-hvac-blue pl-3">
             <strong className="text-hvac-blue">Result: </strong>
@@ -120,14 +136,24 @@ export default function AdaptiveDiagnosticPanel({ decisionTree, diagnosticFlow, 
 
   return (
     <>
+      <div className="mb-6 p-4 bg-blue-50 dark:bg-hvac-blue/10 border-l-4 border-hvac-blue rounded-r-xl shadow-sm">
+        <p className="text-lg font-bold text-hvac-navy dark:text-blue-100 m-0 leading-relaxed">
+          🚀 Start Here: Follow the diagnostic flow and diagram below to quickly identify what’s causing your AC Issue and what to do next.
+        </p>
+      </div>
+
       {/* DECISION TREE 🔥 */}
-      {decisionTree && (
+      {decisionTree && typeof decisionTree === "string" ? (
+        <div className="mb-12">
+          <MermaidDiagram chart={decisionTree.replace(/^```mermaid\s*|^```\s*/i, "").replace(/```$/i, "").trim()} title="Diagnostic Triage Flow" />
+        </div>
+      ) : decisionTree ? (
         <DecisionTree
           tree={decisionTree}
           slug={slug}
           onCauseIdentified={handleCauseIdentified}
         />
-      )}
+      ) : null}
 
       {/* ① AUTO-SCROLL TARGET — invisible anchor just below tree result */}
       <div ref={resultRef} className="-mt-4 pt-4" />
@@ -196,6 +222,10 @@ export default function AdaptiveDiagnosticPanel({ decisionTree, diagnosticFlow, 
             {/* ADDITIONAL / ALL STEPS */}
             {additionalSteps.map((step, i) => renderStep(step, i, false))}
           </div>
+
+          <p className="mt-6 text-base font-medium text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/80 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+            👉 Once you’ve narrowed it down, see the likely cause, fix steps, and cost breakdown below.
+          </p>
         </section>
       )}
     </>

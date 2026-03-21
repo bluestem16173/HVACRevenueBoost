@@ -46,7 +46,6 @@ export default async function RepairPage({ params }: { params: { slug: string } 
     slug: params.slug,
     title: repair.name,
     graphTools: toolsRes,
-    legacyHtmlContent: contentJson?.html_content as string | null | undefined ?? null,
   });
 
   return (

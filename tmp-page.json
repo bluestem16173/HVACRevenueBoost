@@ -1,0 +1,92 @@
+{
+  "seo": {
+    "meta_title": "RV HVAC Inadequate Cooling Troubleshooting",
+    "meta_description": "Discover how to troubleshoot and fix inadequate cooling issues in your RV HVAC system with our comprehensive guide."
+  },
+  "slug": "/rv-hvac",
+  "title": "RV HVAC Troubleshooting Guide",
+  "system": "hvac",
+  "symptom": {
+    "name": "Inadequate Cooling",
+    "summary": "The HVAC system in your RV is not providing sufficient cooling, making it uncomfortable during hot weather.",
+    "severity": "high"
+  },
+  "page_type": "symptom",
+  "narrow_down": [
+    {
+      "question": "Is the thermostat set correctly?",
+      "no_leads_to": "Adjust thermostat settings.",
+      "yes_leads_to": "Check for airflow issues."
+    },
+    {
+      "question": "Are the air filters clean?",
+      "no_leads_to": "Clean or replace air filters.",
+      "yes_leads_to": "Check refrigerant levels."
+    }
+  ],
+  "_prompt_hash": "9ad0b063592559e12a459e17bd7302f75fe65e6e83e46a30802c0e50dcf32b77",
+  "quick_checks": [
+    {
+      "check": "Check the thermostat settings.",
+      "why_it_matters": "Incorrect thermostat settings can prevent the system from cooling effectively."
+    },
+    {
+      "check": "Inspect the air filters.",
+      "why_it_matters": "Dirty filters can restrict airflow and reduce cooling efficiency."
+    }
+  ],
+  "tools_needed": [
+    "Screwdriver",
+    "Multimeter"
+  ],
+  "decision_tree": "graph TD; A[Inadequate Cooling] -->|Thermostat set correctly| B[Check for airflow issues]; A -->|Thermostat set incorrectly| C[Adjust thermostat]; B -->|Airflow normal| D[Check refrigerant levels]; B -->|Airflow restricted| E[Clean filters]; D -->|Refrigerant levels normal| F[Inspect compressor]; D -->|Low refrigerant| G[Recharge refrigerant]; F -->|Compressor functioning| H[Inspect ductwork]; F -->|Compressor malfunctioning| I[Replace compressor]; H -->|Ductwork intact| J[Check insulation]; H -->|Ductwork damaged| K[Repair ductwork]; J -->|Insulation adequate| L[Check for leaks]; J -->|Insulation inadequate| M[Improve insulation]; L -->|No leaks| N[System functioning]; L -->|Leaks detected| O[Seal leaks];",
+  "likely_causes": [
+    {
+      "cause": "Dirty air filters",
+      "description": "Clogged filters restrict airflow, leading to inadequate cooling.",
+      "probability": 0.9,
+      "diagnostic_hint": "If airflow feels weak, check and replace filters."
+    },
+    {
+      "cause": "Low refrigerant levels",
+      "description": "Insufficient refrigerant can hinder the cooling process.",
+      "probability": 0.8,
+      "diagnostic_hint": "Listen for hissing sounds, which may indicate a leak."
+    },
+    {
+      "cause": "Compressor failure",
+      "description": "A malfunctioning compressor prevents the HVAC system from cooling.",
+      "probability": 0.7,
+      "diagnostic_hint": "If the system is running but not cooling, the compressor may be faulty."
+    }
+  ],
+  "repair_matrix": [
+    {
+      "fix": "Replace or clean filters",
+      "issue": "Dirty air filters",
+      "difficulty": "easy",
+      "cost_estimate": "$10 - $30"
+    },
+    {
+      "fix": "Recharge refrigerant",
+      "issue": "Low refrigerant levels",
+      "difficulty": "moderate",
+      "cost_estimate": "$100 - $300"
+    },
+    {
+      "fix": "Replace compressor",
+      "issue": "Compressor failure",
+      "difficulty": "hard",
+      "cost_estimate": "$500 - $1500"
+    }
+  ],
+  "schema_version": "v2.1-authority-symptom",
+  "related_repairs": [
+    "Refrigerant recharge",
+    "Compressor replacement"
+  ],
+  "related_symptoms": [
+    "Noisy HVAC system",
+    "Foul odor from vents"
+  ]
+}

@@ -161,6 +161,14 @@ export interface PreventionTip {
   description?: string;
 }
 
+/** Diagnostic step for Master Prompt json output */
+export interface DiagnosticStep {
+  step: number;
+  question: string;
+  yes: { action: string; next_step?: number; likely_cause?: string };
+  no: { action: string; next_step?: number; likely_cause?: string };
+}
+
 /** Diagnostic flow placeholder (Mermaid disabled for now) */
 export interface DiagnosticFlowPlaceholderData {
   hasDiagram: boolean;
@@ -169,6 +177,7 @@ export interface DiagnosticFlowPlaceholderData {
   /** Human-readable steps when diagram unavailable */
   steps: string[];
 }
+
 
 /** FAQ item */
 export interface FAQItem {
@@ -199,7 +208,7 @@ export interface BasePageViewModel {
   causesTable?: CauseSummaryRow[];
   rankedCauses?: RankedCauseCard[];
   repairOptions?: RepairOptionCard[];
-  diagnosticFlow?: DiagnosticFlowPlaceholderData | null;
+  diagnosticFlow?: DiagnosticStep[] | DiagnosticFlowPlaceholderData | null;
   faq?: FAQItem[];
   relatedLinks?: RelatedLink[];
   warnings?: string[];
@@ -214,6 +223,8 @@ export interface BasePageViewModel {
   environmentConditions?: Array<{ name: string; description?: string }>;
   /** JSON-LD schema for SEO */
   schemaJson?: Record<string, unknown>;
+  /** Strict mapped decision tree from graph or graph output */
+  decisionTree?: string | Record<string, unknown> | null;
   /** Diagram 1: Primary diagnostic triage — narrow symptom to likely causes */
   diagnosticFlowMermaid?: string | null;
   /** Diagram 2: Cause confirmation — verify which cause fits, route to repair */

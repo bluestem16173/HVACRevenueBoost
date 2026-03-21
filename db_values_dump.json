@@ -1,0 +1,185 @@
+{
+  "slug": "diagnose/air-duct-mold-smell",
+  "decision_tree": {
+    "causes": [
+      {
+        "id": "clogged_condensate_drain",
+        "name": "Clogged Condensate Drain",
+        "cta_label": "Clear Drain",
+        "score_map": {
+          "water_pooling:yes": 3,
+          "humidity_levels:yes": 2
+        },
+        "recommended_action": "Clear the condensate drain to prevent water buildup."
+      },
+      {
+        "id": "poor_duct_insulation",
+        "name": "Poor Duct Insulation",
+        "cta_label": "Repair Insulation",
+        "score_map": {
+          "duct_insulation:no": 3,
+          "humidity_levels:yes": 1
+        },
+        "recommended_action": "Replace or repair duct insulation to prevent condensation."
+      },
+      {
+        "id": "high_humidity_levels",
+        "name": "High Humidity Levels",
+        "cta_label": "Install Dehumidifier",
+        "score_map": {
+          "mold_presence:yes": 2,
+          "humidity_levels:yes": 3
+        },
+        "recommended_action": "Install a dehumidifier to control indoor humidity."
+      },
+      {
+        "id": "leaky_ducts",
+        "name": "Leaky Ducts",
+        "cta_label": "Seal Ducts",
+        "score_map": {
+          "duct_leaks:yes": 3,
+          "mold_presence:yes": 1
+        },
+        "recommended_action": "Seal duct leaks to prevent humid air infiltration."
+      }
+    ],
+    "questions": [
+      {
+        "id": "water_pooling",
+        "weight": 3,
+        "options": [
+          {
+            "label": "Yes",
+            "value": "yes"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ],
+        "question": "Is there water pooling around the HVAC unit?"
+      },
+      {
+        "id": "duct_insulation",
+        "weight": 2,
+        "options": [
+          {
+            "label": "Yes",
+            "value": "yes"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ],
+        "question": "Is the duct insulation intact and dry?"
+      },
+      {
+        "id": "humidity_levels",
+        "weight": 3,
+        "options": [
+          {
+            "label": "Yes",
+            "value": "yes"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ],
+        "question": "Are indoor humidity levels above 60%?"
+      },
+      {
+        "id": "duct_leaks",
+        "weight": 2,
+        "options": [
+          {
+            "label": "Yes",
+            "value": "yes"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ],
+        "question": "Are there visible leaks in the ductwork?"
+      },
+      {
+        "id": "mold_presence",
+        "weight": 3,
+        "options": [
+          {
+            "label": "Yes",
+            "value": "yes"
+          },
+          {
+            "label": "No",
+            "value": "no"
+          }
+        ],
+        "question": "Is there visible mold in or around the ducts?"
+      }
+    ]
+  },
+  "diagnostic_flow": [
+    {
+      "step": 1,
+      "title": "Inspect Condensate Drain",
+      "actions": [
+        "Check for water pooling around the drain pan.",
+        "Ensure the drain line is clear of obstructions."
+      ],
+      "field_insight": "A simple visual inspection can often reveal blockages; use a wet/dry vacuum to clear minor clogs.",
+      "interpretation": "If the drain is clogged, it can cause water to back up, leading to mold growth.",
+      "related_causes": [
+        "clogged_condensate_drain"
+      ]
+    },
+    {
+      "step": 2,
+      "title": "Evaluate Duct Insulation",
+      "actions": [
+        "Inspect ductwork for missing or damaged insulation.",
+        "Measure surface temperature of ducts to check for condensation."
+      ],
+      "field_insight": "Use a thermal camera to quickly identify areas of poor insulation.",
+      "interpretation": "Poor insulation can lead to condensation, which supports mold growth.",
+      "related_causes": [
+        "poor_duct_insulation"
+      ]
+    },
+    {
+      "step": 3,
+      "title": "Measure Indoor Humidity",
+      "actions": [
+        "Use a hygrometer to measure humidity levels in the home.",
+        "Check for signs of excess moisture in living areas."
+      ],
+      "field_insight": "Consider using a dehumidifier if humidity consistently exceeds 60%.",
+      "interpretation": "High humidity levels can exacerbate mold issues in ductwork.",
+      "related_causes": [
+        "high_humidity_levels"
+      ]
+    },
+    {
+      "step": 4,
+      "title": "Inspect for Duct Leaks",
+      "actions": [
+        "Perform a visual inspection for gaps or holes in ductwork.",
+        "Conduct a duct leakage test if necessary."
+      ],
+      "field_insight": "Sealing duct leaks can improve system efficiency and reduce mold risks.",
+      "interpretation": "Leaky ducts can introduce humid air, leading to condensation and mold.",
+      "related_causes": [
+        "leaky_ducts"
+      ]
+    }
+  ],
+  "narrow_down": [
+    "Check if the system is receiving power",
+    "Verify airflow through vents or registers",
+    "Listen for unusual noises from the unit",
+    "Check thermostat settings and responsiveness",
+    "Inspect for visible leaks, ice, or blockages"
+  ]
+}

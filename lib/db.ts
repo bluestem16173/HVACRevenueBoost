@@ -4,6 +4,10 @@ dotenv.config({ path: ".env.local" });
 
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 
+function normalizeSlug(slug: string) {
+  return slug.replace(/^\/+/, "").trim();
+}
+
 /**
  * Neon Database Client
  * --------------------
@@ -30,7 +34,6 @@ function getSql(): NeonQueryFunction<false, false> {
   }
 
   _sql = neon(url);
-  console.log('DB connected:', !!process.env.DATABASE_URL);
   return _sql;
 }
 
@@ -45,6 +48,7 @@ export default sql;
  */
 export async function getDiagnosticData(slug: string) {
   try {
+    const normalized = normalizeSlug(slug);
     const results = await sql`
       SELECT 
         p.*, 
@@ -53,7 +57,7 @@ export async function getDiagnosticData(slug: string) {
       FROM pages p
       LEFT JOIN systems s ON p.system_id = s.id
       LEFT JOIN symptoms sym ON p.symptom_id = sym.id
-      WHERE p.slug = ${slug}
+      WHERE p.slug = ${normalized}
       LIMIT 1
     `;
     return results[0] || null;
@@ -121,10 +125,11 @@ export async function getContractorsByCity(citySlug: string) {
  */
 export async function getPageBySlug(fullSlug: string) {
   try {
+    const normalized = normalizeSlug(fullSlug);
     const results = await sql`
       SELECT slug, title, page_type, content_json
       FROM pages
-      WHERE slug = ${fullSlug}
+      WHERE slug = ${normalized}
       LIMIT 1
     `;
     const row = results[0] as { slug?: string; title?: string; page_type?: string; content_json?: unknown } | undefined;

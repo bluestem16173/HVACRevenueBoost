@@ -81,9 +81,19 @@ export default function SymptomPageTemplate({
       mechanical?: Array<{ name: string; difficulty: string; estimated_cost_range?: string; description?: string }>;
       structural?: Array<{ name: string; difficulty: string; estimated_cost_range?: string; description?: string }>;
     } | null;
+    primaryCTA?: {
+      headline: string;
+      subtext: string;
+      buttonText: string;
+      url: string;
+    };
   };
 }) {
   // Resolve causes from DB or static KG
+  if (!scalingData?.decisionTree) {
+    console.error("Missing decision tree for:", symptom.id);
+  }
+
   const fullCauses = (Array.isArray(causeDetails) && causeDetails.length > 0)
     ? causeDetails
     : (causeIds || []).map((id: string) => getCauseDetails?.(id)).filter(Boolean);
@@ -189,35 +199,12 @@ export default function SymptomPageTemplate({
     .sort((a: any, b: any) => (a._isLow ? 0 : 1) - (b._isLow ? 0 : 1)) // low first
     .slice(0, 6);
 
-  const rawChecklist = vm.checklist ?? vm.diagnosticFlow?.steps ?? null;
-  // Also accept new diagnostic_flow format from scalingData
-  const diagnosticFlowSteps = scalingData?.diagnosticFlow;
-  const checklist: string[] = (() => {
-    // Priority 1: scalingData.diagnosticFlow (new schema)
-    if (Array.isArray(diagnosticFlowSteps) && diagnosticFlowSteps.length > 0) {
-      return diagnosticFlowSteps.map((s: any) =>
-        typeof s === "string" ? s :
-        typeof s?.title === "string" ? s.title :
-        typeof s?.instruction === "string" ? s.instruction : null
-      ).filter(Boolean) as string[];
-    }
-    // Priority 2: vm.checklist (legacy)
-    if (Array.isArray(rawChecklist) && rawChecklist.length > 0) {
-      return rawChecklist.map((item: any) =>
-        typeof item === "string" ? item :
-        typeof item?.instruction === "string" ? item.instruction :
-        typeof item?.text === "string" ? item.text :
-        null
-      ).filter(Boolean) as string[];
-    }
-    // Fallback
-    return [
-      "Verify thermostat is set to cool and set below room temperature",
-      "Replace dirty air filter — a clogged filter is the #1 cause of reduced airflow",
-      "Reset the HVAC breaker at the panel and wait 30 seconds before restarting",
-      "Check outdoor condenser coil for debris, ice, or blockage",
-    ];
-  })();
+  const checklist = Array.isArray(vm.checklist) && vm.checklist.length > 0 ? vm.checklist : [
+    "Verify thermostat is set to cool and set below room temperature",
+    "Replace dirty air filter — a clogged filter is the #1 cause of reduced airflow",
+    "Reset the HVAC breaker at the panel and wait 30 seconds before restarting",
+    "Check outdoor condenser coil for debris, ice, or blockage",
+  ];
 
   const whenToCallWarnings = vm.whenToCallProWarnings ?? [
     { type: "Electrical", description: "Contactors, capacitors, control boards require LOTO training." },
@@ -291,22 +278,64 @@ export default function SymptomPageTemplate({
           </div>
           {layout.map((sectionKey) => {
             if (sectionKey === "system_overview") {
-              return <SystemOverviewBlock key="system_overview" variant="symptom" />;
+              return (
+                <SystemOverviewBlock 
+                  key="system_overview" 
+                  variant="symptom" 
+                  systemExplanation={scalingData?.systemExplanation} 
+                />
+              );
             }
             if (sectionKey === "conditional_diagram") {
               return <ConditionalDiagram key="conditional_diagram" symptomSlug={symptom.id} />;
+            }
+            if (sectionKey === "diagnostic_flow" || sectionKey === "adaptive_diagnostic_panel") {
+              return (
+                <AdaptiveDiagnosticPanel
+                  key="adaptive_diagnostic"
+                  decisionTree={scalingData?.decisionTree ?? null}
+                  diagnosticFlow={scalingData?.diagnosticFlow ?? []}
+                  slug={symptom.id}
+                />
+              );
             }
             const Component = SECTION_MAP[sectionKey];
             const data = sectionsObj[sectionKey];
             if (!Component || data === undefined || data === null) return null;
             return (
-              <Component
-                key={sectionKey}
-                data={data}
-                symptomName={sectionKey === "hero" ? symptom.name : undefined}
-              />
+              <React.Fragment key={sectionKey}>
+                <Component
+                  data={data}
+                  symptomName={sectionKey === "hero" ? symptom.name : undefined}
+                />
+                {/* INJECT CTA DIRECTLY AFTER HERO IN CANARY LAYOUT */}
+                {sectionKey === "hero" && scalingData?.primaryCTA && (
+                  <section className="cta-primary mt-8 mb-12 bg-hvac-blue dark:bg-hvac-navy p-8 rounded-2xl shadow-xl border border-hvac-blue/20 text-center relative overflow-hidden">
+                     <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-cyan-400/20 opacity-50 z-0"></div>
+                     <div className="relative z-10 flex flex-col items-center max-w-2xl mx-auto">
+                       <h2 className="text-3xl font-black text-white mb-3 leading-tight">{scalingData.primaryCTA.headline}</h2>
+                       <p className="text-blue-100 mb-6 text-lg font-medium">{scalingData.primaryCTA.subtext}</p>
+                       <a href={(scalingData.primaryCTA.url || "").replace("{{GHL_CTA_URL}}", process.env.NEXT_PUBLIC_GHL_URL || "/get-quote")} className="btn-primary w-full sm:w-auto inline-flex items-center justify-center bg-hvac-gold hover:bg-yellow-400 text-hvac-navy font-black py-4 px-10 rounded-full text-lg transition-transform hover:scale-105 shadow-xl uppercase tracking-widest">
+                         <span>{scalingData.primaryCTA.buttonText}</span>
+                         <AlertTriangle className="w-5 h-5 ml-2" />
+                       </a>
+                     </div>
+                  </section>
+                )}
+              </React.Fragment>
             );
           })}
+
+          {/* FORCED KEY COMPONENTS (Even if layout breaks) */}
+          {/* <AdaptiveNarrowPanel rankedCauses={scalingData?.rankedCauses} /> (To be implemented) */}
+          {scalingData?.repairMatrix && (
+            <AdaptiveRepairMatrix repairMatrix={scalingData.repairMatrix} />
+          )}
+          <AdaptiveDiagnosticPanel
+            decisionTree={scalingData?.decisionTree}
+            diagnosticFlow={scalingData?.diagnosticFlow ?? []}
+            slug={symptom.id}
+          />
         </div>
       </div>
     );
@@ -354,6 +383,28 @@ export default function SymptomPageTemplate({
             dangerouslySetInnerHTML={{ __html: descriptionHtml || "" }}
           />
         </section>
+
+        {/* PRIMARY CTA (ABOVE THE FOLD) 🔥 */}
+        {scalingData?.primaryCTA && (
+          <section className="cta-primary mb-12 bg-hvac-blue dark:bg-hvac-navy p-8 rounded-2xl shadow-xl border border-hvac-blue/20 text-center relative overflow-hidden">
+             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-cyan-400/20 opacity-50 z-0"></div>
+             <div className="relative z-10 flex flex-col items-center max-w-2xl mx-auto">
+               <h2 className="text-3xl font-black text-white mb-3 leading-tight">
+                 {scalingData.primaryCTA.headline}
+               </h2>
+               <p className="text-blue-100 mb-6 text-lg font-medium">
+                 {scalingData.primaryCTA.subtext}
+               </p>
+               <a 
+                 href={(scalingData.primaryCTA.url || "").replace("{{GHL_CTA_URL}}", process.env.NEXT_PUBLIC_GHL_URL || "/get-quote")} 
+                 className="btn-primary w-full sm:w-auto inline-flex items-center justify-center bg-hvac-gold hover:bg-yellow-400 text-hvac-navy font-black py-4 px-10 rounded-full text-lg transition-transform hover:scale-105 shadow-xl uppercase tracking-widest"
+               >
+                 <span>{scalingData.primaryCTA.buttonText}</span>
+                 <AlertTriangle className="w-5 h-5 ml-2" />
+               </a>
+             </div>
+          </section>
+        )}
 
         <SystemOverviewBlock variant="symptom" />
 
@@ -466,22 +517,12 @@ export default function SymptomPageTemplate({
           </section>
         )}
 
-        {/* 1. DIY VS PRO — STATIC chart: Only air filter is DIY; all others Pro (same on every page) */}
+
+
+        {/* 1. DIY VS PRO PILLARS */}
         <section className="mb-12" id="diy-vs-pro">
-          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">DIY vs Professional</h2>
+          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">DIY vs Professional Categories</h2>
           <p className="text-slate-600 dark:text-slate-400 mb-6">Only clogged air filter is DIY-friendly. Electrical, chemical, and mechanical work require a professional.</p>
-          <MermaidDiagram
-            chart={`flowchart TD
-  A[Repair Type] --> B{Which system?}
-  B -->|Electrical| C[🔴 Professional Required]
-  B -->|Chemical / Refrigerant| D[🔴 Professional Required]
-  B -->|Mechanical| E[🔴 Professional Required]
-  B -->|Structural| F[🟢 DIY Possible]
-  F --> F1[Clogged air filter only]
-  F1 --> F2[⚠ May void warranty]`}
-            title="DIY vs Pro by System"
-            className="min-h-[280px]"
-          />
           {/* 4 pillar boxes: neutral background + badge only (no red blocks) */}
           <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
@@ -684,22 +725,6 @@ export default function SymptomPageTemplate({
             </section>
           );
         })()}
-
-        {/* 5. DIY VS PRO — second Mermaid: Electrical, Chemical, Mechanical → Pro; Structural (filters, thermostat) → DIY with warranty caveat */}
-        <section className="mb-16" id="pillar-triage">
-          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Which System Is Failing?</h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-6">These are the four systems that can break in any HVAC system. Narrow by pillar to diagnose.</p>
-          {(() => {
-            const symName = (symptom.name ?? "Symptom").replace(/"/g, "'");
-            const pillarTriageChart = vm.diagnosticFlowMermaid ?? vm.causeConfirmationMermaid ?? `flowchart TD
-  A["${symName}"] --> B{Which system is failing?}
-  B --> C[Electrical]
-  B --> D[Structural]
-  B --> E[Chemical]
-  B --> F[Mechanical]`;
-            return <MermaidDiagram chart={pillarTriageChart} title="Pillar Triage" className="min-h-[280px]" />;
-          })()}
-        </section>
 
         {/* ADAPTIVE REPAIR MATRIX — highlights items matching the diagnosis */}
         {scalingData?.repairMatrix && (

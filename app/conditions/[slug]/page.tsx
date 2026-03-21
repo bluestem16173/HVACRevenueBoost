@@ -11,6 +11,7 @@ import { toSafeString } from "@/lib/content";
 import { getClusterForSymptom } from "@/lib/clusters";
 import { SYMPTOMS } from "@/data/knowledge-graph";
 import { getPageBySlug, getAllPagesByType } from "@/lib/db";
+import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import MermaidInit from "@/components/MermaidInit";
 import ConditionPageTemplate from "@/templates/ConditionPageTemplate";
 
@@ -34,8 +35,9 @@ export const dynamicParams = true;
 
 export async function generateStaticParams() {
   const staticFromGraph = CONDITIONS.map((c) => ({ slug: c.slug }));
-  const dbPages = await getAllPagesByType("symptom");
-  const fromDb = dbPages
+  const dbSymptom = await getAllPagesByType("symptom");
+  const dbCondition = await getAllPagesByType("condition");
+  const fromDb = [...dbSymptom, ...dbCondition]
     .filter((p) => p.slug?.startsWith("conditions/"))
     .map((p) => ({ slug: p.slug.replace("conditions/", "") }));
   const seen = new Set(staticFromGraph.map((s) => s.slug));
@@ -45,7 +47,19 @@ export async function generateStaticParams() {
 
 export default async function ConditionPage({ params }: { params: { slug: string } }) {
   const fullSlug = `conditions/${params.slug}`;
-  const page = await getPageBySlug(fullSlug);
+  let page = await getPageBySlug(fullSlug);
+  if (!page) {
+    const diagRow = await getDiagnosticPageFromDB(fullSlug);
+    if (diagRow) {
+      const cj = typeof diagRow.content_json === "string" ? (() => { try { return JSON.parse(diagRow.content_json); } catch { return diagRow.content_json; } })() : diagRow.content_json;
+      page = {
+        slug: diagRow.slug,
+        title: diagRow.title ?? (cj?.title as string),
+        html: (cj?.html_content as string) ?? "",
+        content_json: cj ?? diagRow.content_json,
+      };
+    }
+  }
 
   // AI-generated page in DB: render via template (locked schema) or fallback HTML
   if (page) {
@@ -53,7 +67,6 @@ export default async function ConditionPage({ params }: { params: { slug: string
     const useTemplate = hasLockedConditionSchema(cj);
 
     if (useTemplate && cj) {
-      console.log("PAGE DATA:", JSON.stringify(cj, null, 2));
       return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
           <nav className="max-w-5xl mx-auto px-4 py-4 text-sm text-gray-500">
@@ -83,7 +96,7 @@ export default async function ConditionPage({ params }: { params: { slug: string
           <h1 className="text-4xl md:text-5xl font-black text-hvac-navy dark:text-white leading-tight mb-6">
             {page.title}
           </h1>
-          <div dangerouslySetInnerHTML={{ __html: page.html }} />
+          <div dangerouslySetInnerHTML={{ __html: page.html ?? "" }} />
         </section>
       </div>
     );

@@ -93,9 +93,6 @@ export default function ConditionPageTemplate({ page }: { page: ConditionPageDat
     return <div>Page failed to load</div>;
   }
 
-  // @ts-ignore
-  console.log("Rendered condition page:", page.slug);
-
   const pageSafe = {
     primaryCauses: [],
     repairOptions: [],

@@ -1,0 +1,26 @@
+{
+  "firstPending": {
+    "id": "e507e576-d8f2-4782-9fe3-aa745c03ad20",
+    "proposed_slug": "multimeter-hvac-guide",
+    "page_type": "tool",
+    "status": "pending"
+  },
+  "counts": [
+    {
+      "status": "completed",
+      "count": "1496"
+    },
+    {
+      "status": "pending",
+      "count": "111"
+    },
+    {
+      "status": "processing",
+      "count": "5"
+    },
+    {
+      "status": "queued",
+      "count": "157"
+    }
+  ]
+}
