@@ -1,6 +1,7 @@
 import "dotenv/config";
 import sql from '../lib/db';
 import { generateTwoStagePage } from '../lib/content-engine/generator';
+import { fallbackJson } from '../lib/content-engine/schema';
 import { EXPECTED_PROMPT_HASH } from '../lib/content-engine/core';
 import { normalizeToBaseSlug, buildSlug } from '../lib/slug-helpers';
 
@@ -87,6 +88,19 @@ export async function runWorker(options: { limit?: number, manual?: boolean } = 
 
         console.log("📦 GENERATED SUCCESS:", proposedSlug);
         console.log("✅ VALIDATION PASSED:", proposedSlug);
+
+        const isFallback = result.hero?.headline === fallbackJson.hero.headline;
+        console.log({
+          slug: proposedSlug,
+          status: 'published',
+          hasFallback: isFallback,
+          causes: result.commonCauses?.length,
+          steps: result.diagnosticFlow?.length,
+        });
+
+        if (isFallback) {
+          console.warn(`⚠️ FALLBACK USED: ${proposedSlug}`);
+        }
 
         const cleanSlug = normalizeSlug(proposedSlug);
         const fullSlug = `diagnose/${cleanSlug}`;

@@ -4,13 +4,13 @@ dotenv.config({ path: ".env.local" });
 import OpenAI from "openai";
 import {
   MASTER_SYSTEM_PROMPT,
-  EXPECTED_PROMPT_HASH
+  EXPECTED_PROMPT_HASH,
+  ENGINE_VERSION,
+  validateContent
 } from "./core";
 
 import {
-  Schema,
-  fallbackJson,
-  validateContent
+  fallbackJson
 } from "./schema";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -44,6 +44,26 @@ async function callWithRetry<T>(
   }
   console.error("FAILED_AFTER_3_ATTEMPTS", lastError);
   return { ...fallbackJson, _prompt_hash: EXPECTED_PROMPT_HASH } as any as T;
+}
+
+function finalizeOutput(raw: string) {
+  try {
+    const cleaned = raw.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim();
+    const parsed = JSON.parse(cleaned);
+    const source = parsed?.payload ?? parsed;
+
+    const result = validateContent(source);
+
+    if (!result.success) {
+      console.error("ZOD ERROR:", result.error.flatten());
+      return fallbackJson;
+    }
+
+    return result.data;
+  } catch (err) {
+    console.error("PARSE ERROR:", err);
+    return fallbackJson;
+  }
 }
 
 export async function generateTwoStagePage(
@@ -94,22 +114,11 @@ If you are unsure, prioritize correct structure over verbosity.`;
       throw new Error("Generation API: output truncated (missing closing brace)");
     }
 
-    let parsed;
-    try {
-      const cleaned = raw.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim();
-      parsed = JSON.parse(cleaned);
-    } catch (err) {
-      console.error("🚨 CRITICAL: LLM Returned Invalid JSON. Resorting to fallback payload. Error:", err, "Raw:", raw);
-      parsed = fallbackJson;
-    }
-
-    const source = parsed?.payload ?? parsed;
-
-    const content = Schema.parse(source);
-    validateContent(content);
+    const content = finalizeOutput(raw);
 
     // Assign locks so the worker can enforce them
     (content as any)._prompt_hash = EXPECTED_PROMPT_HASH;
+    (content as any).engineVersion = ENGINE_VERSION;
 
     return content;
   });

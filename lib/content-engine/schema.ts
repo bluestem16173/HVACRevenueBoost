@@ -112,20 +112,7 @@ export const fallbackUnifiedContent: GeneratedContent = {
 export const fallbackJson = fallbackUnifiedContent;
 UnifiedGeneratedContentSchema.parse(fallbackUnifiedContent);
 
-export function validateContent(content: GeneratedContent): void {
-  if (
-    !content.hero ||
-    !content.diagnosticFlow ||
-    !Array.isArray(content.commonCauses) ||
-    content.commonCauses.length < 2 ||
-    !Array.isArray(content.quickChecks) ||
-    content.quickChecks.length < 2 ||
-    !Array.isArray(content.solutions) ||
-    content.solutions.length < 2 ||
-    !content.cta ||
-    !Array.isArray(content.faq) ||
-    content.faq.length < 3
-  ) {
-    throw new Error('INVALID CONTENT');
-  }
+export function isValidContent(data: unknown): data is GeneratedContent {
+  const result = Schema.safeParse(data);
+  return result.success;
 }

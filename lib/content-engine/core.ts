@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
+import { Schema, GeneratedContent } from './schema';
 
+export const ENGINE_VERSION = "v2.1";
 export const MASTER_SYSTEM_PROMPT = `
 YOU ARE A STRUCTURED HVAC DIAGNOSTIC CONTENT ENGINE.
 
@@ -139,3 +141,7 @@ VALIDATE STRUCTURE INTERNALLY BEFORE OUTPUT.
 export const EXPECTED_PROMPT_HASH = createHash('sha256')
   .update(MASTER_SYSTEM_PROMPT, 'utf8')
   .digest('hex');
+
+export function validateContent(data: unknown) {
+  return Schema.safeParse(data);
+}
