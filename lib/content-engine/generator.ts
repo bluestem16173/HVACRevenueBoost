@@ -3,14 +3,16 @@ dotenv.config({ path: ".env.local" });
 
 import OpenAI from "openai";
 import {
-  MASTER_SYSTEM_PROMPT,
+  MASTER_SYMPTOM_PROMPT,
+  MASTER_CAUSE_PROMPT,
   EXPECTED_PROMPT_HASH,
+  EXPECTED_CAUSE_PROMPT_HASH,
   ENGINE_VERSION,
   validateContent
 } from "./core";
 
 import {
-  fallbackJson
+  getFallback
 } from "./schema";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -26,9 +28,9 @@ function isJsonTruncated(str: string): boolean {
 // --- RETRY ---
 async function callWithRetry<T>(
   fn: () => Promise<T>,
-  options: { maxRetries?: number } = {}
+  options: { maxRetries?: number, pageType?: string } = {}
 ): Promise<T> {
-  const { maxRetries = 3 } = options;
+  const { maxRetries = 3, pageType = "symptom" } = options;
   let lastError: unknown;
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -43,26 +45,28 @@ async function callWithRetry<T>(
     }
   }
   console.error("FAILED_AFTER_3_ATTEMPTS", lastError);
-  return { ...fallbackJson, _prompt_hash: EXPECTED_PROMPT_HASH } as any as T;
+  const hash = pageType === 'cause' ? EXPECTED_CAUSE_PROMPT_HASH : EXPECTED_PROMPT_HASH;
+  return { ...getFallback(pageType), _prompt_hash: hash } as any as T;
 }
 
-function finalizeOutput(raw: string) {
+function finalizeOutput(raw: string, pageType: string) {
+  const fallback = getFallback(pageType);
   try {
     const cleaned = raw.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim();
     const parsed = JSON.parse(cleaned);
     const source = parsed?.payload ?? parsed;
 
-    const result = validateContent(source);
+    const result = validateContent(source, pageType);
 
     if (!result.success) {
       console.error("ZOD ERROR:", result.error.flatten());
-      return fallbackJson;
+      return fallback;
     }
 
     return result.data;
   } catch (err) {
     console.error("PARSE ERROR:", err);
-    return fallbackJson;
+    return fallback;
   }
 }
 
@@ -94,10 +98,12 @@ IMPORTANT:
 You must strictly follow the required JSON structure.
 If you are unsure, prioritize correct structure over verbosity.`;
 
+    const prompt = pageType === 'cause' ? MASTER_CAUSE_PROMPT : MASTER_SYMPTOM_PROMPT;
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: MASTER_SYSTEM_PROMPT },
+        { role: "system", content: prompt },
         { role: "user", content: userMsg },
       ],
       response_format: { type: "json_object" },
@@ -114,12 +120,22 @@ If you are unsure, prioritize correct structure over verbosity.`;
       throw new Error("Generation API: output truncated (missing closing brace)");
     }
 
-    const content = finalizeOutput(raw);
+    const content = finalizeOutput(raw, pageType);
 
     // Assign locks so the worker can enforce them
-    (content as any)._prompt_hash = EXPECTED_PROMPT_HASH;
+    const hash = pageType === 'cause' ? EXPECTED_CAUSE_PROMPT_HASH : EXPECTED_PROMPT_HASH;
+    (content as any)._prompt_hash = hash;
     (content as any).engineVersion = ENGINE_VERSION;
 
+    try {
+      const { getAllPages, generateInternalLinks } = await import('./links');
+      const allPages = await getAllPages();
+      const internalLinks = generateInternalLinks(slug, allPages);
+      (content as any).internalLinks = internalLinks;
+    } catch (e) {
+      console.error("Failed to append internal links:", e);
+    }
+
     return content;
-  });
+  }, { pageType });
 }

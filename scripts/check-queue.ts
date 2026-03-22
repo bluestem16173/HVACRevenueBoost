@@ -1,11 +1,7 @@
-import 'dotenv/config';
 import sql from '../lib/db';
-
 async function run() {
-  const res = await sql`SELECT id, slug, status FROM generation_queue ORDER BY finished_at DESC NULLS LAST LIMIT 5`;
-  console.log('Queue:', res);
-  const res2 = await sql`SELECT slug FROM pages LIMIT 5`;
-  console.log('Pages:', res2);
+  const pending = await sql`SELECT page_type, COUNT(*) FROM generation_queue WHERE status = 'pending' GROUP BY page_type` as any[];
+  console.log(pending);
   process.exit(0);
 }
 run();

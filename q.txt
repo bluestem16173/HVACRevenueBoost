@@ -1,0 +1,14 @@
+[
+  {
+    "proposed_slug": "low-refrigerant-ac",
+    "status": "completed"
+  },
+  {
+    "proposed_slug": "test-cause-canary-1773922932277",
+    "status": "completed"
+  },
+  {
+    "proposed_slug": "cause/low-refrigerant",
+    "status": "completed"
+  }
+]

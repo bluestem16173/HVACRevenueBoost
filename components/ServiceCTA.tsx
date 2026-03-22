@@ -36,9 +36,9 @@ export default function ServiceCTA({ variant = "primary" }: Props) {
             page: typeof window !== "undefined" ? window.location.pathname : "",
           })
         }
-        className="bg-hvac-blue hover:bg-blue-800 text-white text-xs px-4 py-2 rounded-lg font-bold transition"
+        className="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-4 py-2 rounded-lg font-bold transition border border-slate-700"
       >
-        Find Local HVAC Pros →
+        Local Techs Coming Soon
       </button>
     </div>
   );

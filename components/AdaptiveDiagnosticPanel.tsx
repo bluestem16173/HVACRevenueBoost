@@ -122,13 +122,14 @@ export default function AdaptiveDiagnosticPanel({ decisionTree, diagnosticFlow, 
         {step.interpretation && (
           <p className="text-sm font-semibold text-slate-800 dark:text-white border-l-2 border-hvac-blue pl-3">
             <strong className="text-hvac-blue">Result: </strong>
-            {step.interpretation}
+            <span dangerouslySetInnerHTML={{ __html: step.interpretation }} />
           </p>
         )}
         {step.field_insight && (
-          <p className="text-xs font-medium text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg px-3 py-2">
-            💡 {step.field_insight}
-          </p>
+          <p 
+            className="text-xs font-medium text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg px-3 py-2"
+            dangerouslySetInnerHTML={{ __html: `💡 ${step.field_insight}` }}
+          />
         )}
       </div>
     </div>

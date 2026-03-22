@@ -149,17 +149,20 @@ export async function getSymptomEntries(): Promise<SitemapEntry[]> {
     const pages = await sql`
       SELECT slug, created_at, updated_at FROM pages
       WHERE slug LIKE 'diagnose/%'
-        AND (status = 'published' OR status = 'generated' OR quality_status = 'published')
+        AND status = 'published'
         AND (quality_status IS NULL OR quality_status != 'noindex')
+        AND content_json->'hero'->>'headline' != 'Troubleshoot the issue step by step'
       ORDER BY updated_at DESC
       LIMIT 50000
     `;
-    const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
-      loc: `${BASE_URL}/${p.slug}`,
-      lastmod: toLastmod(new Date(p.created_at || Date.now())),
-      changefreq: "weekly",
-      priority: 0.9,
-    }));
+    const dbEntries: SitemapEntry[] = (pages as any[])
+      .filter((p) => p.slug && !p.slug.includes('//') && p.slug === p.slug.trim()) // Clean slugs only
+      .map((p) => ({
+        loc: `${BASE_URL}/${p.slug}`,
+        lastmod: toLastmod(new Date(p.updated_at || p.created_at || Date.now())),
+        changefreq: "weekly",
+        priority: 0.9,
+      }));
     const seen = new Set(staticEntries.map((e) => e.loc));
     const unique = dbEntries.filter((e) => !seen.has(e.loc));
     return [...staticEntries, ...unique];

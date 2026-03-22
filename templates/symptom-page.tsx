@@ -106,14 +106,26 @@ export default function SymptomPageTemplate({
     ? `Likely caused by ${firstCause.name}. ${firstCause.explanation || ""}`
     : symptom.description);
 
+  const safeArr = (v: any) => Array.isArray(v) ? v : [];
+  const allSeoLinks = [
+    ...safeArr(seoLinks?.entity_connections?.related_symptoms || seoLinks?.related_symptoms),
+    ...safeArr(seoLinks?.entity_connections?.related_causes || seoLinks?.related_causes),
+    ...safeArr(seoLinks?.entity_connections?.related_repairs || seoLinks?.related_repairs),
+    ...safeArr(seoLinks?.entity_connections?.related_components || seoLinks?.related_components)
+  ].filter((l: any) => l && l.anchor && l.path);
+
   let fastAnswerHtml = fastAnswerText;
   if (seoLinks?.contextual_links?.quick_answer) {
     fastAnswerHtml = injectLinks(fastAnswerText, seoLinks.contextual_links.quick_answer, 1);
+  } else if (allSeoLinks.length > 0) {
+    fastAnswerHtml = injectLinks(fastAnswerText, allSeoLinks, 2);
   }
 
-  let descriptionHtml = symptom.description;
+  let descriptionHtml = symptom.description || "";
   if (seoLinks?.contextual_links?.short_explanation) {
-    descriptionHtml = injectLinks(symptom.description || "", seoLinks.contextual_links.short_explanation, 1);
+    descriptionHtml = injectLinks(descriptionHtml, seoLinks.contextual_links.short_explanation, 1);
+  } else if (allSeoLinks.length > 0) {
+    descriptionHtml = injectLinks(descriptionHtml, allSeoLinks, 2);
   }
 
   const causes = (vm.rankedCauses?.length ?? 0) > 0
@@ -294,7 +306,11 @@ export default function SymptomPageTemplate({
                 <AdaptiveDiagnosticPanel
                   key="adaptive_diagnostic"
                   decisionTree={scalingData?.decisionTree ?? null}
-                  diagnosticFlow={scalingData?.diagnosticFlow ?? []}
+                  diagnosticFlow={(scalingData?.diagnosticFlow || []).map((step: any) => ({
+                    ...step,
+                    interpretation: injectLinks(step.interpretation, allSeoLinks, 1),
+                    field_insight: injectLinks(step.field_insight, allSeoLinks, 1),
+                  }))}
                   slug={symptom.id}
                 />
               );
@@ -434,7 +450,11 @@ export default function SymptomPageTemplate({
         {/* ADAPTIVE DIAGNOSTIC PANEL 🔥 — Decision Tree + Diagnostic Flow with shared cause ID state */}
         <AdaptiveDiagnosticPanel
           decisionTree={scalingData?.decisionTree ?? null}
-          diagnosticFlow={scalingData?.diagnosticFlow ?? []}
+          diagnosticFlow={(scalingData?.diagnosticFlow || []).map((step: any) => ({
+            ...step,
+            interpretation: injectLinks(step.interpretation, allSeoLinks, 1),
+            field_insight: injectLinks(step.field_insight, allSeoLinks, 1),
+          }))}
           slug={symptom.id}
         />
 
@@ -592,7 +612,7 @@ export default function SymptomPageTemplate({
                           name={(cause as any).name}
                           likelihood={likelihood}
                           risk={riskVal}
-                          description={(cause as any).why ?? (cause as any).explanation ?? ""}
+                          description={injectLinks((cause as any).why ?? (cause as any).explanation ?? "", allSeoLinks, 1)}
                           diagnoseHref={(cause as any).diagnose_slug ? `/causes/${(cause as any).diagnose_slug}` : "#get-quote"}
                           repairHref={(cause as any).repair_slug ? `/fix/${(cause as any).repair_slug}?ref=diag_${symptom.id}` : "#get-quote"}
                           cost={(cause as any).estimated_cost ?? (cause as any).cost}
@@ -1071,29 +1091,108 @@ export default function SymptomPageTemplate({
           </div>
         </section>
 
-        {/* 22. RELATED CAUSES & REPAIRS */}
-        <section className="mb-16">
-            <div>
-              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Related Conditions & Causes</h2>
-              <div className="flex flex-wrap gap-3">
-                {(scalingData?.relatedLinks?.causes || []).map((slug: string, idx: number) => (
-                  <Link key={idx} href={`/diagnose/${slug}`} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg p-4 font-bold text-hvac-blue hover:border-hvac-blue hover:shadow transition-colors">
-                    {slug.replace(/-/g, ' ')} →
-                  </Link>
-                ))}
-              </div>
+        {/* 22. RELATED CAUSES & REPAIRS (INTENT-BASED GROUPING) */}
+        <section className="mb-16 mt-8">
+          <h2 className="text-3xl font-black text-hvac-navy dark:text-white mb-6">Related Problems & Next Steps</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Column 1: Related Symptoms */}
+            <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+              <h3 className="text-lg font-black text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2 flex items-center gap-2">
+                <span>🔄</span> Related Symptoms
+              </h3>
+              <ul className="space-y-3">
+                {(() => {
+                  const rawItems = seoLinks?.entity_connections?.related_symptoms || seoLinks?.related_symptoms;
+                  const items = Array.isArray(rawItems) ? rawItems : [];
+                  const fallback = relatedContent?.relatedSymptoms || [];
+                  const links = items.length > 0
+                    ? items.map((l: any) => {
+                        if (typeof l === 'string') return { href: `/diagnose/${l}`, label: l.replace(/-/g, ' ') };
+                        return { href: l.path || `/diagnose/${l.slug}`, label: l.anchor || l.slug?.replace(/-/g, ' ') || l.name || "" };
+                      })
+                    : fallback.map((s: any) => ({ href: `/diagnose/${s.id}`, label: s.name }));
+                  
+                  return (links.length > 0 ? links : [
+                    { href: "/diagnose/ac-not-cooling", label: "ac not cooling" },
+                    { href: "/diagnose/ac-blowing-warm-air", label: "ac blowing warm air" },
+                    { href: "/diagnose/ac-freezing-up", label: "ac freezing up" }
+                  ]).slice(0, 5).map((l: any, i: number) => (
+                    <li key={i}>
+                      <Link href={l.href} className="text-hvac-blue hover:text-blue-700 font-bold text-sm transition-colors hover:underline capitalize">
+                        {l.label}
+                      </Link>
+                    </li>
+                  ));
+                })()}
+              </ul>
             </div>
 
-            <div className="mt-8">
-              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Related Repairs & Components</h2>
-              <div className="flex flex-wrap gap-3">
-                {[...(scalingData?.relatedLinks?.repairs || []), ...(scalingData?.relatedLinks?.components || [])].map((slug: string, idx: number) => (
-                  <Link key={idx} href={`/repair/hvac/${slug}`} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:border-slate-400 transition-colors">
-                    {slug.replace(/-/g, ' ')} →
-                  </Link>
-                ))}
-              </div>
+            {/* Column 2: Likely Causes */}
+            <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+              <h3 className="text-lg font-black text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2 flex items-center gap-2">
+                <span>🔍</span> Common Causes
+              </h3>
+              <ul className="space-y-3">
+                {(() => {
+                  const rawItems = seoLinks?.entity_connections?.related_causes || seoLinks?.related_causes;
+                  const items = Array.isArray(rawItems) ? rawItems : [];
+                  const fallback = scalingData?.relatedLinks?.causes || [];
+                  const links = items.length > 0
+                    ? items.map((l: any) => {
+                        if (typeof l === 'string') return { href: `/cause/${l}`, label: l.replace(/-/g, ' ') };
+                        return { href: l.path || `/cause/${l.slug}`, label: l.anchor || l.slug?.replace(/-/g, ' ') || l.name || "" };
+                      })
+                    : fallback.map((slug: string) => ({ href: `/cause/${slug}`, label: slug.replace(/-/g, ' ') }));
+                  
+                  return (links.length > 0 ? links : [
+                    { href: "/cause/low-refrigerant", label: "low refrigerant" },
+                    { href: "/cause/dirty-evaporator-coil", label: "dirty evaporator coil" },
+                    { href: "/cause/bad-capacitor", label: "bad capacitor" }
+                  ]).slice(0, 5).map((l: any, i: number) => (
+                    <li key={i}>
+                      <Link href={l.href} className="text-hvac-blue hover:text-blue-700 font-bold text-sm transition-colors hover:underline capitalize">
+                        {l.label}
+                      </Link>
+                    </li>
+                  ));
+                })()}
+              </ul>
             </div>
+
+            {/* Column 3: Fixes & Next Steps */}
+            <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-2xl border border-slate-200 dark:border-slate-700">
+              <h3 className="text-lg font-black text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2 flex items-center gap-2">
+                <span>🔧</span> Fixes & Next Steps
+              </h3>
+              <ul className="space-y-3">
+                {(() => {
+                  const rawItems = seoLinks?.entity_connections?.related_repairs || seoLinks?.related_repairs;
+                  const items = Array.isArray(rawItems) ? rawItems : [];
+                  const fallback = scalingData?.relatedLinks?.repairs || [];
+                  const links = items.length > 0
+                    ? items.map((l: any) => {
+                        if (typeof l === 'string') return { href: `/fix/${l}`, label: l.replace(/-/g, ' ') };
+                        return { href: l.path || `/fix/${l.slug}`, label: l.anchor || l.slug?.replace(/-/g, ' ') || l.name || "" };
+                      })
+                    : fallback.map((slug: string) => ({ href: `/fix/${slug}`, label: slug.replace(/-/g, ' ') }));
+                  
+                  return (links.length > 0 ? links : [
+                    { href: "/fix/recharge-refrigerant", label: "recharge refrigerant" },
+                    { href: "/fix/replace-capacitor", label: "replace capacitor" },
+                    { href: "/fix/unclog-drain-line", label: "unclog drain line" }
+                  ]).slice(0, 5).map((l: any, i: number) => (
+                    <li key={i}>
+                      <Link href={l.href} className="text-hvac-blue hover:text-blue-700 font-bold text-sm transition-colors hover:underline capitalize">
+                        {l.label}
+                      </Link>
+                    </li>
+                  ));
+                })()}
+              </ul>
+            </div>
+
+          </div>
         </section>
 
         {/* 23. LOCAL SERVICE CTA — hvac-navy + hvac-gold */}

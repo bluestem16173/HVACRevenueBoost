@@ -1,6 +1,5 @@
-http://localhost:3000/diagnose/heat-pump-not-heating
-http://localhost:3000/diagnose/ac-blowing-warm-air-while-running
-http://localhost:3000/diagnose/high-electric-bills-hvac
-http://localhost:3000/diagnose/ac-blowing-warm-air-while-driving
-http://localhost:3000/diagnose/ac-blowing-warm-air-in-rv-while-driving
-http://localhost:3000/diagnose/ac-blowing-warm-air-after-recharge
+http://localhost:3000/causes/blown-ac-fuse
+http://localhost:3000/causes/dirty-condenser-fins
+http://localhost:3000/causes/faulty-thermostat-sensor
+http://localhost:3000/causes/leaking-refrigerant-coil
+http://localhost:3000/causes/bad-compressor-ac

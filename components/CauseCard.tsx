@@ -49,7 +49,10 @@ export default function CauseCard({
           </span>
         </div>
 
-        <p className="text-xs text-slate-600 dark:text-slate-400 mb-3 leading-relaxed">{description}</p>
+        <p 
+          className="text-xs text-slate-600 dark:text-slate-400 mb-3 leading-relaxed" 
+          dangerouslySetInnerHTML={{ __html: description }} 
+        />
       </div>
 
       <div className="mt-auto">

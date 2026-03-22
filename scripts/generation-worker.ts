@@ -21,7 +21,7 @@ const QUEUE_STATUS = { pending: 'pending', processing: 'processing', completed: 
 
 let isWorkerRunning = false;
 
-export async function runWorker(options: { limit?: number, manual?: boolean } = {}) {
+export async function runWorker(options: { limit?: number, manual?: boolean, type?: string } = {}) {
   if (isWorkerRunning) {
     console.log("⚠️ Worker is already running. Skipping execution.");
     return { success: false, reason: "Already running" };
@@ -62,12 +62,23 @@ export async function runWorker(options: { limit?: number, manual?: boolean } = 
     }
 
     const batchLimit = options.limit || parseInt(process.env.CANARY_BATCH_SIZE || "50", 10) || 50;
-    const items = await sql`
-      SELECT * FROM generation_queue
-      WHERE status = 'pending'
-      ORDER BY created_at ASC
-      LIMIT ${batchLimit}
-    ` as any[];
+    
+    let items;
+    if (options.type) {
+      items = await sql`
+        SELECT * FROM generation_queue
+        WHERE status = 'pending' AND page_type = ${options.type}
+        ORDER BY created_at ASC
+        LIMIT ${batchLimit}
+      ` as any[];
+    } else {
+      items = await sql`
+        SELECT * FROM generation_queue
+        WHERE status = 'pending'
+        ORDER BY created_at ASC
+        LIMIT ${batchLimit}
+      ` as any[];
+    }
 
     console.log(`📦 Fetched ${items.length} pending jobs.`);
 
@@ -94,8 +105,8 @@ export async function runWorker(options: { limit?: number, manual?: boolean } = 
           slug: proposedSlug,
           status: 'published',
           hasFallback: isFallback,
-          causes: result.commonCauses?.length,
-          steps: result.diagnosticFlow?.length,
+          causes: (result as any).commonCauses?.length,
+          steps: (result as any).diagnosticFlow?.length,
         });
 
         if (isFallback) {
@@ -103,7 +114,8 @@ export async function runWorker(options: { limit?: number, manual?: boolean } = 
         }
 
         const cleanSlug = normalizeSlug(proposedSlug);
-        const fullSlug = `diagnose/${cleanSlug}`;
+        const prefix = pageType === 'cause' ? 'causes' : 'diagnose';
+        const fullSlug = `${prefix}/${cleanSlug}`;
 
         console.log("💾 INSERT START:", fullSlug);
 
@@ -167,13 +179,16 @@ if (require.main === module) {
   const isManual = process.argv.includes('--manual');
   const limitArgIndex = process.argv.indexOf('--limit');
   const limit = limitArgIndex > -1 ? parseInt(process.argv[limitArgIndex + 1], 10) : undefined;
+  
+  const typeArgIndex = process.argv.indexOf('--type');
+  const type = typeArgIndex > -1 ? process.argv[typeArgIndex + 1] : undefined;
 
-  console.log("🔄 Starting Queue Drain Mode...");
+  console.log("🔄 Starting Queue Drain Mode... " + (type ? `[Type: ${type}]` : ""));
 
   const startPolling = async () => {
     while (true) {
       try {
-        const result = await runWorker({ manual: isManual, limit });
+        const result = await runWorker({ manual: isManual, limit, type });
         
         if (result?.success === false) {
           console.log("🛑 Exiting: ", result?.reason);

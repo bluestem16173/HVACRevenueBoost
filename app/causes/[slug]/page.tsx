@@ -86,6 +86,7 @@ export default async function CausesPage({ params }: { params: { slug: string } 
       repairs={repairsRes}
       diagnosticTests={diagnosticTests}
       pageViewModel={pageViewModel}
+      rawContent={contentJson}
     />
   );
 }
