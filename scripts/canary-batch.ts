@@ -17,7 +17,7 @@ import "dotenv/config";
  */
 
 import sql from '../lib/db';
-import { generateTwoStagePage } from '../lib/two-stage-generator';
+import { generateTwoStagePage } from '../lib/content-engine/generator';
 import { normalizeAuthorityJson, finalizeAuthorityJson } from '../lib/finalizeAuthoritySymptomJson';
 import { normalizeToBaseSlug, buildSlug } from '../lib/slug-helpers';
 

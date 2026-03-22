@@ -1,6 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 import * as dotenv from "dotenv";
-import { generateTwoStagePage } from "../lib/two-stage-generator";
+import { generateTwoStagePage } from "../lib/content-engine/generator";
 import { normalizeAuthorityJson, validateAuthorityJson } from "../lib/finalizeAuthoritySymptomJson";
 
 dotenv.config({ path: ".env.local" });

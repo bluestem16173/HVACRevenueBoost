@@ -53,8 +53,8 @@ export default async function CitySymptomPage({
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
 
-  // Fetch the AI generated page from Neon (DB stores full slug: repairs/city/symptom)
-  const fullSlug = `repairs/${params.city}/${params.slug}`;
+  // Fetch the AI generated page from Neon (Unified slug: diagnose/symptom)
+  const fullSlug = `diagnose/${params.slug}`;
   const aiPage = await getDiagnosticPageFromDB(fullSlug);
   
   if (aiPage?.quality_status === "needs_regen") {
@@ -84,6 +84,20 @@ export default async function CitySymptomPage({
   const internalLinks = await getInternalLinksForPage(`${params.slug}-repair-${params.city}`);
   const localContractors = await getContractorsByCity(params.city);
 
+  const rawContent = aiPage?.content_json ?? null;
+  const raw = rawContent as any;
+
+  const scalingData = {
+    primaryCTA: raw?.cta ? {
+      headline: raw.cta.primaryText || raw.cta.headline || "Need Professional Help?",
+      subtext: raw.cta.secondaryText || raw.cta.subtext || "Our certified technicians can diagnose and fix this guaranteed.",
+      buttonText: "Local Techs Coming Soon",
+      url: "#"
+    } : (raw?.primaryCTA ?? null),
+    subtitle: raw?.subtitle ?? raw?.hero?.subheadline ?? null,
+    diagnosticFlow: raw?.diagnosticFlow ?? raw?.diagnostic_flow ?? null,
+  };
+
   return (
     <ServicePageTemplate
       city={city}
@@ -95,6 +109,8 @@ export default async function CitySymptomPage({
       htmlContent={htmlContent}
       symptomSlug={params.slug}
       qualityScore={qualityScore}
+      scalingData={scalingData}
+      rawContent={rawContent}
     />
   );
 }

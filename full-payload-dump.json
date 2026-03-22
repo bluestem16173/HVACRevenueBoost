@@ -1,0 +1,204 @@
+{
+  "slug": "diagnose/hvac-unit-short-cycling",
+  "content_json": {
+    "cta": {
+      "primaryText": "Schedule Your HVAC Inspection Today!",
+      "urgencyText": "Limited time offer on inspections!",
+      "secondaryText": "Don't let short cycling damage your system."
+    },
+    "faq": [
+      {
+        "answer": "Short cycling can be caused by a malfunctioning thermostat, clogged air filters, low refrigerant levels, or leaky ductwork.",
+        "question": "What causes my HVAC unit to short cycle?"
+      },
+      {
+        "answer": "Regular maintenance, including changing filters and checking refrigerant levels, can help prevent short cycling.",
+        "question": "How can I prevent short cycling?"
+      },
+      {
+        "answer": "Yes, short cycling can lead to increased wear and tear on the system, potentially causing premature failure.",
+        "question": "Is short cycling harmful to my HVAC unit?"
+      },
+      {
+        "answer": "If basic troubleshooting does not resolve the issue, it's best to contact a professional HVAC technician.",
+        "question": "When should I call a professional?"
+      }
+    ],
+    "hero": {
+      "headline": "HVAC Unit Short Cycling: A Common Issue",
+      "description": "Short cycling in HVAC units often indicates underlying problems that need immediate attention. This issue not only wastes energy but can also lead to premature system failure if not addressed promptly.",
+      "subheadline": "Frequent on/off cycling can lead to inefficiency and increased costs."
+    },
+    "solutions": [
+      {
+        "steps": [
+          "Adjust the thermostat settings to match the desired temperature.",
+          "Test the system to ensure proper functioning."
+        ],
+        "solution": "Recalibrate Thermostat"
+      },
+      {
+        "steps": [
+          "Purchase a new air filter of the correct size.",
+          "Install the new filter and monitor performance."
+        ],
+        "solution": "Replace Air Filter"
+      },
+      {
+        "steps": [
+          "Call a professional to check for leaks.",
+          "Recharge the system with the appropriate refrigerant."
+        ],
+        "solution": "Recharge Refrigerant"
+      },
+      {
+        "steps": [
+          "Identify leaks in the ductwork.",
+          "Use duct tape or mastic to seal any leaks found."
+        ],
+        "solution": "Seal Ducts"
+      },
+      {
+        "steps": [
+          "Evaluate the current system size.",
+          "Consult with a professional to determine the best size for your home."
+        ],
+        "solution": "Consider System Replacement"
+      }
+    ],
+    "quickChecks": [
+      {
+        "check": "Inspect Thermostat Settings",
+        "expectedOutcome": "Thermostat is set correctly and functioning properly."
+      },
+      {
+        "check": "Replace Air Filter",
+        "expectedOutcome": "Air filter is clean, allowing proper airflow."
+      },
+      {
+        "check": "Listen for Unusual Noises",
+        "expectedOutcome": "No strange sounds indicating mechanical issues."
+      },
+      {
+        "check": "Check for Blocked Vents",
+        "expectedOutcome": "All vents are clear and unobstructed."
+      }
+    ],
+    "_prompt_hash": "49adecc89bf8adac1fa51ad5e78943a49d92263c1cb4c86281df1f157ca704c8",
+    "commonCauses": [
+      {
+        "cause": "Thermostat Malfunction",
+        "explanation": "A faulty thermostat can misread temperatures, causing the system to turn on and off too frequently."
+      },
+      {
+        "cause": "Clogged Air Filter",
+        "explanation": "A dirty filter restricts airflow, leading to overheating and short cycling as a protective measure."
+      },
+      {
+        "cause": "Low Refrigerant Levels",
+        "explanation": "Insufficient refrigerant can cause the system to struggle, leading to short cycling to prevent damage."
+      },
+      {
+        "cause": "Leaky Ductwork",
+        "explanation": "Duct leaks can cause loss of conditioned air, forcing the HVAC unit to work harder and cycle more frequently."
+      },
+      {
+        "cause": "Improper System Size",
+        "explanation": "An oversized or undersized system can lead to inefficient operation, resulting in short cycling."
+      }
+    ],
+    "mermaidGraph": "flowchart TD; A[Short Cycling] --> B{Check Thermostat}; B -->|Yes| C[Inspect Thermostat Settings]; B -->|No| D[Check Air Filter]; C -->|Correct Settings| E[Inspect System for Overheating]; C -->|Incorrect Settings| F[Recalibrate Thermostat]; D -->|Clean Filter| E; D -->|Replace Filter| E; E -->|No Overheating| G[Check for Refrigerant Issues]; E -->|Overheating| H[Inspect for Blocked Vents]; G -->|Normal Levels| I[Inspect Ductwork]; G -->|Low Levels| J[Recharge Refrigerant]; H -->|Clear| I; H -->|Blocked| K[Clear Blockages]; I -->|Leaky Ducts| L[Seal Ducts]; I -->|No Leaks| M[Check System Size]; L -->|Sealed| N[Monitor Performance]; M -->|Oversized| O[Replace with Correct Size]; M -->|Undersized| P[Consider Additional Units];",
+    "diagnosticFlow": [
+      {
+        "no": "Check Air Filter",
+        "yes": "Inspect Thermostat Settings",
+        "step": 1,
+        "title": "Check Thermostat",
+        "actions": [
+          "Inspect thermostat settings",
+          "Ensure it is functioning properly"
+        ],
+        "field_insight": "Ensure the thermostat is not placed near heat sources.",
+        "interpretation": "A malfunctioning thermostat can cause the HVAC unit to short cycle.",
+        "related_causes": [
+          "Thermostat malfunction",
+          "Improper settings"
+        ]
+      },
+      {
+        "no": "Recalibrate Thermostat",
+        "yes": "Inspect System for Overheating",
+        "step": 2,
+        "title": "Inspect Thermostat Settings",
+        "actions": [
+          "Verify temperature settings",
+          "Check for programming errors"
+        ],
+        "field_insight": "Adjust settings to match desired home temperature.",
+        "interpretation": "Incorrect settings can lead to unnecessary cycling.",
+        "related_causes": [
+          "Improper settings"
+        ]
+      },
+      {
+        "no": "Replace Filter",
+        "yes": "Clean Filter",
+        "step": 3,
+        "title": "Check Air Filter",
+        "actions": [
+          "Remove and inspect air filter for dirt and blockages"
+        ],
+        "field_insight": "Regularly replace filters every 1-3 months.",
+        "interpretation": "A dirty filter restricts airflow, causing the system to overheat.",
+        "related_causes": [
+          "Clogged air filter"
+        ]
+      },
+      {
+        "no": "Inspect for Blocked Vents",
+        "yes": "Check for Refrigerant Issues",
+        "step": 4,
+        "title": "Inspect System for Overheating",
+        "actions": [
+          "Check the temperature of the HVAC unit",
+          "Listen for unusual sounds"
+        ],
+        "field_insight": "Ensure the unit has adequate airflow around it.",
+        "interpretation": "Overheating can trigger short cycling to protect the system.",
+        "related_causes": [
+          "Overheating",
+          "Blocked vents"
+        ]
+      },
+      {
+        "no": "Recharge Refrigerant",
+        "yes": "Inspect Ductwork",
+        "step": 5,
+        "title": "Check for Refrigerant Issues",
+        "actions": [
+          "Measure refrigerant levels",
+          "Look for leaks"
+        ],
+        "field_insight": "Always check for leaks before recharging.",
+        "interpretation": "Low refrigerant levels can cause the system to short cycle.",
+        "related_causes": [
+          "Low refrigerant"
+        ]
+      },
+      {
+        "no": "Check System Size",
+        "yes": "Seal Ducts",
+        "step": 6,
+        "title": "Inspect Ductwork",
+        "actions": [
+          "Check for leaks or blockages in ducts"
+        ],
+        "field_insight": "Use duct tape or mastic to seal leaks.",
+        "interpretation": "Leaky ducts can lead to inefficiency and short cycling.",
+        "related_causes": [
+          "Leaky ductwork"
+        ]
+      }
+    ]
+  }
+}

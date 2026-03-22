@@ -40,7 +40,8 @@ export default function MermaidDiagram({ chart, title = "Diagnostic Flowchart", 
     const id = `mermaid-${Math.random().toString(36).slice(2)}`;
     const renderChart = async () => {
       try {
-        const { svg } = await mermaid.render(id, chart.trim());
+        const formattedChart = chart.trim().replace(/;/g, ';\n');
+        const { svg } = await mermaid.render(id, formattedChart);
         setSvgCode(svg);
         setError(null);
       } catch (e) {
@@ -63,7 +64,15 @@ export default function MermaidDiagram({ chart, title = "Diagnostic Flowchart", 
     URL.revokeObjectURL(url);
   };
 
-  if (error) return null;
+  if (error) {
+    return (
+      <div className="my-8 p-6 bg-red-50 border border-red-200 rounded-xl text-red-900 overflow-x-auto w-full">
+        <h3 className="font-bold mb-2">Mermaid Render Error: {error}</h3>
+        <p className="text-sm mb-4">The AI generated invalid flowchart syntax:</p>
+        <pre className="text-xs bg-white p-4 rounded border border-red-100 whitespace-pre-wrap">{chart}</pre>
+      </div>
+    );
+  }
 
   return (
     <div className={`my-8 p-6 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto w-full ${className}`}>

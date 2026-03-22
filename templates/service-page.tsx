@@ -308,10 +308,10 @@ export default function ServicePageTemplate({
                 Schedule professional HVAC service in {city?.name}.
               </p>
               <button
-                data-open-lead-modal
-                className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-bold px-8 py-4 rounded-xl uppercase tracking-wider transition-colors"
+                disabled
+                className="bg-slate-600 text-slate-300 font-bold px-8 py-4 rounded-xl uppercase tracking-wider cursor-not-allowed shadow-inner"
               >
-                Get {city?.name} Repair Quotes
+                Local Pros Coming Soon to {city?.name}
               </button>
             </div>
           </div>

@@ -71,24 +71,24 @@ export default function AdaptiveDiagnosticPanel({ decisionTree, diagnosticFlow, 
       {/* Step header */}
       <div
         className={`flex items-center gap-3 px-5 py-3 transition-colors duration-300 ${
-          isRecommended ? "bg-hvac-gold" : "bg-hvac-navy"
+          isRecommended ? "bg-amber-50 dark:bg-amber-900/20 border-b border-hvac-gold/30" : "bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700"
         }`}
       >
         <span
           className={`flex items-center justify-center w-7 h-7 rounded-full font-black text-sm shrink-0 ${
-            isRecommended ? "bg-hvac-navy text-hvac-gold" : "bg-hvac-gold text-hvac-navy"
+            isRecommended ? "bg-hvac-gold text-hvac-navy" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
           }`}
         >
           {step.step ?? i + 1}
         </span>
         <span
           className={`font-bold text-base tracking-wide ${
-            isRecommended ? "text-hvac-navy" : "text-white"
+            isRecommended ? "text-slate-900 dark:text-white" : "text-slate-800 dark:text-slate-200"
           }`}
         >
           {step.title || step.question}
           {isRecommended && (
-            <span className="ml-2 text-xs font-black uppercase tracking-widest opacity-70">
+            <span className="ml-2 text-xs font-black uppercase tracking-widest text-hvac-gold opacity-90">
               ← Likely Match
             </span>
           )}
@@ -100,7 +100,7 @@ export default function AdaptiveDiagnosticPanel({ decisionTree, diagnosticFlow, 
         {Array.isArray(step.actions) && step.actions.length > 0 && (
           <ul className="space-y-1.5">
             {step.actions.map((action, j) => (
-              <li key={j} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <li key={j} className="flex items-start gap-2 text-sm text-slate-900 dark:text-white font-medium">
                 <span className="text-hvac-gold font-bold shrink-0">→</span>
                 {action}
               </li>
@@ -108,19 +108,19 @@ export default function AdaptiveDiagnosticPanel({ decisionTree, diagnosticFlow, 
           </ul>
         )}
         {step.yes && (
-          <div className="text-sm text-slate-700 dark:text-slate-300 flex items-start gap-2">
+          <div className="text-sm text-slate-900 dark:text-white font-medium flex items-start gap-2">
             <span className="text-green-600 font-bold shrink-0">Yes:</span>
             {typeof step.yes === "string" ? step.yes : step.yes.action}
           </div>
         )}
         {step.no && (
-          <div className="text-sm text-slate-700 dark:text-slate-300 flex items-start gap-2">
+          <div className="text-sm text-slate-900 dark:text-white font-medium flex items-start gap-2">
             <span className="text-hvac-safety font-bold shrink-0">No:</span>
             {typeof step.no === "string" ? step.no : step.no.action}
           </div>
         )}
         {step.interpretation && (
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-400 border-l-2 border-hvac-blue pl-3">
+          <p className="text-sm font-semibold text-slate-800 dark:text-white border-l-2 border-hvac-blue pl-3">
             <strong className="text-hvac-blue">Result: </strong>
             {step.interpretation}
           </p>
@@ -171,12 +171,10 @@ export default function AdaptiveDiagnosticPanel({ decisionTree, diagnosticFlow, 
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
               <a
-                href="https://www.homeadvisor.com/sm/entry?keyword=hvac+repair"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block text-center px-5 py-2.5 bg-hvac-gold text-hvac-navy font-black rounded-lg hover:bg-yellow-400 transition-colors text-sm whitespace-nowrap"
+                href="#"
+                className="inline-block text-center px-5 py-2.5 bg-slate-300 text-slate-500 font-black rounded-lg cursor-not-allowed text-sm whitespace-nowrap"
               >
-                Get Local HVAC Help →
+                Local Techs Coming Soon
               </a>
               <a
                 href={`/repair/${slug}`}

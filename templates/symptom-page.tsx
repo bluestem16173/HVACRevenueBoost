@@ -563,9 +563,12 @@ export default function SymptomPageTemplate({
             Electrical: { name: "Bad capacitor or tripped breaker", why: "Power delivery issues prevent system from running." },
             Structural: { name: "Clogged or dirty air filter", why: "Restricted airflow reduces cooling capacity." },
             Chemical: { name: "Low refrigerant or leak", why: "Refrigerant level affects cooling. EPA certified pros only." },
-            Mechanical: { name: "Compressor or thermostat failure", why: "Component wear or control issues." },
+            Mechanical: { name: "System Age & Prevention", why: "Older systems face R-22 phase-outs and mechanical wear. Consider static pressure tests or upgrading to modern variable-speed tech." },
           };
-          const onePerPillar = pillarOrder.map((p) => byPillar[p]?.[0] ?? placeholders[p]);
+          const onePerPillar = pillarOrder.map((p) => {
+            if (p === "Mechanical") return { name: "System Age & Prevention", why: "Older systems face R-22 regulatory phase-outs and mechanical wear. Consider a static pressure test or upgrading to modern variable-speed technologies." };
+            return byPillar[p]?.[0] ?? placeholders[p];
+          });
           const isDiyPillar = (p: string) => p === "Structural";
           return (
             <section className="mb-16" id="common-causes-at-glance">
@@ -685,8 +688,16 @@ export default function SymptomPageTemplate({
           const pb = vm.pillarBreakdown ?? {};
           const grouped = vm.groupedCauses ?? {};
           const getItemsForPillar = (slug: string) => {
+            if (slug === "mechanical") {
+              return [
+                { issue: "System Age (10+ Years)", explanation: "Efficiency drops significantly; consider replacement vs repair economics", diy_pro: "Pro" },
+                { issue: "Regulatory Changes", explanation: "R-22 refrigerant phase-out makes legacy system repairs extremely expensive", diy_pro: "Pro" },
+                { issue: "New Technologies", explanation: "Modern variable-speed air handlers offer massive energy savings", diy_pro: "Pro" },
+                { issue: "Air Handler Test", explanation: "Recommend full load calculation & static pressure test for persistent issues", diy_pro: "Pro" },
+              ];
+            }
             const fromPb = pb[slug] ?? pb[slug === "structural" ? "ducting_airflow" : slug === "chemical" ? "refrigeration" : slug];
-            if (fromPb && fromPb.length > 0) return fromPb.slice(0, 5).map((x) => ({ issue: x.issue ?? x.explanation, explanation: x.explanation, warning: x.warning, diy_pro: x.diy_pro ?? "Pro" }));
+            if (fromPb && fromPb.length > 0) return fromPb.slice(0, 5).map((x: any) => ({ issue: x.issue ?? x.explanation, explanation: x.explanation, warning: x.warning, diy_pro: x.diy_pro ?? "Pro" }));
             const fromGrouped = grouped[slug] ?? grouped[slug === "structural" ? "ducting_airflow" : slug === "chemical" ? "refrigeration" : slug];
             if (fromGrouped && fromGrouped.length > 0) return fromGrouped.slice(0, 5).map((c: any) => ({ issue: c.name, explanation: c.why, warning: !c.diy_safe ? "Pro recommended" : undefined, diy_pro: c.diy_safe ? "DIY" : "Pro" }));
             return defaultItems[slug] ?? [];
@@ -876,15 +887,15 @@ export default function SymptomPageTemplate({
               <h3 className="text-sm font-black text-amber-800 dark:text-amber-200 uppercase tracking-widest mb-2">Moderate</h3>
               <p className="text-3xl font-black text-slate-800 dark:text-slate-200 m-0">$150–$450</p>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">Capacitor, contactor, thermostat.</p>
-              <button data-open-lead-modal className="mt-4 text-sm font-bold text-hvac-blue hover:underline">Find local services →</button>
+              <button disabled className="mt-4 text-sm font-bold text-slate-500 cursor-not-allowed">Local Techs Coming Soon</button>
             </div>
             {/* Red: Professional */}
             <div className="bg-red-50 dark:bg-red-900/20 border-2 border-hvac-safety/50 p-6 rounded-xl">
               <h3 className="text-sm font-black text-red-800 dark:text-red-200 uppercase tracking-widest mb-2">Professional</h3>
               <p className="text-3xl font-black text-slate-800 dark:text-slate-200 m-0">$450+</p>
               <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">Refrigerant, compressor, electrical.</p>
-              <button data-open-lead-modal className="mt-4 bg-hvac-safety hover:bg-red-700 text-white font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm transition-colors">
-                Connect With Local Pro →
+              <button disabled className="mt-4 bg-slate-600 text-slate-300 font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm cursor-not-allowed">
+                Local Techs Coming Soon
               </button>
             </div>
           </div>
@@ -1026,10 +1037,10 @@ export default function SymptomPageTemplate({
             </ul>
             <DiyLegalDisclaimer />
             <button
-              data-open-lead-modal
-              className="bg-hvac-safety hover:bg-red-700 text-white font-black px-8 py-4 rounded-xl shadow w-full sm:w-auto text-center cursor-pointer transition uppercase tracking-widest text-sm"
+              disabled
+              className="mt-8 bg-slate-600 text-slate-300 font-black px-8 py-4 rounded-xl uppercase text-sm block md:inline-block shadow-inner cursor-not-allowed"
             >
-              Connect With Local Pro →
+              Local Techs Coming Soon
             </button>
           </div>
         </section>
@@ -1091,22 +1102,22 @@ export default function SymptomPageTemplate({
             <div className="absolute inset-0 bg-hvac-blue opacity-20 blur-3xl rounded-full scale-150"></div>
             <div className="relative z-10 max-w-2xl mx-auto">
               <h2 className="text-3xl md:text-5xl font-black m-0 mb-6 border-0 text-white">
-                Find Local HVAC Repair Help
+                Local Techs Coming Soon
               </h2>
               <p className="text-slate-300 text-lg md:text-xl mb-8">
                 Stop guessing and risking a $2,500 compressor failure. Connect with licensed technicians to fix your cooling immediately.
               </p>
               <button
-                data-open-lead-modal
-                className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-10 py-5 rounded-2xl uppercase tracking-widest text-lg shadow-xl hover:scale-105 transition-transform w-full sm:w-auto"
+                disabled
+                className="bg-slate-600 text-slate-300 font-black px-10 py-5 rounded-2xl uppercase tracking-widest text-lg shadow-inner cursor-not-allowed w-full sm:w-auto mt-4"
               >
-                Request Diagnostic Today
+                Local Techs Coming Soon
               </button>
             </div>
           </div>
         </section>
 
-        <ServiceCTA variant="final" />
+
 
         {/* 24. FAQ — minimum 4 items */}
         <section className="mb-16" id="faq">

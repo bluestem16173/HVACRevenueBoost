@@ -1,0 +1,6 @@
+http://localhost:3000/diagnose/strange-noises-hvac
+http://localhost:3000/diagnose/ac-running-constantly
+http://localhost:3000/diagnose/hvac-leaking-water
+http://localhost:3000/diagnose/furnace-not-heating
+http://localhost:3000/diagnose/ac-not-turning-on
+http://localhost:3000/diagnose/ac-blowing-warm-air

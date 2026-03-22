@@ -94,15 +94,14 @@ export function getCauseDetails(causeId: string) {
  * NEON ASYNC HELPERS (DecisionGrid Overhaul)
  */
 
-export async function getDiagnosticPageFromDB(slug: string): Promise<any | null> {
+export async function getDiagnosticPageFromDB(path: string): Promise<any | null> {
   try {
-    const results = await sql`
+    const rows = await sql`
       SELECT *
       FROM pages
-      WHERE slug = ${slug}
-      LIMIT 1
+      WHERE slug = ${path}
     `;
-    return results[0] || null;
+    return rows[0] || null;
   } catch (error) {
     console.error('Neon Query Error:', error);
     return null;

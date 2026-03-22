@@ -39,7 +39,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   }
 
   let rawContent: Record<string, unknown> | null = null;
-  const pageContent = aiPage?.content_json ?? (aiPage as any)?.content;
+  const pageContent = aiPage?.content_json ?? (aiPage as any)?.data;
   if (pageContent) {
     const raw = pageContent;
     rawContent = typeof raw === "string" ? (() => { try { return JSON.parse(raw) as Record<string, unknown>; } catch { return null; } })() : (raw as Record<string, unknown>);
@@ -170,13 +170,18 @@ export default async function SymptomPage({ params }: { params: { slug: string }
         ],
     repairs,
     relatedLinks: finalRelatedLinks,
-    decisionTree: pageViewModel.decisionTree ?? null,
-    subtitle: raw?.subtitle ?? null,
+    decisionTree: pageViewModel.decisionTree ?? raw?.mermaidGraph ?? null,
+    subtitle: raw?.subtitle ?? raw?.hero?.subheadline ?? null,
     diagnosticFlow: raw?.diagnostic_flow ?? raw?.diagnosticFlow ?? (raw?.narrow_down ? raw.narrow_down.map((n: any, i: number) => ({ step: i + 1, title: n.question, actions: [n.yes_leads_to ? `Yes: ${n.yes_leads_to}` : null, n.no_leads_to ? `No: ${n.no_leads_to}` : null].filter(Boolean), interpretation: "Use this to isolate the core issue." })) : null),
     quickTools: raw?.quick_tools ?? raw?.quickTools ?? null,
     clusterNav: raw?.cluster_nav ?? null,
     topCauses: raw?.top_causes ?? raw?.topCauses ?? null,
-    primaryCTA: raw?.primaryCTA ?? null, 
+    primaryCTA: raw?.cta ? {
+      headline: raw.cta.primaryText || raw.cta.headline || "Need Professional Help?",
+      subtext: raw.cta.secondaryText || raw.cta.subtext || "Our certified technicians can diagnose and fix this guaranteed.",
+      buttonText: "Local Techs Coming Soon",
+      url: "#"
+    } : (raw?.primaryCTA ?? null),
   };
 
 

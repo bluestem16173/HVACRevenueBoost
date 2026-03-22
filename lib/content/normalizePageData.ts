@@ -67,6 +67,16 @@ function normalizeCauses(raw: RawContent, graphCauses?: unknown[]): CauseSummary
       };
     });
   }
+  if (Array.isArray(raw?.commonCauses) && raw.commonCauses.length > 0) {
+    return raw.commonCauses.map((r: unknown) => {
+      const o = (typeof r === "object" && r !== null ? r : {}) as Record<string, unknown>;
+      return {
+        name: toSafeString(o.cause ?? o.name ?? o.title) ?? "Unknown",
+        indicator: toSafeString(o.symptoms ?? o.explanation),
+        explanation: toSafeString(o.whyItCausesIssue ?? o.explanation),
+      };
+    });
+  }
   return normalizeCauseCards(raw?.causes, graphCauses);
 }
 
@@ -124,6 +134,19 @@ function normalizeRepairs(
       link: r.slug ? `/fix/${r.slug}` : undefined,
       slug: toSafeString(r.slug),
     }));
+  }
+  if (Array.isArray(raw?.solutions) && raw.solutions.length > 0) {
+    return raw.solutions.map((r: unknown) => {
+      const o = (typeof r === "object" && r !== null ? r : {}) as Record<string, unknown>;
+      return {
+        name: toSafeString(o.title ?? o.solution ?? o.name) ?? "Unknown",
+        difficulty: "Moderate",
+        cost: "$50–$600",
+        estimated_cost: "$50–$600",
+        fix_summary: toSafeString(o.whenToUse ?? o.escalation),
+        explanation: toSafeString(Array.isArray(o.steps) ? o.steps.join(' ') : o.steps),
+      };
+    });
   }
   return [];
 }
@@ -543,6 +566,15 @@ function normalizeDiagnosticFlow(raw: RawContent): DiagnosticFlowPlaceholderData
       }
     }
   }
+  if (steps.length === 0 && Array.isArray(raw?.diagnosticFlow)) {
+    for (const s of raw.diagnosticFlow as any[]) {
+      if (typeof s === "string") steps.push(s);
+      else if (s && typeof s === "object") {
+        const title = s.question ?? s.title ?? s.step;
+        if (title) steps.push(title);
+      }
+    }
+  }
   if (steps.length === 0 && Array.isArray(raw?.diagnostic_tests)) {
     steps.push(...mapDiagnosticTests(raw.diagnostic_tests));
   }
@@ -754,6 +786,7 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
     toSafeString(raw?.summary) ??
     toSafeString(raw?.summary_30_sec) ??
     toSafeString(raw?.problem_summary) ??
+    toSafeString((raw?.hero as any)?.description) ??
     fastAnswer ??
     (strippedLegacyHtml ? strippedLegacyHtml.slice(0, 300) : undefined);
 
@@ -808,6 +841,9 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
   const relatedLinks = normalizeRelatedLinks(raw?.relatedLinks as unknown[] | undefined);
 
   const getChecklist = (data: any) => {
+    if (Array.isArray(data?.quickChecks) && data.quickChecks.length > 0) {
+      return data.quickChecks.map((s: any) => typeof s === "string" ? s : s.title ?? s.instruction).filter(Boolean);
+    }
     if (Array.isArray(data?.diagnostic_flow) && data.diagnostic_flow.length > 0) {
       return data.diagnostic_flow.map((s: any) => typeof s === "string" ? s : s.title).filter(Boolean);
     }
@@ -871,12 +907,12 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
   if (Array.isArray(raw?.components_for_fixes) && raw.components_for_fixes.length > 0) sections.components_for_fixes = raw.components_for_fixes;
   if (Array.isArray(raw?.fix_components) && raw.fix_components.length > 0) sections.fix_components = raw.fix_components;
 
-  const displayTitle = titleCase(title || toSafeString(raw?.title) || slug || "");
+  const displayTitle = titleCase(title || toSafeString((raw?.hero as any)?.headline) || toSafeString(raw?.title) || slug || "");
   return {
     pageType: (pageType as BasePageViewModel["pageType"]) ?? "symptom",
     slug,
     title: displayTitle || title,
-    metaTitle: toSafeString(raw?.meta_title),
+    metaTitle: toSafeString(raw?.meta_title) ?? displayTitle,
     metaDescription: toSafeString(raw?.meta_description) ?? fastAnswer ?? summary30,
     intro: summary30,
     fastAnswer,

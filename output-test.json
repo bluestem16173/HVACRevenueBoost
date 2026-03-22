@@ -1,0 +1,66 @@
+{
+  "slug": "diagnose/hvac-leaking-water",
+  "mermaid": true,
+  "flow": [
+    {
+      "no": "Proceed to check the condensate pump.",
+      "yes": "Clear the drain line and monitor for leaks.",
+      "step": 1,
+      "title": "Check the Drain Line",
+      "actions": [
+        "Inspect the drain line for clogs",
+        "Look for water pooling around the unit"
+      ],
+      "field_insight": "Use a wet/dry vacuum to clear stubborn clogs.",
+      "interpretation": "A clogged drain line can cause water to back up and leak.",
+      "related_causes": [
+        "Clogged drain line"
+      ]
+    },
+    {
+      "no": "Check the air filter next.",
+      "yes": "Replace the condensate pump.",
+      "step": 2,
+      "title": "Check the Condensate Pump",
+      "actions": [
+        "Inspect the pump for signs of damage",
+        "Listen for unusual noises from the pump"
+      ],
+      "field_insight": "Ensure the pump is plugged in and receiving power.",
+      "interpretation": "A faulty condensate pump can fail to remove water, leading to leaks.",
+      "related_causes": [
+        "Faulty condensate pump"
+      ]
+    },
+    {
+      "no": "Examine the ductwork for damage.",
+      "yes": "Replace the air filter.",
+      "step": 3,
+      "title": "Check the Air Filter",
+      "actions": [
+        "Remove and inspect the air filter",
+        "Check for dirt and blockage"
+      ],
+      "field_insight": "Regularly changing your air filter can prevent many HVAC issues.",
+      "interpretation": "A dirty air filter can restrict airflow, causing condensation to build up.",
+      "related_causes": [
+        "Dirty air filter"
+      ]
+    },
+    {
+      "no": "Monitor the system for further issues.",
+      "yes": "Repair the damaged ductwork.",
+      "step": 4,
+      "title": "Check the Ductwork",
+      "actions": [
+        "Inspect ducts for visible damage",
+        "Look for signs of moisture around ducts"
+      ],
+      "field_insight": "Seal any leaks with duct tape or mastic sealant.",
+      "interpretation": "Damaged ductwork can lead to leaks and inefficient system performance.",
+      "related_causes": [
+        "Damaged ductwork"
+      ]
+    }
+  ]
+}
