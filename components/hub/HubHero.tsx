@@ -43,7 +43,7 @@ export function HubHero({
             </div>
           )}
           
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-none mb-6 tracking-tight">
+          <h1 className="text-white drop-shadow-lg text-5xl md:text-7xl lg:text-8xl font-black leading-none mb-6 tracking-tight">
             {title}
           </h1>
           

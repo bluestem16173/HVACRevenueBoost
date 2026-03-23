@@ -13,9 +13,9 @@ dotenv.config({ path: ".env.local" });
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-import { MASTER_UNIFIED_PROMPT } from "@/lib/content-engine/core";
+import { MASTER_GOLD_STANDARD_PROMPT } from "@/lib/content-engine/core";
 
-const GRAPH_NODE_PROMPT = MASTER_UNIFIED_PROMPT;
+const GRAPH_NODE_PROMPT = MASTER_GOLD_STANDARD_PROMPT;
 
 export type GraphNodeType = "symptom" | "cause" | "repair";
 

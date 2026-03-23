@@ -14,6 +14,7 @@ export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const aiPage = await getDiagnosticPageFromDB(params.slug, 'diagnose') 
+    ?? await getDiagnosticPageFromDB(params.slug, 'symptom')
     ?? await getDiagnosticPageFromDB(params.slug, 'condition');
   if (aiPage?.quality_status === 'noindex') {
     return { robots: { index: false, follow: true } };
@@ -32,6 +33,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   let isFromDB = !!symptomData;
 
   const aiPage = await getDiagnosticPageFromDB(params.slug, 'diagnose') 
+    ?? await getDiagnosticPageFromDB(params.slug, 'symptom')
     ?? await getDiagnosticPageFromDB(params.slug, 'condition');
   
   if (aiPage?.quality_status === "needs_regen") {
@@ -143,8 +145,13 @@ export default async function SymptomPage({ params }: { params: { slug: string }
     { cause: "Refrigerant issue", repair: "Recharge or repair leak", cost_low: 200, cost_high: 800, difficulty: "Pro" }
   ];
 
-  const repairs = raw?.repairs?.length >= 3 ? raw.repairs : GENERIC_REPAIRS;
-  const narrowDownSteps = raw?.narrow_down || GENERIC_NARROW_DOWN;
+  function getField(rawObj: any, fieldName: string) {
+    return rawObj?.content?.[fieldName] ?? rawObj?.[fieldName] ?? null;
+  }
+
+  const rawRepairs = getField(raw, 'repair_matrix') ?? getField(raw, 'repairs');
+  const repairs = rawRepairs?.length >= 3 ? rawRepairs : GENERIC_REPAIRS;
+  const narrowDownSteps = getField(raw, 'diagnostic_flow') ?? getField(raw, 'narrow_down') ?? GENERIC_NARROW_DOWN;
 
   const quickHackLinks = raw?.related || {
     causes: (raw?.causes || []).slice(0, 3).map((c: any) => c?.slug || c?.id || c?.name || c),
@@ -171,10 +178,14 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   const { getRelatedPagesBySlugs } = require("@/lib/db");
   const relatedGraphPages = await getRelatedPagesBySlugs(aiPage?.site || "hvac", Array.from(new Set(allRelSlugs)));
 
+  const rawSystemExp = getField(raw, 'system_explanation');
+  
+  const ctaField = getField(raw, 'cta') || getField(raw, 'primaryCTA');
+
   const scalingData = {
     narrowDownSteps,
-    systemExplanation: raw?.system_explanation?.length === 4 
-      ? raw.system_explanation 
+    systemExplanation: rawSystemExp?.length >= 4 
+      ? rawSystemExp 
       : [
           "Thermostat signals the system to begin cooling.",
           "Indoor unit absorbs heat from air.",
@@ -183,18 +194,19 @@ export default async function SymptomPage({ params }: { params: { slug: string }
         ],
     repairs,
     relatedLinks: finalRelatedLinks,
-    decisionTree: pageViewModel.decisionTree ?? raw?.mermaidGraph ?? null,
-    subtitle: raw?.subtitle ?? raw?.hero?.subheadline ?? null,
-    diagnosticFlow: raw?.diagnostic_flow ?? raw?.diagnosticFlow ?? (raw?.narrow_down ? raw.narrow_down.map((n: any, i: number) => ({ step: i + 1, title: n.question, actions: [n.yes_leads_to ? `Yes: ${n.yes_leads_to}` : null, n.no_leads_to ? `No: ${n.no_leads_to}` : null].filter(Boolean), interpretation: "Use this to isolate the core issue." })) : null),
-    quickTools: raw?.quick_tools ?? raw?.quickTools ?? null,
-    clusterNav: raw?.cluster_nav ?? null,
-    topCauses: raw?.top_causes ?? raw?.topCauses ?? null,
-    primaryCTA: raw?.cta ? {
-      headline: raw.cta.primaryText || raw.cta.headline || "Need Professional Help?",
-      subtext: raw.cta.secondaryText || raw.cta.subtext || "Our certified technicians can diagnose and fix this guaranteed.",
+    decisionTree: getField(raw, 'decision_tree') ?? pageViewModel.decisionTree ?? getField(raw, 'mermaidGraph') ?? null,
+    subtitle: getField(raw, 'subtitle') ?? getField(raw, 'hero')?.subheadline ?? null,
+    diagnosticFlow: getField(raw, 'diagnostic_flow') ?? getField(raw, 'diagnosticFlow') ?? narrowDownSteps,
+    quickTools: getField(raw, 'quick_tools') ?? getField(raw, 'quickTools') ?? null,
+    clusterNav: getField(raw, 'cluster_nav') ?? null,
+    topCauses: getField(raw, 'top_causes') ?? getField(raw, 'topCauses') ?? null,
+    techObservation: getField(raw, 'tech_observation') ?? getField(raw, 'hero')?.expectationSetting ?? null,
+    primaryCTA: ctaField ? {
+      headline: ctaField.primaryText || ctaField.headline || ctaField.primary || "Need Professional Help?",
+      subtext: ctaField.secondaryText || ctaField.subtext || "Our certified technicians can diagnose and fix this guaranteed.",
       buttonText: "Local Techs Coming Soon",
       url: "#"
-    } : (raw?.primaryCTA ?? null),
+    } : undefined,
   };
 
 

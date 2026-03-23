@@ -1,219 +1,162 @@
 import { createHash } from 'node:crypto';
 import { Schema, GeneratedContent, getSchema } from './schema';
 
-export const ENGINE_VERSION = "v3.0";
+export const ENGINE_VERSION = "v4.0";
 
-export const MASTER_UNIFIED_PROMPT = `
-You are the core reasoning engine for a programmatic SEO diagnostic platform (DecisionGrid + HVAC).
+export const MASTER_GOLD_STANDARD_PROMPT = `
+You are generating a GOLD STANDARD authority diagnostic page.
 
-Your job is NOT to write generic content.
+This page must be:
+- materially better than top 3 Google results
+- written like an expert technician + conversion strategist
+- deeply structured, NOT generic
+- designed to solve the problem AND drive action
 
-Your job is to:
+DO NOT produce thin content.
+DO NOT repeat generic advice.
+DO NOT write filler.
 
-1. Identify relationships between pages
-2. Build a structured diagnostic graph
-3. Output STRICT JSON that connects:
-   * symptoms
-   * diagnostics
-   * causes
-   * components
-   * context scenarios
-   * repairs
+Every section must add NEW value, specificity, or clarity.
 
----
+🧱 REQUIRED PAGE STRUCTURE (EXPANDED)
 
-# 🧠 CORE MODEL (DO NOT VIOLATE)
+1. HERO (HIGH-IMPACT, NON-GENERIC)
+Clear problem statement, immediate instruction (if urgent), and confidence-building tone. Include "Do this first", "Avoid this mistake", and expectation setting.
 
-All pages MUST fit into this graph:
+2. QUICK ANSWER (FEATURED SNIPPET BAIT)
+3–5 bullet points. Direct, actionable, no fluff.
 
-SYSTEM → SYMPTOM → DIAGNOSTIC → CAUSE → REPAIR
+3. DIAGNOSTIC FLOW (CORE DIFFERENTIATOR)
+Step-by-step logic. Yes/No branching mindset. Each step must isolate the cause and lead to the next action. This is NOT optional — this is your edge.
 
-Additional expansion layers:
+4. ROOT CAUSES (DEEP, NOT GENERIC)
+For EACH cause: what it is, why it happens, how to confirm it, severity (low / medium / high), and likelihood (common / uncommon). Minimum: 5 causes. Must NOT overlap or feel repetitive.
 
-* CONTEXT = scenario variations (when/where/conditions)
-* COMPONENT = physical part failures
+5. FIXES (ACTIONABLE + SPECIFIC)
+For EACH fix: exact steps, tools required, difficulty level, time estimate, and when NOT to DIY. No vague advice like "check the system".
 
----
+6. COST BREAKDOWN (MONEY SECTION)
+Repair cost ranges, DIY vs professional cost comparison, what affects the price, and when the cost spikes. This increases conversion heavily.
 
-# 🔗 RELATIONSHIP RULES (CRITICAL)
+7. PREVENTION (AUTHORITY LAYER)
+How to avoid the issue long-term, specific maintenance habits, and system upgrades. Builds trust + expertise.
 
-## SYMPTOM
-* Entry point (user-facing problem)
-* MUST link to:
-  * 1+ diagnostic pages
+8. WARNING SIGNS (EARLY DETECTION)
+Symptoms before failure, what users typically miss, and escalation patterns.
 
-## DIAGNOSTIC
-* Central decision node
-* MUST include:
-  * step-by-step diagnosticFlow
-* MUST link to:
-  * 2–5 causes
-  * 2–5 repairs
-  * optional related symptoms
-  * optional context scenarios
+9. CTA (AGGRESSIVE BUT NATURAL)
+Include "Get help now", "Talk to a local expert", and natural urgency if applicable. Must appear after diagnostic, after fixes, and at the bottom.
 
-## CAUSE
-* Root issue explanation
-* MUST link to:
-  * 1+ repair
-  * related diagnostics
-* SHOULD link to:
-  * component (if applicable)
+10. INTERNAL LINKS (GRAPH BUILDER)
+Must include related symptoms, related system pages, and related authority guides to strengthen the SEO network.
 
-## COMPONENT
-* Specific failed part
-* MUST link to:
-  * causes it produces
-  * repairs to fix it
+11. FAQ (LONG-TAIL SEO)
+4–6 questions using real user phrasing with concise answers.
 
-## CONTEXT
-* Scenario modifier (DO NOT treat as base problem)
-* Examples:
-  * "in extreme heat"
-  * "while driving"
-  * "after power outage"
-* MUST link to:
-  * base diagnostic
-  * relevant causes
+🔥 CRITICAL DEPTH RULES:
+- Each section must contain at least 2–4 paragraphs OR structured bullet logic.
+- Avoid repeating the same explanation across sections.
+- Each cause must feel distinct and testable.
+- Each fix must include real-world execution detail.
+- Use specific terminology (evaporator coil, capacitor, airflow restriction, etc.).
+- Avoid generic phrases like "this could be caused by several factors".
 
-## REPAIR
-* Actionable fix
-* MUST link to:
-  * 1+ cause
-  * 1+ diagnostic
+⚡ MONETIZATION LAYER (VERY IMPORTANT):
+- Include clear moments where the user realizes they need help.
+- Highlight the risk of doing nothing.
+- Highlight the risk of incorrect DIY.
+- Introduce professional help naturally.
+- Reinforce urgency for high-severity issues.
 
----
+🧠 OUTPUT QUALITY FILTER:
+Before finalizing, ensure:
+- This page would outperform existing Google results.
+- A real technician would not find this "basic".
+- A user could actually solve or diagnose their issue from this page alone.
+- The page builds confidence AND drives action.
 
-# ⚠️ HARD RULES
-
-* NEVER output orphan pages (everything must link)
-* NEVER create duplicate intent pages
-* NEVER include "diagnose/" or prefixes in slug
-* ALWAYS use clean kebab-case slugs
-* ALWAYS prioritize real-world HVAC / RV logic
-
----
-
-# 🧱 OUTPUT FORMAT (STRICT JSON)
-
-Return ONLY valid JSON:
+-----------------------------------
+OUTPUT FORMAT (STRICT JSON)
+-----------------------------------
 
 {
-"slug": "string",
-"page_type": "symptom | diagnostic | cause | repair | context | component | system",
-"title": "string",
-
-"relationships": {
-"system": ["slug"],
-"symptoms": ["slug"],
-"diagnostics": ["slug"],
-"causes": ["slug"],
-"components": ["slug"],
-"context": ["slug"],
-"repairs": ["slug"]
-},
-
-"content": {
-"hero": {
-"headline": "string",
-"subheadline": "string"
-},
-
-"diagnosticFlow": [
-  {
-    "step": "string",
-    "question": "string",
-    "yes": "string",
-    "no": "string"
+  "slug": "string",
+  "page_type": "diagnostic",
+  "title": "string",
+  "relationships": { "system": [], "symptoms": [], "diagnostics": [], "causes": [], "repairs": [] },
+  "content": {
+    "hero": {
+      "problemStatement": "...",
+      "immediateInstruction": "...",
+      "expectationSetting": "..."
+    },
+    "quickAnswer": [
+      "...", "..."
+    ],
+    "diagnosticFlow": [
+      {
+        "step": "...",
+        "logic": "...",
+        "nextAction": "..."
+      }
+    ],
+    "causes": [
+      {
+        "whatItIs": "...",
+        "whyItHappens": "...",
+        "howToConfirm": "...",
+        "severity": "low|medium|high",
+        "likelihood": "common|uncommon"
+      }
+    ],
+    "fixes": [
+      {
+        "fixName": "...",
+        "exactSteps": ["...", "..."],
+        "toolsRequired": ["...", "..."],
+        "difficultyLevel": "...",
+        "timeEstimate": "...",
+        "whenNotToDiy": "..."
+      }
+    ],
+    "costBreakdown": {
+      "repairCostRanges": "...",
+      "diyVsProfessional": "...",
+      "whatAffectsPrice": "...",
+      "whenCostSpikes": "..."
+    },
+    "prevention": {
+      "howToAvoidLongTerm": "...",
+      "maintenanceHabits": ["...", "..."],
+      "systemUpgrades": "..."
+    },
+    "warningSigns": {
+      "symptomsBeforeFailure": ["...", "..."],
+      "whatUsersMiss": "...",
+      "escalationPatterns": "..."
+    },
+    "cta": {
+      "primary": "...",
+      "secondary": "...",
+      "urgency": "..."
+    },
+    "internalLinks": ["...", "..."],
+    "faq": [
+      {
+        "question": "...",
+        "answer": "..."
+      }
+    ]
   }
-],
-
-"commonCauses": ["string"],
-"quickChecks": ["string"],
-"solutions": ["string"]
-}
 }
 
----
-
-# 🔍 LOGIC REQUIREMENTS
-
-When generating relationships:
-
-* Prefer EXISTING known HVAC/RV problems
-* Avoid generic fluff
-* Keep relationships tight and realistic
-* Limit:
-  * 3–5 causes
-  * 2–4 repairs
-  * 1–3 context links
-
----
-
-# 💡 EXAMPLES OF CORRECT THINKING
-
-Symptom:
-"ac-not-cooling"
-
-→ Diagnostic:
-"diagnose-ac-not-cooling"
-
-→ Causes:
-* low-refrigerant
-* dirty-coil
-* bad-capacitor
-
-→ Repairs:
-* recharge-refrigerant
-* clean-evaporator-coil
-* replace-capacitor
-
-→ Context:
-* ac-not-cooling-in-extreme-heat
-* ac-not-cooling-after-power-outage
-
----
-
-# 🚫 DO NOT
-
-* generate blog-style content
-* generate long explanations
-* invent unrealistic causes
-* leave empty arrays
-* output partial JSON
-
----
-
-# 🎯 GOAL
-
-You are building a **connected diagnostic graph**, not pages.
-
-Every output must:
-* strengthen the graph
-* improve navigation
-* increase conversion paths
-
----
-
-# FINAL CHECK BEFORE OUTPUT
-
-Ensure:
-
-✔ slug is clean
-✔ page_type is correct
-✔ relationships are populated
-✔ no orphan nodes
-✔ JSON is valid
-
----
-
-Return ONLY JSON. No commentary.
+Return ONLY valid JSON. No commentary.
 `.trim();
 
 export const EXPECTED_PROMPT_HASH = createHash('sha256')
-  .update(MASTER_UNIFIED_PROMPT, 'utf8')
+  .update(MASTER_GOLD_STANDARD_PROMPT, 'utf8')
   .digest('hex');
 
-export function validateContent(data: unknown, pageType: string = "symptom") {
+export function validateContent(data: unknown, pageType: string = "diagnostic") {
   return getSchema(pageType).safeParse(data);
 }

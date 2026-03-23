@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "humidity-too-high-home",
+    "status": "failed",
+    "quality_status": "draft",
+    "quality_score": 0
+  },
+  {
+    "slug": "furnace-not-heating",
+    "status": "failed",
+    "quality_status": "draft",
+    "quality_score": 0
+  },
+  {
+    "slug": "hvac-not-responding-to-thermostat",
+    "status": "failed",
+    "quality_status": "draft",
+    "quality_score": 0
+  },
+  {
+    "slug": "ac-runs-constantly-without-cooling",
+    "status": "failed",
+    "quality_status": "draft",
+    "quality_score": 0
+  },
+  {
+    "slug": "ac-making-clicking-noise-on-startup",
+    "status": "failed",
+    "quality_status": "draft",
+    "quality_score": 0
+  }
+]

@@ -1,0 +1,21 @@
+debug.ts(14,90): error TS2339: Property 'json' does not exist on type '(strings: TemplateStringsArray, ...values: unknown[]) => NeonQueryPromise<false, false, Record<string, any>[]>'.
+debug.ts(18,28): error TS18046: 'e' is of type 'unknown'.
+lib/queue-hybrid.ts(20,49): error TS18046: 'e' is of type 'unknown'.
+lib/seed-authority.ts(19,80): error TS2339: Property 'json' does not exist on type '(strings: TemplateStringsArray, ...values: unknown[]) => NeonQueryPromise<false, false, Record<string, any>[]>'.
+templates/symptom-page.tsx(1214,14): error TS2339: Property 'toolkit' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1217,17): error TS2339: Property 'toolkit' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1217,31): error TS2339: Property 'toolkit' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1219,21): error TS2339: Property 'toolkit' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1261,17): error TS2339: Property 'toolComparison' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1261,38): error TS2339: Property 'toolComparison' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1272,26): error TS2339: Property 'toolComparison' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1332,15): error TS2339: Property 'costAnalysis' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1337,104): error TS2339: Property 'costAnalysis' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1344,104): error TS2339: Property 'costAnalysis' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1378,13): error TS2339: Property 'advancedInsights' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1384,79): error TS2339: Property 'advancedInsights' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1388,79): error TS2339: Property 'advancedInsights' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1392,79): error TS2339: Property 'advancedInsights' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1482,17): error TS2339: Property 'prevention' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1482,34): error TS2339: Property 'prevention' does not exist on type 'BasePageViewModel'.
+templates/symptom-page.tsx(1484,23): error TS2339: Property 'prevention' does not exist on type 'BasePageViewModel'.

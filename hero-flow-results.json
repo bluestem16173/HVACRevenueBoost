@@ -1,0 +1,101 @@
+[
+  {
+    "status": "failed",
+    "slug": "ac-freezing-up",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "uneven-airflow-in-home",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "air-not-reaching-rooms",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "ac-smells-burning",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "ac-making-buzzing-noise",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "ac-making-clicking-noise",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "ac-not-turning-on",
+    "type": "repair",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "ac-making-hissing-noise",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "ac-smells-like-chemicals",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "ac-blowing-weak-air",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "restricted-airflow-ac",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "ac-blowing-warm-air",
+    "type": "repair",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "failed",
+    "slug": "hvac-overworking",
+    "type": "symptom",
+    "has_hero": true,
+    "has_flow": true
+  },
+  {
+    "status": "draft",
+    "slug": "test-slug-123",
+    "type": "symptom",
+    "has_hero": false,
+    "has_flow": false,
+    "keys": []
+  }
+]

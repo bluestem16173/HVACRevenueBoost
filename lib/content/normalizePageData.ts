@@ -1068,5 +1068,17 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
     })(),
     relatedSymptoms: (() => { const a = toStringArray(raw?.relatedSymptoms ?? raw?.related_symptoms); return a.length > 0 ? a : undefined; })(),
     relatedCauses: (() => { const a = toStringArray(raw?.relatedCauses ?? raw?.related_causes); return a.length > 0 ? a : undefined; })(),
+    
+    // Phase 44: Deep Diagnostic 11-Block map
+    hero: (typeof raw?.hero === 'object' && raw?.hero !== null) ? raw.hero as any : undefined,
+    quickAnswersData: Array.isArray(raw?.quickAnswer) && raw.quickAnswer.length > 0 ? raw.quickAnswer as any : undefined,
+    diagnosticFlowData: Array.isArray(raw?.diagnosticFlow) && raw.diagnosticFlow.length > 0 ? raw.diagnosticFlow as any : undefined,
+    causesData: Array.isArray(raw?.causes) && raw.causes.length > 0 ? raw.causes as any : undefined,
+    fixesData: Array.isArray(raw?.fixes) && raw.fixes.length > 0 ? raw.fixes as any : undefined,
+    costBreakdown: (typeof raw?.costBreakdown === 'object' && raw?.costBreakdown !== null) ? raw.costBreakdown as any : undefined,
+    preventionData: (typeof raw?.prevention === 'object' && raw?.prevention !== null) ? raw.prevention as any : undefined,
+    warningSigns: (typeof raw?.warningSigns === 'object' && raw?.warningSigns !== null) ? raw.warningSigns as any : undefined,
+    cta: (typeof raw?.cta === 'object' && raw?.cta !== null) ? raw.cta as any : undefined,
+    internalLinksData: Array.isArray(raw?.internalLinks) && raw.internalLinks.length > 0 ? raw.internalLinks as any : undefined,
   };
 }

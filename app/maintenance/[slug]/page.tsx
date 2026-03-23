@@ -6,7 +6,7 @@ import { Metadata } from "next";
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const page = await getDiagnosticPageFromDB(params.slug, 'maintenance', 'hvac');
+  const page = await getDiagnosticPageFromDB(params.slug, 'maintenance');
   
   if (!page || !page.content_json) {
     return { title: "HVAC Maintenance | HVAC Revenue Boost" };
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function MaintenanceRoute({ params }: { params: { slug: string } }) {
-  const aiPage = await getDiagnosticPageFromDB(params.slug, 'maintenance', 'hvac');
+  const aiPage = await getDiagnosticPageFromDB(params.slug, 'maintenance');
 
   if (!aiPage || !aiPage.content_json || aiPage.quality_status === "needs_regen") {
     notFound();

@@ -1,4 +1,4 @@
-import { MASTER_UNIFIED_PROMPT } from "@/lib/content-engine/core";
+import { MASTER_GOLD_STANDARD_PROMPT } from "@/lib/content-engine/core";
 
 export type GraphPageType =
   | "system"
@@ -44,7 +44,7 @@ Return strict JSON only.
 
 export function buildGraphRequest(input: GraphInput) {
   return {
-    systemInstruction: MASTER_UNIFIED_PROMPT,
+    systemInstruction: MASTER_GOLD_STANDARD_PROMPT,
     userPrompt: buildGraphUserPrompt(input),
   };
 }

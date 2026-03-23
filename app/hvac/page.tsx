@@ -99,12 +99,25 @@ const AUTHORITY_GUIDES = [
   { title: "What Causes HVAC Failures", description: "The exact statistical breakdown of core system drops.", href: "/authority/common-hvac-failures" }
 ];
 
+const PINNED_SYMPTOMS = [
+  "ac-not-cooling",
+  "furnace-not-heating",
+  "hvac-short-cycling"
+];
+
+const PINNED_DIAGNOSTICS = [
+  "ac-not-cooling-diagnostic",
+  "furnace-not-heating-diagnostic"
+];
+
 export default async function ResidentialHub() {
   const dbSymptoms = await sql`
     SELECT slug, title as name
     FROM pages 
     WHERE page_type = 'symptom' AND site = 'hvac' AND quality_status = 'published'
-    ORDER BY priority DESC 
+    ORDER BY 
+      CASE WHEN slug = ANY(${PINNED_SYMPTOMS}) THEN 1 ELSE 2 END,
+      priority DESC, created_at DESC 
     LIMIT 9
   `.catch(() => []);
 
@@ -112,7 +125,9 @@ export default async function ResidentialHub() {
     SELECT slug, title as name
     FROM pages 
     WHERE page_type = 'diagnostic' AND site = 'hvac' AND quality_status = 'published'
-    ORDER BY created_at DESC 
+    ORDER BY 
+      CASE WHEN slug = ANY(${PINNED_DIAGNOSTICS}) THEN 1 ELSE 2 END,
+      created_at DESC 
     LIMIT 9
   `.catch(() => []);
 

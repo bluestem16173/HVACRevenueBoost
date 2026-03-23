@@ -6,7 +6,7 @@ import { Metadata } from "next";
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const page = await getDiagnosticPageFromDB(params.slug, 'component', 'hvac');
+  const page = await getDiagnosticPageFromDB(params.slug, 'component');
   
   if (!page || !page.content_json) {
     return { title: "Component Service | HVAC Revenue Boost" };
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function ComponentRoute({ params }: { params: { slug: string } }) {
-  const aiPage = await getDiagnosticPageFromDB(params.slug, 'component', 'hvac');
+  const aiPage = await getDiagnosticPageFromDB(params.slug, 'component');
 
   if (!aiPage || !aiPage.content_json || aiPage.quality_status === "needs_regen") {
     notFound();

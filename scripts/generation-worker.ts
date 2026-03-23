@@ -1,9 +1,11 @@
 import "dotenv/config";
 import sql from '../lib/db';
-import { generateTwoStagePage } from '../lib/content-engine/generator';
-import { getFallback } from '../lib/content-engine/schema';
+import { generateDiagnosticEngineJson, transformDGToUnified, assertCriticalDiagnosticFields } from '../lib/content-engine/generator';
+import { getFallback, Schema } from '../lib/content-engine/schema';
 import { EXPECTED_PROMPT_HASH } from '../lib/content-engine/core';
 import { normalizeToBaseSlug, buildSlug } from '../lib/slug-helpers';
+import { buildRetryPromptFragment } from '../lib/prompt-schema-router';
+import { scoreGoldStandardPage, type PageType, PUBLISH_THRESHOLDS } from '../lib/quality-scorer';
 
 console.log("DB URL:", process.env.DATABASE_URL);
 
@@ -98,30 +100,92 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
       try {
         console.log("🚀 GENERATING:", proposedSlug);
 
-        const result = await generateTwoStagePage(proposedSlug, {
-          slug: proposedSlug,
-          system: "HVAC",
-          pageType: pageType,
-          coreOnly: false
-        });
+        let attempt = 0;
+        let finalResult: any = null;
+        let finalStatus: 'published' | 'failed' | 'needs_regen' = 'published';
+        let currentFeedback: string[] = [];
 
-        console.log("📦 GENERATED SUCCESS:", proposedSlug);
-        console.log("✅ VALIDATION PASSED:", proposedSlug);
+        // Max 2 retries (3 attempts total)
+        const maxAttempts = 3;
 
-        const fallbackObj = getFallback(pageType);
-        const isFallback = result.content?.hero?.headline === fallbackObj.content?.hero?.headline;
+        while (attempt < maxAttempts) {
+          const rawDg = await generateDiagnosticEngineJson(proposedSlug, {
+            slug: proposedSlug,
+            system: "HVAC",
+            pageType: pageType,
+            coreOnly: false,
+            retryFeedback: currentFeedback.length > 0 ? buildRetryPromptFragment(currentFeedback) : undefined
+          });
+
+          console.log(`📦 DG JSON GENERATED (Attempt ${attempt + 1}/${maxAttempts}):`, proposedSlug);
+
+          const transformed = transformDGToUnified(rawDg, proposedSlug, pageType);
+
+          if (pageType === 'diagnostic') {
+            try { assertCriticalDiagnosticFields(transformed, pageType); }
+            catch (err: any) { console.error("Critical fields missing:", err.message); }
+          }
+
+          let schemaPassed = true;
+          try {
+            Schema.parse(transformed);
+          } catch (err: any) {
+            console.error("❌ Schema parse failed silently on attempt", attempt + 1);
+            schemaPassed = false;
+          }
+
+          const validation = scoreGoldStandardPage(transformed, pageType as PageType);
+          
+          finalResult = transformed;
+          (finalResult as any)._quality = validation;
+
+          console.log(
+            `[validator] slug=${proposedSlug} score=${validation.score} schemaPassed=${schemaPassed} hardReject=${validation.hardReject}`
+          );
+
+          if (schemaPassed && validation.valid) {
+            console.log("✅ GOLD STANDARD VALIDATION PASSED:", proposedSlug);
+            finalStatus = 'published';
+            break;
+          }
+
+          if (validation.hardReject) {
+            console.error(`❌ HARD REJECT logic hit for ${proposedSlug}:`, validation.reasons.join(" | "));
+            finalStatus = 'failed';
+            break; // Do not retry a hard reject if it's fundamentally flawed, or we could continue to retry based on policy. Let's retry unless we exhaust.
+          }
+
+          if (validation.retryable && attempt < maxAttempts - 1) {
+            console.log(`⚠️ Weak page, initiating RETRY for ${proposedSlug}. Score: ${validation.score}`);
+            currentFeedback = validation.reasons;
+            attempt++;
+            continue;
+          }
+
+          // Exhausted retries or non-retryable
+          if (validation.score >= 70) {
+            finalStatus = 'needs_regen'; // Save it but flag it
+            console.warn(`⚠️ Saving borderline page ${proposedSlug} with score ${validation.score}`);
+          } else {
+            finalStatus = 'failed';
+            console.error(`❌ Rejected weak page ${proposedSlug}. Score: ${validation.score}`);
+          }
+          break;
+        }
+
+        const result = finalResult;
+        const status = finalStatus;
+
+        // Add required properties
+        (result as any)._prompt_hash = EXPECTED_PROMPT_HASH;
+        (result as any).engineVersion = "v5.0";
+
         console.log({
           slug: proposedSlug,
-          status: 'published',
-          hasFallback: isFallback,
-          causes: (result as any).content?.commonCauses?.length,
-          steps: (result as any).content?.diagnosticFlow?.length,
+          status: status,
+          causes: result?.content?.causes?.length || result?.content?.top_causes?.length,
+          steps: result?.content?.diagnostic_flow?.length || result?.content?.diagnosticFlow?.length,
         });
-
-        const pageStatus = isFallback ? 'failed' : 'published';
-        if (isFallback) {
-          console.warn(`⚠️ FALLBACK USED: ${proposedSlug}`);
-        }
 
         const cleanSlug = normalizeSlug(proposedSlug);
         let city = job.city || null;
@@ -139,12 +203,12 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
           VALUES (
             ${cleanSlug},
             ${JSON.stringify(result)}::jsonb,
-            ${pageStatus},
+            ${status},
             ${result.page_type || pageType},
-            ${result.title || result.content?.hero?.headline || 'Untitled'},
+            ${result.title || result.content?.hero?.problemStatement || 'Untitled'},
             ${city}
           )
-          ON CONFLICT (slug, page_type, city) DO UPDATE
+          ON CONFLICT (site, page_type, slug, COALESCE(city, '')) DO UPDATE
           SET content_json = EXCLUDED.content_json,
               title = EXCLUDED.title,
               status = EXCLUDED.status,
@@ -165,7 +229,8 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
 
       } catch (err: any) {
         console.error("❌ HARD FAILURE:", proposedSlug);
-        console.error(err);
+        if (err.issues) console.error("ZOD ISSUES:", JSON.stringify(err.issues, null, 2));
+        else console.error(err.message || err);
 
         await sql`
           UPDATE generation_queue

@@ -1,177 +1,342 @@
-export type QualityResult = {
+export type PageType =
+  | "system"
+  | "symptom"
+  | "diagnostic"
+  | "cause"
+  | "repair"
+  | "component"
+  | "condition"
+  | "authority"
+  | "city";
+
+export type ValidationResult = {
+  valid: boolean;
   score: number;
-  status: 'draft' | 'noindex' | 'published' | 'needs_regen';
-  breakdown: {
-    completeness: number;
-    depth: number;
-    internalLinks: number;
-    structure: number;
-    confidence: number;
-    hygiene: number;
-  };
+  retryable: boolean;
   reasons: string[];
+  hardReject: boolean;
+  sectionScores: {
+    schema: number;
+    intent: number;
+    depth: number;
+    eeat: number;
+    readability: number;
+    actionability: number;
+    originality: number;
+  };
 };
 
-export function calculateQualityScore(data: any, html: string = "", pageType: string = ""): QualityResult {
+export const HARDCODED_DEFAULT_PATTERNS: RegExp[] = [
+  /common issue that can have several causes/i,
+  /it is important to inspect the system carefully/i,
+  /consult a professional if the problem persists/i,
+  /this issue may affect performance and comfort/i,
+  /several factors may contribute to this problem/i,
+  /a number of issues can cause this symptom/i,
+];
+
+export const PUBLISH_THRESHOLDS: Record<PageType, number> = {
+  system: 85,
+  symptom: 85,
+  diagnostic: 90,
+  cause: 85,
+  repair: 85,
+  component: 83,
+  condition: 83,
+  authority: 88,
+  city: 80,
+};
+
+function getContent(page: any) {
+  return page?.content ?? page ?? {};
+}
+
+function flattenText(input: any): string {
+  if (input == null) return "";
+  if (typeof input === "string") return input;
+  if (Array.isArray(input)) return input.map(flattenText).join(" ");
+  if (typeof input === "object") return Object.values(input).map(flattenText).join(" ");
+  return String(input);
+}
+
+function wordCount(page: any): number {
+  const text = flattenText(page);
+  return text.trim() ? text.trim().split(/\s+/).length : 0;
+}
+
+function countPatternMatches(text: string, patterns: RegExp[]): number {
+  return patterns.reduce((acc, re) => acc + (re.test(text) ? 1 : 0), 0);
+}
+
+function hasExpertObservation(content: any): boolean {
+  const t = flattenText(content.tech_observation ?? "");
+  if (t.length >= 120) return true;
+
+  const all = flattenText(content);
+  return (
+    /what most homeowners misunderstand/i.test(all) ||
+    /what people often miss/i.test(all) ||
+    /failure pattern/i.test(all) ||
+    /hidden cause/i.test(all) ||
+    /cascading/i.test(all)
+  );
+}
+
+export function scoreSchema(page: any, pageType: PageType, reasons: string[]): number {
+  const c = getContent(page);
+  let score = 20;
+
+  if (!page?.slug) {
+    score -= 5;
+    reasons.push("Missing slug.");
+  }
+  if (!page?.title) {
+    score -= 5;
+    reasons.push("Missing title.");
+  }
+
+  if (pageType === "diagnostic") {
+    if (!c.decision_tree) {
+      score -= 5;
+      reasons.push("Missing decision_tree.");
+    }
+    if (!Array.isArray(c.system_explanation) || c.system_explanation.length < 4) {
+      score -= 4;
+      reasons.push("system_explanation is missing or too short.");
+    }
+    if (!Array.isArray(c.diagnostic_flow) || c.diagnostic_flow.length < 3) {
+      score -= 3;
+      reasons.push("diagnostic_flow is missing or too short.");
+    }
+    if (!Array.isArray(c.top_causes) || c.top_causes.length < 3) {
+      score -= 2;
+      reasons.push("top_causes is missing or too short.");
+    }
+    if (!Array.isArray(c.repair_matrix) || c.repair_matrix.length < 3) {
+      score -= 2;
+      reasons.push("repair_matrix is missing or too short.");
+    }
+    if (!Array.isArray(c.quick_tools) || c.quick_tools.length < 3) {
+      score -= 1;
+      reasons.push("quick_tools is missing or too short.");
+    }
+  }
+
+  return Math.max(0, score);
+}
+
+export function scoreIntent(page: any, pageType: PageType, reasons: string[]): number {
+  const c = getContent(page);
+  const text = flattenText(c).toLowerCase();
+  let score = 15;
+
+  const requiredSignals: Record<PageType, string[]> = {
+    system: ["component", "how it works", "failure"],
+    symptom: ["symptom", "cause", "check"],
+    diagnostic: ["diagnostic", "cause", "step"],
+    cause: ["why it happens", "confirm", "fix"],
+    repair: ["repair", "cost", "difficulty"],
+    component: ["component", "function", "failure"],
+    condition: ["condition", "develops", "associated"],
+    authority: ["misconception", "understand", "explains"],
+    city: ["local", "service", "help"],
+  };
+
+  const signals = requiredSignals[pageType] ?? [];
+  const hits = signals.filter((s) => text.includes(s)).length;
+
+  if (hits === 0) {
+    score -= 10;
+    reasons.push("Page weakly matches " + pageType + " intent.");
+  } else if (hits === 1) {
+    score -= 5;
+    reasons.push("Page only partially matches " + pageType + " intent.");
+  }
+
+  return Math.max(0, score);
+}
+
+export function scoreDepth(page: any, pageType: PageType, reasons: string[]): number {
+  const c = getContent(page);
+  let score = 20;
+  const wc = wordCount(c);
+
+  if (pageType === "city") {
+    if (wc < 700) {
+      score -= 10;
+      reasons.push("City page is too thin.");
+    }
+  } else if (wc < 1100) {
+    score -= 12;
+    reasons.push("Content is too thin for a gold standard page.");
+  }
+
+  if (pageType === "diagnostic") {
+    if ((c.top_causes?.length ?? 0) < 4) score -= 3;
+    if ((c.repair_matrix?.length ?? 0) < 4) score -= 3;
+    if ((c.system_explanation?.length ?? 0) < 4) score -= 2;
+  }
+
+  return Math.max(0, score);
+}
+
+export function scoreEEAT(page: any, _pageType: PageType, reasons: string[]): number {
+  const c = getContent(page);
+  let score = 15;
+
+  if (!hasExpertObservation(c)) {
+    score -= 7;
+    reasons.push("Missing strong expert/technical observation.");
+  }
+
+  const text = flattenText(c);
+  if (!/when to call|when professional help|stop diy|safety/i.test(text)) {
+    score -= 3;
+    reasons.push("Missing safe escalation or limitation guidance.");
+  }
+
+  if (!/why it happens|how it works|failure|pattern|misconception|observable/i.test(text)) {
+    score -= 3;
+    reasons.push("Weak technical explanation or real-world reasoning.");
+  }
+
+  return Math.max(0, score);
+}
+
+export function scoreReadability(page: any, reasons: string[]): number {
+  const c = getContent(page);
+  const text = flattenText(c);
+  let score = 10;
+
+  if (text.length < 800) {
+    score -= 4;
+    reasons.push("Readability structure is weak because content is too short.");
+  }
+
+  const avgSentenceLength =
+    text.split(/[.!?]+/).map((s) => s.trim()).filter(Boolean).reduce((a, s, _, arr) => a + s.split(/\s+/).length / arr.length, 0);
+
+  if (avgSentenceLength > 28) {
+    score -= 3;
+    reasons.push("Sentences are too long and dense.");
+  }
+
+  return Math.max(0, score);
+}
+
+export function scoreActionability(page: any, pageType: PageType, reasons: string[]): number {
+  const c = getContent(page);
+  const text = flattenText(c);
+  let score = 10;
+
+  if (!/next step|what to check|what to do|fix|repair|inspect|replace|call/i.test(text)) {
+    score -= 5;
+    reasons.push("Weak actionability: user cannot easily tell what to do next.");
+  }
+
+  if (pageType === "diagnostic" && (!Array.isArray(c.diagnostic_flow) || c.diagnostic_flow.length < 3)) {
+    score -= 3;
+    reasons.push("Diagnostic page lacks actionable flow.");
+  }
+
+  return Math.max(0, score);
+}
+
+export function scoreOriginality(page: any, reasons: string[]): number {
+  const c = getContent(page);
+  const text = flattenText(c);
+  let score = 10;
+
+  const patternHits = countPatternMatches(text, HARDCODED_DEFAULT_PATTERNS);
+  if (patternHits >= 2) {
+    score -= 7;
+    reasons.push("Detected hardcoded/generic default language.");
+  } else if (patternHits === 1) {
+    score -= 3;
+    reasons.push("Detected some generic fallback language.");
+  }
+
+  const repeatedPhrasePenalty =
+    (text.match(/\bimportant to\b/gi)?.length ?? 0) +
+    (text.match(/\bcommon issue\b/gi)?.length ?? 0) +
+    (text.match(/\bcan be caused by\b/gi)?.length ?? 0);
+
+  if (repeatedPhrasePenalty >= 4) {
+    score -= 3;
+    reasons.push("Content has repetitive generic phrasing.");
+  }
+
+  return Math.max(0, score);
+}
+
+export function hasHardRejectConditions(page: any, pageType: PageType): string[] {
+  const c = getContent(page);
+  const problems: string[] = [];
+  const wc = wordCount(c);
+  const text = flattenText(c);
+
+  if (!page?.slug) problems.push("Hard reject: missing slug.");
+  if (!page?.title) problems.push("Hard reject: missing title.");
+
+  if (pageType === "diagnostic") {
+    if (!c.decision_tree) problems.push("Hard reject: missing Mermaid decision_tree.");
+    if (!Array.isArray(c.system_explanation) || c.system_explanation.length < 4) {
+      problems.push("Hard reject: missing robust system_explanation.");
+    }
+    if (!Array.isArray(c.diagnostic_flow) || c.diagnostic_flow.length < 3) {
+      problems.push("Hard reject: missing diagnostic flow.");
+    }
+  }
+
+  if (pageType !== "city" && wc < 700) {
+    problems.push("Hard reject: page is far too thin.");
+  }
+
+  if (/lorem ipsum|placeholder|tbd|coming soon/i.test(text)) {
+    problems.push("Hard reject: placeholder text detected.");
+  }
+
+  if (countPatternMatches(text, HARDCODED_DEFAULT_PATTERNS) >= 3) {
+    problems.push("Hard reject: heavy fallback/default language detected.");
+  }
+
+  return problems;
+}
+
+export function scoreGoldStandardPage(
+  page: any,
+  pageType: PageType
+): ValidationResult {
   const reasons: string[] = [];
-  let completeness = 0; // max 30
-  let depth = 0; // max 20
-  let internalLinks = 0; // max 10
-  let structure = 0; // max 20
-  let confidence = 0; // max 10
-  let hygiene = 10; // max 10 (starts at 10, penalties subtract)
+  const hardRejectReasons = hasHardRejectConditions(page, pageType);
 
-  if (!data || typeof data !== 'object') {
-    reasons.push("Data is empty or invalid format.");
-    return {
-      score: 0,
-      status: 'needs_regen',
-      breakdown: { completeness: 0, depth: 0, internalLinks: 0, structure: 0, confidence: 0, hygiene: 0 },
-      reasons
-    };
-  }
+  const sectionScores = {
+    schema: scoreSchema(page, pageType, reasons),
+    intent: scoreIntent(page, pageType, reasons),
+    depth: scoreDepth(page, pageType, reasons),
+    eeat: scoreEEAT(page, pageType, reasons),
+    readability: scoreReadability(page, reasons),
+    actionability: scoreActionability(page, pageType, reasons),
+    originality: scoreOriginality(page, reasons),
+  };
 
-  // 1. Completeness (0-30): Sections present
-  const hasSummary = Boolean(data.summary || data.fastAnswer || data.fast_answer?.summary || data.quick_answer);
-  const hasDiagnostic = Boolean(data.diagnosticFlowMermaid || data.diagnostic_steps || data.narrow_down);
-  const hasToolsParts = Boolean(data.toolsRequired?.length > 0 || data.partsRequired?.length > 0 || data.repairs?.length > 0);
-  const hasFaq = Boolean(data.faq?.length > 0 || data.tech_observation);
+  const score =
+    sectionScores.schema +
+    sectionScores.intent +
+    sectionScores.depth +
+    sectionScores.eeat +
+    sectionScores.readability +
+    sectionScores.actionability +
+    sectionScores.originality;
 
-  // 🚨 RICH SCHEMA GATE: Symptom pages MUST have the strategic arrays
-  if (pageType === 'symptom') {
-    if (!data.system_explanation) { reasons.push('Missing system_explanation — score 0'); return { score: 0, status: 'needs_regen', breakdown: { completeness: 0, depth: 0, internalLinks: 0, structure: 0, confidence: 0, hygiene: 0 }, reasons }; }
-    if (!data.repair_matrix) { reasons.push('Missing repair_matrix — score 0'); return { score: 0, status: 'needs_regen', breakdown: { completeness: 0, depth: 0, internalLinks: 0, structure: 0, confidence: 0, hygiene: 0 }, reasons }; }
-    if (!data.environments) { reasons.push('Missing environments — score 0'); return { score: 0, status: 'needs_regen', breakdown: { completeness: 0, depth: 0, internalLinks: 0, structure: 0, confidence: 0, hygiene: 0 }, reasons }; }
-  }
-
-  if (hasSummary) completeness += 10; else reasons.push("Missing fast answer / summary.");
-  if (hasDiagnostic) completeness += 10; else reasons.push("Missing diagnostic flow or steps.");
-  if (hasToolsParts || hasFaq) completeness += 10;
-
-  // 2. Depth / Word count (0-20)
-  const contentLen = html.length + JSON.stringify(data).length;
-  if (contentLen > 4000) {
-    depth = 20;
-  } else if (contentLen > 2500) {
-    depth = 15;
-  } else if (contentLen > 1000) {
-    depth = 10;
-  } else {
-    depth = 5;
-    reasons.push("Content is too shallow (< 1000 chars).");
-  }
-
-  // 3. Internal Links (0-10)
-  // Check if seoLinks or related arrays are populated
-  const seo = data.seo_links || data.seoLinks;
-  const linksCt = (seo?.link_strategy_summary?.total_contextual_links || 0) + 
-                  (seo?.link_strategy_summary?.total_section_links || 0) +
-                  (data.relatedSymptoms?.length || 0);
-  if (linksCt >= 3) {
-    internalLinks = 10;
-  } else if (linksCt > 0) {
-    internalLinks = 5;
-  } else {
-    reasons.push("Poor internal linking (0-2 related links).");
-  }
-
-  // 4. Content Uniqueness / Structure (0-20)
-  // Check sufficient causes and repairs  // 4. Content Uniqueness / Structure (0-20)
-  let causeCount = 0;
-  if (Array.isArray(data.systemCards)) causeCount += data.systemCards.length;
-  if (Array.isArray(data.top_causes)) causeCount += data.top_causes.length;
-  if (Array.isArray(data.causes)) causeCount += data.causes.length;
-  if (Array.isArray(data.primaryCauses)) causeCount += data.primaryCauses.length;
-
-  let repairCount = 0;
-  if (Array.isArray(data.repairOptions)) repairCount += data.repairOptions.length;
-  if (Array.isArray(data.repairs)) repairCount += data.repairs.length;
-  if (data.repair_matrix?.electrical?.length === 3) repairCount += 9; // full matrix = 9 total
-  if (Array.isArray(data.stepsOverview)) repairCount += data.stepsOverview.length;
-
-  if (causeCount >= 3) structure += 10;
-  else { reasons.push("Too few causes (need at least 3)."); structure += Math.max(0, causeCount * 3); }
-
-  if (repairCount >= 3) structure += 10;
-  else { reasons.push("Too few repairs/steps (need at least 3)."); structure += Math.max(0, repairCount * 3); }
-
-  // 5. Confidence Score Present (0-10)
-  if (data.confidence_score !== undefined || data.severity_indicator || data.riskLevel || data.tech_observation) {
-    confidence = 10;
-  } else {
-    reasons.push("Missing AI confidence score or risk level indicators.");
-  }
-
-  // 6. Placeholder Penalty / Hygiene (0-10)
-  const strData = JSON.stringify(data).toLowerCase();
-  if (strData.includes("placeholder") || strData.includes("lorem ipsum") || strData.includes("generic")) {
-    hygiene = 0;
-    reasons.push("Placeholder or generic text detected in payload.");
-  }
-
-  // 7. Structural Penalties (Legacy Kill)
-  let structuralPenalty = 0;
-  if (data.systems) {
-    structuralPenalty += 50;
-    reasons.push("Legacy 'systems' structure detected (-50).");
-  }
-  
-  if (pageType === 'repair') {
-    if (!data.steps) {
-      structuralPenalty += 40;
-      reasons.push("Missing 'steps' for repair page (-40).");
-    }
-    if (!data.tools_required) {
-      structuralPenalty += 20;
-      reasons.push("Missing 'tools_required' for repair page (-20).");
-    }
-  } else if (pageType === 'symptom') {
-    if (!data.top_causes) {
-      structuralPenalty += 30;
-      reasons.push("Missing 'top_causes' for symptom page (-30).");
-    }
-  } else if (pageType === 'cause') {
-    if (!data.diagnostic_tests) {
-      structuralPenalty += 30;
-      reasons.push("Missing 'diagnostic_tests' for cause page (-30).");
-    }
-  }
-
-  let totalScore = completeness + depth + internalLinks + structure + confidence + hygiene - structuralPenalty;
-  totalScore = Math.max(0, Math.min(100, Math.round(totalScore)));
-
-  let status: 'draft' | 'noindex' | 'published' | 'needs_regen' = 'published';
-
-  if (totalScore < 40) {
-    status = 'needs_regen';
-    reasons.push(`Score too low (${totalScore}). Critical failure.`);
-  } else if (totalScore < 60) {
-    status = 'noindex';
-    reasons.push(`Score indicates weak page (${totalScore}). Marked as noindex.`);
-  } else if (totalScore < 80) {
-    status = 'published'; // Mid tier
-    reasons.push(`Mid-tier page (${totalScore}). Ok to index with soft monetization.`);
-  } else {
-    status = 'published'; // High tier
-  }
-
-  // Immediately flag for regeneration if the generator pipeline detected fragile schema arrays
-  if (data._quality_flags && Array.isArray(data._quality_flags) && data._quality_flags.length > 0) {
-    status = 'needs_regen';
-    reasons.push(`Quality flags triggered regen: ${data._quality_flags.join(', ')}`);
-  }
-
-  return {
-    score: totalScore,
-    status,
-    breakdown: {
-      completeness,
-      depth,
-      internalLinks,
-      structure,
-      confidence,
-      hygiene
-    },
-    reasons
+  const threshold = PUBLISH_THRESHOLDS[pageType] || 85;
+  const hardReject = hardRejectReasons.length > 0;
+ return {
+    valid: !hardReject && sectionScores.schema >= 15 && score >= threshold,
+    score,
+    retryable: !hardReject && score >= 70,
+    reasons: [...hardRejectReasons, ...reasons],
+    hardReject,
+    sectionScores,
   };
 }

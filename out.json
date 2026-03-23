@@ -1,0 +1,54 @@
+[
+  {
+    "indexname": "pages_pkey",
+    "indexdef": "CREATE UNIQUE INDEX pages_pkey ON public.pages USING btree (id)"
+  },
+  {
+    "indexname": "idx_pages_slug",
+    "indexdef": "CREATE INDEX idx_pages_slug ON public.pages USING btree (slug)"
+  },
+  {
+    "indexname": "idx_pages_page_type",
+    "indexdef": "CREATE INDEX idx_pages_page_type ON public.pages USING btree (page_type)"
+  },
+  {
+    "indexname": "idx_pages_page_target_id",
+    "indexdef": "CREATE INDEX idx_pages_page_target_id ON public.pages USING btree (page_target_id)"
+  },
+  {
+    "indexname": "idx_pages_quality_status",
+    "indexdef": "CREATE INDEX idx_pages_quality_status ON public.pages USING btree (quality_status)"
+  },
+  {
+    "indexname": "idx_pages_worker_queue",
+    "indexdef": "CREATE INDEX idx_pages_worker_queue ON public.pages USING btree (status, site, page_type, created_at) WHERE (status = 'pending'::text)"
+  },
+  {
+    "indexname": "idx_pages_city_slug",
+    "indexdef": "CREATE INDEX idx_pages_city_slug ON public.pages USING btree (site, city, slug)"
+  },
+  {
+    "indexname": "idx_pages_failed_retry",
+    "indexdef": "CREATE INDEX idx_pages_failed_retry ON public.pages USING btree (status, updated_at) WHERE (status = 'failed'::text)"
+  },
+  {
+    "indexname": "idx_pages_symptom_id",
+    "indexdef": "CREATE INDEX idx_pages_symptom_id ON public.pages USING btree (symptom_id)"
+  },
+  {
+    "indexname": "idx_pages_cause_id",
+    "indexdef": "CREATE INDEX idx_pages_cause_id ON public.pages USING btree (cause_id)"
+  },
+  {
+    "indexname": "idx_pages_repair_id",
+    "indexdef": "CREATE INDEX idx_pages_repair_id ON public.pages USING btree (repair_id)"
+  },
+  {
+    "indexname": "idx_pages_published_at",
+    "indexdef": "CREATE INDEX idx_pages_published_at ON public.pages USING btree (published_at DESC)"
+  },
+  {
+    "indexname": "pages_canonical_unique",
+    "indexdef": "CREATE UNIQUE INDEX pages_canonical_unique ON public.pages USING btree (site, page_type, slug, COALESCE(city, ''::text))"
+  }
+]

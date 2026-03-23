@@ -6,7 +6,7 @@ import { Metadata } from "next";
 export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const page = await getDiagnosticPageFromDB(params.slug, 'cost', 'hvac');
+  const page = await getDiagnosticPageFromDB(params.slug, 'cost');
   
   if (!page || !page.content_json) {
     return { title: `${params.slug.replace(/-/g, ' ')} Replacement Cost | HVAC Revenue Boost` };
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function CostRoute({ params }: { params: { slug: string } }) {
-  const aiPage = await getDiagnosticPageFromDB(params.slug, 'cost', 'hvac');
+  const aiPage = await getDiagnosticPageFromDB(params.slug, 'cost');
 
   if (aiPage?.quality_status === "needs_regen") {
     notFound();

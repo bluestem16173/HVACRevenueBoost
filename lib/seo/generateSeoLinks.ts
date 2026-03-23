@@ -4,9 +4,9 @@ import { SeoLinks } from "./types";
 
 const openai = new OpenAI();
   
-import { MASTER_UNIFIED_PROMPT } from "@/lib/content-engine/core";
+import { MASTER_GOLD_STANDARD_PROMPT } from "@/lib/content-engine/core";
 
-const MEGA_SEO_PROMPT = MASTER_UNIFIED_PROMPT;
+const MEGA_SEO_PROMPT = MASTER_GOLD_STANDARD_PROMPT;
 
 export async function generateSeoLinks(slug: string, pageType: string, contentJson: any): Promise<SeoLinks> {
   const contentSnapshot = JSON.stringify(contentJson, null, 2);

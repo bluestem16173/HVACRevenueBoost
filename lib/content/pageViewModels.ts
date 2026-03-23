@@ -293,4 +293,33 @@ export interface BasePageViewModel {
     context?: string[];
     repairs?: string[];
   };
+  /** Phase 44: Deep Diagnostic 11-Block Semantic Nodes */
+  hero?: {
+    problemStatement?: string;
+    immediateInstruction?: string;
+    expectationSetting?: string;
+  };
+  quickAnswersData?: string[];
+  diagnosticFlowData?: Array<{ step?: string; logic?: string; nextAction?: string }>;
+  causesData?: Array<{ whatItIs?: string; whyItHappens?: string; howToConfirm?: string; severity?: string; likelihood?: string }>;
+  fixesData?: Array<{ fixName?: string; exactSteps?: string[]; toolsRequired?: string[]; difficultyLevel?: string; timeEstimate?: string; whenNotToDiy?: string }>;
+  costBreakdown?: { repairCostRanges?: string; diyVsProfessional?: string; whatAffectsPrice?: string; whenCostSpikes?: string };
+  preventionData?: { howToAvoidLongTerm?: string; maintenanceHabits?: string[]; systemUpgrades?: string };
+  warningSigns?: { symptomsBeforeFailure?: string[]; whatUsersMiss?: string; escalationPatterns?: string };
+  cta?: { primary?: string; secondary?: string; urgency?: string };
+  internalLinksData?: string[];
+
+  /** Legacy / Phase 43: Gold Standard 18-Block Semantic Nodes */
+  quickAnswer?: { fix?: string; safety?: string };
+  trustSignal?: string;
+  authorityBlock?: { explanation?: string; causeEffect?: string };
+  fixSteps?: string[];
+  toolkit?: Array<{ tool: string; why: string; when: string }>;
+  toolComparison?: Array<{ tool: string; useCase: string; skillLevel: string }>;
+  costAnalysis?: { repair?: string; replace?: string };
+  advancedInsights?: { voltage?: string; environment?: string; patterns?: string };
+  prevention?: string[];
+  serviceCTA?: { message?: string; trigger?: string };
+  toolCTA?: string;
+  leadCapture?: { condition?: string; message?: string };
 }

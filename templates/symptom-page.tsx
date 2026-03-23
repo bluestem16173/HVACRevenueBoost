@@ -360,6 +360,380 @@ export default function SymptomPageTemplate({
     );
   }
 
+  // --- Phase 44: Deep Diagnostic 11-Block Format ---
+  const isPhase44DeepDiagnostic = !!(vm.causesData && vm.fixesData && vm.hero);
+  if (isPhase44DeepDiagnostic) {
+    return (
+      <div className="min-h-screen bg-stone-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
+
+          {/* BREADCRUMBS */}
+          <nav className="text-sm text-gray-500 dark:text-slate-400 mb-8" aria-label="Breadcrumb">
+            <Link href="/" className="hover:text-hvac-blue">Home</Link>
+            <span className="mx-2">/</span>
+            <Link href="/hvac" className="hover:text-hvac-blue">HVAC Systems</Link>
+            <span className="mx-2">/</span>
+            {cluster ? (
+              <>
+                <Link href={`/${cluster.pillarSlug}`} className="hover:text-hvac-blue">
+                  {cluster.pillarSlug.replace("hvac-", "").replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                </Link>
+                <span className="mx-2">/</span>
+                <Link href={`/cluster/${cluster.slug}`} className="hover:text-hvac-blue">{cluster.name}</Link>
+                <span className="mx-2">/</span>
+              </>
+            ) : (
+              <Link href="/diagnose" className="hover:text-hvac-blue">Diagnostics</Link>
+            )}
+            <span className="mx-2">/</span>
+            <span className="text-gray-900 dark:text-white font-medium">{symptom.name}</span>
+          </nav>
+
+          {/* 1. HERO */}
+          <section className="mb-12">
+            <div className="flex items-center gap-2 mb-4 text-sm font-bold text-hvac-blue bg-hvac-blue/10 w-fit px-3 py-1.5 rounded-full border border-hvac-blue/30">
+              <span className="text-green-600 dark:text-green-400">✔</span> Reviewed by Certified HVAC Technicians
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black text-hvac-navy dark:text-white leading-tight m-0">
+              {symptom.name}: Diagnostic & Repair Guide
+            </h1>
+            {vm.hero?.problemStatement && (
+              <p className="mt-6 text-gray-600 dark:text-slate-400 text-lg leading-relaxed font-semibold">
+                {vm.hero.problemStatement}
+              </p>
+            )}
+            {vm.hero?.immediateInstruction && (
+              <div className="mt-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-xl">
+                <p className="text-red-800 dark:text-red-200 font-bold m-0 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5" /> 
+                  IMMEDIATE ACTION: {vm.hero.immediateInstruction}
+                </p>
+              </div>
+            )}
+            {vm.hero?.expectationSetting && (
+              <p className="mt-4 text-slate-500 dark:text-slate-500 italic">
+                {vm.hero.expectationSetting}
+              </p>
+            )}
+          </section>
+
+          {/* 2. QUICK ANSWER */}
+          {vm.quickAnswersData && vm.quickAnswersData.length > 0 && (
+            <section className="mb-12 bg-hvac-blue/5 dark:bg-hvac-blue/10 p-8 rounded-2xl border border-hvac-blue/20">
+              <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4 flex items-center gap-2">
+                <span>⚡</span> Quick Answer (Do This First)
+              </h2>
+              <ul className="space-y-3">
+                {vm.quickAnswersData.map((ans: string, i: number) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="text-green-600 dark:text-green-400 mt-1">✔</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300">{ans}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {/* 3. DIAGNOSTIC FLOW */}
+          {vm.diagnosticFlowData && vm.diagnosticFlowData.length > 0 && (
+            <section className="mb-12">
+              <h2 className="text-3xl font-black text-hvac-navy dark:text-white mb-6 border-b-2 border-slate-100 dark:border-slate-800 pb-4">
+                Diagnostic Flow Logic
+              </h2>
+              <div className="space-y-4">
+                {vm.diagnosticFlowData.map((step, i) => (
+                  <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-xl shadow-sm flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                    <div className="flex items-center justify-center w-12 h-12 bg-hvac-blue text-white font-black text-xl rounded-full shrink-0">
+                      {i + 1}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-lg font-bold text-slate-800 dark:text-slate-200">{step.step}</h3>
+                      <p className="text-slate-600 dark:text-slate-400 mt-1">{step.logic}</p>
+                    </div>
+                    <div className="bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-lg border border-slate-200 dark:border-slate-700 h-full flex flex-col justify-center shrink-0 sm:w-1/3">
+                      <span className="text-xs uppercase tracking-widest text-slate-500 font-bold mb-1">Next Action</span>
+                      <span className="font-medium text-amber-700 dark:text-amber-400">{step.nextAction}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 4. ROOT CAUSES */}
+          {vm.causesData && vm.causesData.length > 0 && (
+            <section className="mb-12">
+              <h2 className="text-3xl font-black text-hvac-navy dark:text-white mb-6 border-b-2 border-slate-100 dark:border-slate-800 pb-4">
+                Proven Root Causes
+              </h2>
+              <div className="grid md:grid-cols-2 gap-6">
+                {vm.causesData.map((c, i) => (
+                  <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <div className={`p-4 ${
+                      c.severity?.toLowerCase() === 'high' ? 'bg-red-50 border-b border-red-100 dark:bg-red-900/20 dark:border-red-900/30' : 
+                      c.severity?.toLowerCase() === 'medium' ? 'bg-amber-50 border-b border-amber-100 dark:bg-amber-900/20 dark:border-amber-900/30' : 
+                      'bg-green-50 border-b border-green-100 dark:bg-green-900/20 dark:border-green-900/30'
+                    }`}>
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs font-black uppercase tracking-widest text-slate-500">Cause #{i+1}</span>
+                        <div className="flex gap-2 text-[10px] uppercase font-bold px-2 py-1 rounded bg-white/50 dark:bg-black/20">
+                          <span className={c.severity?.toLowerCase() === 'high' ? 'text-red-700 dark:text-red-400' : 'text-slate-700 dark:text-slate-300'}>
+                            Severity: {c.severity}
+                          </span>
+                          <span>|</span>
+                          <span className="text-slate-700 dark:text-slate-300">
+                            Likelihood: {c.likelihood}
+                          </span>
+                        </div>
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200">{c.whatItIs}</h3>
+                    </div>
+                    <div className="p-5 space-y-4">
+                      <div>
+                        <strong className="block text-sm text-slate-500 uppercase tracking-wider mb-1">Why It Happens</strong>
+                        <p className="text-slate-700 dark:text-slate-300 text-sm">{c.whyItHappens}</p>
+                      </div>
+                      <div className="bg-slate-50 dark:bg-slate-800/50 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+                        <strong className="block text-xs text-slate-500 uppercase tracking-wider mb-1">How To Confirm</strong>
+                        <p className="text-slate-700 dark:text-slate-300 font-medium text-sm m-0">{c.howToConfirm}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 5. FIXES */}
+          {vm.fixesData && vm.fixesData.length > 0 && (
+            <section className="mb-12">
+              <h2 className="text-3xl font-black text-hvac-navy dark:text-white mb-6 border-b-2 border-slate-100 dark:border-slate-800 pb-4">
+                Step-by-Step Fixes
+              </h2>
+              <div className="space-y-8">
+                {vm.fixesData.map((f, i) => (
+                  <div key={i} className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-xl shadow-sm">
+                    <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-4 mb-4">
+                      <h3 className="text-2xl font-bold text-hvac-navy dark:text-white m-0">{f.fixName}</h3>
+                      <div className="flex flex-wrap gap-3">
+                        {f.difficultyLevel && (
+                          <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider rounded border border-slate-200 dark:border-slate-700">
+                            Level: {f.difficultyLevel}
+                          </span>
+                        )}
+                        {f.timeEstimate && (
+                          <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider rounded border border-slate-200 dark:border-slate-700">
+                            Time: {f.timeEstimate}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {f.whenNotToDiy && (
+                      <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-500 p-4 rounded-r-lg">
+                        <strong className="text-amber-800 dark:text-amber-200 text-sm font-bold block mb-1">⚠️ WHEN NOT TO DIY</strong>
+                        <p className="text-amber-900 dark:text-amber-100 text-sm m-0">{f.whenNotToDiy}</p>
+                      </div>
+                    )}
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                      <div className="md:col-span-2">
+                        <h4 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-3">Execution Steps</h4>
+                        <ul className="space-y-4">
+                          {f.exactSteps?.map((step: string, j: number) => (
+                            <li key={j} className="flex gap-3">
+                              <span className="flex items-center justify-center w-6 h-6 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold text-xs shrink-0 mt-0.5">{j+1}</span>
+                              <span className="text-slate-700 dark:text-slate-300 text-sm">{step}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      {f.toolsRequired && f.toolsRequired.length > 0 && (
+                        <div className="bg-slate-50 dark:bg-slate-800/50 p-5 rounded-xl border border-slate-200 dark:border-slate-700 h-fit">
+                          <h4 className="text-sm font-black uppercase tracking-widest text-slate-500 mb-3">Tools Required</h4>
+                          <ul className="space-y-2">
+                            {f.toolsRequired.map((tool: string, j: number) => (
+                              <li key={j} className="flex items-center gap-2">
+                                <span className="text-hvac-gold">🔧</span>
+                                <span className="text-slate-800 dark:text-slate-200 text-sm font-medium">{tool}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* 6. COST BREAKDOWN */}
+          {vm.costBreakdown && (
+            <section className="mb-12">
+              <h2 className="text-3xl font-black text-hvac-navy dark:text-white mb-6 border-b-2 border-slate-100 dark:border-slate-800 pb-4">
+                Cost Breakdown
+              </h2>
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-500 block mb-2">Repair Cost Ranges</span>
+                  <div className="text-2xl font-black text-green-600 dark:text-green-400">{vm.costBreakdown.repairCostRanges}</div>
+                </div>
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                  <span className="text-xs font-black uppercase tracking-widest text-slate-500 block mb-2">DIY vs Professional</span>
+                  <p className="font-medium text-slate-700 dark:text-slate-300">{vm.costBreakdown.diyVsProfessional}</p>
+                </div>
+              </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="bg-slate-50 dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <strong className="block text-sm text-slate-800 dark:text-slate-200 mb-1">What Affects Price?</strong>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 m-0">{vm.costBreakdown.whatAffectsPrice}</p>
+                </div>
+                <div className="bg-red-50 dark:bg-red-900/10 p-5 rounded-xl border border-red-200 dark:border-red-900/30">
+                  <strong className="block text-sm text-red-800 dark:text-red-300 mb-1">When Costs Spike</strong>
+                  <p className="text-sm text-red-700 dark:text-red-400 m-0">{vm.costBreakdown.whenCostSpikes}</p>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* 7. PREVENTION */}
+          {vm.preventionData && (
+            <section className="mb-12">
+              <h2 className="text-3xl font-black text-hvac-navy dark:text-white mb-6 border-b-2 border-slate-100 dark:border-slate-800 pb-4">
+                Prevention & Long-Term Health
+              </h2>
+              <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm group hover:border-hvac-blue transition-colors">
+                <p className="text-slate-700 dark:text-slate-300 font-medium mb-6 leading-relaxed">
+                  {vm.preventionData.howToAvoidLongTerm}
+                </p>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div>
+                    <strong className="block text-sm font-black uppercase tracking-widest text-slate-500 mb-3">Maintenance Habits</strong>
+                    <ul className="space-y-2">
+                      {vm.preventionData.maintenanceHabits?.map((habit: string, i: number) => (
+                        <li key={i} className="flex gap-2 items-start">
+                          <span className="text-green-500 mt-0.5">✔</span>
+                          <span className="text-slate-600 dark:text-slate-400 text-sm">{habit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800/30">
+                    <strong className="block text-sm font-black uppercase tracking-widest text-hvac-blue dark:text-blue-300 mb-2">System Upgrades</strong>
+                    <p className="text-sm text-blue-900 dark:text-blue-200 m-0">{vm.preventionData.systemUpgrades}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* 8. WARNING SIGNS */}
+          {vm.warningSigns && (
+            <section className="mb-12">
+              <h2 className="text-3xl font-black text-hvac-navy dark:text-white mb-6 border-b-2 border-slate-100 dark:border-slate-800 pb-4">
+                Early Warning Signs
+              </h2>
+              <div className="grid md:grid-cols-3 gap-6">
+                <div className="md:col-span-2 bg-slate-50 dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
+                  <strong className="block text-sm font-black uppercase tracking-widest text-slate-500 mb-4">Symptoms Before Failure</strong>
+                  <ul className="grid sm:grid-cols-2 gap-3">
+                    {vm.warningSigns.symptomsBeforeFailure?.map((sym: string, i: number) => (
+                      <li key={i} className="flex gap-2 items-start">
+                        <span className="text-amber-500 mt-0.5">⚠</span>
+                        <span className="text-slate-700 dark:text-slate-300 text-sm font-medium">{sym}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="space-y-4 flex flex-col justify-between">
+                  <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <strong className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-1">What Users Miss</strong>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 m-0">{vm.warningSigns.whatUsersMiss}</p>
+                  </div>
+                  <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-red-200 dark:border-red-900/30 shadow-sm">
+                    <strong className="block text-xs font-black uppercase tracking-widest text-red-400 mb-1">Escalation Pattern</strong>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 m-0">{vm.warningSigns.escalationPatterns}</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* 9. CTA */}
+          {vm.cta && (
+            <section className="mb-12 bg-hvac-navy p-8 rounded-2xl shadow-xl text-center relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-tr from-hvac-blue to-cyan-500 opacity-20 group-hover:opacity-30 transition-opacity z-0"></div>
+              <div className="relative z-10 flex flex-col items-center">
+                <h2 className="text-3xl font-black text-white mb-3">Professional Service Recommended</h2>
+                <p className="text-blue-100 mb-6 text-lg max-w-2xl">{vm.cta.primary}</p>
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                  <a href={process.env.NEXT_PUBLIC_GHL_URL || "/get-quote"} className="bg-hvac-gold hover:bg-yellow-400 text-hvac-navy font-black py-4 px-8 rounded-full text-lg shadow-lg uppercase tracking-widest transition-transform hover:scale-105">
+                    {vm.cta.urgency || "Get Help Now"}
+                  </a>
+                  <a href="/about" className="bg-white/10 hover:bg-white/20 text-white font-black py-4 px-8 rounded-full text-lg transition-colors border border-white/20">
+                    {vm.cta.secondary || "Talk to an Expert"}
+                  </a>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* 11. FAQ */}
+          {vm.faq && vm.faq.length > 0 && (
+            <section className="mb-12">
+               <h2 className="text-3xl font-black text-hvac-navy dark:text-white mb-6 border-b-2 border-slate-100 dark:border-slate-800 pb-4">
+                  Frequently Asked Questions
+               </h2>
+               <div className="space-y-4">
+                 {vm.faq.map((q, i) => (
+                   <details key={i} className="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden [&_summary::-webkit-details-marker]:hidden">
+                     <summary className="cursor-pointer p-5 font-bold text-slate-800 dark:text-slate-200 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                       {q.question}
+                       <span className="transition group-open:rotate-180">
+                         <ChevronDown className="w-5 h-5 text-slate-400" />
+                       </span>
+                     </summary>
+                     <div className="p-5 pt-0 text-slate-600 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800 mt-2">
+                       {q.answer}
+                     </div>
+                   </details>
+                 ))}
+               </div>
+            </section>
+          )}
+
+          {/* AI Relationships Graph Block */}
+          <RelationshipGraph 
+            relationships={vm.relationships} 
+            currentPageType={vm.pageType} 
+            currentSlug={vm.slug} 
+          />
+
+          {/* 10. INTERNAL LINKS */}
+          {vm.internalLinksData && vm.internalLinksData.length > 0 && (
+            <section className="mt-8 border-t border-slate-200 dark:border-slate-800 pt-8">
+               <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Related Diagnostic Guides</p>
+               <div className="flex flex-wrap gap-2">
+                 {vm.internalLinksData.map((linkText: string, i: number) => {
+                   // Ensure it looks like a clean anchor
+                   const isUrl = String(linkText).includes('/') || String(linkText).includes('.com');
+                   const label = isUrl ? (String(linkText).split('/').pop()?.replace(/-/g, ' ') || linkText) : linkText;
+                   return (
+                     <a key={i} href="#" className="text-sm bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-3 py-1.5 rounded-full hover:bg-hvac-blue hover:text-white transition-colors">
+                       {label}
+                     </a>
+                   );
+                 })}
+               </div>
+            </section>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -836,35 +1210,84 @@ export default function SymptomPageTemplate({
           </ul>
         </section>
 
-        {/* 13. TOOLS REQUIRED — conditionally render if valid */}
-        {toolsRequired?.length >= 2 && (
-          <section className="mb-16 w-full">
-            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Tools You May Need</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
-              {normalizeTools(
-                toolsRequired?.length > 0 ? toolsRequired : tools?.map((t: { name: string; description?: string; affiliateUrl?: string }) => ({ name: t.name, reason: t.description, description: t.description, affiliate_url: t.affiliateUrl ?? null, image_url: null })) ?? []
-              ).map((tool: any, idx: number) => {
-                const t = { ...tool, affiliateUrl: tool.affiliateUrl ?? tool.affiliate_url ?? null };
-                return (
-                  <div key={idx} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col">
-                    <img
-                      src={getImageSrc(t) || PLACEHOLDER_IMAGE}
-                      alt={t.name}
-                      className="w-full h-32 object-contain mb-3"
-                    />
-                    <div className="font-bold text-slate-700 dark:text-slate-300">{t.name}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex-1">{t.reason ?? t.description}</div>
-                    {t.affiliateUrl ? (
-                      <a href={t.affiliateUrl} target="_blank" rel="noopener noreferrer" className="mt-3 text-xs font-bold text-hvac-blue hover:underline">
-                        View on Amazon →
-                      </a>
-                    ) : (
-                      <span className="mt-3 text-xs text-slate-400 dark:text-slate-500 italic">Affiliate link coming soon</span>
-                    )}
+        {/* 9. THE TOOLKIT */}
+        {(vm.toolkit || toolsRequired?.length >= 2) && (
+          <section className="mb-16 w-full" id="toolkit">
+            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Diagnostic Toolkit</h2>
+            {vm.toolkit && vm.toolkit.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {vm.toolkit.map((t: any, idx: number) => (
+                  <div key={idx} className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col shadow-sm hover:border-hvac-gold transition-colors">
+                    <div className="font-bold text-lg text-slate-800 dark:text-slate-200 mb-2">{t.tool}</div>
+                    <div className="text-sm text-slate-600 dark:text-slate-400 flex-1 space-y-2">
+                       <p><strong>Why:</strong> {t.why}</p>
+                       <p><strong>When:</strong> {t.when}</p>
+                    </div>
+                    <a href={`https://www.amazon.com/s?k=${encodeURIComponent("HVAC " + t.tool)}&tag=hvacrevenue-20`} target="_blank" rel="noopener noreferrer" className="mt-4 text-xs font-bold text-hvac-blue hover:underline uppercase tracking-widest block">
+                      View on Amazon →
+                    </a>
                   </div>
-                );
-              })}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full">
+                {normalizeTools(
+                  toolsRequired?.length > 0 ? toolsRequired : tools?.map((t: { name: string; description?: string; affiliateUrl?: string }) => ({ name: t.name, reason: t.description, description: t.description, affiliate_url: t.affiliateUrl ?? null, image_url: null })) ?? []
+                ).map((tool: any, idx: number) => {
+                  const t = { ...tool, affiliateUrl: tool.affiliateUrl ?? tool.affiliate_url ?? null };
+                  return (
+                    <div key={idx} className="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex flex-col">
+                      <img
+                        src={getImageSrc(t) || PLACEHOLDER_IMAGE}
+                        alt={t.name}
+                        className="w-full h-32 object-contain mb-3"
+                      />
+                      <div className="font-bold text-slate-700 dark:text-slate-300">{t.name}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex-1">{t.reason ?? t.description}</div>
+                      {t.affiliateUrl ? (
+                        <a href={t.affiliateUrl} target="_blank" rel="noopener noreferrer" className="mt-3 text-xs font-bold text-hvac-blue hover:underline">
+                          View on Amazon →
+                        </a>
+                      ) : (
+                        <span className="mt-3 text-xs text-slate-400 dark:text-slate-500 italic">Affiliate link coming soon</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            
+            {/* 10. TOOL COMPARISON GRID */}
+            {vm.toolComparison && vm.toolComparison.length > 0 && (
+               <div className="mt-8 overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm">
+                 <table className="w-full text-left text-sm">
+                   <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                     <tr>
+                       <th className="p-4 font-black tracking-widest text-slate-600 dark:text-slate-400 uppercase text-xs">Tool</th>
+                       <th className="p-4 font-black tracking-widest text-slate-600 dark:text-slate-400 uppercase text-xs">Use Case</th>
+                       <th className="p-4 font-black tracking-widest text-slate-600 dark:text-slate-400 uppercase text-xs">Skill Level</th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                     {vm.toolComparison.map((tc: any, i: number) => (
+                       <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                         <td className="p-4 font-bold text-slate-800 dark:text-slate-200">{tc.tool}</td>
+                         <td className="p-4 text-slate-600 dark:text-slate-400">{tc.useCase}</td>
+                         <td className="p-4">
+                            <span className={`px-2 py-1 rounded text-xs font-bold tracking-widest uppercase ${
+                              String(tc.skillLevel).toLowerCase().includes('pro') ? 'bg-red-100 text-red-700 dark:bg-red-900/30' : 
+                              String(tc.skillLevel).toLowerCase().includes('easy') ? 'bg-green-100 text-green-700 dark:bg-green-900/30' : 
+                              'bg-amber-100 text-amber-700 dark:bg-amber-900/30'
+                            }`}>
+                              {tc.skillLevel}
+                            </span>
+                         </td>
+                       </tr>
+                     ))}
+                   </tbody>
+                 </table>
+               </div>
+            )}
           </section>
         )}
 
@@ -902,37 +1325,75 @@ export default function SymptomPageTemplate({
           <AmazonDisclosure />
         </section>
 
-        {/* 12. TYPICAL REPAIR COSTS — horizontal row */}
+        {/* 11. COST ANALYSIS */}
         <section className="mb-16" id="cost">
           <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Typical Repair Costs</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {/* Green: DIY / Low */}
-            <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 p-6 rounded-xl">
-              <h3 className="text-sm font-black text-green-800 dark:text-green-200 uppercase tracking-widest mb-2">DIY / Low</h3>
-              <p className="text-3xl font-black text-slate-800 dark:text-slate-200 m-0">$50–$150</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">Filter, drain line, basic maintenance.</p>
+          
+          {vm.costAnalysis ? (
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-50 dark:bg-slate-900/50 border-2 border-hvac-blue/20 p-6 rounded-2xl flex flex-col justify-between">
+                   <div>
+                     <h3 className="text-sm font-black text-hvac-blue dark:text-blue-400 uppercase tracking-widest mb-3">Repair Cost</h3>
+                     <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{vm.costAnalysis.repair}</p>
+                   </div>
+                   <button disabled className="mt-6 text-sm font-bold text-slate-500 cursor-not-allowed uppercase tracking-widest text-left">Local Techs Coming Soon</button>
+                </div>
+                <div className="bg-red-50 dark:bg-red-900/10 border-2 border-hvac-safety/30 p-6 rounded-2xl flex flex-col justify-between">
+                   <div>
+                     <h3 className="text-sm font-black text-hvac-safety dark:text-red-400 uppercase tracking-widest mb-3">Replacement Reality</h3>
+                     <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{vm.costAnalysis.replace}</p>
+                   </div>
+                   <button disabled className="mt-6 text-sm font-bold text-slate-500 cursor-not-allowed uppercase tracking-widest text-left">Local Techs Coming Soon</button>
+                </div>
+             </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Green: DIY / Low */}
+              <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 p-6 rounded-xl">
+                <h3 className="text-sm font-black text-green-800 dark:text-green-200 uppercase tracking-widest mb-2">DIY / Low</h3>
+                <p className="text-3xl font-black text-slate-800 dark:text-slate-200 m-0">$50–$150</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">Filter, drain line, basic maintenance.</p>
+              </div>
+              {/* Yellow: Moderate */}
+              <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 p-6 rounded-xl">
+                <h3 className="text-sm font-black text-amber-800 dark:text-amber-200 uppercase tracking-widest mb-2">Moderate</h3>
+                <p className="text-3xl font-black text-slate-800 dark:text-slate-200 m-0">$150–$450</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">Capacitor, contactor, thermostat.</p>
+                <button disabled className="mt-4 text-sm font-bold text-slate-500 cursor-not-allowed">Local Techs Coming Soon</button>
+              </div>
+              {/* Red: Professional */}
+              <div className="bg-red-50 dark:bg-red-900/20 border-2 border-hvac-safety/50 p-6 rounded-xl">
+                <h3 className="text-sm font-black text-red-800 dark:text-red-200 uppercase tracking-widest mb-2">Professional</h3>
+                <p className="text-3xl font-black text-slate-800 dark:text-slate-200 m-0">$450+</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">Refrigerant, compressor, electrical.</p>
+                <button disabled className="mt-4 bg-slate-600 text-slate-300 font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm cursor-not-allowed">
+                  Local Techs Coming Soon
+                </button>
+              </div>
             </div>
-            {/* Yellow: Moderate */}
-            <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 p-6 rounded-xl">
-              <h3 className="text-sm font-black text-amber-800 dark:text-amber-200 uppercase tracking-widest mb-2">Moderate</h3>
-              <p className="text-3xl font-black text-slate-800 dark:text-slate-200 m-0">$150–$450</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">Capacitor, contactor, thermostat.</p>
-              <button disabled className="mt-4 text-sm font-bold text-slate-500 cursor-not-allowed">Local Techs Coming Soon</button>
-            </div>
-            {/* Red: Professional */}
-            <div className="bg-red-50 dark:bg-red-900/20 border-2 border-hvac-safety/50 p-6 rounded-xl">
-              <h3 className="text-sm font-black text-red-800 dark:text-red-200 uppercase tracking-widest mb-2">Professional</h3>
-              <p className="text-3xl font-black text-slate-800 dark:text-slate-200 m-0">$450+</p>
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 font-medium">Refrigerant, compressor, electrical.</p>
-              <button disabled className="mt-4 bg-slate-600 text-slate-300 font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm cursor-not-allowed">
-                Local Techs Coming Soon
-              </button>
-            </div>
-          </div>
+          )}
         </section>
 
-        {/* 13. TECHNICIAN INSIGHTS — 2 per page, 50–75 words each, with citations */}
-        {(() => {
+        {/* 12. ADVANCED INSIGHTS (Technician Insights) */}
+        {vm.advancedInsights ? (
+          <section className="mb-16 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-8 rounded-2xl shadow-sm">
+            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-6">Advanced Diagnostics & Edge Cases</h2>
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm border-t-4 border-t-amber-400">
+                <h4 className="font-black text-slate-800 dark:text-slate-200 mb-2 uppercase tracking-wide text-xs">Voltage & Sensors</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400">{vm.advancedInsights.voltage}</p>
+              </div>
+              <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm border-t-4 border-t-hvac-blue">
+                <h4 className="font-black text-slate-800 dark:text-slate-200 mb-2 uppercase tracking-wide text-xs">Environmental Factors</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400">{vm.advancedInsights.environment}</p>
+              </div>
+              <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm border-t-4 border-t-red-400">
+                <h4 className="font-black text-slate-800 dark:text-slate-200 mb-2 uppercase tracking-wide text-xs">Failure Patterns</h4>
+                <p className="text-sm text-slate-600 dark:text-slate-400">{vm.advancedInsights.patterns}</p>
+              </div>
+            </div>
+          </section>
+        ) : (() => {
           const defaultInsights = [
             { text: "Restricted airflow from a dirty filter is the number-one field fix for reduced cooling. Per ASHRAE fundamentals, less air means less heat transfer—the evaporator can't cool refrigerant enough. Check the filter first; it's often a 5-minute fix that prevents ice buildup and compressor strain.", cite: "ASHRAE Fundamentals, Ch. 32" },
             { text: "Refrigerant work requires EPA Section 608 certification. Venting or recharging without a license is illegal and can void warranties. Low refrigerant usually indicates a leak; adding charge without fixing the leak wastes money and risks compressor damage.", cite: "EPA 40 CFR Part 82" },
@@ -1011,28 +1472,41 @@ export default function SymptomPageTemplate({
           </section>
         </div>
 
-        {/* 18. PREVENTION TIPS — ounce of prevention, pound of cure */}
+        {/* 13. PREVENTION SYSTEM */}
         <section className="mb-16" id="prevention">
-          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Prevention Tips</h2>
+          <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Prevention Strategy</h2>
           <p className="text-slate-600 dark:text-slate-400 mb-6 font-medium italic">
-            An ounce of prevention is worth a pound of cure. Simple maintenance now can prevent costly repairs and system failures later. A $20 filter change can avoid a $2,500 compressor replacement.
+            An ounce of prevention is worth a pound of cure. Preventative maintenance effectively neutralizes the most expensive failure risks.
           </p>
           <div className="bg-slate-50 dark:bg-slate-900 p-8 rounded-xl border border-slate-200 dark:border-slate-700">
-            <ul className="grid sm:grid-cols-3 gap-6 m-0 p-0 list-none">
-              {(preventionTips.length > 0 ? preventionTips : [
-                { name: "Filter maintenance", description: "Replace or clean monthly during heavy use" },
-                { name: "Annual tune-up", description: "Schedule professional maintenance yearly" },
-                { name: "Condenser care", description: "Clear debris from outdoor coil" },
-              ]).map((tip: { name: string; description?: string }, idx: number) => (
-                <li key={idx} className="text-center">
-                  <div className="w-12 h-12 bg-hvac-navy text-hvac-gold rounded-full flex items-center justify-center mx-auto mb-3 font-black text-xl">
-                    {idx + 1}
-                  </div>
-                  <h4 className="font-bold text-slate-800 dark:text-slate-200">{tip.name}</h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">{tip.description}</p>
-                </li>
-              ))}
-            </ul>
+            {vm.prevention && vm.prevention.length > 0 ? (
+                <ul className="space-y-4 m-0 p-0 list-none">
+                  {vm.prevention.map((tip: string, idx: number) => (
+                    <li key={idx} className="flex gap-4">
+                      <div className="w-8 h-8 shrink-0 bg-hvac-blue/10 text-hvac-blue rounded-full flex items-center justify-center font-black">
+                        {idx + 1}
+                      </div>
+                      <p className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{tip}</p>
+                    </li>
+                  ))}
+                </ul>
+            ) : (
+                <ul className="grid sm:grid-cols-3 gap-6 m-0 p-0 list-none">
+                  {(preventionTips.length > 0 ? preventionTips : [
+                    { name: "Filter maintenance", description: "Replace or clean monthly during heavy use" },
+                    { name: "Annual tune-up", description: "Schedule professional maintenance yearly" },
+                    { name: "Condenser care", description: "Clear debris from outdoor coil" },
+                  ]).map((tip: { name: string; description?: string }, idx: number) => (
+                    <li key={idx} className="text-center">
+                      <div className="w-12 h-12 bg-hvac-navy text-hvac-gold rounded-full flex items-center justify-center mx-auto mb-3 font-black text-xl">
+                        {idx + 1}
+                      </div>
+                      <h4 className="font-bold text-slate-800 dark:text-slate-200">{tip.name}</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">{tip.description}</p>
+                    </li>
+                  ))}
+                </ul>
+            )}
           </div>
         </section>
 
