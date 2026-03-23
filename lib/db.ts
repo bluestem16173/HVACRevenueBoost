@@ -176,3 +176,24 @@ export async function getToolsFromDB() {
     return [];
   }
 }
+
+/**
+ * Fetch fully hydrated related pages by slug array
+ */
+export async function getRelatedPagesBySlugs(site: "dg" | "hvac", slugs: string[]) {
+  if (!slugs || slugs.length === 0) return [];
+  try {
+    const results = await sql`
+      SELECT slug, title, page_type, site, city
+      FROM pages
+      WHERE site = ${site}
+        AND slug = ANY(${slugs}::text[])
+        AND status IN ('generated', 'published', 'pending')
+      ORDER BY title
+    `;
+    return results as Array<{ slug: string; title: string; page_type: any; site: "dg" | "hvac"; city?: string | null; }>;
+  } catch (error) {
+    console.error("getRelatedPagesBySlugs error:", error);
+    return [];
+  }
+}

@@ -1,7 +1,7 @@
 import "dotenv/config";
 import sql from '../lib/db';
 import { generateTwoStagePage } from '../lib/content-engine/generator';
-import { fallbackJson } from '../lib/content-engine/schema';
+import { getFallback } from '../lib/content-engine/schema';
 import { EXPECTED_PROMPT_HASH } from '../lib/content-engine/core';
 import { normalizeToBaseSlug, buildSlug } from '../lib/slug-helpers';
 
@@ -66,17 +66,25 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
     let items;
     if (options.type) {
       items = await sql`
-        SELECT * FROM generation_queue
-        WHERE status = 'pending' AND page_type = ${options.type}
-        ORDER BY created_at ASC
-        LIMIT ${batchLimit}
+        UPDATE generation_queue SET status = 'processing'
+        WHERE id IN (
+          SELECT id FROM generation_queue
+          WHERE status = 'pending' AND page_type = ${options.type}
+          ORDER BY created_at ASC
+          LIMIT ${batchLimit}
+          FOR UPDATE SKIP LOCKED
+        ) RETURNING *;
       ` as any[];
     } else {
       items = await sql`
-        SELECT * FROM generation_queue
-        WHERE status = 'pending'
-        ORDER BY created_at ASC
-        LIMIT ${batchLimit}
+        UPDATE generation_queue SET status = 'processing'
+        WHERE id IN (
+          SELECT id FROM generation_queue
+          WHERE status = 'pending'
+          ORDER BY created_at ASC
+          LIMIT ${batchLimit}
+          FOR UPDATE SKIP LOCKED
+        ) RETURNING *;
       ` as any[];
     }
 
@@ -100,42 +108,51 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         console.log("📦 GENERATED SUCCESS:", proposedSlug);
         console.log("✅ VALIDATION PASSED:", proposedSlug);
 
-        const isFallback = result.hero?.headline === fallbackJson.hero.headline;
+        const fallbackObj = getFallback(pageType);
+        const isFallback = result.content?.hero?.headline === fallbackObj.content?.hero?.headline;
         console.log({
           slug: proposedSlug,
           status: 'published',
           hasFallback: isFallback,
-          causes: (result as any).commonCauses?.length,
-          steps: (result as any).diagnosticFlow?.length,
+          causes: (result as any).content?.commonCauses?.length,
+          steps: (result as any).content?.diagnosticFlow?.length,
         });
 
+        const pageStatus = isFallback ? 'failed' : 'published';
         if (isFallback) {
           console.warn(`⚠️ FALLBACK USED: ${proposedSlug}`);
         }
 
         const cleanSlug = normalizeSlug(proposedSlug);
-        const prefix = pageType === 'cause' ? 'causes' : 'diagnose';
-        const fullSlug = `${prefix}/${cleanSlug}`;
+        let city = job.city || null;
+        if (!city && proposedSlug.startsWith('repair/')) {
+          const parts = proposedSlug.split('/');
+          if (parts.length >= 3) {
+            city = parts[1];
+          }
+        }
 
-        console.log("💾 INSERT START:", fullSlug);
+        console.log("💾 INSERT START:", cleanSlug);
 
         const res = await sql`
-          INSERT INTO pages (slug, content_json, status, page_type, title)
+          INSERT INTO pages (slug, content_json, status, page_type, title, city)
           VALUES (
-            ${fullSlug},
+            ${cleanSlug},
             ${JSON.stringify(result)}::jsonb,
-            'published',
-            ${pageType},
-            ${result.hero.headline}
+            ${pageStatus},
+            ${result.page_type || pageType},
+            ${result.title || result.content?.hero?.headline || 'Untitled'},
+            ${city}
           )
-          ON CONFLICT (slug) DO UPDATE
+          ON CONFLICT (slug, page_type, city) DO UPDATE
           SET content_json = EXCLUDED.content_json,
               title = EXCLUDED.title,
+              status = EXCLUDED.status,
               updated_at = NOW()
           RETURNING slug;
         `;
 
-        console.log("✅ INSERT SUCCESS:", res[0]?.slug || fullSlug);
+        console.log("✅ INSERT SUCCESS:", res[0]?.slug || cleanSlug);
         await new Promise(res => setTimeout(res, 1000));
 
         await sql`

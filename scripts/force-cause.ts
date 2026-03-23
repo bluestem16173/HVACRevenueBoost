@@ -17,7 +17,7 @@ async function forceGenerate() {
         ${JSON.stringify(res)}::jsonb, 
         'published', 
         'cause',
-        ${res.hero?.headline || 'Low Refrigerant'}
+        ${res.content?.hero?.headline || 'Low Refrigerant'}
       ) 
       ON CONFLICT(slug) DO UPDATE 
       SET content_json=EXCLUDED.content_json, title=EXCLUDED.title, updated_at=NOW()

@@ -13,8 +13,7 @@ export const revalidate = 3600;
 export const dynamicParams = true; // allow pages not in generateStaticParams to render via SSR
 
 export async function generateMetadata({ params }: { params: { city: string, slug: string } }): Promise<Metadata> {
-  const fullSlug = `repairs/${params.city}/${params.slug}`;
-  const aiPage = await getDiagnosticPageFromDB(fullSlug);
+  const aiPage = await getDiagnosticPageFromDB(params.slug, 'repair', params.city);
   if (aiPage?.quality_status === 'noindex') {
     return { robots: { index: false, follow: true } };
   }
@@ -53,9 +52,7 @@ export default async function CitySymptomPage({
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
 
-  // Fetch the AI generated page from Neon (Unified slug: diagnose/symptom)
-  const fullSlug = `diagnose/${params.slug}`;
-  const aiPage = await getDiagnosticPageFromDB(fullSlug);
+  const aiPage = await getDiagnosticPageFromDB(params.slug, 'repair', params.city);
   
   if (aiPage?.quality_status === "needs_regen") {
     notFound();

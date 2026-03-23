@@ -19,8 +19,9 @@ import DiyDifficultyMeter, { DiyLegalDisclaimer } from "@/components/DiyDifficul
 const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 const DecisionTree = dynamic(() => import("@/components/DecisionTree"), { ssr: false });
 const AdaptiveDiagnosticPanel = dynamic(() => import("@/components/AdaptiveDiagnosticPanel"), { ssr: false });
-const AdaptiveRepairMatrix = dynamic(() => import("@/components/AdaptiveRepairMatrix"), { ssr: false });
-
+import AdaptiveRepairMatrix from "@/components/AdaptiveRepairMatrix";
+import RelationshipGraph from "@/components/RelationshipGraph";
+import { RelatedLinks } from "@/components/graph/RelatedLinks";
 
 import CauseCard from "@/components/CauseCard";
 import SystemCard from "@/components/SystemCard";
@@ -51,7 +52,8 @@ export default function SymptomPageTemplate({
   tools,
   getCauseDetails,
   qualityScore = 100,
-  scalingData
+  scalingData,
+  relatedGraphPages
 }: {
   symptom: { id: string; name: string; description?: string };
   pageViewModel: BasePageViewModel;
@@ -88,6 +90,7 @@ export default function SymptomPageTemplate({
       url: string;
     };
   };
+  relatedGraphPages?: any[];
 }) {
   // Resolve causes from DB or static KG
   if (!scalingData?.decisionTree) {
@@ -757,6 +760,13 @@ export default function SymptomPageTemplate({
           );
         })()}
 
+        {/* AI Relationships Graph Block */}
+        <RelationshipGraph 
+          relationships={vm.relationships} 
+          currentPageType={vm.pageType} 
+          currentSlug={vm.slug} 
+        />
+
         {/* ADAPTIVE REPAIR MATRIX — highlights items matching the diagnosis */}
         {scalingData?.repairMatrix && (
           <AdaptiveRepairMatrix repairMatrix={scalingData.repairMatrix} />
@@ -1244,59 +1254,18 @@ export default function SymptomPageTemplate({
           </div>
         </section>
 
-        {/* 14. SEO LINKS INJECTION */}
-        {seoLinks && (Object.values(seoLinks.entity_connections || seoLinks).some((arr: any) => arr && arr.length > 0)) && (
+        {/* 14. DYNAMIC GRAPH LINKS INJECTION */}
+        {relatedGraphPages && relatedGraphPages.length > 0 && (
           <section className="mb-16 w-full">
-            <h2 className="text-2xl font-black text-hvac-navy dark:text-white mb-4">Explore Related Content</h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50 dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800">
-              {(seoLinks.entity_connections?.related_symptoms || seoLinks.related_symptoms)?.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2 text-sm uppercase tracking-wider">Symptoms</h3>
-                  <ul className="space-y-2">
-                    {(seoLinks.entity_connections?.related_symptoms || seoLinks.related_symptoms).map((l: any) => (
-                      <li key={l.slug}>
-                        <Link href={`/diagnose/${l.slug}`} className="text-hvac-blue hover:text-blue-700 font-medium text-sm transition-colors">{l.anchor}</Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {(seoLinks.entity_connections?.related_causes || seoLinks.related_causes)?.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2 text-sm uppercase tracking-wider">Causes</h3>
-                  <ul className="space-y-2">
-                    {(seoLinks.entity_connections?.related_causes || seoLinks.related_causes).map((l: any) => (
-                      <li key={l.slug}>
-                        <Link href={`/causes/${l.slug}`} className="text-hvac-blue hover:text-blue-700 font-medium text-sm transition-colors">{l.anchor}</Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {(seoLinks.entity_connections?.related_repairs || seoLinks.related_repairs)?.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2 text-sm uppercase tracking-wider">Repairs</h3>
-                  <ul className="space-y-2">
-                    {(seoLinks.entity_connections?.related_repairs || seoLinks.related_repairs).map((l: any) => (
-                      <li key={l.slug}>
-                        <Link href={`/fix/${l.slug}`} className="text-hvac-blue hover:text-blue-700 font-medium text-sm transition-colors">{l.anchor}</Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {(seoLinks.entity_connections?.related_components || seoLinks.related_components)?.length > 0 && (
-                <div>
-                  <h3 className="font-semibold text-slate-700 dark:text-slate-300 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2 text-sm uppercase tracking-wider">Components</h3>
-                  <ul className="space-y-2">
-                    {(seoLinks.entity_connections?.related_components || seoLinks.related_components).map((l: any) => (
-                      <li key={l.slug}>
-                        <Link href={`/components/${l.slug}`} className="text-hvac-blue hover:text-blue-700 font-medium text-sm transition-colors">{l.anchor}</Link>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+            <h2 className="text-3xl font-black text-hvac-navy dark:text-white mb-8 border-0">Diagnose Further</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              <RelatedLinks title="Related Systems" items={relatedGraphPages.filter((p: any) => p.page_type === 'system')} />
+              <RelatedLinks title="Related Symptoms" items={relatedGraphPages.filter((p: any) => p.page_type === 'symptom')} />
+              <RelatedLinks title="Diagnostic Guides" items={relatedGraphPages.filter((p: any) => ["diagnostic", "condition"].includes(p.page_type))} />
+              <RelatedLinks title="Possible Causes" items={relatedGraphPages.filter((p: any) => p.page_type === 'cause')} />
+              <RelatedLinks title="Recommended Repairs" items={relatedGraphPages.filter((p: any) => p.page_type === 'repair')} />
+              <RelatedLinks title="Parts & Components" items={relatedGraphPages.filter((p: any) => p.page_type === 'component')} />
+              <RelatedLinks title="Specific Contexts" items={relatedGraphPages.filter((p: any) => p.page_type === 'context')} />
             </div>
           </section>
         )}

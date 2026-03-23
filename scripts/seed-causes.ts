@@ -37,7 +37,7 @@ async function seedCauses() {
           ${JSON.stringify(res)}::jsonb, 
           'published', 
           'cause',
-          ${res.hero?.headline || topicName}
+          ${res.content?.hero?.headline || topicName}
         ) 
         ON CONFLICT(slug) DO UPDATE 
         SET content_json=EXCLUDED.content_json, title=EXCLUDED.title, updated_at=NOW()

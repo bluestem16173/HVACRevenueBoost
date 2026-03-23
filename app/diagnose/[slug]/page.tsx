@@ -13,8 +13,8 @@ export const revalidate = 3600;
 export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const aiPage = await getDiagnosticPageFromDB(`diagnose/${params.slug}`) 
-    ?? await getDiagnosticPageFromDB(`conditions/${params.slug}`);
+  const aiPage = await getDiagnosticPageFromDB(params.slug, 'diagnose') 
+    ?? await getDiagnosticPageFromDB(params.slug, 'condition');
   if (aiPage?.quality_status === 'noindex') {
     return { robots: { index: false, follow: true } };
   }
@@ -31,8 +31,8 @@ export default async function SymptomPage({ params }: { params: { slug: string }
   let symptomData = await getSymptomWithCausesFromDB(params.slug);
   let isFromDB = !!symptomData;
 
-  const aiPage = await getDiagnosticPageFromDB(`diagnose/${params.slug}`) 
-    ?? await getDiagnosticPageFromDB(`conditions/${params.slug}`);
+  const aiPage = await getDiagnosticPageFromDB(params.slug, 'diagnose') 
+    ?? await getDiagnosticPageFromDB(params.slug, 'condition');
   
   if (aiPage?.quality_status === "needs_regen") {
     notFound();
@@ -158,6 +158,19 @@ export default async function SymptomPage({ params }: { params: { slug: string }
     components: quickHackLinks.components?.length >= 2 ? quickHackLinks.components : FALLBACK_LINKS.components,
   };
 
+  const relObj = raw?.relationships || {};
+  const allRelSlugs = [
+    ...(relObj.system || []),
+    ...(relObj.symptoms || []),
+    ...(relObj.diagnostics || []),
+    ...(relObj.causes || []),
+    ...(relObj.components || []),
+    ...(relObj.context || []),
+    ...(relObj.repairs || []),
+  ];
+  const { getRelatedPagesBySlugs } = require("@/lib/db");
+  const relatedGraphPages = await getRelatedPagesBySlugs(aiPage?.site || "hvac", Array.from(new Set(allRelSlugs)));
+
   const scalingData = {
     narrowDownSteps,
     systemExplanation: raw?.system_explanation?.length === 4 
@@ -200,6 +213,7 @@ export default async function SymptomPage({ params }: { params: { slug: string }
       tools={tools}
       getCauseDetails={getCauseDetails}
       scalingData={scalingData}
+      relatedGraphPages={relatedGraphPages}
     />
   );
 }

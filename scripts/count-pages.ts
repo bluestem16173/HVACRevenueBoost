@@ -1,11 +1,7 @@
 import sql from '../lib/db';
-async function getCount() {
-  try {
-    const result = await sql`SELECT count(*) FROM pages WHERE status = 'published'`;
-    console.log("Total published pages in DB:", result[0].count);
-  } catch (e) {
-    console.error(e);
-  }
+async function run() {
+  const result = await sql`SELECT page_type, COUNT(*) as count FROM pages GROUP BY page_type UNION ALL SELECT 'TOTAL', COUNT(*) FROM pages`;
+  console.log(result);
   process.exit(0);
 }
-getCount();
+run();

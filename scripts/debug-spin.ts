@@ -11,7 +11,7 @@ async function run() {
   await getSymptomWithCausesFromDB(slug);
   
   console.log('2. getDiagnosticPageFromDB');
-  await getDiagnosticPageFromDB(`diagnose/${slug}`);
+  await getDiagnosticPageFromDB(slug, 'diagnostic');
   
   console.log('3. getInternalLinksForPage');
   await getInternalLinksForPage(slug);

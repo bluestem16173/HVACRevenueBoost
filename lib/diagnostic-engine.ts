@@ -94,13 +94,24 @@ export function getCauseDetails(causeId: string) {
  * NEON ASYNC HELPERS (DecisionGrid Overhaul)
  */
 
-export async function getDiagnosticPageFromDB(path: string): Promise<any | null> {
+export async function getDiagnosticPageFromDB(
+  slug: string, 
+  category: string,
+  city?: string | null
+): Promise<any | null> {
   try {
-    const rows = await sql`
-      SELECT *
-      FROM pages
-      WHERE slug = ${path}
-    `;
+    let rows;
+    if (city) {
+      rows = await sql`
+        SELECT * FROM pages
+        WHERE slug = ${slug} AND page_type = ${category} AND city = ${city}
+      `;
+    } else {
+      rows = await sql`
+        SELECT * FROM pages
+        WHERE slug = ${slug} AND page_type = ${category} AND city IS NULL
+      `;
+    }
     return rows[0] || null;
   } catch (error) {
     console.error('Neon Query Error:', error);

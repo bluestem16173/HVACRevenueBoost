@@ -49,7 +49,7 @@ export default async function ConditionPage({ params }: { params: { slug: string
   const fullSlug = `conditions/${params.slug}`;
   let page = await getPageBySlug(fullSlug);
   if (!page) {
-    const diagRow = await getDiagnosticPageFromDB(fullSlug);
+    const diagRow = await getDiagnosticPageFromDB(params.slug, 'condition');
     if (diagRow) {
       const cj = typeof diagRow.content_json === "string" ? (() => { try { return JSON.parse(diagRow.content_json); } catch { return diagRow.content_json; } })() : diagRow.content_json;
       page = {

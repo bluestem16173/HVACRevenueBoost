@@ -46,13 +46,10 @@ Internal links must be relevant, naturally phrased (no generic anchors), mapped 
 Ensure all JSON is fully closed. Do not leave trailing objects, arrays, or strings unclosed. Truncation causes parse failures.
 `;
 
+import { MASTER_UNIFIED_PROMPT } from "@/lib/content-engine/core";
+
 function getMasterPrompt(): string {
-  try {
-    const base = fs.readFileSync(MASTER_PROMPT_PATH, "utf-8");
-    return `${base}${RENDERING_PATCH}`;
-  } catch {
-    return "You are a senior HVAC diagnostic engineer. Output STRICT JSON only. No markdown." + RENDERING_PATCH;
-  }
+  return MASTER_UNIFIED_PROMPT;
 }
 
 /** Strict JSON schema matching MASTER-PROMPT-CANARY */

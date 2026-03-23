@@ -28,19 +28,24 @@ function detectCluster(slug: string): string {
   return 'general';
 }
 
-function pickRandom(arr: string[], count: number): string[] {
-  return [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
+function pickDeterministic(arr: string[], count: number, seedStr: string): string[] {
+  if (arr.length <= count) return arr;
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) {
+    seed += seedStr.charCodeAt(i);
+  }
+  return [...arr].sort((a, b) => {
+    const aVal = (a.charCodeAt(0) + seed) % 3;
+    const bVal = (b.charCodeAt(0) + seed) % 3;
+    if (aVal === bVal) return a.length - b.length;
+    return aVal - bVal;
+  }).slice(0, count);
 }
 
 export async function getAllPages(): Promise<PageNode[]> {
   try {
-    const rows = await sql`SELECT slug FROM pages WHERE status = 'published'`;
-    return rows.map(r => {
-      let type: 'diagnose' | 'cause' | 'repair' = 'diagnose';
-      if (r.slug.startsWith('causes/')) type = 'cause';
-      if (r.slug.startsWith('repair/')) type = 'repair';
-      return { slug: r.slug, page_type: type };
-    });
+    const rows = await sql`SELECT slug, page_type FROM pages WHERE status = 'published'`;
+    return rows.map(r => ({ slug: r.slug, page_type: r.page_type as any }));
   } catch (err) {
     console.error("Error fetching pages for internal links:", err);
     return [];
@@ -65,8 +70,8 @@ export function generateInternalLinks(
   const repairs = sourcePool.filter(p => p.page_type === 'repair').map(p => p.slug);
 
   return {
-    diagnose: pickRandom(diagnose, 4),
-    relatedCauses: pickRandom(causes, 4),
-    repairs: pickRandom(repairs, 3)
+    diagnose: pickDeterministic(diagnose, 4, currentSlug),
+    relatedCauses: pickDeterministic(causes, 4, currentSlug),
+    repairs: pickDeterministic(repairs, 3, currentSlug)
   };
 }

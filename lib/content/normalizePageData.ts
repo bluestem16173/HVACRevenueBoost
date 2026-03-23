@@ -69,6 +69,9 @@ function normalizeCauses(raw: RawContent, graphCauses?: unknown[]): CauseSummary
   }
   if (Array.isArray(raw?.commonCauses) && raw.commonCauses.length > 0) {
     return raw.commonCauses.map((r: unknown) => {
+      if (typeof r === 'string') {
+        return { name: r, indicator: "", explanation: "" };
+      }
       const o = (typeof r === "object" && r !== null ? r : {}) as Record<string, unknown>;
       return {
         name: toSafeString(o.cause ?? o.name ?? o.title) ?? "Unknown",
@@ -137,6 +140,16 @@ function normalizeRepairs(
   }
   if (Array.isArray(raw?.solutions) && raw.solutions.length > 0) {
     return raw.solutions.map((r: unknown) => {
+      if (typeof r === 'string') {
+        return {
+          name: r,
+          difficulty: "Moderate",
+          cost: "$50–$600",
+          estimated_cost: "$50–$600",
+          fix_summary: "",
+          explanation: "",
+        };
+      }
       const o = (typeof r === "object" && r !== null ? r : {}) as Record<string, unknown>;
       return {
         name: toSafeString(o.title ?? o.solution ?? o.name) ?? "Unknown",
@@ -766,7 +779,14 @@ export interface NormalizePageDataInput {
  * This is the ONLY place that handles shape inconsistency.
  */
 export function normalizePageData(input: NormalizePageDataInput): BasePageViewModel {
-  const { rawContent: raw, pageType, slug, title, graphCauses, graphRepairs, graphTools, legacyHtmlContent } = input;
+  const { pageType, slug, title, graphCauses, graphRepairs, graphTools, legacyHtmlContent } = input;
+  
+  let raw = input.rawContent;
+  let relationshipsData = undefined;
+  if (raw && typeof raw === 'object' && 'content' in raw && typeof (raw as any).content === 'object') {
+    relationshipsData = (raw as any).relationships;
+    raw = (raw as any).content as Record<string, unknown>;
+  }
 
   const strippedLegacyHtml = legacyHtmlContent ? stripHtmlToText(legacyHtmlContent) : "";
 
@@ -912,6 +932,7 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
     pageType: (pageType as BasePageViewModel["pageType"]) ?? "symptom",
     slug,
     title: displayTitle || title,
+    relationships: relationshipsData as any,
     metaTitle: toSafeString(raw?.meta_title) ?? displayTitle,
     metaDescription: toSafeString(raw?.meta_description) ?? fastAnswer ?? summary30,
     intro: summary30,

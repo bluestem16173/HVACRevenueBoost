@@ -3,10 +3,8 @@ dotenv.config({ path: ".env.local" });
 
 import OpenAI from "openai";
 import {
-  MASTER_SYMPTOM_PROMPT,
-  MASTER_CAUSE_PROMPT,
+  MASTER_UNIFIED_PROMPT,
   EXPECTED_PROMPT_HASH,
-  EXPECTED_CAUSE_PROMPT_HASH,
   ENGINE_VERSION,
   validateContent
 } from "./core";
@@ -45,7 +43,7 @@ async function callWithRetry<T>(
     }
   }
   console.error("FAILED_AFTER_3_ATTEMPTS", lastError);
-  const hash = pageType === 'cause' ? EXPECTED_CAUSE_PROMPT_HASH : EXPECTED_PROMPT_HASH;
+  const hash = EXPECTED_PROMPT_HASH;
   return { ...getFallback(pageType), _prompt_hash: hash } as any as T;
 }
 
@@ -84,46 +82,102 @@ export async function generateTwoStagePage(
   const { slug = "", system = "HVAC", pageType = "symptom", keyword = "", scenario = "" } = options;
 
   return callWithRetry(async () => {
-    const userMsg = `Generate HVAC diagnostic and lead-conversion guide for:
+    // --- STAGE 1: Fast/Cheap Structural Layout ---
+    const userMsg1 = `Generate HVAC structural overview and SEO blueprint for:
 ISSUE: "${problem}"
-PROPERTY_TYPE: "residential"
+PROPERTY_TYPE: "commercial or residential depending on context"
 
 Additional Context:
 - SLUG: ${slug}
 - SYSTEM: ${system}
 - PAGE_TYPE: ${pageType}
-- PRIMARY_KEYWORD: ${keyword || problem}
 
-IMPORTANT:
-You must strictly follow the required JSON structure.
-If you are unsure, prioritize correct structure over verbosity.`;
+Generate JSON matching this exact schema:
+{
+  "slug": "string",
+  "page_type": "string",
+  "title": "string",
+  "relationships": { "system": [], "symptoms": [], "diagnostics": [], "causes": [], "components": [], "context": [], "repairs": [] },
+  "content": {
+    "hero": { "headline": "...", "subheadline": "..." },
+    "symptoms": ["..."],
+    "whyItHappens": ["..."],
+    "quickChecks": ["..."],
+    "faq": [{ "question": "...", "answer": "..." }]
+  }
+}`;
 
-    const prompt = pageType === 'cause' ? MASTER_CAUSE_PROMPT : MASTER_SYMPTOM_PROMPT;
-
-    const response = await openai.chat.completions.create({
+    const stage1Response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: prompt },
-        { role: "user", content: userMsg },
+        { role: "system", content: "You are the HVAC fast-routing AI. Output strict JSON." },
+        { role: "user", content: userMsg1 },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.4,
-      max_tokens: 3000,
+      temperature: 0.3,
+      max_tokens: 1500,
     });
 
-    const raw = response.choices[0]?.message?.content;
-    console.log("RAW LLM OUTPUT:", raw);
-    
-    if (!raw) throw new Error("Generation API: empty response");
+    const raw1 = stage1Response.choices[0]?.message?.content;
+    if (!raw1) throw new Error("Stage 1: empty response");
+    if (isJsonTruncated(raw1)) throw new Error("Stage 1: output truncated");
 
-    if (isJsonTruncated(raw)) {
-      throw new Error("Generation API: output truncated (missing closing brace)");
+    const parsedStage1 = safeJsonParse<any>(raw1.replace(/^\^\s*```json/i, "").replace(/```\s*$/i, "").trim());
+    if (!parsedStage1) throw new Error("Stage 1: Invalid JSON");
+
+    let finalObj = parsedStage1;
+
+    if (pageType === "diagnostic") {
+      // --- STAGE 2: Premium Reasoning & Logic Graphs ---
+      const userMsg2 = `Act as a Senior HVAC Diagnostics Engineer. Build the deep mechanical reasoning and diagnostic logic for the symptom: "${problem}" (Title: "${parsedStage1.title || problem}").
+
+Generate JSON matching this exact schema:
+{
+  "content": {
+    "systemMechanics": { "downstreamEffects": [], "corePrinciple": "...", "whatBreaks": "..." },
+    "graphBlock": { "description": "...", "nodes": [] },
+    "safetyRisks": ["..."],
+    "decisionFramework": { "recommendation": "..." },
+    "technicalDeepDive": { "heatTransferOverview": "..." },
+    "repairReasoning": ["..."],
+    "diagnosticFlow": [{ "step": "...", "question": "...", "yes": "...", "no": "..." }],
+    "commonCauses": ["..."],
+    "solutions": ["..."]
+  }
+}`;
+
+      const stage2Response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          { role: "system", content: "You are an expert HVAC Diagnostic AI. Output strict JSON." },
+          { role: "user", content: userMsg2 },
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.4,
+        max_tokens: 3500,
+      });
+
+      const raw2 = stage2Response.choices[0]?.message?.content;
+      if (!raw2) throw new Error("Stage 2: empty response");
+      if (isJsonTruncated(raw2)) throw new Error("Stage 2: output truncated");
+
+      const parsedStage2 = safeJsonParse<any>(raw2.replace(/^\^\s*```json/i, "").replace(/```\s*$/i, "").trim());
+      if (!parsedStage2) throw new Error("Stage 2: Invalid JSON");
+
+      // --- MERGE ---
+      finalObj = {
+        ...parsedStage1,
+        content: {
+          ...(parsedStage1.content || {}),
+          ...(parsedStage2.content || {})
+        }
+      };
     }
 
-    const content = finalizeOutput(raw, pageType);
+    const content = finalizeOutput(JSON.stringify(finalObj), pageType);
 
     // Assign locks so the worker can enforce them
-    const hash = pageType === 'cause' ? EXPECTED_CAUSE_PROMPT_HASH : EXPECTED_PROMPT_HASH;
+    const hash = EXPECTED_PROMPT_HASH;
     (content as any)._prompt_hash = hash;
     (content as any).engineVersion = ENGINE_VERSION;
 

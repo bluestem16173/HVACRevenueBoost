@@ -283,4 +283,14 @@ export interface BasePageViewModel {
   relatedSymptoms?: string[];
   /** Repair pages: related cause slugs */
   relatedCauses?: string[];
+  /** V3 Graph Relationships Array */
+  relationships?: {
+    systems?: string[];
+    symptoms?: string[];
+    diagnostics?: string[];
+    causes?: string[];
+    components?: string[];
+    context?: string[];
+    repairs?: string[];
+  };
 }

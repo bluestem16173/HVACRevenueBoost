@@ -16,8 +16,7 @@ export default async function CausesPage({ params }: { params: { slug: string } 
     LIMIT 1
   `;
 
-  const fullSlug = `causes/${params.slug}`;
-  const aiPage = await getDiagnosticPageFromDB(fullSlug);
+  const aiPage = await getDiagnosticPageFromDB(params.slug, 'cause');
   const rawContent = aiPage?.content_json;
   const contentJson = typeof rawContent === "string" ? (() => { try { return JSON.parse(rawContent) as Record<string, unknown>; } catch { return null; } })() : (rawContent as Record<string, unknown> | null);
   const legacyHtmlContent = contentJson?.html_content as string | null | undefined;
@@ -69,6 +68,19 @@ export default async function CausesPage({ params }: { params: { slug: string } 
     // Tables may not exist yet
   }
 
+  const relObj = (contentJson?.relationships as any) || {};
+  const allRelSlugs = [
+    ...(relObj.system || []),
+    ...(relObj.symptoms || []),
+    ...(relObj.diagnostics || []),
+    ...(relObj.causes || []),
+    ...(relObj.components || []),
+    ...(relObj.context || []),
+    ...(relObj.repairs || []),
+  ];
+  const { getRelatedPagesBySlugs } = require("@/lib/db");
+  const relatedGraphPages = await getRelatedPagesBySlugs((aiPage as any)?.site || "dg", Array.from(new Set(allRelSlugs)));
+
   const pageViewModel = normalizePageData({
     rawContent: contentJson,
     pageType: "cause",
@@ -87,6 +99,7 @@ export default async function CausesPage({ params }: { params: { slug: string } 
       diagnosticTests={diagnosticTests}
       pageViewModel={pageViewModel}
       rawContent={contentJson}
+      relatedGraphPages={relatedGraphPages}
     />
   );
 }

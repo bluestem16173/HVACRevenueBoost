@@ -13,31 +13,9 @@ dotenv.config({ path: ".env.local" });
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const GRAPH_NODE_PROMPT = `You are an HVAC diagnostic knowledge graph builder. Return ONLY structured JSON for graph nodes. No HTML, no prose.
+import { MASTER_UNIFIED_PROMPT } from "@/lib/content-engine/core";
 
-For a SYMPTOM node, return:
-{
-  "symptom": { "name": "...", "slug": "...", "description": "2-3 sentences" },
-  "causes": [ { "name": "...", "slug": "...", "explanation": "1-2 sentences" } ],
-  "repairs": [ { "name": "...", "slug": "...", "estimated_cost": "$X-$Y", "difficulty": "Easy|Medium|Hard" } ],
-  "components": [ { "name": "...", "slug": "..." } ]
-}
-
-For a CAUSE node, return:
-{
-  "cause": { "name": "...", "slug": "...", "description": "2-3 sentences" },
-  "repairs": [ { "name": "...", "slug": "...", "estimated_cost": "...", "difficulty": "..." } ],
-  "components": [ { "name": "...", "slug": "..." } ]
-}
-
-For a REPAIR node, return:
-{
-  "repair": { "name": "...", "slug": "...", "description": "...", "estimated_cost": "...", "skill_level": "..." },
-  "components": [ { "name": "...", "slug": "..." } ]
-}
-
-Slugs must be lowercase, hyphenated (e.g. low-refrigerant, replace-capacitor).
-Minimum 3 causes per symptom. Minimum 2 repairs per cause.`;
+const GRAPH_NODE_PROMPT = MASTER_UNIFIED_PROMPT;
 
 export type GraphNodeType = "symptom" | "cause" | "repair";
 
