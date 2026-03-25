@@ -152,6 +152,7 @@ export async function getSymptomEntries(): Promise<SitemapEntry[]> {
         AND status = 'published'
         AND (quality_status IS NULL OR quality_status != 'noindex')
         AND content_json->'hero'->>'headline' != 'Troubleshoot the issue step by step'
+        AND (canonical_slug IS NULL OR canonical_slug = slug)
       ORDER BY updated_at DESC
       LIMIT 50000
     `;
@@ -186,6 +187,7 @@ export async function getConditionEntries(): Promise<SitemapEntry[]> {
       SELECT slug, created_at, updated_at FROM pages
       WHERE slug LIKE 'conditions/%'
         AND (status = 'published' OR status = 'generated')
+        AND (canonical_slug IS NULL OR canonical_slug = slug)
       ORDER BY updated_at DESC
       LIMIT 10000
     `;
@@ -218,6 +220,7 @@ export async function getCauseEntries(): Promise<SitemapEntry[]> {
     const pages = await sql`
       SELECT slug, created_at FROM pages
       WHERE quality_status = 'published' AND quality_score >= 70 AND slug LIKE 'cause/%'
+        AND (canonical_slug IS NULL OR canonical_slug = slug)
       LIMIT 50000
     `;
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
@@ -249,6 +252,7 @@ export async function getRepairEntries(): Promise<SitemapEntry[]> {
     const pages = await sql`
       SELECT slug, created_at FROM pages
       WHERE quality_status = 'published' AND quality_score >= 70 AND slug LIKE 'fix/%'
+        AND (canonical_slug IS NULL OR canonical_slug = slug)
       LIMIT 50000
     `;
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
@@ -297,6 +301,7 @@ export async function getComponentEntries(): Promise<SitemapEntry[]> {
     const pages = await sql`
       SELECT slug, created_at FROM pages
       WHERE quality_status = 'published' AND quality_score >= 70 AND slug LIKE 'components/%'
+        AND (canonical_slug IS NULL OR canonical_slug = slug)
       LIMIT 50000
     `;
     const dbEntries: SitemapEntry[] = (pages as any[]).map((p) => ({
@@ -319,6 +324,7 @@ export async function getLocalEntries(): Promise<SitemapEntry[]> {
     const pages = await sql`
       SELECT slug, created_at FROM pages
       WHERE quality_status = 'published' AND quality_score >= 70 AND slug LIKE 'repair/%'
+        AND (canonical_slug IS NULL OR canonical_slug = slug)
       LIMIT 100000
     `;
     if (!pages || (pages as any[]).length === 0) {

@@ -1,0 +1,8 @@
+﻿[dotenv@17.3.1] injecting env (6) from .env.local -- tip: ΓÜÖ∩╕Å  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (0) from .env -- tip: ΓÜí∩╕Å secrets for agents: https://dotenvx.com/as2
+Generated Prototype URLs:
+[SYMPTOM] http://localhost:3003/rv-ac-overheating
+[CAUSE] http://localhost:3003/causes/stuck-ac-contactor-relay
+[REPAIR] http://localhost:3003/diagnose/replace-ac-capacitor
+[COMPONENT] http://localhost:3003/diagnose/ac-capacitor
+[CONDITION] http://localhost:3003/diagnose/failed-capacitor

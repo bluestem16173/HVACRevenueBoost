@@ -93,7 +93,12 @@ async function run() {
     const title = proposed_slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
     try {
       console.log(`\n▶ ${proposed_slug} (${page_type})`);
-      const raw = await generateTwoStagePage(title, { slug: proposed_slug, system: 'HVAC', pageType: page_type });
+      const raw = await generateTwoStagePage(title, {
+        slug: proposed_slug,
+        system: "HVAC",
+        pageType: page_type,
+        bypassAutoMode: true,
+      });
       const normalized = normalizeAuthorityJson(raw);
       const data = finalizeAuthorityJson(normalized, page_type);
 

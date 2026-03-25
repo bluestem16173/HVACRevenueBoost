@@ -5,7 +5,8 @@ import { getToolsForPage } from "@/lib/tools-for-page";
 import { getRelatedContent, getInternalLinksForPage } from "@/lib/seo-linking";
 import { buildLinksForPage } from "@/lib/link-engine";
 import { normalizePageData } from "@/lib/content";
-import SymptomPageTemplate from "@/templates/symptom-page";
+import SymptomPageTemplate from "@/templates/SymptomPageTemplate.LEGACY";
+import GoldStandardPage from "@/components/gold/GoldStandardPage";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 
@@ -34,10 +35,15 @@ export default async function SymptomPage({ params }: { params: { slug: string }
 
   const aiPage = await getDiagnosticPageFromDB(params.slug, 'diagnose') 
     ?? await getDiagnosticPageFromDB(params.slug, 'symptom')
-    ?? await getDiagnosticPageFromDB(params.slug, 'condition');
+    ?? await getDiagnosticPageFromDB(params.slug, 'condition')
+    ?? await getDiagnosticPageFromDB(params.slug, 'system');
   
   if (aiPage?.quality_status === "needs_regen") {
     notFound();
+  }
+
+  if (aiPage?.schema_version === "v2_goldstandard") {
+    return <GoldStandardPage data={aiPage.content_json} />;
   }
 
   let rawContent: Record<string, unknown> | null = null;

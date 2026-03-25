@@ -1,0 +1,42 @@
+[
+  {
+    "slug": "central-air-conditioning-system",
+    "raw_snippet": "{\"slug\":\"central-air-conditioning-system\",\"title\":\"central-air-conditioning-system\",\"content\":{\"slug\":\"central-air-conditioning-system\",\"title\":\"central-air-conditioning-system\",\"maintenance\":[\"Regularly replace or clean air filters to ensure proper airflow.\",\"Schedule annual professional inspections to check refrigerant levels and clean coils.\",\"Keep outdoor condenser units free of debris and vegetation.\",\"Ensure vents and registers are unobstructed to maintain airflow.\",\"Monitor thermostat set"
+  },
+  {
+    "slug": "furnace-system",
+    "raw_snippet": "{\"slug\":\"furnace-system\",\"title\":\"furnace-system\",\"content\":{\"slug\":\"furnace-system\",\"title\":\"furnace-system\",\"maintenance\":[\"Regularly replace or clean air filters to ensure proper airflow and efficiency.\",\"Schedule annual professional inspections to check for wear and potential issues.\",\"Keep the area around the furnace clean and free of debris to prevent airflow obstructions.\",\"Inspect and clean the blower motor and fan blades to maintain efficient operation.\",\"Test the thermostat for accurac"
+  },
+  {
+    "slug": "geothermal-heat-pump",
+    "raw_snippet": "{\"slug\":\"geothermal-heat-pump\",\"title\":\"geothermal-heat-pump\",\"content\":{\"slug\":\"geothermal-heat-pump\",\"title\":\"geothermal-heat-pump\",\"maintenance\":[\"Regularly inspect and clean the ground loop and heat exchangers to prevent fouling.\",\"Check refrigerant levels and inspect for leaks annually.\",\"Ensure the air handler and ductwork are clean and unobstructed.\",\"Test electrical connections and components for proper operation.\",\"Schedule professional maintenance to verify system efficiency and addres"
+  },
+  {
+    "slug": "ventilation-ductwork-system",
+    "raw_snippet": "{\"slug\":\"ventilation-ductwork-system\",\"title\":\"ventilation-ductwork-system\",\"content\":{\"slug\":\"ventilation-ductwork-system\",\"title\":\"ventilation-ductwork-system\",\"maintenance\":[\"Inspect and clean ducts annually to prevent blockages.\",\"Seal any leaks with mastic or metal tape to improve efficiency.\",\"Ensure insulation is intact to prevent energy loss.\",\"Regularly check and adjust dampers for balanced airflow.\",\"Replace air filters as recommended to maintain airflow and air quality.\"],\"core_physic"
+  },
+  {
+    "slug": "ductless-mini-split-system",
+    "raw_snippet": "{\"slug\":\"ductless-mini-split-system\",\"title\":\"ductless-mini-split-system\",\"content\":{\"slug\":\"ductless-mini-split-system\",\"title\":\"ductless-mini-split-system\",\"maintenance\":[\"Regularly clean or replace air filters to ensure proper airflow.\",\"Inspect and clean the indoor and outdoor coils to maintain efficient heat transfer.\",\"Check refrigerant levels and inspect for leaks annually.\",\"Ensure the outdoor unit is free from obstructions and debris.\",\"Schedule professional maintenance at least once a "
+  },
+  {
+    "slug": "air-handler-system",
+    "raw_snippet": "{\"slug\":\"air-handler-system\",\"title\":\"air-handler-system\",\"content\":{\"slug\":\"air-handler-system\",\"title\":\"air-handler-system\",\"maintenance\":[\"Replace or clean air filters every 1-3 months.\",\"Inspect and clean the blower motor annually.\",\"Check and clean heat exchanger coils bi-annually.\",\"Ensure all electrical connections are secure.\",\"Calibrate the thermostat regularly.\"],\"core_physics\":[\"Heat transfer in an air handler involves conduction and convection. The air handler's heat exchanger uses c"
+  },
+  {
+    "slug": "packaged-hvac-unit",
+    "raw_snippet": "{\"slug\":\"packaged-hvac-unit\",\"title\":\"packaged-hvac-unit\",\"content\":{\"slug\":\"packaged-hvac-unit\",\"title\":\"packaged-hvac-unit\",\"maintenance\":[\"Regularly inspect and clean condenser and evaporator coils to ensure efficient heat exchange.\",\"Check refrigerant levels and recharge if necessary to maintain optimal pressure.\",\"Inspect and replace air filters to ensure proper airflow.\",\"Ensure all electrical connections are secure and in good condition.\",\"Schedule annual professional maintenance to catch"
+  },
+  {
+    "slug": "boiler-heating-system",
+    "raw_snippet": "{\"slug\":\"boiler-heating-system\",\"title\":\"boiler-heating-system\",\"content\":{\"slug\":\"boiler-heating-system\",\"title\":\"boiler-heating-system\",\"maintenance\":[\"Regularly inspect and clean the burner and heat exchanger.\",\"Check the pressure relief valve for proper operation.\",\"Ensure the expansion tank is not waterlogged and maintains proper pressure.\",\"Inspect and service the circulator pump annually.\",\"Monitor system pressure and temperature regularly.\"],\"core_physics\":[\"Heat Transfer: Boilers primar"
+  },
+  {
+    "slug": "thermostat-control-system",
+    "raw_snippet": "{\"slug\":\"thermostat-control-system\",\"title\":\"thermostat-control-system\",\"content\":{\"slug\":\"thermostat-control-system\",\"title\":\"thermostat-control-system\",\"maintenance\":[\"Regularly check and replace thermostat batteries.\",\"Ensure thermostat is level and properly mounted.\",\"Inspect and tighten electrical connections.\",\"Schedule annual HVAC system maintenance to check for control system issues.\"],\"core_physics\":[\"Heat transfer in HVAC systems involves conduction, convection, and phase change. The t"
+  },
+  {
+    "slug": "heat-pump-system",
+    "raw_snippet": "{\"slug\":\"heat-pump-system\",\"title\":\"heat-pump-system\",\"content\":{\"slug\":\"heat-pump-system\",\"title\":\"heat-pump-system\",\"maintenance\":[\"Regularly clean or replace air filters to ensure proper airflow.\",\"Inspect and clean condenser and evaporator coils to maintain efficient heat transfer.\",\"Check and maintain proper refrigerant levels to ensure effective operation.\",\"Schedule annual professional maintenance to inspect electrical components and overall system health.\"],\"core_physics\":[\"Heat Transfer"
+  }
+]

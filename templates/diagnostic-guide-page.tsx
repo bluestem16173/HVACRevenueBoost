@@ -3,7 +3,7 @@
  * Same design system as symptom page. Diagnostic decision flow.
  */
 import React from "react";
-import SymptomPageTemplate from "./symptom-page";
+import SymptomPageTemplate from "./SymptomPageTemplate.LEGACY";
 
 export default function DiagnosticGuidePageTemplate(props: any) {
   const { symptom, contentJson } = props;

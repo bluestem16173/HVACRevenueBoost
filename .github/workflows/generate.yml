@@ -1,0 +1,22 @@
+name: HVAC Page Generator
+
+on:
+  workflow_dispatch:  # manual only (SAFE)
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+
+    env:
+      GENERATION_ENABLED: "false"  # 🔒 SAFE DEFAULT
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install deps
+        run: npm install
+
+      - name: Run generator
+        run: node scripts/generation-worker.ts

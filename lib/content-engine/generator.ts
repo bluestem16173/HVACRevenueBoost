@@ -1,6 +1,11 @@
 import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
+import {
+  assertDailySpendAllows,
+  recordOpenAiChatUsage,
+} from "@/lib/ai-spend-guard";
+import { assertAutoModeEnabled } from "@/lib/generation-guards";
 import OpenAI from "openai";
 import {
   MASTER_GOLD_STANDARD_PROMPT,
@@ -77,11 +82,22 @@ export async function generateTwoStagePage(
     pageType?: string;
     keyword?: string;
     scenario?: string;
+    /** When true, skips system_state auto_mode check (e.g. worker --manual, canary). */
+    bypassAutoMode?: boolean;
   } = {}
 ) {
   const { slug = "", system = "HVAC", pageType = "symptom", keyword = "", scenario = "" } = options;
 
+  if (process.env.GENERATION_ENABLED !== "true") {
+    console.log("🚫 Generation globally disabled");
+    return undefined as any;
+  }
+  await assertAutoModeEnabled({ bypassAutoMode: options.bypassAutoMode === true });
+  await assertDailySpendAllows("generateTwoStagePage:start");
+  console.log("GENERATION TRIGGERED", new Date());
+
   return callWithRetry(async () => {
+    await assertDailySpendAllows("generateTwoStagePage:retry");
     // --- STAGE 1: Fast/Cheap Structural Layout ---
     let userMsg1 = `Generate HVAC structural overview and SEO blueprint for:
 ISSUE: "${problem}"
@@ -291,6 +307,7 @@ Generate ONLY valid JSON. Keep sections snappy and conversion-focused.`;
       temperature: 0.3,
       max_tokens: 1500,
     });
+    await recordOpenAiChatUsage("gpt-4o-mini", stage1Response.usage, "two-stage:stage1");
 
     const raw1 = stage1Response.choices[0]?.message?.content;
     if (!raw1) throw new Error("Stage 1: empty response");
@@ -302,6 +319,7 @@ Generate ONLY valid JSON. Keep sections snappy and conversion-focused.`;
     let finalObj = parsedStage1;
 
     if (pageType === "diagnostic") {
+      await assertDailySpendAllows("generateTwoStagePage:stage2");
       // --- STAGE 2: Premium Reasoning & Logic Graphs ---
       const userMsg2 = `Act as a Senior HVAC Diagnostics Engineer. Build the deep mechanical reasoning and diagnostic logic for the symptom: "${problem}" (Title: "${parsedStage1.title || problem}").
 
@@ -330,6 +348,7 @@ Generate JSON matching this exact schema:
         temperature: 0.4,
         max_tokens: 3500,
       });
+      await recordOpenAiChatUsage("gpt-4o", stage2Response.usage, "two-stage:stage2");
 
       let parsedStage2 = null;
       try {
@@ -447,12 +466,67 @@ export function assertCriticalDiagnosticFields(
 
 export async function generateDiagnosticEngineJson(problem: string, options: any = {}) {
   const { slug = "", system = "HVAC", pageType = "symptom", keyword = "", context = "" } = options;
-  
+
+  if (process.env.GENERATION_ENABLED !== "true") {
+    console.log("🚫 Generation globally disabled");
+    return undefined as any;
+  }
+  await assertAutoModeEnabled({ bypassAutoMode: options.bypassAutoMode === true });
+  await assertDailySpendAllows("generateDiagnosticEngineJson:start");
+  console.log("GENERATION TRIGGERED", new Date());
+
   const { composePromptForPageType } = await import("../prompt-schema-router");
-  const sysMsg = composePromptForPageType(pageType, slug);
-  const userMsg = `Generate a complete HVAC diagnostic guide for the symptom:\n\n"${problem}"\n\nSystem: "${system}"`;
+  const sysMsg = composePromptForPageType(pageType, slug, { schemaVersion: options.schemaVersion });
+  
+  let userMsg = `Generate a complete HVAC diagnostic guide for the symptom:\n"${problem}"\n\nSystem: "${system}"`;
+
+  if (options.schemaVersion !== "v2_goldstandard") {
+    userMsg += `\n\nGenerate JSON matching this exact schema:
+{
+  "fastAnswer": "string",
+  "mostCommonFix": {
+    "title": "string",
+    "cost": "string",
+    "difficulty": "string",
+    "time": "string",
+    "summary": "string"
+  },
+  "quickChecklist": ["string"],
+  "diagnosticFlow": ["string"],
+  "causes": [
+    {
+      "name": "string",
+      "description": "string"
+    }
+  ],
+  "repairOptions": [
+    {
+      "name": "string",
+      "description": "string",
+      "cost": "string",
+      "difficulty": "string"
+    }
+  ],
+  "tools": ["string"],
+  "costBreakdown": {
+    "low": "string",
+    "medium": "string",
+    "high": "string"
+  },
+  "ignoredConsequences": "string",
+  "technicianInsights": "string",
+  "uniqueElement": "string",
+  "internalLinks": {
+    "diagnostics": ["string"],
+    "causes": ["string"],
+    "repairs": ["string"],
+    "system": "string"
+  }
+}`;
+  }
   
   return callWithRetry(async () => {
+    await assertDailySpendAllows("generateDiagnosticEngineJson:retry");
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -462,6 +536,7 @@ export async function generateDiagnosticEngineJson(problem: string, options: any
       response_format: { type: "json_object" },
       temperature: 0.3,
     });
+    await recordOpenAiChatUsage("gpt-4o", response.usage, "diagnostic-engine");
 
     const contentStr = response.choices[0]?.message?.content;
     if (!contentStr) throw new Error("Empty AI response");
@@ -469,7 +544,8 @@ export async function generateDiagnosticEngineJson(problem: string, options: any
     try {
       const parsed = JSON.parse(contentStr.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim());
       return parsed;
-    } catch(e) {
+    } catch(e: any) {
+      console.error("❌ OpenAI API Parsing Failed:", e.message || e);
       throw new Error("Invalid JSON from LLM: " + e);
     }
   }, { maxRetries: 3, pageType });

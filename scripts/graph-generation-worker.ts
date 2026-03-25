@@ -52,6 +52,10 @@ async function upsertComponent(data: { name: string; slug: string }) {
 }
 
 async function runWorker() {
+  if (process.env.GENERATION_ENABLED !== "true") {
+    console.log("🚫 Generation globally disabled");
+    return;
+  }
   console.log("🚀 HVAC Revenue Boost Graph Generation Worker...");
 
   const systemRes = await sql`SELECT id FROM systems WHERE slug = 'residential-ac' LIMIT 1`;

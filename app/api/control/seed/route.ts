@@ -3,6 +3,13 @@ import sql from "@/lib/db";
 import { SYMPTOMS } from "@/data/knowledge-graph";
 
 export async function POST(req: Request) {
+  if (process.env.GENERATION_ENABLED !== "true") {
+    console.log("🚫 Generation globally disabled");
+    return NextResponse.json(
+      { error: "Generation disabled", code: "GENERATION_DISABLED" },
+      { status: 403 }
+    );
+  }
   const authHeader = req.headers.get("authorization");
   if (!authHeader || authHeader !== `Bearer ${process.env.ADMIN_TOKEN}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

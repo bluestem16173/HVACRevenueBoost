@@ -23,6 +23,8 @@
     "db:migrate-010": "npx tsx scripts/run-migration-010.ts",
     "db:migrate-011": "npx tsx scripts/run-migration-011.ts",
     "db:migrate-012": "npx tsx scripts/run-migration-012.ts",
+    "db:migrate-013": "npx tsx scripts/run-migration-013.ts",
+    "db:migrate-014": "npx tsx scripts/run-migration-014.ts",
     "db:11": "npx tsx scripts/run-migration-011.ts",
     "db:seed-010": "npx tsx scripts/run-seed-010.ts",
     "db:master-migrate": "npx tsx scripts/run-master-migration.ts migrate",

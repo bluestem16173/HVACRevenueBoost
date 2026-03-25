@@ -5,7 +5,7 @@
  * Different: section order, headings, required JSON, content emphasis.
  */
 
-import SymptomPageTemplate from "@/templates/symptom-page";
+import SymptomPageTemplate from "@/templates/SymptomPageTemplate.LEGACY";
 import SymptomConditionPageTemplate from "@/templates/symptom-condition-page";
 import CausePageTemplate from "@/templates/cause-page";
 import RepairPageTemplate from "@/templates/repair-page";

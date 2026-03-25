@@ -1,4 +1,10 @@
 import "dotenv/config";
+import {
+  BATCH_SIZE,
+  getQueuedJobs,
+  markFailedPermanent,
+  queueAttemptCount,
+} from "../lib/generation-queue";
 import sql from '../lib/db';
 import { generateDiagnosticEngineJson, transformDGToUnified, assertCriticalDiagnosticFields } from '../lib/content-engine/generator';
 import { getFallback, Schema } from '../lib/content-engine/schema';
@@ -6,8 +12,16 @@ import { EXPECTED_PROMPT_HASH } from '../lib/content-engine/core';
 import { normalizeToBaseSlug, buildSlug } from '../lib/slug-helpers';
 import { buildRetryPromptFragment } from '../lib/prompt-schema-router';
 import { scoreGoldStandardPage, type PageType, PUBLISH_THRESHOLDS } from '../lib/quality-scorer';
+import { shouldUseAiForQueueJob } from "../lib/content-strategy";
+import {
+  checkSpendSpikeAndShutdown,
+  isEmergencyGenerationShutdown,
+} from "../lib/emergency-generation-shutdown";
 
 console.log("DB URL:", process.env.DATABASE_URL);
+if (process.env.DRY_RUN === "true") {
+  console.log("🧪 DRY_RUN=true — no AI calls; jobs will be released back to pending.");
+}
 
 function normalizeSlug(input: string) {
   return input
@@ -24,6 +38,40 @@ const QUEUE_STATUS = { pending: 'pending', processing: 'processing', completed: 
 let isWorkerRunning = false;
 
 export async function runWorker(options: { limit?: number, manual?: boolean, type?: string } = {}) {
+  if (process.env.GENERATION_ENABLED !== "true") {
+    console.log("🚫 Generation globally disabled");
+    return { success: false, reason: "GENERATION_DISABLED" };
+  }
+
+  if (await isEmergencyGenerationShutdown()) {
+    console.log(
+      "🚨 Emergency generation shutdown is ON (system_state). Clear: UPDATE system_state SET value = 'false' WHERE key = 'generation_emergency_shutdown';"
+    );
+    return { success: false, reason: "EMERGENCY_SHUTDOWN" };
+  }
+
+  if (await checkSpendSpikeAndShutdown()) {
+    return { success: false, reason: "SPEND_SPIKE_SHUTDOWN" };
+  }
+
+  try {
+    const spendRes = await sql`
+      SELECT COUNT(*) as generated_today
+      FROM pages
+      WHERE DATE(updated_at) = CURRENT_DATE
+        AND status = 'published'
+    `;
+    const todaySpend = parseInt((spendRes as any[])[0]?.generated_today || "0", 10);
+    const DAILY_LIMIT = process.env.DAILY_LIMIT ? parseInt(process.env.DAILY_LIMIT, 10) : 10;
+
+    if (todaySpend >= DAILY_LIMIT) {
+      console.log(`💸 Daily budget hit (${todaySpend}/${DAILY_LIMIT}) — stopping`);
+      return { success: false, reason: "Daily budget hit" };
+    }
+  } catch (e) {
+    console.log("⚠️ Could not verify daily spend guard, proceeding with caution.");
+  }
+
   if (isWorkerRunning) {
     console.log("⚠️ Worker is already running. Skipping execution.");
     return { success: false, reason: "Already running" };
@@ -63,39 +111,66 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
       }
     }
 
-    const batchLimit = options.limit || parseInt(process.env.CANARY_BATCH_SIZE || "50", 10) || 50;
-    
-    let items;
-    if (options.type) {
-      items = await sql`
-        UPDATE generation_queue SET status = 'processing'
-        WHERE id IN (
-          SELECT id FROM generation_queue
-          WHERE status = 'pending' AND page_type = ${options.type}
-          ORDER BY created_at ASC
-          LIMIT ${batchLimit}
-          FOR UPDATE SKIP LOCKED
-        ) RETURNING *;
-      ` as any[];
-    } else {
-      items = await sql`
-        UPDATE generation_queue SET status = 'processing'
-        WHERE id IN (
-          SELECT id FROM generation_queue
-          WHERE status = 'pending'
-          ORDER BY created_at ASC
-          LIMIT ${batchLimit}
-          FOR UPDATE SKIP LOCKED
-        ) RETURNING *;
-      ` as any[];
-    }
+    const batchSize =
+      typeof options.limit === "number" && options.limit > 0
+        ? options.limit
+        : parseInt(process.env.CANARY_BATCH_SIZE || String(BATCH_SIZE), 10) || BATCH_SIZE;
 
-    console.log(`📦 Fetched ${items.length} pending jobs.`);
+    const items = (await getQueuedJobs(batchSize, options.type)) as any[];
+
+    console.log(`📦 Fetched ${items.length} pending jobs (batch up to ${batchSize}).`);
 
     for (const job of items) {
+      if (process.env.GENERATION_ENABLED !== "true") {
+        console.log("🛑 Mid-batch stop — GENERATION_ENABLED off (e.g. emergency spend spike)");
+        for (const j of items) {
+          await sql`
+            UPDATE generation_queue
+            SET status = 'pending'
+            WHERE id = ${j.id} AND status = 'processing'
+          `;
+        }
+        break;
+      }
+
+      const attemptCount = queueAttemptCount(job as Record<string, unknown>);
+      if (attemptCount > 1) {
+        console.log("🔒 attempt_count > 1 — permanent fail:", job.id, job.proposed_slug);
+        await markFailedPermanent(job.id as number);
+        failedCount++;
+        continue;
+      }
+
       const proposedSlug = job.proposed_slug;
       const pageTypeForSlug = job.proposed_slug?.startsWith("repair/") ? "repair" : (job.page_type || "symptom");
       const pageType = pageTypeForSlug || "symptom";
+
+      if (process.env.DRY_RUN === "true") {
+        console.log("Would generate:", proposedSlug, { page_type: job.page_type, id: job.id });
+        await sql`
+          UPDATE generation_queue
+          SET status = 'pending', updated_at = NOW()
+          WHERE id = ${job.id}
+        `;
+        continue;
+      }
+
+      if (!shouldUseAiForQueueJob(String(job.page_type || pageType), String(proposedSlug))) {
+        console.log(
+          "📍 Layer 8 — skipping AI for location/template page (expand from canonical symptom in code):",
+          proposedSlug
+        );
+        await sql`
+          UPDATE generation_queue
+          SET
+            status = 'completed',
+            last_error = 'layer8_template_expansion',
+            updated_at = NOW()
+          WHERE id = ${job.id}
+        `;
+        processedCount++;
+        continue;
+      }
 
       try {
         console.log("🚀 GENERATING:", proposedSlug);
@@ -104,6 +179,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         let finalResult: any = null;
         let finalStatus: 'published' | 'failed' | 'needs_regen' = 'published';
         let currentFeedback: string[] = [];
+        let schemaVersion = "v2_goldstandard";
 
         // Max 2 retries (3 attempts total)
         const maxAttempts = 3;
@@ -114,63 +190,37 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
             system: "HVAC",
             pageType: pageType,
             coreOnly: false,
-            retryFeedback: currentFeedback.length > 0 ? buildRetryPromptFragment(currentFeedback) : undefined
+            schemaVersion: "v2_goldstandard",
+            retryFeedback: currentFeedback.length > 0 ? buildRetryPromptFragment(currentFeedback) : undefined,
+            bypassAutoMode: options.manual === true,
           });
 
           console.log(`📦 DG JSON GENERATED (Attempt ${attempt + 1}/${maxAttempts}):`, proposedSlug);
 
-          const transformed = transformDGToUnified(rawDg, proposedSlug, pageType);
-
-          if (pageType === 'diagnostic') {
-            try { assertCriticalDiagnosticFields(transformed, pageType); }
-            catch (err: any) { console.error("Critical fields missing:", err.message); }
-          }
-
-          let schemaPassed = true;
           try {
-            Schema.parse(transformed);
-          } catch (err: any) {
-            console.error("❌ Schema parse failed silently on attempt", attempt + 1);
-            schemaPassed = false;
-          }
+            // STEP 5 — VALIDATE AI OUTPUT (THIS IS HUGE)
+            if (!rawDg.ai_summary) throw new Error("Missing summary");
+            if (!rawDg.system_flow) throw new Error("Missing system flow");
+            if (!rawDg.diagnostic_flow) throw new Error("Missing diagnostic flow");
+            if (!rawDg.causes || rawDg.causes.length < 4) throw new Error("Weak causes");
 
-          const validation = scoreGoldStandardPage(transformed, pageType as PageType);
-          
-          finalResult = transformed;
-          (finalResult as any)._quality = validation;
-
-          console.log(
-            `[validator] slug=${proposedSlug} score=${validation.score} schemaPassed=${schemaPassed} hardReject=${validation.hardReject}`
-          );
-
-          if (schemaPassed && validation.valid) {
             console.log("✅ GOLD STANDARD VALIDATION PASSED:", proposedSlug);
+            finalResult = rawDg;
             finalStatus = 'published';
             break;
-          }
-
-          if (validation.hardReject) {
-            console.error(`❌ HARD REJECT logic hit for ${proposedSlug}:`, validation.reasons.join(" | "));
-            finalStatus = 'failed';
-            break; // Do not retry a hard reject if it's fundamentally flawed, or we could continue to retry based on policy. Let's retry unless we exhaust.
-          }
-
-          if (validation.retryable && attempt < maxAttempts - 1) {
-            console.log(`⚠️ Weak page, initiating RETRY for ${proposedSlug}. Score: ${validation.score}`);
-            currentFeedback = validation.reasons;
+            
+          } catch (err: any) {
+            console.log(`⚠️ Validation failed: ${err.message}. Initiating RETRY for ${proposedSlug}.`);
+            currentFeedback = [err.message];
             attempt++;
+            
+            if (attempt >= maxAttempts) {
+              finalStatus = 'failed';
+              console.error(`❌ Rejected weak page ${proposedSlug}. Failed on: ${err.message}`);
+              break;
+            }
             continue;
           }
-
-          // Exhausted retries or non-retryable
-          if (validation.score >= 70) {
-            finalStatus = 'needs_regen'; // Save it but flag it
-            console.warn(`⚠️ Saving borderline page ${proposedSlug} with score ${validation.score}`);
-          } else {
-            finalStatus = 'failed';
-            console.error(`❌ Rejected weak page ${proposedSlug}. Score: ${validation.score}`);
-          }
-          break;
         }
 
         const result = finalResult;
@@ -199,16 +249,17 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         console.log("💾 INSERT START:", cleanSlug);
 
         const res = await sql`
-          INSERT INTO pages (slug, content_json, status, page_type, title, city)
+          INSERT INTO pages (slug, content_json, status, page_type, title, city, schema_version)
           VALUES (
             ${cleanSlug},
             ${JSON.stringify(result)}::jsonb,
             ${status},
             ${result.page_type || pageType},
-            ${result.title || result.content?.hero?.problemStatement || 'Untitled'},
-            ${city}
+            ${result.title || 'Untitled'},
+            ${city},
+            ${schemaVersion}
           )
-          ON CONFLICT (site, page_type, slug, COALESCE(city, '')) DO UPDATE
+          ON CONFLICT (slug) DO UPDATE
           SET content_json = EXCLUDED.content_json,
               title = EXCLUDED.title,
               status = EXCLUDED.status,
@@ -232,11 +283,51 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         if (err.issues) console.error("ZOD ISSUES:", JSON.stringify(err.issues, null, 2));
         else console.error(err.message || err);
 
-        await sql`
-          UPDATE generation_queue
-          SET status = 'failed'
-          WHERE id = ${job.id}
-        `;
+        const msg = String(err?.message || err);
+        const isDailyLimit = msg.includes("DAILY_SPEND_LIMIT_REACHED");
+        if (isDailyLimit) {
+          await sql`
+            UPDATE generation_queue
+            SET status = 'pending'
+            WHERE id = ${job.id}
+          `;
+        } else {
+          const prev = queueAttemptCount(job as Record<string, unknown>);
+          const next = prev + 1;
+          if (next > 1) {
+            await sql`
+              UPDATE generation_queue
+              SET
+                attempts = ${next},
+                regeneration_attempts = ${next},
+                status = 'failed',
+                last_error = ${msg.slice(0, 2000)}
+              WHERE id = ${job.id}
+            `;
+          } else {
+            await sql`
+              UPDATE generation_queue
+              SET
+                attempts = ${next},
+                regeneration_attempts = ${next},
+                status = 'pending',
+                last_error = ${msg.slice(0, 2000)}
+              WHERE id = ${job.id}
+            `;
+          }
+        }
+        if (isDailyLimit) {
+          console.log("💸 Stopping batch — daily budget; job re-queued for later.");
+          const otherIds = items.map((j: { id: number }) => j.id).filter((id: number) => id !== job.id);
+          for (const oid of otherIds) {
+            await sql`
+              UPDATE generation_queue
+              SET status = 'pending'
+              WHERE id = ${oid} AND status = 'processing'
+            `;
+          }
+          break;
+        }
         failedCount++;
       }
     }

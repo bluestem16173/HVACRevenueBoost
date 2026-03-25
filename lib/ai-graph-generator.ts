@@ -8,6 +8,7 @@
 
 import OpenAI from "openai";
 import * as dotenv from "dotenv";
+import { assertDailySpendAllows, recordOpenAiChatUsage } from "@/lib/ai-spend-guard";
 import { safeJsonParse } from "@/lib/utils";
 dotenv.config({ path: ".env.local" });
 
@@ -45,6 +46,12 @@ export async function generateGraphNode(
   title: string,
   context?: Record<string, unknown>
 ): Promise<GraphNodeOutput> {
+  if (process.env.GENERATION_ENABLED !== "true") {
+    console.log("🚫 Generation globally disabled");
+    throw new Error("GENERATION_DISABLED");
+  }
+  await assertDailySpendAllows("generateGraphNode");
+
   const systemPrompt = `${GRAPH_NODE_PROMPT}
 
 Generate a ${nodeType.toUpperCase()} node.
@@ -61,6 +68,7 @@ Return valid JSON only.`;
     temperature: 0.2,
     max_tokens: 1200,
   });
+  await recordOpenAiChatUsage("gpt-4o-mini", response.usage, `graph-node:${nodeType}`);
 
   const content = response.choices[0]?.message?.content;
   if (!content) throw new Error("Empty AI response");

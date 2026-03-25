@@ -154,6 +154,7 @@ export interface Database {
           repair_id: string | null
           diagnostic_id: string | null
           city: string | null
+          canonical_slug: string | null
           created_at: string
         }
         Insert: {
@@ -170,6 +171,7 @@ export interface Database {
           repair_id?: string | null
           diagnostic_id?: string | null
           city?: string | null
+          canonical_slug?: string | null
           created_at?: string
         }
       }

@@ -14,12 +14,12 @@ import sql from "@/lib/db";
 export const revalidate = 3600;
 
 const SYSTEMS = [
-  { title: "Central AC Systems", description: "Comprehensive guides for split systems and package units.", href: "/systems/central-ac" },
-  { title: "Furnaces", description: "Gas, electric, and oil furnace troubleshooting paths.", href: "/systems/furnace" },
-  { title: "Heat Pumps", description: "Reversing valves, defrost cycles, and auxiliary heat.", href: "/systems/heat-pump" },
-  { title: "Ductless Mini Splits", description: "Ductless wall units, cassettes, and multi-zone diagnostics.", href: "/systems/mini-split" },
-  { title: "Thermostat Systems", description: "Smart stats, blank screens, and short cycling logic.", href: "/systems/thermostat" },
-  { title: "Air Handlers", description: "Blower motors, coils, and static pressure management.", href: "/systems/air-handler" }
+  { title: "Central AC Systems", description: "Comprehensive guides for split systems and package units.", href: "/diagnose/central-air-conditioning-system" },
+  { title: "Furnaces", description: "Gas, electric, and oil furnace troubleshooting paths.", href: "/diagnose/furnace-not-heating" },
+  { title: "Heat Pumps", description: "Reversing valves, defrost cycles, and auxiliary heat.", href: "/diagnose/heat-pump-not-heating" },
+  { title: "Ductless Mini Splits", description: "Ductless wall units, cassettes, and multi-zone diagnostics.", href: "/diagnose/mini-split-not-cooling" },
+  { title: "Thermostat Systems", description: "Smart stats, blank screens, and short cycling logic.", href: "/diagnose/hvac-not-responding-to-thermostat" },
+  { title: "Air Handlers", description: "Blower motors, coils, and static pressure management.", href: "/diagnose/ac-blower-not-working" }
 ];
 
 const TOP_SYMPTOMS = [

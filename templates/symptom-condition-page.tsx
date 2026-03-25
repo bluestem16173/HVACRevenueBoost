@@ -5,7 +5,7 @@
  * Uses pageViewModel (never raw contentJson).
  */
 import React from "react";
-import SymptomPageTemplate from "./symptom-page";
+import SymptomPageTemplate from "./SymptomPageTemplate.LEGACY";
 import { normalizePageData, type BasePageViewModel } from "@/lib/content";
 
 export default function SymptomConditionPageTemplate(props: {

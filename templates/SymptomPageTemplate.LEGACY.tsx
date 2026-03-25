@@ -276,7 +276,7 @@ export default function SymptomPageTemplate({
             {cluster ? (
               <>
                 <Link href={`/${cluster.pillarSlug}`} className="hover:text-hvac-blue">
-                  {cluster.pillarSlug.replace("hvac-", "").replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                  {cluster.pillarSlug.replace("hvac-", "").replace(/-/g, " ").replace(/\\b\\w/g, (l) => l.toUpperCase())}
                 </Link>
                 <span className="mx-2">/</span>
                 <Link href={`/cluster/${cluster.slug}`} className="hover:text-hvac-blue">{cluster.name}</Link>
@@ -733,7 +733,6 @@ export default function SymptomPageTemplate({
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-stone-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200">
       <div className="container mx-auto px-4 py-8 max-w-4xl">
@@ -1748,3 +1747,4 @@ export default function SymptomPageTemplate({
     </div>
   );
 }
+

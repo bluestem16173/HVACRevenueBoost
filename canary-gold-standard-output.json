@@ -1,0 +1,518 @@
+[
+  {
+    "pageType": "system",
+    "slug": "residential-hvac-system",
+    "title": "Residential HVAC System Overview",
+    "fastAnswer": "A residential HVAC system controls indoor climate, ensuring comfort through heating, ventilation, and air conditioning.",
+    "mostCommonFix": {
+      "title": "Replace Air Filter",
+      "cost": "$10 - $30",
+      "difficulty": "Easy",
+      "time": "10 minutes",
+      "summary": "Replacing the air filter can improve airflow and efficiency, preventing common issues like restricted airflow."
+    },
+    "quickChecklist": [
+      "Check thermostat settings",
+      "Inspect air filter",
+      "Examine circuit breakers",
+      "Assess outdoor unit",
+      "Listen for unusual noises"
+    ],
+    "diagnosticFlow": [
+      "Verify power supply",
+      "Check thermostat settings",
+      "Inspect air filter and ducts",
+      "Evaluate refrigerant levels",
+      "Examine condenser unit"
+    ],
+    "causes": [
+      {
+        "name": "Dirty Air Filter",
+        "description": "Reduces airflow, causing the system to work harder and less efficiently."
+      },
+      {
+        "name": "Refrigerant Leak",
+        "description": "Leads to insufficient cooling as the system cannot maintain the required pressure."
+      },
+      {
+        "name": "Faulty Thermostat",
+        "description": "Prevents the system from maintaining the desired temperature."
+      }
+    ],
+    "repairOptions": [
+      {
+        "name": "Replace Air Filter",
+        "description": "Improves airflow and system efficiency.",
+        "cost": "$10 - $30",
+        "difficulty": "Easy"
+      },
+      {
+        "name": "Seal Refrigerant Leak",
+        "description": "Restores proper refrigerant levels and cooling efficiency.",
+        "cost": "$200 - $500",
+        "difficulty": "Moderate"
+      },
+      {
+        "name": "Repair Thermostat",
+        "description": "Ensures accurate temperature control.",
+        "cost": "$100 - $300",
+        "difficulty": "Moderate"
+      }
+    ],
+    "tools": [
+      "Screwdriver",
+      "Multimeter",
+      "Refrigerant gauge"
+    ],
+    "costBreakdown": {
+      "low": "$100",
+      "medium": "$300",
+      "high": "$800"
+    },
+    "ignoredConsequences": "Ignoring minor issues can lead to major system failures and increased energy bills.",
+    "technicianInsights": "Regular maintenance is key to preventing common HVAC issues and extending system lifespan.",
+    "uniqueElement": "In humid climates, regular checks for mold and mildew in the system are crucial.",
+    "internalLinks": {
+      "diagnostics": [
+        "how-to-diagnose-warm-air"
+      ],
+      "causes": [
+        "refrigerant-leak"
+      ],
+      "repairs": [
+        "seal-refrigerant-leak"
+      ],
+      "system": "residential-hvac-system"
+    }
+  },
+  {
+    "pageType": "symptom",
+    "slug": "ac-not-cooling",
+    "title": "AC Not Cooling",
+    "fastAnswer": "If your AC is not cooling, check the thermostat, air filter, and refrigerant levels first.",
+    "mostCommonFix": {
+      "title": "Replace Air Filter",
+      "cost": "$10 - $30",
+      "difficulty": "Easy",
+      "time": "10 minutes",
+      "summary": "A clogged air filter can restrict airflow, causing the AC to not cool effectively."
+    },
+    "quickChecklist": [
+      "Check thermostat settings",
+      "Inspect air filter",
+      "Ensure power supply",
+      "Check refrigerant levels",
+      "Inspect condenser unit"
+    ],
+    "diagnosticFlow": [
+      "Verify thermostat is set to 'cool'",
+      "Check and replace air filter if dirty",
+      "Inspect outdoor unit for obstructions",
+      "Measure refrigerant pressure",
+      "Listen for unusual compressor noises"
+    ],
+    "causes": [
+      {
+        "name": "Refrigerant Leak",
+        "description": "Causes the system to lose cooling capacity."
+      },
+      {
+        "name": "Dirty Air Filter",
+        "description": "Restricts airflow, reducing cooling efficiency."
+      },
+      {
+        "name": "Faulty Compressor",
+        "description": "Prevents the system from circulating refrigerant effectively."
+      }
+    ],
+    "repairOptions": [
+      {
+        "name": "Replace Air Filter",
+        "description": "Restores proper airflow.",
+        "cost": "$10 - $30",
+        "difficulty": "Easy"
+      },
+      {
+        "name": "Seal Refrigerant Leak",
+        "description": "Restores cooling efficiency.",
+        "cost": "$200 - $500",
+        "difficulty": "Moderate"
+      },
+      {
+        "name": "Repair Compressor",
+        "description": "Ensures refrigerant circulation.",
+        "cost": "$500 - $1,500",
+        "difficulty": "High"
+      }
+    ],
+    "tools": [
+      "Screwdriver",
+      "Refrigerant gauge",
+      "Multimeter"
+    ],
+    "costBreakdown": {
+      "low": "$50",
+      "medium": "$300",
+      "high": "$1,500"
+    },
+    "ignoredConsequences": "Ignoring cooling issues can lead to higher energy bills and potential system breakdown.",
+    "technicianInsights": "Addressing minor issues promptly can prevent costly repairs and extend the life of your AC unit.",
+    "uniqueElement": "In areas with high pollen counts, air filters may clog faster, requiring more frequent replacement.",
+    "internalLinks": {
+      "diagnostics": [
+        "how-to-diagnose-warm-air"
+      ],
+      "causes": [
+        "refrigerant-leak"
+      ],
+      "repairs": [
+        "seal-refrigerant-leak"
+      ],
+      "system": "residential-hvac-system"
+    }
+  },
+  {
+    "pageType": "diagnostic",
+    "slug": "how-to-diagnose-warm-air",
+    "title": "How to Diagnose Warm Air from AC",
+    "fastAnswer": "To diagnose warm air from your AC, check the thermostat, filter, and refrigerant levels.",
+    "mostCommonFix": {
+      "title": "Replace Air Filter",
+      "cost": "$10 - $30",
+      "difficulty": "Easy",
+      "time": "10 minutes",
+      "summary": "A clean air filter can improve airflow and cooling efficiency."
+    },
+    "quickChecklist": [
+      "Verify thermostat settings",
+      "Inspect air filter",
+      "Check refrigerant levels",
+      "Examine outdoor unit",
+      "Listen for unusual noises"
+    ],
+    "diagnosticFlow": [
+      "Set thermostat to 'cool' and desired temperature",
+      "Check air filter for dirt and replace if necessary",
+      "Inspect outdoor unit for debris or obstructions",
+      "Measure refrigerant pressure with gauge",
+      "Listen for compressor operation"
+    ],
+    "causes": [
+      {
+        "name": "Refrigerant Leak",
+        "description": "Reduces system's ability to cool effectively."
+      },
+      {
+        "name": "Dirty Air Filter",
+        "description": "Restricts airflow, causing warm air output."
+      },
+      {
+        "name": "Faulty Thermostat",
+        "description": "Leads to incorrect temperature settings."
+      }
+    ],
+    "repairOptions": [
+      {
+        "name": "Replace Air Filter",
+        "description": "Improves airflow and cooling.",
+        "cost": "$10 - $30",
+        "difficulty": "Easy"
+      },
+      {
+        "name": "Seal Refrigerant Leak",
+        "description": "Restores cooling efficiency.",
+        "cost": "$200 - $500",
+        "difficulty": "Moderate"
+      },
+      {
+        "name": "Repair Thermostat",
+        "description": "Ensures accurate temperature control.",
+        "cost": "$100 - $300",
+        "difficulty": "Moderate"
+      }
+    ],
+    "tools": [
+      "Screwdriver",
+      "Refrigerant gauge",
+      "Multimeter"
+    ],
+    "costBreakdown": {
+      "low": "$50",
+      "medium": "$300",
+      "high": "$800"
+    },
+    "ignoredConsequences": "Ignoring warm air issues can lead to increased energy consumption and discomfort.",
+    "technicianInsights": "Regular checks and maintenance can prevent warm air issues and improve system efficiency.",
+    "uniqueElement": "In coastal areas, salt air can corrode outdoor units, requiring more frequent inspections.",
+    "internalLinks": {
+      "diagnostics": [
+        "how-to-diagnose-warm-air"
+      ],
+      "causes": [
+        "refrigerant-leak"
+      ],
+      "repairs": [
+        "seal-refrigerant-leak"
+      ],
+      "system": "residential-hvac-system"
+    }
+  },
+  {
+    "pageType": "cause",
+    "slug": "refrigerant-leak",
+    "title": "Refrigerant Leak",
+    "fastAnswer": "A refrigerant leak reduces the AC's ability to cool effectively and can cause system damage if not addressed.",
+    "mostCommonFix": {
+      "title": "Seal Refrigerant Leak",
+      "cost": "$200 - $500",
+      "difficulty": "Moderate",
+      "time": "2-4 hours",
+      "summary": "Sealing the leak and recharging refrigerant restores system pressure and cooling capacity."
+    },
+    "quickChecklist": [
+      "Check for hissing sounds",
+      "Inspect for oily residue",
+      "Measure refrigerant pressure",
+      "Check cooling performance",
+      "Look for ice on coils"
+    ],
+    "diagnosticFlow": [
+      "Listen for hissing sounds near lines",
+      "Inspect for oily residue on components",
+      "Use a refrigerant gauge to check pressure",
+      "Evaluate cooling performance",
+      "Check for ice buildup on evaporator coils"
+    ],
+    "causes": [
+      {
+        "name": "Corroded Coils",
+        "description": "Corrosion can cause small holes, leading to leaks."
+      },
+      {
+        "name": "Loose Fittings",
+        "description": "Vibrations can loosen fittings, causing leaks."
+      },
+      {
+        "name": "Factory Defects",
+        "description": "Manufacturing defects can lead to premature leaks."
+      }
+    ],
+    "repairOptions": [
+      {
+        "name": "Seal Refrigerant Leak",
+        "description": "Stops leak and restores cooling efficiency.",
+        "cost": "$200 - $500",
+        "difficulty": "Moderate"
+      },
+      {
+        "name": "Replace Corroded Coils",
+        "description": "Prevents future leaks.",
+        "cost": "$400 - $1,200",
+        "difficulty": "High"
+      },
+      {
+        "name": "Tighten Fittings",
+        "description": "Prevents leaks from loose connections.",
+        "cost": "$50 - $150",
+        "difficulty": "Easy"
+      }
+    ],
+    "tools": [
+      "Refrigerant gauge",
+      "Leak detector",
+      "Wrench"
+    ],
+    "costBreakdown": {
+      "low": "$200",
+      "medium": "$500",
+      "high": "$1,200"
+    },
+    "ignoredConsequences": "Ignoring a refrigerant leak can lead to compressor failure and increased energy costs.",
+    "technicianInsights": "Early detection of refrigerant leaks can prevent costly repairs and extend system life.",
+    "uniqueElement": "In older homes, outdated piping may increase the risk of leaks.",
+    "internalLinks": {
+      "diagnostics": [
+        "how-to-diagnose-warm-air"
+      ],
+      "causes": [
+        "refrigerant-leak"
+      ],
+      "repairs": [
+        "seal-refrigerant-leak"
+      ],
+      "system": "residential-hvac-system"
+    }
+  },
+  {
+    "pageType": "repair",
+    "slug": "seal-refrigerant-leak",
+    "title": "Seal Refrigerant Leak",
+    "fastAnswer": "Sealing a refrigerant leak involves locating the leak, sealing it, and recharging the system with refrigerant.",
+    "mostCommonFix": {
+      "title": "Seal Refrigerant Leak",
+      "cost": "$200 - $500",
+      "difficulty": "Moderate",
+      "time": "2-4 hours",
+      "summary": "Sealing the leak and recharging refrigerant restores system pressure and cooling capacity."
+    },
+    "quickChecklist": [
+      "Locate the leak",
+      "Seal the leak",
+      "Recharge refrigerant",
+      "Test system pressure",
+      "Verify cooling performance"
+    ],
+    "diagnosticFlow": [
+      "Use a leak detector to find the leak",
+      "Seal the leak using appropriate sealant",
+      "Recharge the system with the correct refrigerant",
+      "Check system pressure with a gauge",
+      "Test cooling performance"
+    ],
+    "causes": [
+      {
+        "name": "Corroded Coils",
+        "description": "Corrosion can cause small holes, leading to leaks."
+      },
+      {
+        "name": "Loose Fittings",
+        "description": "Vibrations can loosen fittings, causing leaks."
+      },
+      {
+        "name": "Factory Defects",
+        "description": "Manufacturing defects can lead to premature leaks."
+      }
+    ],
+    "repairOptions": [
+      {
+        "name": "Seal Refrigerant Leak",
+        "description": "Stops leak and restores cooling efficiency.",
+        "cost": "$200 - $500",
+        "difficulty": "Moderate"
+      },
+      {
+        "name": "Replace Corroded Coils",
+        "description": "Prevents future leaks.",
+        "cost": "$400 - $1,200",
+        "difficulty": "High"
+      },
+      {
+        "name": "Tighten Fittings",
+        "description": "Prevents leaks from loose connections.",
+        "cost": "$50 - $150",
+        "difficulty": "Easy"
+      }
+    ],
+    "tools": [
+      "Refrigerant gauge",
+      "Leak detector",
+      "Wrench"
+    ],
+    "costBreakdown": {
+      "low": "$200",
+      "medium": "$500",
+      "high": "$1,200"
+    },
+    "ignoredConsequences": "Attempting to seal a refrigerant leak without proper tools can lead to further damage.",
+    "technicianInsights": "Professional repair is recommended to ensure proper sealing and system recharging.",
+    "uniqueElement": "In high-altitude areas, pressure differences can affect refrigerant behavior.",
+    "internalLinks": {
+      "diagnostics": [
+        "how-to-diagnose-warm-air"
+      ],
+      "causes": [
+        "refrigerant-leak"
+      ],
+      "repairs": [
+        "seal-refrigerant-leak"
+      ],
+      "system": "residential-hvac-system"
+    }
+  },
+  {
+    "pageType": "location",
+    "slug": "ac-repair-tampa",
+    "title": "AC Repair in Tampa",
+    "fastAnswer": "In Tampa, AC systems often face issues due to high humidity and salt air, requiring regular maintenance.",
+    "mostCommonFix": {
+      "title": "Replace Air Filter",
+      "cost": "$10 - $30",
+      "difficulty": "Easy",
+      "time": "10 minutes",
+      "summary": "Regularly replacing air filters can prevent common issues caused by Tampa's humid climate."
+    },
+    "quickChecklist": [
+      "Check for mold and mildew",
+      "Inspect for salt corrosion",
+      "Ensure proper drainage",
+      "Check refrigerant levels",
+      "Inspect outdoor unit for debris"
+    ],
+    "diagnosticFlow": [
+      "Inspect for mold growth in ducts",
+      "Check for corrosion on outdoor unit",
+      "Ensure drainage lines are clear",
+      "Measure refrigerant pressure",
+      "Evaluate cooling performance"
+    ],
+    "causes": [
+      {
+        "name": "Mold Growth",
+        "description": "High humidity fosters mold, affecting air quality and system efficiency."
+      },
+      {
+        "name": "Salt Corrosion",
+        "description": "Salt air can corrode components, leading to leaks and failures."
+      },
+      {
+        "name": "Clogged Drain Lines",
+        "description": "Humidity can cause drain lines to clog, leading to water damage."
+      }
+    ],
+    "repairOptions": [
+      {
+        "name": "Replace Air Filter",
+        "description": "Prevents airflow restrictions and improves air quality.",
+        "cost": "$10 - $30",
+        "difficulty": "Easy"
+      },
+      {
+        "name": "Clean Mold from Ducts",
+        "description": "Improves air quality and system efficiency.",
+        "cost": "$300 - $600",
+        "difficulty": "Moderate"
+      },
+      {
+        "name": "Repair Corroded Components",
+        "description": "Prevents leaks and system failures.",
+        "cost": "$200 - $800",
+        "difficulty": "High"
+      }
+    ],
+    "tools": [
+      "Screwdriver",
+      "Refrigerant gauge",
+      "Mold cleaner"
+    ],
+    "costBreakdown": {
+      "low": "$100",
+      "medium": "$400",
+      "high": "$1,200"
+    },
+    "ignoredConsequences": "Ignoring maintenance in Tampa's climate can lead to costly repairs and reduced system lifespan.",
+    "technicianInsights": "Regular maintenance is crucial in Tampa to combat the effects of humidity and salt air.",
+    "uniqueElement": "Tampa's coastal environment accelerates wear on outdoor units, making regular inspections essential.",
+    "internalLinks": {
+      "diagnostics": [
+        "how-to-diagnose-warm-air"
+      ],
+      "causes": [
+        "refrigerant-leak"
+      ],
+      "repairs": [
+        "seal-refrigerant-leak"
+      ],
+      "system": "residential-hvac-system"
+    }
+  }
+]
