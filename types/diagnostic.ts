@@ -1,11 +1,18 @@
 export interface DiagnosticData {
+  schemaVersion?: string;
   ai_summary: {
     bullets: string[];
     most_likely_issue: string;
   };
 
   system_flow: string;
-  diagnostic_flow: string;
+  diagnostic_flow: string | {
+    chart: string;
+    steps: {
+      step: string;
+      detail: string;
+    }[];
+  };
 
   critical_thresholds?: {
     metric: string;

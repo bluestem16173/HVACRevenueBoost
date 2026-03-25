@@ -1,3 +1,3304 @@
 decisionTree keys: causes,questions
 diagnostic_flow length: 1
 fastAnswer: Check the thermostat settings.
+[2026-03-25T03:04:01.823Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T03:04:58.585Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T03:05:54.848Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T03:06:40.969Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T10:32:18.064Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T10:32:18.116Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T10:45:36.464Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T10:45:37.236Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T10:46:59.261Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T10:54:34.635Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T10:57:32.938Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T10:57:33.038Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T10:57:34.068Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T10:57:34.186Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T10:57:52.438Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T10:57:52.517Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T10:57:52.541Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T10:57:52.545Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T10:59:19.125Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:02:07.159Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:02:07.164Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:02:08.759Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:02:08.814Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:02:56.296Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:02:56.391Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:02:57.943Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:02:58.096Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:03:14.496Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:03:14.515Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:03:28.827Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:03:28.956Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:25:08.119Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:25:08.157Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:25:08.220Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:25:08.276Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:25:12.018Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:25:12.107Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:25:17.893Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:25:17.902Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:25:20.866Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:25:21.051Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:25:26.995Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:25:27.046Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:25:28.424Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:25:28.539Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:39:29.838Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:40:03.282Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:40:09.922Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] heat-pump-not-heating | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating | symptom | ROWS: 1
+
+[2026-03-25T11:40:14.224Z] RENDERING SLUG: heat-pump-not-heating | schema_version: null | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:46:05.141Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:46:58.403Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:53:04.950Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T11:55:59.040Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:01:13.198Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:02:25.026Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:04:01.728Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:04:07.387Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:04:09.141Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:04:43.483Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:05:21.887Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:05:48.781Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:05:51.105Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:11:36.774Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:14:07.988Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:16:58.280Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:24:07.653Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:32:05.868Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:32:10.734Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:32:23.757Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:32:49.988Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T12:38:12.951Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:13.172Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:13.423Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:16.061Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:16.073Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:16.089Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:16.100Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:26.410Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:39.790Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:39.861Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:39.869Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:30:39.882Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:31:17.069Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-turning-on | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-turning-on | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-turning-on | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-turning-on | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-turning-on | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-turning-on | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-turning-on | system | ROWS: 0
+
+[2026-03-25T15:31:23.826Z] RENDERING SLUG: ac-not-turning-on | schema_version: undefined | page_type: undefined
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:33:01.971Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | system | ROWS: 0
+
+[2026-03-25T15:33:36.487Z] RENDERING SLUG: ac-not-cooling | schema_version: undefined | page_type: undefined
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T16:13:57.993Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T16:14:35.246Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T16:20:49.716Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T16:31:21.354Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:25:16.339Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:27:15.282Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB FETCH SUCCESS] favicon.ico | hybrid | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:33:51.394Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:45:25.132Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:45:56.785Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:45:59.447Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:46:13.498Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:46:15.671Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:51:34.762Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:54:30.299Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T17:54:37.241Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T18:30:21.763Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T18:38:55.700Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T18:46:45.568Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T18:51:57.977Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | system | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T19:48:12.847Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T19:48:13.232Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T19:48:13.944Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T19:49:55.042Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T19:53:06.752Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T19:53:07.338Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:07:14.983Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:07:15.503Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:07:34.209Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:08:15.752Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:08:15.828Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:09:49.604Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:11:35.405Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:17:10.737Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:17:26.060Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T20:27:19.820Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T20:27:41.524Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T20:27:43.407Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:54:29.873Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:54:30.117Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:54:30.335Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T20:57:59.514Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T20:58:20.618Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T20:59:18.961Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T21:04:16.398Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[2026-03-25T21:05:28.574Z] RENDERING SLUG: ac-making-noise | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T21:05:54.473Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T21:42:18.424Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:19:22.752Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:19:22.770Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T22:19:22.786Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:19:23.747Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:19:23.774Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T22:19:23.790Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:19:24.430Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:19:24.635Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T22:19:24.654Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:54:09.109Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:54:53.582Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:54:53.592Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T22:54:53.676Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:54:53.692Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:55:01.734Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:55:12.835Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-weak-airflow | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-weak-airflow | symptom | ROWS: 1
+
+[2026-03-25T22:55:40.817Z] RENDERING SLUG: ac-weak-airflow | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:55:50.826Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[2026-03-25T22:55:55.542Z] RENDERING SLUG: ac-making-noise | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[2026-03-25T22:55:58.494Z] RENDERING SLUG: ac-leaking-water | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[2026-03-25T22:56:23.508Z] RENDERING SLUG: ac-leaking-water | schema_version: v2_goldstandard | page_type: symptom
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[2026-03-25T22:58:13.288Z] RENDERING SLUG: ac-leaking-water | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T22:58:13.326Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:13.341Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:13.350Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:13.359Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[2026-03-25T22:58:14.181Z] RENDERING SLUG: ac-making-noise | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | symptom | ROWS: 1
+
+[2026-03-25T22:58:15.690Z] RENDERING SLUG: ac-weak-airflow | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-weak-airflow | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:15.712Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:16.889Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[2026-03-25T22:58:16.906Z] RENDERING SLUG: ac-leaking-water | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:18.005Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:21.641Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:22.312Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T22:58:22.329Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[2026-03-25T22:58:22.351Z] RENDERING SLUG: ac-leaking-water | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[2026-03-25T22:58:22.633Z] RENDERING SLUG: ac-making-noise | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:22.716Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:22.845Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T22:58:22.869Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | symptom | ROWS: 1
+
+[2026-03-25T22:58:23.016Z] RENDERING SLUG: ac-weak-airflow | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-weak-airflow | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:23.292Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[2026-03-25T22:58:23.339Z] RENDERING SLUG: ac-leaking-water | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[2026-03-25T22:58:23.378Z] RENDERING SLUG: ac-making-noise | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:23.595Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | symptom | ROWS: 1
+
+[2026-03-25T22:58:23.834Z] RENDERING SLUG: ac-weak-airflow | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-weak-airflow | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:24.066Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[2026-03-25T22:58:24.104Z] RENDERING SLUG: ac-leaking-water | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:24.262Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:24.317Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[2026-03-25T22:58:24.421Z] RENDERING SLUG: ac-leaking-water | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:24.506Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:24.673Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:24.777Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[2026-03-25T22:58:53.366Z] RENDERING SLUG: ac-blowing-warm-air | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-blowing-warm-air | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:53.401Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:53.600Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[2026-03-25T22:58:53.699Z] RENDERING SLUG: ac-leaking-water | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[2026-03-25T22:58:54.139Z] RENDERING SLUG: ac-making-noise | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-making-noise | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:54.220Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-weak-airflow | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | symptom | ROWS: 1
+
+[2026-03-25T22:58:54.396Z] RENDERING SLUG: ac-weak-airflow | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-weak-airflow | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[2026-03-25T22:58:54.640Z] RENDERING SLUG: ac-leaking-water | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-leaking-water | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:54.868Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[2026-03-25T22:58:55.001Z] RENDERING SLUG: ac-freezing-up | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-freezing-up | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[2026-03-25T22:58:55.260Z] RENDERING SLUG: ac-not-cooling | schema_version: v2_goldstandard | page_type: symptom
+
+[DB FETCH SUCCESS] ac-not-cooling | symptom | ROWS: 1
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | diagnose | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | symptom | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0

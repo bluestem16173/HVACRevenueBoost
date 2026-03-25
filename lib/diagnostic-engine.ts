@@ -104,16 +104,26 @@ export async function getDiagnosticPageFromDB(
     if (city) {
       rows = await sql`
         SELECT * FROM pages
-        WHERE slug = ${slug} AND page_type = ${category} AND city = ${city}
+        WHERE slug = ${slug} 
+          AND page_type = ${category} 
+          AND city = ${city}
+          AND status = 'published'
       `;
     } else {
       rows = await sql`
         SELECT * FROM pages
-        WHERE slug = ${slug} AND page_type = ${category} AND city IS NULL
+        WHERE slug = ${slug} 
+          AND page_type = ${category} 
+          AND (city IS NULL OR city = '')
+          AND status = 'published'
       `;
     }
+    const fs = require('fs');
+    fs.appendFileSync('debug-render.txt', `\n[DB FETCH SUCCESS] ${slug} | ${category} | ROWS: ${rows?.length}\n`);
     return rows[0] || null;
-  } catch (error) {
+  } catch (error: any) {
+    const fs = require('fs');
+    fs.appendFileSync('debug-render.txt', `\n[DB FETCH ERROR] ${slug} | ${error.message}\n`);
     console.error('Neon Query Error:', error);
     return null;
   }

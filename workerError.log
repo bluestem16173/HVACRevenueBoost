@@ -1,0 +1,51 @@
+﻿[dotenv@17.3.1] injecting env (8) from .env.local -- tip: ΓÜÖ∩╕Å  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ≡ƒ¢á∩╕Å  run anywhere with `dotenvx run -- yourcommand`
+DB URL: postgresql://neondb_owner:npg_gjtxze1kum6N@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+≡ƒöä Starting Queue Drain Mode... 
+≡ƒÜÇ Starting Authority HVAC Worker...
+node.exe : Worker Fatal Error: NeonDbError: 
+column "updated_at" of relation 
+"generation_queue" does not exist
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" 
+"C:\Users\anedo\AppData\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: 
+    (Worker Fatal Er... does not 
+exist:Strin    g) [], RemoteException
+    + FullyQualifiedErrorId : 
+NativeCommandE    rror
+ 
+    at mr.execute (C:\Users\anedo\Desktop\HV
+AC\HVACRevenueBoostWeb\node_modules\@neondat
+abase\serverless\index.js:1300:10)
+    at process.processTicksAndRejections 
+(node:internal/process/task_queues:105:5)
+    at async runWorker (C:\Users\anedo\Deskt
+op\HVAC\HVACRevenueBoostWeb\scripts\generati
+on-worker.ts:120:20)
+    at async startPolling (C:\Users\anedo\De
+sktop\HVAC\HVACRevenueBoostWeb\scripts\gener
+ation-worker.ts:377:24) {
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '57',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'analyze.c',
+  line: '2528',
+  routine: 'transformUpdateTargetList',
+  sourceError: undefined
+}
+≡ƒÅü Worker batch complete.
+≡ƒÅü No jobs left in queue, exiting
+Safely terminating process after 1500ms flush...

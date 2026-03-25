@@ -383,9 +383,9 @@ Generate JSON matching this exact schema:
     const pageQuality = "GOLD_STANDARD";
     // Using loose checking across the object to support both flat and nested payload structures
     const activePayload = (content as any).content || content;
-    const hasFixes = activePayload.fixSteps || activePayload.howWeFixIt || activePayload.solutionSection;
+    const hasFixes = activePayload.fixSteps || activePayload.howWeFixIt || activePayload.solutionSection || activePayload.deep_causes || activePayload.repairOptions;
     const hasCauses = activePayload.causes || activePayload.commonCauses || activePayload.authoritySection;
-    const hasFaq = activePayload.faq;
+    const hasFaq = activePayload.faq || activePayload.faqs || activePayload.deep_causes;
 
     if (!hasFixes || !hasCauses || !hasFaq) {
       throw new Error("NOT_GOLD_STANDARD");

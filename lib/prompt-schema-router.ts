@@ -299,39 +299,51 @@ export function buildRetryPromptFragment(reasons: string[]): string {
 }
 
 export const GOLD_STANDARD_PROMPT = `
-You are generating a HIGH-CONVERSION, TECHNICAL AUTHORITY PAGE for a troubleshooting system.
+You are generating a HIGH-CONVERSION, HYPER-TECHNICAL AUTHORITY PAGE for an HVAC troubleshooting system.
 
 This page MUST follow the GOLD STANDARD MONEY PRINTER FORMAT.
 Your payload MUST EXACTLY match the following JSON structure. 
 
-STRICT REQUIREMENTS:
-- Provide a concise AI summary with 3-5 bullet points and the most likely issue.
-- Generate a system flow flowchart in Mermaid syntax (flowchart LR).
-- Generate a diagnostic flowchart in Mermaid syntax (flowchart TD).
-- Provide critical thresholds for system performance.
-- Provide a quick diagnosis table mapping symptoms to causes and actions.
-- Provide common causes with High/Medium/Low probability and a quick fix.
-- Provide a deep dive into the top causes with fix_steps and tools_needed.
-- Provide a list of recommended tools and their purposes.
-- Provide 3-5 steps a user can safely take before calling a technician.
-- Provide a realistic cost boundary (low, medium, high).
+STRICT HYPER-TECHNICAL REQUIREMENTS:
+- WRITE LIKE A VETERAN HVAC TECHNICIAN (Master Level). Do NOT write generic "homeowner" advice.
+- You MUST include hardcore technical data: precise multimeter readings (Ohms, Volts, Amps), expected pressures (psig), subcooling/superheat targets, compressor winding sequence checks, ECM vs PSC motor specifics, or true mechanical failure points matching the symptom.
+- Provide a concise AI summary with 3-5 bullet points and the most likely issue (include the actual mechanical/electrical point of failure).
+- Generate a system flowchart in Mermaid syntax (flowchart LR) outlining the specific thermodynamic and electrical cycle.
+- Generate a diagnostic flowchart in Mermaid syntax (flowchart TD) that includes exact testing benchmarks (e.g., "Check capacitor microfarads (µF)").
+- Provide critical thresholds for system performance (e.g., Target Subcooling, T.E.S.P., Delta-T ranges, or specific voltage drops).
+- Provide a quick diagnosis table mapping symptoms to exact causes and technical testing actions.
+- Provide common causes with High/Medium/Low probability, including a highly specific fix (e.g., "Hard start kit installation").
+- Provide a deep dive into the top causes with hyper-specific fix_steps and highly technical tools_needed (e.g., "Fieldpiece SMAN manifold, Megohmmeter, Dual-display multimeter").
+- Provide a list of recommended tools and their exact industrial purposes.
+- Provide 3-5 safe pre-call steps, focusing on safe homeowner observations vs what requires EPA 608/electrical certification.
+- Provide a realistic cost boundary (low, medium, high) based on actual OEM part prices + standard labor rates.
+- INTERNAL LINKING FLYWHEEL: You MUST provide an array of related_links explicitly connecting this symptom to its underlying 'Condition', 'System', and 'Location'. Do NOT output generic links. Use strict categorical labels.
 
 ## OUTPUT FORMAT (MANDATORY EXACT JSON STRUCTURE)
 Return a single JSON object containing exactly these fields:
 {
+  "schemaVersion": "v1",
+  "problem_summary": "Overall context of what the homeowner is experiencing.",
+  "safety_note": "A critical, urgent safety warning (electrical shock, refrigerant burns, etc).",
+  "deep_explanation": "Hyper-technical mechanical/thermodynamic explanation of the failure.",
+  "quick_steps": [
+    "Actionable step 1",
+    "Actionable step 2"
+  ],
   "ai_summary": {
     "bullets": ["Point 1", "Point 2"],
     "most_likely_issue": "Specific Component Failure"
   },
   "system_flow": "flowchart LR\\n...",
-  "diagnostic_flow": "flowchart TD\\n...",
-  "critical_thresholds": [
-    {
-      "metric": "Temperature",
-      "normal_range": "...",
-      "problem_range": "..."
-    }
-  ],
+  "diagnostic_flow": {
+    "chart": "flowchart TD\\n...",
+    "steps": [
+      {
+        "step": "Step Name (from chart)",
+        "detail": "Extremely technical details about testing procedure, exact parts, and required multimeter/gauge readings."
+      }
+    ]
+  },
   "quick_diagnosis": [
     {
       "symptom": "...",
@@ -342,7 +354,7 @@ Return a single JSON object containing exactly these fields:
   "causes": [
     {
       "name": "Cause Name",
-      "probability": "High", // MUST be High, Medium, or Low
+      "probability": "High", 
       "description": "Short explanation",
       "quick_fix": "Quick resolution"
     }
@@ -355,21 +367,63 @@ Return a single JSON object containing exactly these fields:
       "tools_needed": ["Tool 1", "Tool 2"]
     }
   ],
+  "repair_paths": [
+    {
+      "title": "Specific Repair",
+      "cost": "$150 - $300",
+      "difficulty": "Moderate"
+    }
+  ],
+  "comparison": [
+    {
+      "category": "Contactor / Motor / Board",
+      "budget": "Standard OEM replacement",
+      "value": "Upgraded/Heavy-duty component"
+    }
+  ],
+  "prevention": [
+    "Preventative maintenance step 1",
+    "Preventative maintenance step 2"
+  ],
   "tools": [
     {
       "name": "Tool Name",
-      "purpose": "What it is used for"
+      "purpose": "What it is used for",
+      "beginner": "Yes/No/Moderate"
     }
   ],
   "before_calling_tech": [
     "Check step 1",
     "Check step 2"
   ],
+  "faq": [
+    {
+      "question": "Common user question",
+      "answer": "Technical but directly understandable answer"
+    }
+  ],
   "cost": {
     "low": "$50",
     "medium": "$200",
     "high": "$1000+"
-  }
+  },
+  "related_links": [
+    {
+      "label": "Condition",
+      "title": "Related Condition Concept",
+      "href": "/diagnose/related-condition-slug"
+    },
+    {
+      "label": "System",
+      "title": "Underlying System Architecture",
+      "href": "/diagnose/related-system-slug"
+    },
+    {
+      "label": "Location",
+      "title": "Component Location Guide",
+      "href": "/diagnose/related-location-slug"
+    }
+  ]
 }
 
 No extra text. Return ONLY valid JSON matching this exact structure.
@@ -419,14 +473,15 @@ GLOBAL RULES (ALL PAGES)
 - No markdown
 - No extra text
 
-- Write like a senior HVAC technician
+- WRITE LIKE A VETERAN HVAC TECHNICIAN (Master Level). Do NOT write generic "homeowner" advice.
+- You MUST include hardcore technical data where applicable: precise multimeter readings (Ohms, Volts, Amps), expected pressures (psig), subcooling/superheat targets, compressor winding sequence checks, ECM vs PSC motor specifics, or true mechanical failure points matching the symptom.
 - Clear, confident, diagnostic-first tone
 - No fluff
 
 - EACH PAGE MUST INCLUDE:
   - Fast Answer
-  - Quick Diagnostic Checklist (5–7 items)
-  - Technician Insights
+  - Quick Diagnostic Checklist (5–7 highly technical steps involving parts/tools)
+  - Technician Insights (cite specific failure modes, exact pressures or temperatures)
   - Cost context where applicable
   - Internal linking
 
@@ -461,7 +516,7 @@ PAGE TYPE ADAPTATIONS
 
 ## DIAGNOSTIC PAGE
 - Step-by-step troubleshooting process
-- Decision-tree style logic
+- Generate a diagnostic flowchart in Mermaid syntax (flowchart TD) for the diagnosticFlow property. Do not use markdown backticks.
 - Clear pass/fail checkpoints
 
 ## CAUSE PAGE
@@ -489,6 +544,7 @@ You must output exactly this JSON structure. It must be a single JSON object wit
 {
   "pages": [
     {
+      "schemaVersion": "v1",
       "pageType": "system",
       "slug": "residential-hvac-system",
       "title": "...",
@@ -500,9 +556,15 @@ You must output exactly this JSON structure. It must be a single JSON object wit
         "time": "...",
         "summary": "..."
       },
-      "quickChecklist": ["..."],
-      "diagnosticFlow": ["..."],
-      "causes": [{ "name": "...", "description": "..." }],
+      "diagnosticFlow": {
+        "chart": "flowchart TD\\n...",
+        "steps": [
+          {
+            "step": "Step Name (from chart)",
+            "detail": "Extremely technical details about testing procedure, exact parts, and required multimeter/gauge readings."
+          }
+        ]
+      },
       "repairOptions": [{ "name": "...", "description": "...", "cost": "...", "difficulty": "..." }],
       "tools": ["..."],
       "costBreakdown": { "low": "...", "medium": "...", "high": "..." },

@@ -1,12 +1,7 @@
-import { getDiagnosticPageFromDB } from './lib/diagnostic-engine';
-
+import sql from './lib/db';
 async function run() {
-  try {
-    const page = await getDiagnosticPageFromDB('ac-not-cooling-tampa', 'hybrid');
-    console.log("DB PAGE:", page ? "FOUND" : "NULL");
-  } catch (err) {
-    console.log("ERR:", err);
-  }
+  const res = await sql`SELECT content_json FROM pages WHERE slug = 'ac-blowing-warm-air'`;
+  console.log(JSON.stringify(res[0].content_json, null, 2));
   process.exit(0);
 }
 run();

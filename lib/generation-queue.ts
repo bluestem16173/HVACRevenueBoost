@@ -23,7 +23,7 @@ export async function getQueuedJobs(
 ): Promise<Record<string, unknown>[]> {
   if (pageType) {
     return sql`
-      UPDATE generation_queue SET status = 'processing', updated_at = NOW()
+      UPDATE generation_queue SET status = 'processing'
       WHERE id IN (
         SELECT id FROM generation_queue
         WHERE status = 'pending'
@@ -36,7 +36,7 @@ export async function getQueuedJobs(
     ` as Promise<Record<string, unknown>[]>;
   }
   return sql`
-    UPDATE generation_queue SET status = 'processing', updated_at = NOW()
+    UPDATE generation_queue SET status = 'processing'
     WHERE id IN (
       SELECT id FROM generation_queue
       WHERE status = 'pending'
@@ -54,8 +54,7 @@ export async function markFailedPermanent(jobId: number): Promise<void> {
     UPDATE generation_queue
     SET
       status = 'failed',
-      last_error = 'max_attempts_exceeded',
-      updated_at = NOW()
+      last_error = 'max_attempts_exceeded'
     WHERE id = ${jobId}
   `;
 }

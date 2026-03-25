@@ -17,8 +17,9 @@ const config: Config = {
     extend: {
       colors: {
         hvac: {
-          navy: "#0a192f",
-          blue: "#1e3a8a",
+          navy: "#1e293b",
+          blue: "#2563eb",
+          accent: "#f97316",
           gold: "#d4af37",
           industrial: "#4a5568",
           safety: "#e53e3e",

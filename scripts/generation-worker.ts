@@ -17,6 +17,7 @@ import {
   checkSpendSpikeAndShutdown,
   isEmergencyGenerationShutdown,
 } from "../lib/emergency-generation-shutdown";
+import { validatePage } from "../lib/validators/page-validator";
 
 console.log("DB URL:", process.env.DATABASE_URL);
 if (process.env.DRY_RUN === "true") {
@@ -149,7 +150,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         console.log("Would generate:", proposedSlug, { page_type: job.page_type, id: job.id });
         await sql`
           UPDATE generation_queue
-          SET status = 'pending', updated_at = NOW()
+          SET status = 'pending'
           WHERE id = ${job.id}
         `;
         continue;
@@ -164,8 +165,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
           UPDATE generation_queue
           SET
             status = 'completed',
-            last_error = 'layer8_template_expansion',
-            updated_at = NOW()
+            last_error = 'layer8_template_expansion'
           WHERE id = ${job.id}
         `;
         processedCount++;
@@ -224,7 +224,18 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         }
 
         const result = finalResult;
-        const status = finalStatus;
+        
+        // 🛡️ STRICT VALIDATION GATE (Drop-in Validator)
+        const valRes = validatePage(result);
+        let status = 'failed';
+        
+        if (!valRes.valid) {
+          console.log(`❌ Validation failed for ${proposedSlug}:`, valRes.errors);
+          status = 'failed';
+        } else {
+          console.log(`✅ Validation passed for ${proposedSlug}`);
+          status = 'validated';
+        }
 
         // Add required properties
         (result as any)._prompt_hash = EXPECTED_PROMPT_HASH;
@@ -263,6 +274,8 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
           SET content_json = EXCLUDED.content_json,
               title = EXCLUDED.title,
               status = EXCLUDED.status,
+              page_type = EXCLUDED.page_type,
+              schema_version = EXCLUDED.schema_version,
               updated_at = NOW()
           RETURNING slug;
         `;

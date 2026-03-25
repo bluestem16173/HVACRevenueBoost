@@ -169,23 +169,27 @@ const mockPayload = {
 
 async function main() {
   const result = await sql`
-    INSERT INTO pages (slug, title, page_type, status, content_json, schema_version)
-    VALUES (
-      'ac-not-cooling', 
-      'AC Not Cooling: Complete Diagnostic Guide', 
-      'symptom', 
-      'published', 
-      ${JSON.stringify(mockPayload)}::jsonb, 
-      'v2_goldstandard'
-    )
-    ON CONFLICT (slug) DO UPDATE
-    SET content_json = EXCLUDED.content_json,
-        schema_version = EXCLUDED.schema_version,
-        title = EXCLUDED.title,
-        updated_at = NOW()
+    UPDATE pages 
+    SET content_json = ${JSON.stringify(mockPayload)}::jsonb,
+        schema_version = 'v2_goldstandard'
+    WHERE slug = 'ac-not-cooling'
     RETURNING slug;
   `;
   
+  if (result.length === 0) {
+     console.log("UPDATE failed! No row existed. Inserting new row...");
+     await sql`
+       INSERT INTO pages (slug, title, page_type, status, content_json, schema_version)
+       VALUES (
+         'ac-not-cooling', 
+         'AC Not Cooling: Complete Diagnostic Guide', 
+         'diagnose', 
+         'published', 
+         ${JSON.stringify(mockPayload)}::jsonb, 
+         'v2_goldstandard'
+       )
+     `;
+  }
   console.log("Mock Payload Injected successfully for slug:", result[0]?.slug);
   process.exit(0);
 }
