@@ -118,12 +118,12 @@ export async function getDiagnosticPageFromDB(
           AND status = 'published'
       `;
     }
-    const fs = require('fs');
-    fs.appendFileSync('debug-render.txt', `\n[DB FETCH SUCCESS] ${slug} | ${category} | ROWS: ${rows?.length}\n`);
+    // const fs = require('fs');
+    // fs.appendFileSync('debug-render.txt', `\\n[DB FETCH SUCCESS] ${slug} | ${category} | ROWS: ${rows?.length}\\n`);
     return rows[0] || null;
   } catch (error: any) {
-    const fs = require('fs');
-    fs.appendFileSync('debug-render.txt', `\n[DB FETCH ERROR] ${slug} | ${error.message}\n`);
+    // const fs = require('fs');
+    // fs.appendFileSync('debug-render.txt', `\\n[DB FETCH ERROR] ${slug} | ${error.message}\\n`);
     console.error('Neon Query Error:', error);
     return null;
   }
