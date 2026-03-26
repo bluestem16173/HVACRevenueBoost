@@ -3302,3 +3302,259 @@ fastAnswer: Check the thermostat settings.
 [DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
 
 [DB FETCH SUCCESS] refrigerant-leak | system | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-working | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] water-leaking-from-ac | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] water-leaking-from-ac | emergency | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] water-leaking-from-ac | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] water-leaking-from-ac | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-working | emergency | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] water-leaking-from-ac | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] water-leaking-from-ac | emergency | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-working | emergency | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] weak-airflow-all-vents | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-working | emergency | ROWS: 0
+
+[DB CONNECTION] Connecting to: postgresql://neondb_owner:***@ep-solitary-darkness-anw3z5fo-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+
+[DB FETCH SUCCESS] ac-not-working | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-working | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] blower-slow-or-weak | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heater-blowing-cold | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] heater-blowing-cold | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] heater-blowing-cold | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] furnace-clicks-no-ignition | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heater-blowing-cold | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-working | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-turning-on | condition | ROWS: 0
+
+[DB FETCH SUCCESS] water-leaking-from-ac | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] heater-blowing-cold | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling-in-extreme-heat | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-working | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] heater-blowing-cold | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] water-leaking-from-ac | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] ac-no-power-at-all | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heater-blowing-cold | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] water-pooling-indoor-unit | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heater-blowing-cold | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-working | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] water-leaking-from-ac | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] weak-airflow-after-filter-change | condition | ROWS: 0
+
+[DB FETCH SUCCESS] water-leaking-from-ac | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling-upstairs | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heater-blowing-cold | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] heater-blowing-cold | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-working | emergency | ROWS: 0
+
+[DB FETCH SUCCESS] weak-airflow-upstairs | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-short-cycling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] blower-humming-no-spin | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-short-cycling-after-filter-change | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling-after-filter-change | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-running-constantly-after-filter-change | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ice-on-outdoor-unit-winter | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-turning-on-after-winter | condition | ROWS: 0
+
+[DB FETCH SUCCESS] blower-not-spinning-at-all | condition | ROWS: 0
+
+[DB FETCH SUCCESS] uneven-heating-winter | condition | ROWS: 0
+
+[DB FETCH SUCCESS] furnace-no-heat-fan-blowing | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-running-constantly-in-extreme-heat | condition | ROWS: 0
+
+[DB FETCH SUCCESS] uneven-after-duct-work | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-outdoor-unit-not-starting | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-running-but-not-cooling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] furnace-not-starting-at-all | condition | ROWS: 0
+
+[DB FETCH SUCCESS] furnace-short-cycling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] thermostat-display-blank-after-power-outage | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-switching-in-extreme-heat | condition | ROWS: 0
+
+[DB FETCH SUCCESS] water-leak-only-when-running | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-switching-after-power-outage | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ice-after-long-runtime | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ice-on-lines-and-coil | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-short-cycling-summer | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-clicks-but-wont-start | condition | ROWS: 0
+
+[DB FETCH SUCCESS] weak-airflow-in-extreme-heat | condition | ROWS: 0
+
+[DB FETCH SUCCESS] water-leak-after-filter-change | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-running-constantly-intermittent | condition | ROWS: 0
+
+[DB FETCH SUCCESS] water-dripping-from-ceiling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] uneven-cooling-upstairs-hot | condition | ROWS: 0
+
+[DB FETCH SUCCESS] noisy-outdoor-condenser-in-extreme-heat | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-running-constantly-upstairs-only | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ice-on-outdoor-unit-summer | condition | ROWS: 0
+
+[DB FETCH SUCCESS] thermostat-display-blank-intermittent | condition | ROWS: 0
+
+[DB FETCH SUCCESS] uneven-cooling-some-rooms | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-not-cooling-house-but-unit-running | condition | ROWS: 0
+
+[DB FETCH SUCCESS] hvac-tripping-breaker-in-extreme-heat | condition | ROWS: 0
+
+[DB FETCH SUCCESS] low-refrigerant-ac-but-unit-running | condition | ROWS: 0
+
+[DB FETCH SUCCESS] strange-noises-hvac-but-unit-running | condition | ROWS: 0
+
+[DB FETCH SUCCESS] bad-odors-from-vents-after-filter-change | condition | ROWS: 0
+
+[DB FETCH SUCCESS] low-refrigerant-ac-short-cycling | condition | ROWS: 0
+
+[DB FETCH SUCCESS] hvac-tripping-breaker-intermittent | condition | ROWS: 0
+
+[DB FETCH SUCCESS] bad-odors-from-vents-some-vents-only | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-refrigerant-leak-slow | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-losing-freon-after-recharge | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-losing-freon-icing | condition | ROWS: 0
+
+[DB FETCH SUCCESS] low-refrigerant-ac-in-extreme-heat | condition | ROWS: 0
+
+[DB FETCH SUCCESS] humidity-too-high-in-extreme-heat | condition | ROWS: 0
+
+[DB FETCH SUCCESS] hvac-tripping-breaker-after-power-outage | condition | ROWS: 0
+
+[DB FETCH SUCCESS] humidity-too-high-upstairs-only | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-refrigerant-leak-sudden | condition | ROWS: 0
+
+[DB FETCH SUCCESS] weak-airflow-some-rooms | condition | ROWS: 0
+
+[DB FETCH SUCCESS] noisy-outdoor-condenser-intermittent | condition | ROWS: 0
+
+[DB FETCH SUCCESS] furnace-lights-then-shuts-off | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-pressure-low-both-sides | condition | ROWS: 0
+
+[DB FETCH SUCCESS] strange-noises-hvac-intermittent | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-switching-intermittent | condition | ROWS: 0
+
+[DB FETCH SUCCESS] ac-pressure-low-suction-only | condition | ROWS: 0
+
+[DB FETCH SUCCESS] furnace-not-heating-fan-blowing | condition | ROWS: 0
+
+[DB FETCH SUCCESS] furnace-not-heating-after-winter | condition | ROWS: 0
+
+[DB FETCH SUCCESS] furnace-blowing-cold-air-from-start | condition | ROWS: 0
+
+[DB FETCH SUCCESS] heat-pump-not-heating-winter | condition | ROWS: 0
+
+[DB FETCH SUCCESS] furnace-blowing-cold-air-intermittent | condition | ROWS: 0
+
+[DB FETCH SUCCESS] furnace-not-heating-not-starting | condition | ROWS: 0
+
+[DB FETCH SUCCESS] noisy-outdoor-condenser-but-unit-running | condition | ROWS: 0

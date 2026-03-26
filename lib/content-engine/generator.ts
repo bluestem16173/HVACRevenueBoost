@@ -19,6 +19,10 @@ import {
 } from "./schema";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const gemini = new OpenAI({ 
+  apiKey: process.env.GEMINI_API_KEY, 
+  baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/" 
+});
 
 function safeJsonParse<T>(str: string): T | null {
   try { return JSON.parse(str) as T; } catch { return null; }
@@ -338,8 +342,8 @@ Generate JSON matching this exact schema:
   }
 }`;
 
-      const stage2Response = await openai.chat.completions.create({
-        model: "gpt-4o",
+      const stage2Response = await gemini.chat.completions.create({
+        model: "gemini-1.5-flash",
         messages: [
           { role: "system", content: "You are an expert HVAC Diagnostic AI. Output strict JSON." },
           { role: "user", content: userMsg2 },
@@ -528,7 +532,7 @@ export async function generateDiagnosticEngineJson(problem: string, options: any
   return callWithRetry(async () => {
     await assertDailySpendAllows("generateDiagnosticEngineJson:retry");
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o-mini",
       messages: [
         { role: "system", content: sysMsg },
         { role: "user", content: userMsg }
