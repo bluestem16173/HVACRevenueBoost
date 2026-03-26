@@ -1,0 +1,15 @@
+node_modules/
+.git/
+.next/
+out/
+exports/
+emergency-rv-page-build/
+docs/
+scripts/
+*.md
+*.log
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.DS_Store
