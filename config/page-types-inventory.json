@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "generated": "2026-03-28",
+  "purpose": "Snapshot of routable page surfaces + DB page_type usage for the Content OS registry. Regenerate when adding routes.",
+  "highlights": {
+    "duplicate_or_synonym_names": [
+      "symptom vs diagnose vs diagnostic — queue often uses `symptom`; `/diagnose/[symptom]` is the primary diagnostic renderer; `inferDiagnosticSchemaVersion` branches on content shape + schema_version.",
+      "app/diagnostic/[symptom] vs app/diagnose/[symptom] — two routes; confirm which is canonical for SEO."
+    ],
+    "inconsistencies": [
+      "Some scripts use page_type `diagnose`, others `symptom` — normalized to `symptom` in registry aliases.",
+      "repair jobs may use page_type `repair` while proposed_slug is `repair/city/symptom` — Layer 8 skips AI for repair/* slugs."
+    ],
+    "gaps": [
+      "Not every route has a dedicated Zod schema file; many share lib/content-engine/schema + validate-v2.",
+      "pages.page_type values in DB may include legacy strings not listed here — registry falls back to `symptom`."
+    ]
+  },
+  "page_types": [
+    {
+      "id": "symptom",
+      "queue_keys": ["symptom", "diagnose", "diagnostic", "condition"],
+      "routes": ["/diagnose/[symptom]", "/app/[symptom] (hybrid fallback)"],
+      "templates": ["DiagnosticGoldPage", "GoldStandardPage", "AuthoritySymptomPage", "MasterDecisionGridPage"],
+      "schema_versions": ["v5_master", "v6_dg_hvac_hybrid", "v2_goldstandard", "authority_symptom", "decisiongrid_master"],
+      "schema_modules": ["lib/content-engine/schema.ts", "lib/normalize-diagnostic-display.ts", "lib/content/normalizePageData.ts"],
+      "prompts": ["lib/content-engine/core.ts (MASTER_GOLD_STANDARD_PROMPT)", "docs/MASTER-PROMPT-DECISIONGRID.md", "docs/DIAGNOSTIC-PAGE-GENERATOR-SCHEMA.md"],
+      "validators": ["lib/validators/validate-v2.ts"],
+      "generator": "generateDiagnosticEngineJson",
+      "notes": "Primary high-volume diagnostic pipeline; schema branch in app/diagnose/[symptom]/page.tsx"
+    },
+    {
+      "id": "repair",
+      "queue_keys": ["repair"],
+      "routes": ["/repair/[city]/[symptom]", "/repair/[city]", "/repair"],
+      "templates": ["templates/emergency-page.tsx", "location repair variants"],
+      "schema_modules": ["lib/content-engine/schema.ts"],
+      "generator": "layer8_template_expansion (often skips AI)",
+      "validators": ["lib/validators/page-validator.ts (partial)"],
+      "notes": "shouldUseAiForQueueJob returns false for repair/* slugs unless env override"
+    },
+    {
+      "id": "emergency",
+      "queue_keys": ["emergency"],
+      "routes": ["/emergency/[city]/[symptom]"],
+      "templates": ["templates/emergency-page.tsx"],
+      "schema_modules": [],
+      "generator": "generateDiagnosticEngineJson or template",
+      "notes": "City-layer emergency intents"
+    },
+    {
+      "id": "hybrid",
+      "queue_keys": ["hybrid"],
+      "routes": ["/[symptom] with page_type hybrid in DB"],
+      "templates": ["templates/hybrid-service-page.tsx"],
+      "schema_modules": ["templates/hybrid-service-page (CityServiceSchema)"],
+      "generator": "generateTwoStagePage (pageType hybrid)",
+      "notes": "Catch-all app/[symptom]/page.tsx loads HybridServicePageTemplate"
+    },
+    {
+      "id": "cause",
+      "queue_keys": ["cause"],
+      "routes": ["/cause/[symptom]", "/causes/[symptom]"],
+      "templates": ["cause-specific templates"],
+      "schema_modules": ["lib/content normalizePageData"],
+      "generator": "generateTwoStagePage / graph",
+      "notes": "Two route folders — possible duplicate surface"
+    },
+    {
+      "id": "system",
+      "queue_keys": ["system"],
+      "routes": ["/system/[symptom]"],
+      "templates": ["system hub"],
+      "generator": "generateTwoStagePage",
+      "notes": "Graph linking includes system"
+    },
+    {
+      "id": "hub",
+      "queue_keys": ["hub"],
+      "routes": ["/hub/[symptom]"],
+      "templates": ["hub layout"],
+      "notes": "Navigation / topical hub"
+    },
+    {
+      "id": "cluster",
+      "queue_keys": ["cluster"],
+      "routes": ["/cluster/[symptom]"],
+      "templates": ["cluster pages"],
+      "notes": "Topic clusters"
+    },
+    {
+      "id": "authority",
+      "queue_keys": ["authority"],
+      "routes": ["/authority/[symptom]"],
+      "templates": ["authority layout"],
+      "generator": "generateTwoStagePage authority branch",
+      "notes": "High-conversion authority pages"
+    },
+    {
+      "id": "component",
+      "queue_keys": ["component"],
+      "routes": ["/components/[symptom]"],
+      "templates": ["component detail"],
+      "notes": "Parts / components"
+    },
+    {
+      "id": "location_hub",
+      "queue_keys": ["location_hub"],
+      "routes": ["/locations/[city]"],
+      "templates": ["city / location hub"],
+      "notes": "Referenced in queue-gold-standard script"
+    },
+    {
+      "id": "fix",
+      "queue_keys": ["fix"],
+      "routes": ["/fix/[symptom]"],
+      "templates": ["repair/fix templates"],
+      "schema_modules": ["lib/content normalizePageData"],
+      "notes": "Fix-oriented URLs"
+    },
+    {
+      "id": "cost",
+      "queue_keys": ["cost"],
+      "routes": ["/cost/[symptom]"],
+      "templates": ["cost pages"],
+      "notes": "Pricing / cost intent"
+    },
+    {
+      "id": "tools",
+      "queue_keys": ["tools"],
+      "routes": ["/tools/[symptom]"],
+      "templates": ["tools pages"],
+      "notes": "Toolkit / tools"
+    },
+    {
+      "id": "maintenance",
+      "queue_keys": ["maintenance"],
+      "routes": ["/maintenance/[symptom]"],
+      "templates": ["maintenance"],
+      "notes": "Maintenance guides"
+    },
+    {
+      "id": "diagnostic_legacy",
+      "queue_keys": ["diagnostic"],
+      "routes": ["/diagnostic/[symptom]"],
+      "templates": ["legacy diagnostic route"],
+      "notes": "Separate from /diagnose — verify consolidation"
+    },
+    {
+      "id": "orchestrator",
+      "queue_keys": [],
+      "routes": ["/orchestrator"],
+      "templates": ["app/orchestrator/page.tsx"],
+      "notes": "Internal dashboard — not DB page_type"
+    },
+    {
+      "id": "static_hvac_marketing",
+      "queue_keys": [],
+      "routes": ["/hvac-air-conditioning", "/hvac-heating-systems", "/hvac-airflow-ductwork", "/hvac-electrical-controls", "/hvac-maintenance", "/hvac-thermostats-controls", "/hvac", "/commercial-hvac"],
+      "templates": ["static marketing hubs"],
+      "notes": "Not DB-driven"
+    }
+  ]
+}

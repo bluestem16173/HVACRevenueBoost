@@ -4,7 +4,7 @@ require('dotenv').config({ path: '.env.local' });
 async function checkQueue() {
   const sql = neon(process.env.DATABASE_URL);
   
-  await sql`UPDATE generation_queue SET status = 'queued' WHERE proposed_slug IN ('diagnose-ac-blowing-warm-air', 'why-does-capacitor-fail')`;
+  await sql`UPDATE generation_queue SET status = 'draft' WHERE proposed_slug IN ('diagnose-ac-blowing-warm-air', 'why-does-capacitor-fail')`;
 
   const results = await sql`
     SELECT id, proposed_slug, status 

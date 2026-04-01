@@ -253,7 +253,7 @@ async function main() {
       const exists = await client.query("SELECT 1 FROM generation_queue WHERE proposed_slug = $1 LIMIT 1", [slug]);
       if (exists.rows.length === 0) {
         await client.query(
-          `INSERT INTO generation_queue (page_type, proposed_slug, proposed_title, symptom_id, status) VALUES ('symptom', $1, $2, $3, 'pending')`,
+          `INSERT INTO generation_queue (page_type, proposed_slug, proposed_title, symptom_id, status) VALUES ('symptom', $1, $2, $3, 'draft')`,
           [slug, `${sym.name} | Causes, Diagnosis, Repair`, sym.id]
         );
         queueCount++;
@@ -267,7 +267,7 @@ async function main() {
         const exists = await client.query("SELECT 1 FROM generation_queue WHERE proposed_slug = $1 LIMIT 1", [slug]);
         if (exists.rows.length === 0) {
           await client.query(
-            `INSERT INTO generation_queue (page_type, proposed_slug, proposed_title, symptom_id, city, status) VALUES ('repair', $1, $2, $3, $4, 'pending')`,
+            `INSERT INTO generation_queue (page_type, proposed_slug, proposed_title, symptom_id, city, status) VALUES ('repair', $1, $2, $3, $4, 'draft')`,
             [slug, `${sym.name} Repair in ${city.city}, ${city.state}`, sym.id, city.city]
           );
           queueCount++;
@@ -282,7 +282,7 @@ async function main() {
       const exists = await client.query("SELECT 1 FROM generation_queue WHERE proposed_slug = $1 LIMIT 1", [slug]);
       if (exists.rows.length === 0) {
         await client.query(
-          `INSERT INTO generation_queue (page_type, proposed_slug, proposed_title, repair_id, status) VALUES ('repair', $1, $2, $3, 'pending')`,
+          `INSERT INTO generation_queue (page_type, proposed_slug, proposed_title, repair_id, status) VALUES ('repair', $1, $2, $3, 'draft')`,
           [slug, `${rep.name} | HVAC Repair Guide`, rep.id]
         );
         queueCount++;

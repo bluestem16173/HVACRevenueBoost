@@ -98,8 +98,8 @@ function normalizeRepairs(
         difficulty: toSafeString(o.difficulty),
         cost: toSafeString(o.cost ?? o.estimated_cost),
         estimated_cost: toSafeString(o.estimated_cost ?? o.cost),
-        fix_summary: toSafeString(o.fix_summary),
-        explanation: toSafeString(o.explanation),
+        fix_summary: toSafeString(o.fix_summary ?? o.related_cause),
+        explanation: toSafeString(o.explanation) ?? (Array.isArray(o.steps) ? o.steps.join('\n') : undefined),
         link: o.slug ? `/fix/${o.slug}` : o.link as string | undefined,
         slug: toSafeString(o.slug),
         id: toSafeString(o.id),
@@ -293,6 +293,27 @@ function buildRankedCauses(
   if (fromTopCauses && fromTopCauses.length > 0) return fromTopCauses;
   const fromRaw = normalizeRankedCausesFromRaw(raw ?? {});
   if (fromRaw && fromRaw.length > 0) return fromRaw;
+
+  if (Array.isArray(raw?.causes) && Array.isArray(raw?.repairs)) {
+    const repairsByCause = new Map<string, RepairOptionCard[]>();
+    for (const r of repairs) {
+      const rawR = (raw.repairs as any[]).find((x) => x.name === r.name);
+      const targetCause = rawR?.related_cause;
+      if (targetCause) {
+        if (!repairsByCause.has(targetCause)) repairsByCause.set(targetCause, []);
+        repairsByCause.get(targetCause)!.push(r);
+      }
+    }
+    
+    // If flat mapping exists, return early
+    if (repairsByCause.size > 0) {
+      const result = causes.map((c, i) => ({
+        ...c,
+        repairs: repairsByCause.get(c.name) || []
+      }));
+      return rankCauses(result);
+    }
+  }
 
   const causeRepairs = Array.isArray(raw?.causes)
     ? (raw.causes as unknown[]).map((c: unknown) => {
@@ -591,7 +612,17 @@ function normalizeDiagnosticFlow(raw: RawContent): DiagnosticFlowPlaceholderData
   if (steps.length === 0 && Array.isArray(raw?.diagnostic_tests)) {
     steps.push(...mapDiagnosticTests(raw.diagnostic_tests));
   }
-  const mermaidSource = toSafeString(raw?.mermaid_graph ?? raw?.diagnostic_tree_mermaid);
+  if (steps.length === 0 && Array.isArray(raw?.guided_diagnosis)) {
+    for (const s of raw.guided_diagnosis as any[]) {
+      if (s && typeof s === "object" && s.scenario) {
+        steps.push(`If ${s.scenario} → ${s.action || 'check component'}`);
+      }
+    }
+  }
+  let mermaidSource = toSafeString(raw?.mermaid_diagram ?? raw?.mermaid_graph ?? raw?.diagnostic_tree_mermaid);
+  if (mermaidSource) {
+    mermaidSource = mermaidSource.replace(/```mermaid\s*/i, '').replace(/```\s*$/, '').trim();
+  }
   return {
     hasDiagram: !!mermaidSource,
     mermaidSource: mermaidSource ?? null,
@@ -720,7 +751,11 @@ function normalizeComponentsForFixes(raw: RawContent): ComponentForFix[] {
 
 /** Normalize tools_required */
 function normalizeToolsRequired(raw: RawContent): ToolRequired[] {
-  const arr = Array.isArray(raw?.tools_required) ? raw.tools_required : [];
+  const arr = Array.isArray(raw?.tools_required)
+    ? raw.tools_required
+    : Array.isArray(raw?.tools)
+      ? raw.tools
+      : [];
   return arr.map((t: unknown) => {
     const o = (typeof t === "object" && t !== null ? t : {}) as Record<string, unknown>;
     return {
@@ -737,6 +772,9 @@ function normalizePreventionTips(raw: RawContent): PreventionTip[] {
   const arr = Array.isArray(raw?.prevention_tips) ? raw.prevention_tips
     : Array.isArray(raw?.prevention) ? raw.prevention : [];
   return arr.map((p: unknown) => {
+    if (typeof p === "string" && p.trim()) {
+      return { name: p.trim(), description: "" };
+    }
     const o = (typeof p === "object" && p !== null ? p : {}) as Record<string, unknown>;
     return {
       name: toSafeString(o.name) ?? "",
@@ -981,9 +1019,17 @@ export function normalizePageData(input: NormalizePageDataInput): BasePageViewMo
     decisionTree: (typeof (raw?.decision_tree ?? raw?.mermaid_graph ?? raw?.diagnosticFlowMermaid) === 'object' && (raw?.decision_tree ?? raw?.mermaid_graph ?? raw?.diagnosticFlowMermaid) !== null)
       ? (raw?.decision_tree ?? raw?.mermaid_graph ?? raw?.diagnosticFlowMermaid) as Record<string, unknown>
       : toSafeString(raw?.decision_tree ?? raw?.mermaid_graph ?? raw?.diagnosticFlowMermaid) ?? null,
-    diagnosticFlowMermaid: toSafeString(raw?.diagnosticFlowMermaid ?? raw?.diagnostic_flow_mermaid ?? raw?.diagnostic_tree_mermaid ?? raw?.mermaid_graph) ?? null,
+    diagnosticFlowMermaid: (() => {
+      let src = toSafeString(raw?.mermaid_diagram ?? raw?.diagnosticFlowMermaid ?? raw?.diagnostic_flow_mermaid ?? raw?.diagnostic_tree_mermaid ?? raw?.mermaid_graph);
+      if (src) src = src.replace(/```mermaid\s*/i, '').replace(/```\s*$/, '').trim();
+      return src ?? null;
+    })(),
     causeConfirmationMermaid: toSafeString(raw?.causeConfirmationMermaid ?? raw?.cause_confirmation_mermaid) ?? null,
-    repairFlowMermaid: toSafeString(raw?.repairFlowMermaid ?? raw?.repair_flow_mermaid) ?? null,
+    repairFlowMermaid: (() => {
+      let src = toSafeString(raw?.mermaid_diagram ?? raw?.repairFlowMermaid ?? raw?.repair_flow_mermaid);
+      if (src) src = src.replace(/```mermaid\s*/i, '').replace(/```\s*$/, '').trim();
+      return src ?? null;
+    })(),
     systemCards: (() => {
       const fromRaw = normalizeSystemCards(raw ?? {});
       if (fromRaw && fromRaw.length >= 4) return fromRaw;

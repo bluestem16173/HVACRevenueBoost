@@ -46,7 +46,7 @@ async function seed() {
 
     await sql`
       INSERT INTO generation_queue (page_type, proposed_slug, proposed_title, status)
-      VALUES ('condition', ${slug}, ${proposedTitle}, 'pending')
+      VALUES ('condition', ${slug}, ${proposedTitle}, 'draft')
     `;
 
     console.log("✅ Queued:", slug);

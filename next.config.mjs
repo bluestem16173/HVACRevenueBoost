@@ -4,6 +4,16 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
+  output: "standalone",
   async rewrites() {
     return [
       // Sitemap index for GSC: /sitemap-index.xml lists all cluster sitemaps

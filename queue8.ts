@@ -13,7 +13,7 @@ async function queue8() {
       try {
         await sql`
           INSERT INTO generation_queue (proposed_slug, page_type, status, priority) 
-          VALUES (${t.slug}, ${t.page_type}, 'pending', 10) 
+          VALUES (${t.slug}, ${t.page_type}, 'draft', 10) 
           ON CONFLICT DO NOTHING
         `;
       } catch (inner: any) {

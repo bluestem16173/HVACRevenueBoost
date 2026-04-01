@@ -15,12 +15,12 @@ async function run() {
     "ventilation-ductwork-system"
   ];
 
-  console.log(`Force-injecting ${top10Systems.length} systems to pending...`);
+  console.log(`Force-injecting ${top10Systems.length} systems to draft...`);
   
   for (const slug of top10Systems) {
     const res = await sql`
       UPDATE generation_queue 
-      SET status = 'pending', page_type = 'system'
+      SET status = 'draft', page_type = 'system'
       WHERE proposed_slug = ${slug}
       RETURNING id
     `;
@@ -28,12 +28,12 @@ async function run() {
     if (res.length === 0) {
       await sql`
         INSERT INTO generation_queue (proposed_slug, page_type, status)
-        VALUES (${slug}, 'system', 'pending')
+        VALUES (${slug}, 'system', 'draft')
       `;
     }
   }
   
-  console.log("✅ Done forcing systems to pending.");
+  console.log("✅ Done forcing systems to draft.");
   process.exit(0);
 }
 

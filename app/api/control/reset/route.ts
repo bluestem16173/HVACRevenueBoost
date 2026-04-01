@@ -17,7 +17,7 @@ export async function POST(req: Request) {
   try {
     const result = await sql`
       UPDATE generation_queue
-      SET status = 'pending', attempts = 0, last_error = NULL
+      SET status = 'draft', attempts = 0, last_error = NULL
       WHERE status = 'failed'
       RETURNING id
     `;

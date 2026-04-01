@@ -1,0 +1,117 @@
+﻿[dotenv@17.3.1] injecting env (9) from .env.local -- tip: ΓÜÖ∩╕Å  enable debug logging with { debug: true }
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ΓÜí∩╕Å secrets for agents: https://dotenvx.com/as2
+{
+  "title": "HVAC Diagnostic Engine",
+  "causes": [
+    {
+      "name": "Low refrigerant",
+      "test": "Measure refrigerant pressure with a manifold gauge set.",
+      "description": "Insufficient refrigerant to provide cooling.",
+      "failure_mode": "Refrigerant leak",
+      "expected_result": "Pressure readings below specified operating ranges indicate a leak."
+    },
+    {
+      "name": "Compressor not starting",
+      "test": "Measure voltage at compressor terminals.",
+      "description": "Compressor is not receiving power or is internally damaged.",
+      "failure_mode": "Compressor failure",
+      "expected_result": "Voltage reading < 240V indicates electrical failure."
+    },
+    {
+      "name": "Thermostat not sending signal",
+      "test": "Verify communication signal at the thermostat and control board.",
+      "description": "Thermostat is not correctly calibrated or functional.",
+      "failure_mode": "Thermostat malfunction",
+      "expected_result": "No signal present indicates a faulty thermostat."
+    },
+    {
+      "name": "Burnt wiring",
+      "test": "Inspect wiring for visible damage or use a multimeter for continuity test.",
+      "description": "Damaged electrical components or connections.",
+      "failure_mode": "Electrical failure",
+      "expected_result": "No continuity indicates broken connections."
+    }
+  ],
+  "system": "HVAC",
+  "repairs": [
+    {
+      "name": "Refrigerant recharge",
+      "cause": "Low refrigerant",
+      "difficulty": "moderate",
+      "description": "Locate leak, repair, and recharge the refrigerant to specified levels.",
+      "estimated_cost": "medium"
+    },
+    {
+      "name": "Compressor replacement",
+      "cause": "Compressor not starting",
+      "difficulty": "hard",
+      "description": "Compressor removed and replaced due to failure.",
+      "estimated_cost": "high"
+    },
+    {
+      "name": "Thermostat replacement",
+      "cause": "Thermostat not sending signal",
+      "difficulty": "easy",
+      "description": "Replace malfunctioning thermostat with a new unit.",
+      "estimated_cost": "low"
+    },
+    {
+      "name": "Electrical repair",
+      "cause": "Burnt wiring",
+      "difficulty": "moderate",
+      "description": "Repair or replace damaged wiring connections.",
+      "estimated_cost": "medium"
+    }
+  ],
+  "symptom": "No cooling at all",
+  "fast_answer": "Check for refrigerant levels, thermostat functionality, and compressor operation.",
+  "failure_modes": [
+    {
+      "name": "Refrigerant leak",
+      "description": "Loss of refrigerant due to a breach in the system."
+    },
+    {
+      "name": "Compressor failure",
+      "description": "The compressor is unable to circulate refrigerant effectively."
+    },
+    {
+      "name": "Thermostat malfunction",
+      "description": "Thermostat is not communicating with the HVAC system."
+    },
+    {
+      "name": "Electrical failure",
+      "description": "Faulty wiring or components preventing system operation."
+    }
+  ],
+  "mermaid_diagram": "flowchart TD\n  A[Is refrigerant level adequate?] -->|Yes| B[Is compressor functioning?]\n  A -->|No| C[Refrigerant leak]\n  B -->|Yes| D[Is thermostat operational?]\n  B -->|No| E[Compressor failure]\n  D -->|Yes| F[Check electrical connections]\n  D -->|No| G[Thermostat malfunction]\n  F -->|Yes| H[Electrical failure]\n  F -->|No| I[Electrical failure]",
+  "diagnostic_order": [
+    "Test refrigerant levels",
+    "Test compressor functionality",
+    "Test thermostat operation",
+    "Test electrical connections"
+  ],
+  "guided_diagnosis": [
+    {
+      "scenario": "System won't turn on at all",
+      "next_step": "Test electrical connections",
+      "likely_modes": [
+        "Electrical failure"
+      ]
+    },
+    {
+      "scenario": "Compressor is running but no cooling",
+      "next_step": "Test refrigerant levels",
+      "likely_modes": [
+        "Refrigerant leak",
+        "Compressor failure"
+      ]
+    },
+    {
+      "scenario": "Thermostat shows incorrect temperature",
+      "next_step": "Test thermostat operation",
+      "likely_modes": [
+        "Thermostat malfunction"
+      ]
+    }
+  ]
+}

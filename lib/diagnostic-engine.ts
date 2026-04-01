@@ -92,7 +92,22 @@ export function getCauseDetails(causeId: string) {
 
 /**
  * NEON ASYNC HELPERS (DecisionGrid Overhaul)
+ *
+ * `/diagnose/...` reads `pages.status`:
+ * - **Production (default):** `published` | `validated` | `review` only — avoids half-baked `draft` / `generated` rows.
+ * - **Relaxed:** non-production, or set `DIAGNOSE_ALLOW_DRAFT_GENERATED=1` or `NEXT_PUBLIC_DIAGNOSE_ALLOW_DRAFT_GENERATED=1`
+ *   so pipeline rows (`generated`, `draft`) still resolve while debugging.
  */
+export function diagnoseRoutePageStatuses(): string[] {
+  const allowDraft =
+    process.env.NODE_ENV !== "production" ||
+    process.env.DIAGNOSE_ALLOW_DRAFT_GENERATED === "1" ||
+    process.env.NEXT_PUBLIC_DIAGNOSE_ALLOW_DRAFT_GENERATED === "1";
+  if (allowDraft) {
+    return ["published", "validated", "review", "generated", "draft"];
+  }
+  return ["published", "validated", "review"];
+}
 
 export async function getDiagnosticPageFromDB(
   slug: string, 
@@ -100,6 +115,7 @@ export async function getDiagnosticPageFromDB(
   city?: string | null
 ): Promise<any | null> {
   try {
+    const statuses = diagnoseRoutePageStatuses();
     let rows;
     if (city) {
       rows = await sql`
@@ -107,7 +123,7 @@ export async function getDiagnosticPageFromDB(
         WHERE slug = ${slug} 
           AND page_type = ${category} 
           AND city = ${city}
-          AND status = 'published'
+          AND status = ANY(${statuses}::text[])
       `;
     } else {
       rows = await sql`
@@ -115,12 +131,28 @@ export async function getDiagnosticPageFromDB(
         WHERE slug = ${slug} 
           AND page_type = ${category} 
           AND (city IS NULL OR city = '')
-          AND status = 'published'
+          AND status = ANY(${statuses}::text[])
       `;
     }
     // const fs = require('fs');
     // fs.appendFileSync('debug-render.txt', `\\n[DB FETCH SUCCESS] ${slug} | ${category} | ROWS: ${rows?.length}\\n`);
-    return rows[0] || null;
+    const page = rows[0];
+    if (!page) return null;
+
+    const content = page.content_json || {};
+
+    const effectiveSchema =
+      page.schema_version ||
+      content.schema_version ||
+      content.schema ||
+      null;
+
+    return {
+      ...page,
+      schema: effectiveSchema,          // 👈 backfill for old UI
+      schema_version: effectiveSchema,  // 👈 canonical
+      content_json: content,
+    };
   } catch (error: any) {
     // const fs = require('fs');
     // fs.appendFileSync('debug-render.txt', `\\n[DB FETCH ERROR] ${slug} | ${error.message}\\n`);

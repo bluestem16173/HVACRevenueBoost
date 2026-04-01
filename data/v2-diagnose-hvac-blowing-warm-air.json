@@ -1,0 +1,141 @@
+{
+  "slug": "hvac-blowing-warm-air",
+  "title": "Why Is My HVAC Blowing Warm Air? 5 Main Causes & Diagnostic Steps",
+  "intro": "An AC system blowing warm air usually indicates a failure in the heat transfer cycle, commonly caused by restricted airflow, a dirty condenser, or a failed compressor component. This diagnostic guide will help you systematically isolate the root cause.",
+  "diagnosticIntro": "Is your AC running constantly but only blowing warm air? The most frequent culprits are severe airflow restrictions, blocked condenser coils, or a failed start capacitor. Before calling a technician, follow these targeted steps to check basic continuity and airflow. Quick checks can prevent a $300 service call for a $20 filter.",
+  "systemExplanation": [
+    "Quick Checks: First, verify the thermostat is set to 'Cool' and the fan is on 'Auto' (not 'On'). Check your air filter and the outdoor condenser fins for severe debris buildup.",
+    "The cooling cycle removes heat from your indoor air using a refrigerated evaporator coil. If airflow over this coil is blocked (e.g., heavily soiled filter), the air won't cool.",
+    "The outdoor unit (condenser) must run simultaneously with the indoor unit. If the outdoor fan or compressor fails to start—often due to a bad capacitor—the system cannot reject heat and will blow warm air."
+  ],
+  "decision_tree": "flowchart TD\n    A[HVAC Blowing Warm Air] --> B{Is the outdoor unit running?}\n    B -->|Yes| C{Is the air filter dirty?}\n    C -->|Yes| D[Replace Filter & Retest]\n    C -->|No| E[Check Condenser Coil / Refrigerant]\n    B -->|No| F{Is the outdoor disconnect on?}\n    F -->|Yes| G[Check Capacitor/Contactor]\n    F -->|No| H[Turn Disconnect On]",
+  "dynamicAnswer": {
+    "likelyCause": "Dirty air filter or failed run capacitor",
+    "confidence": "High",
+    "reason": "These two issues account for the vast majority of 'warm air' complaints during peak cooling seasons."
+  },
+  "diagnosticFlow": [
+    {
+      "step": 1,
+      "question": "Is the outdoor unit (condenser) running loudly or is the fan spinning?",
+      "yes": "Proceed to airflow checks.",
+      "no": "Outdoor unit has lost power or command.",
+      "next_step": 2
+    },
+    {
+      "step": 2,
+      "question": "If the outdoor unit isn't running, check the indoor thermostat. Is it set to 'Cool' and calling for cooling?",
+      "yes": "Thermostat is commanding, suspect outdoor electrical.",
+      "no": "Adjust thermostat and observe.",
+      "next_step": 3
+    },
+    {
+      "step": 3,
+      "question": "If the outdoor unit has power but hums without starting, suspect the run capacitor.",
+      "yes": "Inspect capacitor for swelling.",
+      "no": "Compressor could be critically failed or in thermal lockout.",
+      "next_step": null
+    }
+  ],
+  "commonCauses": [
+    {
+      "name": "Clogged Air Filter",
+      "description": "A severely dirty filter chokes off return air, starving the evaporator coil and causing warm output."
+    },
+    {
+      "name": "Failed Dual-Run Capacitor",
+      "description": "If the capacitor fails, the compressor and outdoor fan won't start, preventing any heat rejection."
+    },
+    {
+      "name": "Dirty Condenser Coils",
+      "description": "Blankets of cottonwood, dirt, or debris on the outdoor unit block airflow, drastically reducing cooling efficiency."
+    },
+    {
+      "name": "Low Refrigerant (Leak)",
+      "description": "Modern systems don't 'use' refrigerant. If it's low, there's a leak, which freezes the coil or prevents cooling."
+    }
+  ],
+  "toolsNeeded": [
+    {
+      "name": "Multimeter (with capacitance/MFD setting)",
+      "purpose": "To test the dual-run capacitor under load."
+    },
+    {
+      "name": "Screwdriver / Nut Driver Setup",
+      "purpose": "To access the electrical panel on the outdoor condenser unit."
+    },
+    {
+      "name": "Garden Hose (No Pressure Washer)",
+      "purpose": "To gently rinse out the condenser coil fins."
+    }
+  ],
+  "fixes": [
+    {
+      "cause": "Clogged Air Filter",
+      "repair": "Replacing the air filter ($15-$30). Quick DIY fix."
+    },
+    {
+      "cause": "Dirty Condenser Coils",
+      "repair": "Cleaning the outdoor coils with a gentle hose spray and coil cleaner ($20). Easy DIY."
+    },
+    {
+      "cause": "Failed Dual-Run Capacitor",
+      "repair": "Replacing the capacitor ($150-$300 via Technician, $30 DIY). Advanced DIY due to lethal high voltage."
+    },
+    {
+      "cause": "Low Refrigerant (Leak)",
+      "repair": "Locating the leak, brazing, pulling a vacuum, and recharging ($600-$1,500). Strictly professional repair."
+    }
+  ],
+  "preventionTips": [
+    "Change your 1-inch pleated air filters every 45 to 60 days.",
+    "Schedule an annual spring tune-up to catch weak capacitors before they fail in summer.",
+    "Keep landscaping and bushes at least two feet away from the outdoor condenser unit."
+  ],
+  "seo": {
+    "title": "AC Blowing Warm Air? 5 Main Causes and Diagnostic Fixes",
+    "meta_description": "HVAC blowing warm air? Learn how to diagnose a clogged filter, a bad capacitor, or a frozen coil before spending hundreds on a service call.",
+    "h1": "Why Your HVAC Is Blowing Warm Air & How to Fix It",
+    "keywords": [
+      "AC blowing warm air",
+      "HVAC not cooling",
+      "diagnose AC warm air",
+      "failed run capacitor",
+      "dirty condenser coil"
+    ]
+  },
+  "cta": {
+    "primary": "Schedule a Diagnostic Evaluation",
+    "secondary": "View the Capacitor Replacement Guide",
+    "urgency": "Prolonged running of a struggling compressor can cause complete failure.",
+    "placement_hint": "after_causes"
+  },
+  "internal_links": {
+    "related_symptoms": [
+      {
+        "label": "AC Freezing Up",
+        "slug": "ac-freezing-up"
+      }
+    ],
+    "related_causes": [
+      {
+        "label": "Bad Run Capacitor Symptoms",
+        "slug": "bad-run-capacitor"
+      }
+    ],
+    "repair_guides": [
+      {
+        "label": "How to Clean Condenser Coils",
+        "slug": "clean-condenser-coils"
+      }
+    ]
+  },
+  "confidence_score": 98,
+  "imageMap": {
+    "hero": "/public/images/diagnostics/hvac-blowing-warm-air/hvac-blowing-warm-air-hero-ice.jpg",
+    "filter": "/public/images/diagnostics/hvac-blowing-warm-air/hvac-blowing-warm-air-cause-dirty-filter.jpg",
+    "airflow": "/public/images/diagnostics/hvac-blowing-warm-air/hvac-blowing-warm-air-airflow-blocked-vs-proper.jpg",
+    "fix": "/public/images/diagnostics/hvac-blowing-warm-air/hvac-blowing-warm-air-fix-coil-cleaning.jpg",
+    "technician": "/public/images/diagnostics/hvac-blowing-warm-air/hvac-blowing-warm-air-technician-repair.jpg"
+  }
+}

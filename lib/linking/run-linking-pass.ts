@@ -10,7 +10,7 @@ export async function runLinkingPass(site?: "dg" | "hvac") {
     ? await sql`
         SELECT id, site, slug, title, page_type, status, city, content_json
         FROM pages
-        WHERE status IN ('generated', 'published', 'pending')
+        WHERE status IN ('published', 'validated', 'generated', 'draft', 'review', 'pending')
           AND page_type IN ('system', 'symptom', 'diagnostic', 'cause', 'repair', 'context', 'component')
           AND site = ${site}
         ORDER BY site, page_type, slug
@@ -18,7 +18,7 @@ export async function runLinkingPass(site?: "dg" | "hvac") {
     : await sql`
         SELECT id, site, slug, title, page_type, status, city, content_json
         FROM pages
-        WHERE status IN ('generated', 'published', 'pending')
+        WHERE status IN ('published', 'validated', 'generated', 'draft', 'review', 'pending')
           AND page_type IN ('system', 'symptom', 'diagnostic', 'cause', 'repair', 'context', 'component')
         ORDER BY site, page_type, slug
       `) as PageRow[];

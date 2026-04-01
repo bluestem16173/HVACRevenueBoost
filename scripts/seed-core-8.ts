@@ -20,11 +20,11 @@ async function run() {
     // Check if it already exists to avoid conflict syntax errors if indexes differ
     const existing = await sql`SELECT id FROM generation_queue WHERE proposed_slug = ${slug} LIMIT 1`;
     if (existing && existing.length > 0) {
-      await sql`UPDATE generation_queue SET status = 'pending' WHERE proposed_slug = ${slug}`;
+      await sql`UPDATE generation_queue SET status = 'draft' WHERE proposed_slug = ${slug}`;
     } else {
       await sql`
         INSERT INTO generation_queue (proposed_slug, proposed_title, page_type, status)
-        VALUES (${slug}, ${title}, 'symptom', 'pending')
+        VALUES (${slug}, ${title}, 'symptom', 'draft')
       `;
     }
     console.log(`✅ Queued: ${slug}`);

@@ -95,7 +95,7 @@ export async function queuePageGeneration(params: {
         ${params.system_id || null}, 
         ${params.symptom_id || null}, 
         ${params.city || null}, 
-        'queued'
+        'draft'
       )
       RETURNING *
     `;
@@ -130,13 +130,17 @@ export async function getPageBySlug(fullSlug: string) {
   try {
     const normalized = normalizeSlug(fullSlug);
     const results = await sql`
-      SELECT slug, title, page_type, content_json
-      FROM pages
+      SELECT slug, title, raw_json as content_json
+      FROM diagnostic_pages
       WHERE slug = ${normalized}
       LIMIT 1
     `;
-    const row = results[0] as { slug?: string; title?: string; page_type?: string; content_json?: unknown } | undefined;
-    if (!row) return null;
+    const row = results[0] as { slug?: string; title?: string; content_json?: unknown } | undefined;
+    if (!row) {
+      // Fallback to legacy pages if not found in V2
+      const legacyRes = await sql`SELECT slug, title, page_type, content_json FROM pages WHERE slug = ${normalized} LIMIT 1`;
+      return legacyRes[0] || null;
+    }
     const cj = row.content_json;
     const parsed = typeof cj === "string" ? (() => { try { return JSON.parse(cj) as Record<string, unknown>; } catch { return null; } })() : (cj as Record<string, unknown>);
     const html = parsed?.html_content as string ?? "";
@@ -191,7 +195,7 @@ export async function getRelatedPagesBySlugs(site: "dg" | "hvac", slugs: string[
       FROM pages
       WHERE site = ${site}
         AND slug = ANY(${slugs}::text[])
-        AND status IN ('generated', 'published', 'pending')
+        AND status IN ('published', 'validated', 'review', 'generated', 'draft')
       ORDER BY title
     `;
     return results as Array<{ slug: string; title: string; page_type: any; site: "dg" | "hvac"; city?: string | null; }>;

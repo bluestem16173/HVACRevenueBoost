@@ -1,189 +1,188 @@
 import { RelatedTopics } from "@/components/hub/RelatedTopics";
-import { ShieldAlert, AlertTriangle, Clock, MapPin, Star, PhoneCall, ShieldCheck } from "lucide-react";
+import { ShieldAlert, AlertTriangle, ShieldCheck, PhoneCall, CheckSquare } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
 export interface EmergencySchema {
-  pageType: "emergency";
-  city: string;
-  service: string;
-  hero: {
-    headline: string;
-    subheadline: string;
-  };
-  urgency: {
-    message: string;
-  };
-  problem: string;
-  trust: {
-    badges: string[];
-    guarantee: string;
-  };
-  localProof: {
-    city: string;
-    reviews: Array<{ author: string; text: string }>;
-  };
-  cta: {
-    primary: string;
-    secondary: string;
-  };
-  content?: {
-    immediateAction?: string[];
-    isDangerous?: string;
-    quickDiagnosis?: string[];
-    likelyCauses?: string[];
-    temporaryFixes?: string[];
-    whenToCall?: string;
-    costExpectation?: string;
-    faq?: Array<{ question: string; answer: string }>;
-  }
+  bannerHeadline: string;
+  dangerLine: string;
+  immediateChecks: string[];
+
+  fix60Title: string;
+  fix60Steps: string[];
+
+  mermaidFlow: string;
+
+  mostLikelyTitle: string;
+  mostLikelyFix: string;
+  costBand: string;
+  difficulty: string;
+  timeEstimate: string;
+
+  monetizationHeadline: string;
+  monetizationBullets: string[];
+
+  leadStyle?: "soft" | "urgent";
 }
 
-export default function EmergencyPageTemplate({ data }: { data: EmergencySchema }) {
-  const replaceCity = (text: string) => text.replace(/{{city}}/g, data.city);
+export default function EmergencyPageTemplate({ data, city }: { data: EmergencySchema, city: string }) {
+  const replaceCity = (text: string) => text ? text.replace(/{{city}}/g, city) : "";
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      {/* 🚨 EMERGENCY HERO */}
-      <section className="bg-red-600 text-white pt-24 pb-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
-        <div className="container mx-auto px-4 max-w-4xl relative z-10 text-center">
-          <div className="inline-flex items-center gap-2 border border-red-200 bg-red-800/50 text-white px-5 py-2 rounded-full text-sm font-black uppercase tracking-widest mb-6 shadow-sm">
-            <AlertTriangle className="w-4 h-4" />
-            24/7 HVAC Emergency in {data.city}
-          </div>
-          <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6 tracking-tight drop-shadow-lg">
-            {replaceCity(data.hero.headline)}
-          </h1>
-          <p className="text-xl md:text-2xl text-red-100 leading-relaxed font-bold max-w-2xl mx-auto mb-10 drop-shadow-md">
-            {replaceCity(data.hero.subheadline)}
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <button data-open-lead-modal className="w-full sm:w-auto px-10 py-5 bg-white text-red-700 rounded-xl font-black uppercase tracking-widest hover:bg-slate-100 shadow-2xl hover:scale-105 transition-all outline-none focus:ring-4 focus:ring-red-400">
-              {data.cta.primary}
-            </button>
-            <button className="w-full sm:w-auto px-8 py-5 border-2 border-red-200 text-white rounded-xl font-bold uppercase hover:bg-red-700 transition-colors">
-              {data.cta.secondary}
-            </button>
-          </div>
-          <p className="mt-8 text-sm font-bold flex items-center justify-center gap-2">
-            <Clock className="w-4 h-4" />
-            {data.urgency.message}
-          </p>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20">
+      
+      {/* HEADER / BREADCRUMBS */}
+      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 pt-6 pb-6 shadow-sm">
+        <div className="container mx-auto px-4 max-w-3xl">
+           <div className="flex items-center gap-2 text-sm text-slate-500 font-bold mb-4 uppercase tracking-wider">
+              <span>Emergency Diagnostics</span>
+              <span>/</span>
+              <span className="text-hvac-blue">{city}</span>
+           </div>
+           <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white leading-tight mb-2">
+             {replaceCity(data.bannerHeadline)}
+           </h1>
+           <div className="flex items-center gap-2 text-sm font-bold text-green-600 bg-green-50 w-max px-3 py-1 rounded-full border border-green-200">
+             <ShieldCheck className="w-4 h-4" />
+             Reviewed by Certified HVAC Technicians
+           </div>
         </div>
-      </section>
+      </div>
 
-      {/* ⚠️ STRUCTURAL SURVIVAL GUIDE */}
-      <section className="py-16 -mt-16 relative z-20">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="bg-white dark:bg-slate-900 border-t-8 border-red-600 rounded-2xl p-8 md:p-12 shadow-2xl">
-            <h2 className="text-3xl font-black text-slate-800 dark:text-slate-100 mb-8 border-b pb-4 border-slate-100 dark:border-slate-800">
-              Emergency? What To Do Right Now.
-            </h2>
-            
-            <div className="space-y-12">
-              {/* 1. Immediate Action */}
-              <div>
-                <h3 className="text-xl font-bold text-red-600 mb-4 flex items-center gap-2">
-                  <span className="bg-red-100 text-red-700 w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span> 
-                  Immediate Action (DO THIS FIRST)
-                </h3>
-                <ul className="list-disc pl-10 space-y-2 text-slate-700 dark:text-slate-300 font-medium">
-                  {data.content?.immediateAction?.map((item, i) => <li key={i}>{item}</li>) || (
-                    <>
-                      <li>Turn off your thermostat immediately to prevent compressor burnout.</li>
-                      <li>Find your electrical breaker panel and flip the HVAC breakers to OFF.</li>
-                    </>
-                  )}
-                </ul>
-              </div>
-
-              {/* 2. Is This Dangerous? */}
-              <div>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span> 
-                  Is This Dangerous?
-                </h3>
-                <p className="pl-10 text-slate-600 dark:text-slate-400 leading-relaxed">
-                  {data.content?.isDangerous || "If you smell burning plastic, electrical ozone, or natural gas, evacuate immediately and call emergency services. Otherwise, property damage (like water leaks) is the primary risk."}
-                </p>
-              </div>
-
-              {/* 3. Quick Diagnosis & 4. Likely Causes */}
-              <div className="grid md:grid-cols-2 gap-8 pl-10">
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800">
-                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-3">Quick Diagnosis</h4>
-                  <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                    {data.content?.quickDiagnosis?.map((d, i) => <li key={i}>{d}</li>) || (
-                      <>
-                        <li>Is the outside fan spinning?</li>
-                        <li>Is water dripping near the furnace?</li>
-                        <li>Is the filter completely black?</li>
-                      </>
-                    )}
-                  </ul>
-                </div>
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-xl border border-slate-200 dark:border-slate-800">
-                  <h4 className="font-bold text-slate-800 dark:text-slate-200 mb-3">Most Likely Causes</h4>
-                  <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                    {data.content?.likelyCauses?.map((c, i) => <li key={i}>{c}</li>) || (
-                      <>
-                        <li>Blown dual-run capacitor</li>
-                        <li>Clogged condensate drain line</li>
-                        <li>Frozen evaporator coil</li>
-                      </>
-                    )}
-                  </ul>
-                </div>
-              </div>
-
-              {/* 5. Temporary Fixes */}
-              <div>
-                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-                  <span className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 w-8 h-8 rounded-full flex items-center justify-center text-sm">3</span> 
-                  Temporary Fixes (If Safe)
-                </h3>
-                <p className="pl-10 text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
-                  {data.content?.temporaryFixes?.[0] || "If your coil is frozen solid, turn the thermostat to OFF and set the Fan to ON. This will force ambient air across the ice to melt it faster while you wait for a technician."}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 🚀 LOCAL PROOF & CALL TO ACTION */}
-      <section className="py-16 bg-slate-900 text-white border-y border-slate-800">
-        <div className="container mx-auto px-4 max-w-4xl text-center">
-          <div className="flex items-center justify-center gap-2 text-amber-500 mb-4">
-            <MapPin className="w-5 h-5" />
-            <span className="font-bold uppercase tracking-widest text-sm">Serving {data.localProof.city || data.city}</span>
-          </div>
+      <div className="container mx-auto px-4 max-w-3xl mt-8 space-y-6">
+        
+        {/* 1. 🔴 Emergency Banner (Authority + Control) */}
+        <div className="bg-orange-50 border-2 border-orange-600 rounded-xl p-6 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-orange-600/5 rounded-bl-[100px] pointer-events-none"></div>
           
-          <h2 className="text-3xl font-black mb-8">
-            When To Call A Professional
+          <h2 className="text-xl md:text-2xl font-black text-orange-900 mb-3 flex items-center gap-2">
+            <AlertTriangle className="w-6 h-6 text-orange-600" />
+            Emergency Protocol
           </h2>
-          
-          <p className="text-slate-400 mb-10 max-w-2xl mx-auto">
-            {data.content?.whenToCall || "If you reset the breaker and it trips instantly again, or you hear loud buzzing from the outside unit without the fan spinning, stop. Continuing to run the system will destroy the compressor."}
+
+          <p className="text-orange-800 font-bold mb-5 text-lg leading-relaxed">
+            <span className="text-orange-600 uppercase tracking-widest text-xs block mb-1">Critical Warning</span>
+            {replaceCity(data.dangerLine)}
           </p>
 
-          <div className="bg-slate-800 border border-slate-700 p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-left">
-              <h4 className="font-bold text-xl mb-2 flex items-center gap-2">
-                <ShieldCheck className="text-green-400" />
-                {data.trust.guarantee}
-              </h4>
-              <p className="text-sm text-slate-400">
-                {data.content?.costExpectation || "Diagnostic fees typically range from $89–$150 depending on the time of night. Never pay for a repair before knowing the exact written diagnostic."}
-              </p>
-            </div>
-            <button data-open-lead-modal className="w-full md:w-auto shrink-0 bg-hvac-blue hover:bg-blue-500 px-8 py-4 rounded-xl font-black uppercase tracking-widest transition-transform hover:scale-105 flex items-center justify-center gap-2">
-              <PhoneCall className="w-5 h-5" />
-              {data.cta.primary}
-            </button>
+          <div className="bg-white/60 rounded-lg p-5 border border-orange-200">
+            <h3 className="text-sm font-black text-orange-900 uppercase tracking-wider mb-3">Immediate Checks:</h3>
+            <ul className="space-y-3 text-orange-900 font-medium">
+              {data.immediateChecks.map((check, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="min-w-6 h-6 rounded-full bg-orange-200 text-orange-700 flex items-center justify-center text-xs font-bold mt-0.5">
+                    {i + 1}
+                  </div>
+                  <span className="leading-snug">{replaceCity(check)}</span>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
-      </section>
-          <RelatedTopics />
+
+        {/* 2. 🟢 Fix in 60 Seconds (Momentum Builder) */}
+        <div className="bg-green-50 border border-green-300 rounded-xl p-6 shadow-sm">
+          <h2 className="text-xl font-black text-green-900 mb-4 flex items-center gap-2">
+            <CheckSquare className="w-5 h-5 text-green-600" />
+            {replaceCity(data.fix60Title)}
+          </h2>
+
+          <ol className="space-y-4 text-green-900 list-none">
+            {data.fix60Steps.map((step, i) => (
+              <li key={i} className="flex gap-4">
+                <span className="font-bold text-green-600 text-lg">{i + 1}.</span>
+                <span className="font-medium leading-relaxed">{replaceCity(step)}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* 3. 🧠 Mermaid Diagnostic Flow (THE ENGINE) */}
+        <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm overflow-hidden">
+          <h2 className="text-xl font-semibold text-slate-800 mb-4">
+            Step-by-Step Diagnosis
+          </h2>
+
+          <p className="text-slate-600 mb-4">
+            Follow this quick flow to identify the issue before calling a technician.
+          </p>
+
+          <div className="overflow-x-auto w-full">
+            <MermaidDiagram chart={data.mermaidFlow} title="" className="border-none shadow-none p-0 my-0 bg-transparent dark:bg-transparent" />
+          </div>
+
+          <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 mt-6">
+            <p className="text-yellow-800 font-medium">
+              ⚠️ If your system reached a repair-level issue above, this typically requires tools or parts most homeowners don't have.
+            </p>
+          </div>
+        </div>
+
+        {/* 4. 🔵 Most Likely Fix (THE MONEY BLOCK) */}
+        <div className="bg-blue-50 border border-blue-300 rounded-xl p-6 shadow-sm">
+          <h2 className="text-2xl font-black text-blue-900 mb-3">
+            {replaceCity(data.mostLikelyTitle)}
+          </h2>
+
+          <p className="text-blue-900 text-lg leading-relaxed mb-2 font-medium">
+            {replaceCity(data.mostLikelyFix)}
+          </p>
+          
+          <p className="text-blue-700 font-bold mb-6 italic border-l-4 border-blue-400 pl-3 py-1 bg-blue-100/50">
+            "This fixes the issue in ~60–70% of cases."
+          </p>
+
+          <div className="grid grid-cols-3 gap-4 text-sm mt-2">
+            <div className="bg-white rounded-lg p-3 lg:p-4 border border-blue-200 shadow-sm text-center">
+              <p className="font-bold text-slate-500 uppercase tracking-widest text-[10px] mb-1">Cost</p>
+              <p className="text-blue-900 font-black text-lg">{replaceCity(data.costBand)}</p>
+            </div>
+
+            <div className="bg-white rounded-lg p-3 lg:p-4 border border-blue-200 shadow-sm text-center">
+              <p className="font-bold text-slate-500 uppercase tracking-widest text-[10px] mb-1">Difficulty</p>
+              <p className="text-blue-900 font-black text-lg">{replaceCity(data.difficulty)}</p>
+            </div>
+
+            <div className="bg-white rounded-lg p-3 lg:p-4 border border-blue-200 shadow-sm text-center">
+              <p className="font-bold text-slate-500 uppercase tracking-widest text-[10px] mb-1">Time</p>
+              <p className="text-blue-900 font-black text-lg">{replaceCity(data.timeEstimate)}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 5. ⚙️ Monetization Block (Where HVAC > DG) */}
+        <div className="bg-slate-50 border border-slate-300 rounded-xl p-6 md:p-8 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-blue-500 to-hvac-navy"></div>
+          
+          <h3 className="text-2xl font-black text-slate-900 mb-4 pr-10">
+            {replaceCity(data.monetizationHeadline)}
+          </h3>
+
+          <p className="text-slate-600 font-bold mb-5 italic">
+            You've tried the checks → now fix it fast.
+          </p>
+
+          <ul className="space-y-3 text-slate-700 mb-8 font-medium">
+            {data.monetizationBullets.map((b, i) => (
+              <li key={i} className="flex gap-3 items-start">
+                <span className="text-blue-500 font-black mt-0.5">✓</span> 
+                <span className="leading-snug">{replaceCity(b)}</span>
+              </li>
+            ))}
+          </ul>
+
+          <button data-open-lead-modal className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white px-8 py-5 rounded-xl font-black text-lg shadow-xl shadow-blue-500/20 hover:scale-105 transition-all outline-none focus:ring-4 focus:ring-blue-400 flex items-center justify-center gap-3">
+            <PhoneCall className="w-5 h-5 animate-pulse" />
+            Get Local HVAC Help
+          </button>
+        </div>
+
+      </div>
+
+      <div className="container mx-auto px-4 max-w-3xl mt-16">
+        <RelatedTopics />
+      </div>
     </div>
   );
 }

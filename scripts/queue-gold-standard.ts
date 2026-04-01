@@ -30,7 +30,7 @@ async function queueGoldStandard() {
         INSERT INTO generation_queue (page_type, proposed_slug, status, priority)
         VALUES (${row.page_type}, ${row.slug}, 'queued', 100)
         ON CONFLICT (proposed_slug) DO UPDATE 
-        SET status = 'pending', priority = 100, regeneration_attempts = 0
+        SET status = 'draft', priority = 100, regeneration_attempts = 0
       `;
       queued++;
     } catch (err: any) {

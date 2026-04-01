@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title><%= title %></title>
+  <% if (typeof metaDescription !== 'undefined' && metaDescription) { %><meta name="description" content="<%= metaDescription %>" /><% } %>
+  <% if (typeof canonical !== 'undefined' && canonical) { %><link rel="canonical" href="<%= canonical %>" /><% } %>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <% if (typeof schemaConfig !== 'undefined' && schemaConfig) { %>
+  <%- include('../partials/schema-jsonld.html', { schemaConfig }) %>
+  <% } %>
+  <% if (typeof faqSchemaJson !== 'undefined' && faqSchemaJson) { %>
+  <script type="application/ld+json"><%- faqSchemaJson %></script>
+  <% } %>
+  <% if (typeof articleSchemaJson !== 'undefined' && articleSchemaJson) { %>
+  <script type="application/ld+json"><%- articleSchemaJson %></script>
+  <% } %>
+  <% if (typeof breadcrumbSchemaJson !== 'undefined' && breadcrumbSchemaJson) { %>
+  <script type="application/ld+json"><%- breadcrumbSchemaJson %></script>
+  <% } %>
+  <% if (typeof aiSummary !== 'undefined' && aiSummary && aiSummary.enabled) { %>
+  <script src="/public/js/summary-analytics.js" defer></script>
+  <% } %>
+  <style>
+    .authority{font-family:system-ui,-apple-system,sans-serif;color:#1f2937;line-height:1.6;max-width:800px;margin:0 auto;padding:1.5rem 1.25rem;background:#fff}
+    .authority-hero{background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border-radius:12px;padding:2rem;margin-bottom:2rem;border:1px solid #bae6fd}
+    .authority-hero h1{font-size:1.75rem;font-weight:700;margin:0 0 .5rem 0;letter-spacing:-.02em;color:#0f172a}
+    .authority-hero .subtitle{color:#475569;font-size:1.05rem;margin:0}
+    .authority h2{font-size:1.35rem;font-weight:600;margin:2.25rem 0 1rem 0;padding-top:.5rem;border-top:1px solid #e2e8f0}
+    .authority h2:first-of-type{margin-top:0;padding-top:0;border-top:0}
+    .authority h3{font-size:1.15rem;font-weight:600;margin:1.25rem 0 .5rem 0;color:#334155}
+    .authority p{margin:0 0 1rem 0}
+    .authority ul,.authority ol{margin:0 0 1rem 0;padding-left:1.5rem}
+    .authority li{margin:.35rem 0}
+    .authority table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9375rem}
+    .authority th,.authority td{border:1px solid #cbd5e1;padding:8px 12px;text-align:left}
+    .authority th{background:#f1f5f9;font-weight:600}
+    .authority .highlight-box{background:#fff;border-left:4px solid #0284c7;padding:1.25rem 1.5rem;margin:1.5rem 0;border-radius:0 8px 8px 0;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+    .authority .faq-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:1.25rem 1.5rem;margin:1rem 0}
+    .authority .faq-box strong{display:block;margin-bottom:.5rem;color:#334155}
+    .authority .related-box{background:linear-gradient(135deg,#f0fdf4 0%,#dcfce7 100%);border:1px solid #86efac;border-radius:12px;padding:1.5rem 1.75rem;margin:2rem 0}
+    .authority .related-box strong{display:block;margin-bottom:.75rem;color:#166534}
+    .authority .related-box ul{margin:0;padding-left:1.25rem}
+    .authority .related-box li{margin:.4rem 0}
+    .authority a{color:#0284c7;text-decoration:none}
+    .authority a:hover{text-decoration:underline}
+    .authority .breadcrumb{color:#64748b;font-size:.95rem;margin-bottom:1rem}
+    .authority .breadcrumb a{color:#0284c7}
+    .authority .hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.5rem 0}
+    .authority .hub-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:1.25rem}
+    .authority .hub-card h3{margin:0 0 .5rem 0;font-size:1.1rem}
+    .authority .see-link{display:inline-block;margin-top:.5rem;font-weight:600;color:#0284c7}
+    .mermaid{margin:2.5rem 0;display:flex;justify-content:center;overflow:hidden;max-width:100%}
+    .mermaid svg{max-width:100%;height:auto}
+    .field-insight{margin:1.5rem 0;background:#f8fafc;border-left:4px solid #94a3b8;padding:1rem 1.25rem;border-radius:0 8px 8px 0;font-size:.9375rem}
+    .rv-service-cta{background:#f3f4f6;padding:40px;margin-top:40px;border-radius:10px;text-align:center}
+    .rv-service-cta h2{font-size:1.35rem;margin:0 0 1rem 0;padding:0;border:0}
+    .service-coming-soon{background:#fff;padding:25px;border-radius:8px;margin-top:20px}
+    .cta-button{display:inline-block;background:#2563eb;color:#fff;padding:14px 26px;border-radius:6px;text-decoration:none;font-weight:600;margin-top:15px;border:none;cursor:pointer;font-size:1rem}
+    .cta-button:hover{background:#1d4ed8;color:#fff}
+    .cta-button.disabled{background:#9ca3af;cursor:not-allowed;pointer-events:none}
+    .cta-button-wrapper{display:inline-block;text-align:center;margin-top:15px}
+    .cta-coming-soon-label{display:block;font-size:.8rem;color:#6b7280;margin-top:.35rem}
+    .rv-service-cta-dynamic .service-area-zip-form{display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end;justify-content:center;margin-top:1rem}
+    .rv-service-cta-dynamic label{display:block;font-weight:600;margin-bottom:.35rem;font-size:.9rem}
+    .rv-service-cta-dynamic input[type="text"],.rv-service-cta-dynamic input[type="email"]{padding:.5rem .75rem;border:1px solid #d1d5db;border-radius:6px;font-size:1rem;min-width:140px}
+    .rv-service-cta-dynamic .service-area-result,.rv-service-cta-dynamic .service-area-waitlist{margin-top:1.5rem;text-align:left;background:#fff;padding:1.5rem;border-radius:8px}
+    .rv-service-cta-dynamic .service-area-waitlist form{display:grid;gap:.75rem;max-width:320px;margin-top:1rem}
+    @media(min-width:640px){.authority{padding:2rem}.authority-hero h1{font-size:2rem}}
+    .authority .end-cta{background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:1.75rem;margin:2.5rem 0;text-align:center}
+    .authority .end-cta h2{font-size:1.35rem;font-weight:600;margin:0 0 1rem 0;padding:0;border:0}
+    .authority .end-cta p{margin:0 0 1rem 0}
+    .authority .end-cta p:last-child{margin-bottom:0}
+    .authority .end-cta a{margin:0 .25rem;color:#0284c7;font-weight:600}
+    .emergency-stack{margin-bottom:2rem}
+    .emergency-banner{background:linear-gradient(135deg,#fef2f2 0%,#fff7ed 100%);border:2px solid #ea580c;border-radius:12px;padding:1.5rem 1.25rem;margin:0 0 1.25rem 0}
+    .emergency-banner-kicker{margin:0 0 .35rem 0;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#c2410c}
+    .emergency-banner-title{margin:0 0 .5rem 0;font-size:1.35rem;font-weight:700;color:#7c2d12}
+    .emergency-banner-danger{margin:0 0 .75rem 0;font-size:.98rem;color:#431407}
+    .emergency-banner-sub{margin:0 0 .35rem 0;font-weight:600;font-size:.95rem}
+    .emergency-banner-checks{margin:0;padding-left:1.25rem}
+    .emergency-banner-checks li{margin:.35rem 0}
+    .emergency-banner-cta-line{margin:.85rem 0 0 0;font-size:.95rem;font-weight:600}
+    .fix-60-block{background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:1.35rem 1.25rem;margin:0 0 1.25rem 0}
+    .fix-60-title{margin:0 0 .35rem 0;font-size:1.15rem;color:#14532d}
+    .fix-60-intro{margin:0 0 .65rem 0;font-size:.92rem;color:#365314}
+    .fix-60-steps{margin:0;padding-left:1.25rem}
+    .fix-60-steps li{margin:.35rem 0}
+    .most-likely-fix{background:#eff6ff;border:1px solid #93c5fd;border-radius:12px;padding:1.35rem 1.25rem;margin:0 0 1.25rem 0}
+    .most-likely-title{margin:0 0 .5rem 0;font-size:1.1rem;color:#1e3a8a}
+    .most-likely-body{margin:0 0 .75rem 0;font-size:.95rem}
+    .most-likely-meta{display:grid;gap:.35rem;margin:0 0 .75rem 0;font-size:.9rem}
+    .most-likely-meta dt{display:inline;font-weight:600;color:#334155}
+    .most-likely-meta dd{display:inline;margin:0 0 0 .35rem;color:#475569}
+    .most-likely-meta div{margin:0}
+    .most-likely-cta{margin:0;font-size:.92rem;font-weight:600}
+    .emergency-monetization{background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:1.35rem 1.25rem;margin:0 0 1.5rem 0}
+    .emergency-monetization-title{margin:0 0 .35rem 0;font-size:1.1rem;color:#0f172a}
+    .emergency-monetization-lead{margin:0 0 .65rem 0;font-size:.92rem;color:#475569}
+    .emergency-monetization-bullets{margin:0;padding-left:1.25rem}
+    .emergency-monetization-bullets li{margin:.3rem 0}
+    .emergency-monetization-cta{margin:.85rem 0 0 0;display:flex;flex-wrap:wrap;gap:.65rem;align-items:center}
+    .emergency-monetization-button{display:inline-block;background:#2563eb;color:#fff;padding:.55rem 1.1rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem}
+    .emergency-monetization-button:hover{background:#1d4ed8;color:#fff}
+    .emergency-monetization-link{font-size:.9rem;font-weight:600}
+  </style>
+</head>
+<body class="authority">
+
+<%- include('../partials/header.html') %>
+
+<div class="authority-hero">
+  <h1><%= title %></h1>
+  <% if (typeof subtitle !== 'undefined' && subtitle) { %><p class="subtitle"><%= subtitle %></p><% } %>
+  <% if (typeof showRvServiceCta !== 'undefined' && showRvServiceCta) { %>
+  <p class="hero-lead-cta" style="margin:.75rem 0 0 0;font-weight:600;"><a href="#" onclick="openServiceModal(); return false;" style="color:#0369a1;">Need RV AC repair? Request local service below.</a></p>
+  <% } else if (typeof serviceCtaType !== 'undefined' && serviceCtaType === 'electrician') { %>
+  <p class="hero-lead-cta" style="margin:.75rem 0 0 0;font-weight:600;"><a href="#local-professionals-cta" style="color:#0369a1;">Need an RV electrician? Find local professionals below.</a></p>
+  <% } else if (typeof serviceCtaType !== 'undefined' && serviceCtaType === 'plumber') { %>
+  <p class="hero-lead-cta" style="margin:.75rem 0 0 0;font-weight:600;"><a href="#local-professionals-cta" style="color:#0369a1;">Need an RV plumber? Find local professionals below.</a></p>
+  <% } %>
+</div>
+
+<%- include('../partials/emergency-rv-pattern.html') %>
+
+<%- include('../partials/ai-summary-card.html') %>
+
+<%- include('../partials/decisiongrid-authority-link.html') %>
+
+<%- include('../partials/quick-repair-toolkit.html') %>
+
+<% if (typeof contentPartial !== 'undefined') { %><%- include(contentPartial) %><% } else { %><%- content %><% } %>
+
+<%- include('../partials/authority-knowledge-graph-related.html') %>
+
+<% if (typeof serviceCtaType !== 'undefined' && (serviceCtaType === 'electrician' || serviceCtaType === 'plumber')) { %>
+<%- include('../partials/local-professionals-cta.html') %>
+<% } else if (typeof showRvServiceCta !== 'undefined' && showRvServiceCta) { %>
+  <% if (typeof serviceAreaMode !== 'undefined' && serviceAreaMode === 'dynamic') { %>
+<%- include('../partials/rv-service-cta-dynamic.html') %>
+  <% } else { %>
+<%- include('../partials/rv-service-cta.html') %>
+  <% } %>
+<% } %>
+<%- include('../partials/decisiongrid-used-in-repairs.html') %>
+
+<%- include('../partials/decisiongrid-linking-engine.html') %>
+
+<%- include('../partials/cluster-nav-block.html') %>
+
+<%- include('../partials/explore-cluster.html') %>
+
+<%- include('../partials/editorial-standards.html') %>
+
+<%- include('../partials/author-box.html') %>
+
+<%- include('../partials/safety-disclaimer.html') %>
+
+<p style="color:#64748b;font-size:.9rem;margin-bottom:8px;">As an Amazon Associate I earn from qualifying purchases.</p>
+<p style="color:#64748b;font-size:.9rem;"><em>Last updated: March 2026 · Reviewed for technical accuracy</em></p>
+<p><a href="/">← Home</a><% if (typeof breadcrumb !== 'undefined' && breadcrumb) { %> · <a href="<%= breadcrumb.backHref %>"><%= breadcrumb.backLabel %></a><% } else { %> · <a href="/rv-parts">RV Parts</a><% } %></p>
+
+<!-- Mermaid.js for diagnostic diagrams -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    mermaid.initialize({ startOnLoad: false, theme: "default", securityLevel: "loose" });
+    document.querySelectorAll(".mermaid").forEach((el) => {
+      const graphDefinition = el.textContent;
+      const graphId = "mermaid-" + Math.random().toString(36).substring(2, 9);
+      try {
+        mermaid.render(graphId, graphDefinition.trim()).then(function(r) { el.innerHTML = r.svg; }).catch(function(e) {
+          console.warn("Mermaid render failed:", e);
+          el.innerHTML = '<p style="color:#b45309;font-size:.9rem;">Diagram could not be rendered. Check the browser console for details.</p>';
+        });
+      } catch (err) {
+        console.warn("Mermaid:", err);
+        el.innerHTML = '<p style="color:#b45309;font-size:.9rem;">Diagram error.</p>';
+      }
+    });
+  });
+</script>
+
+<!-- Service Request Modal -->
+<%- include('../partials/service-modal.html') %>
+
+</body>
+</html>

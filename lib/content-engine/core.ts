@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
-import { Schema, GeneratedContent, getSchema } from './schema';
+import { Schema, GeneratedContent } from './schema';
+import { validatePage } from '../validators/page-validator';
 
 export const ENGINE_VERSION = "v4.0";
 
@@ -158,5 +159,10 @@ export const EXPECTED_PROMPT_HASH = createHash('sha256')
   .digest('hex');
 
 export function validateContent(data: unknown, pageType: string = "diagnostic") {
-  return getSchema(pageType).safeParse(data);
+  const result = validatePage(data);
+  return {
+    success: result.valid,
+    error: result.error ? { flatten: () => result.errors } : null,
+    data: data
+  };
 }

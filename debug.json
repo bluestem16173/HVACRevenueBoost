@@ -1,0 +1,174 @@
+{
+  "title": "AC Water Leakage Diagnostic",
+  "symptom": "ac-leaking-water",
+  "system": "HVAC",
+  "fast_answer": "Check for airflow issues or drainage blockage as primary causes of water leakage.",
+  "diagnostic_order": [
+    "Visual confirmation",
+    "When/where symptom occurs",
+    "Airflow / basic conditions",
+    "Electrical checks",
+    "Component-level failures"
+  ],
+  "failure_modes": [
+    {
+      "name": "Airflow Issues",
+      "description": "Problems related to restricted or insufficient airflow.",
+      "causes": [
+        "Dirty air filter",
+        "Blocked vents"
+      ]
+    },
+    {
+      "name": "Drainage Issues",
+      "description": "Failures in the condensate drainage system.",
+      "causes": [
+        "Clogged drain line",
+        "Full condensate pan"
+      ]
+    },
+    {
+      "name": "Electrical Issues",
+      "description": "Electrical faults causing improper AC operation.",
+      "causes": [
+        "Faulty float switch",
+        "Failed capacitor"
+      ]
+    },
+    {
+      "name": "Refrigerant / Pressure Issues",
+      "description": "Problems related to refrigerant levels or pressure abnormalities.",
+      "causes": [
+        "Low refrigerant",
+        "Refrigerant leak"
+      ]
+    },
+    {
+      "name": "Component Failure",
+      "description": "Malfunctions in specific components of the AC unit.",
+      "causes": [
+        "Faulty evaporator coil",
+        "Defective compressor"
+      ]
+    }
+  ],
+  "guided_diagnosis": [
+    {
+      "scenario": "If visible water is pooling under the AC unit → check for drainage issues.",
+      "action": "Inspect the condensate drain line and pan."
+    },
+    {
+      "scenario": "If water leakage occurs when humidity is high → check airflow issues.",
+      "action": "Inspect and replace the air filter if dirty."
+    },
+    {
+      "scenario": "If the unit shuts off unexpectedly → check for electrical issues.",
+      "action": "Test the float switch and capacitors."
+    },
+    {
+      "scenario": "If cooling is inadequate → check refrigerant / pressure issues.",
+      "action": "Measure refrigerant levels and inspect for leaks."
+    }
+  ],
+  "mermaid_diagram": "flowchart TD;\n  A[AC Leaking Water] --> B{Check for}\n  B --> C[Drainage Issues]\n  B --> D[Airflow Issues]\n  B --> E[Electrical Issues]\n  B --> F[Refrigerant / Pressure Issues]\n  C --> G[Inspect drain line]\n  C --> H[Inspect condensate pan]\n  D --> I[Check air filter]\n  D --> J[Check vents]\n  E --> K[Test float switch]\n  E --> L[Test capacitors]\n  F --> M[Measure refrigerant levels]\n  F --> N[Inspect for refrigerant leaks]",
+  "causes": [
+    {
+      "name": "Dirty air filter",
+      "failure_mode": "Airflow Issues",
+      "why_it_happens": "Increased resistance to airflow reduces cooling efficiency.",
+      "symptoms_to_confirm": [
+        "Reduced airflow from vents",
+        "Increased energy bills"
+      ],
+      "repair_action": "Replace air filter.",
+      "difficulty": "easy",
+      "estimated_cost": "low"
+    },
+    {
+      "name": "Clogged drain line",
+      "failure_mode": "Drainage Issues",
+      "why_it_happens": "Debris buildup obstructs water flow, leading to overflow.",
+      "symptoms_to_confirm": [
+        "Water pooling near AC",
+        "Wet ceiling or walls"
+      ],
+      "repair_action": "Clear or replace the drain line.",
+      "difficulty": "medium",
+      "estimated_cost": "medium"
+    },
+    {
+      "name": "Faulty float switch",
+      "failure_mode": "Electrical Issues",
+      "why_it_happens": "A malfunction prevents the system from shutting off if the pan fills.",
+      "symptoms_to_confirm": [
+        "AC continues to run when pan is full",
+        "Condensate pan overflow"
+      ],
+      "repair_action": "Replace the float switch.",
+      "difficulty": "medium",
+      "estimated_cost": "medium"
+    },
+    {
+      "name": "Low refrigerant",
+      "failure_mode": "Refrigerant / Pressure Issues",
+      "why_it_happens": "Insufficient refrigerant levels can lead to icing on coils and water leakage.",
+      "symptoms_to_confirm": [
+        "Icing on evaporator coil",
+        "Poor cooling performance"
+      ],
+      "repair_action": "Recharge the refrigerant system.",
+      "difficulty": "hard",
+      "estimated_cost": "high"
+    }
+  ],
+  "repairs": [
+    {
+      "name": "Replace air filter",
+      "related_cause": "Dirty air filter",
+      "steps": [
+        "Power off the HVAC system.",
+        "Remove the old air filter.",
+        "Install a new air filter.",
+        "Power on the system."
+      ],
+      "difficulty": "easy",
+      "estimated_cost": "low"
+    },
+    {
+      "name": "Clear drain line",
+      "related_cause": "Clogged drain line",
+      "steps": [
+        "Turn off the HVAC system.",
+        "Locate the drain line.",
+        "Use a wet/dry vacuum to clear the clog.",
+        "Restore power to the system."
+      ],
+      "difficulty": "medium",
+      "estimated_cost": "medium"
+    },
+    {
+      "name": "Replace float switch",
+      "related_cause": "Faulty float switch",
+      "steps": [
+        "Power off the unit.",
+        "Access the float switch location.",
+        "Remove and replace the faulty switch.",
+        "Test the system for proper operation."
+      ],
+      "difficulty": "medium",
+      "estimated_cost": "medium"
+    },
+    {
+      "name": "Recharge refrigerant",
+      "related_cause": "Low refrigerant",
+      "steps": [
+        "Identify the correct refrigerant type.",
+        "Attach the refrigerant gauge.",
+        "Charge the system to specified pressure.",
+        "Check for leaks and verify operation."
+      ],
+      "difficulty": "hard",
+      "estimated_cost": "high"
+    }
+  ]
+}

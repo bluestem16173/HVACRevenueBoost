@@ -12,7 +12,7 @@ async function main() {
       UPDATE pages
       SET 
         content_json = NULL,
-        status = 'pending',
+        status = 'draft',
         updated_at = NOW()
       WHERE updated_at > NOW() - INTERVAL '24 hours'
     `;
@@ -20,8 +20,8 @@ async function main() {
 
     await sql`
       UPDATE generation_queue
-      SET status = 'pending', page_id = NULL
-      WHERE status = 'completed' AND created_at >= NOW() - INTERVAL '24 hours'
+      SET status = 'draft', page_id = NULL
+      WHERE status IN ('published', 'completed') AND created_at >= NOW() - INTERVAL '24 hours'
     `;
     console.log("✅ Reset rows in generation_queue back to pending.");
   } catch (err) {

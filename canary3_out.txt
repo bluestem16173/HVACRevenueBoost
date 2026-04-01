@@ -1,0 +1,97 @@
+﻿[dotenv@17.3.1] injecting env (9) from .env.local -- tip: ΓÜÖ∩╕Å  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ≡ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ≡ƒ¢í∩╕Å auth for agents: https://vestauth.com
+≡ƒÉñ Starting Master Canary DB Regeneration: ac-blowing-warm-air
+GENERATION TRIGGERED 2026-03-27T03:53:28.532Z
+ORCH::METRIC={"tokens":2350,"cost":0.0047}
+node.exe : 
+[ai-spend-guard] 
+recordAiUsage failed: 
+NeonDbError: column 
+"model_name" of 
+relation "ai_usage" 
+does not exist
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Users\anedo\AppData
+\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: ([ai-spend-gua   
+ rd... does not exi    
+st:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+    at mr.execute (C:\U
+sers\anedo\Desktop\HVAC
+\HVACRevenueBoostWeb\no
+de_modules\@neondatabas
+e\serverless\index.js:1
+300:10)
+    at process.processT
+icksAndRejections (node
+:internal/process/task_
+queues:105:5)
+    at async 
+recordAiUsage (C:\Users
+\anedo\Desktop\HVAC\HVA
+CRevenueBoostWeb\lib\ai
+-spend-guard.ts:72:5)
+    at async 
+recordOpenAiChatUsage (
+C:\Users\anedo\Desktop\
+HVAC\HVACRevenueBoostWe
+b\lib\ai-spend-guard.ts
+:96:3)
+    at async callWithRe
+try.maxRetries (C:\User
+s\anedo\Desktop\HVAC\HV
+ACRevenueBoostWeb\lib\c
+ontent-engine\generator
+.ts:573:5)
+    at async 
+callWithRetry (C:\Users
+\anedo\Desktop\HVAC\HVA
+CRevenueBoostWeb\lib\co
+ntent-engine\generator.
+ts:45:14)
+    at async run (C:\Us
+ers\anedo\Desktop\HVAC\
+HVACRevenueBoostWeb\scr
+ipts\run-canary-regen.t
+s:13:19) {
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: 
+undefined,
+  internalQuery: 
+undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: 
+undefined,
+  file: 
+'parse_target.c',
+  line: '1065',
+  routine: 
+'checkInsertTargets',
+  sourceError: 
+undefined
+}
+≡ƒôª Payload generated. Validating strictly against V2 schema...
+Γ£à Schema passes strict test constraints. Pushing deep relational nodes...
+Γ£à Canary inserted securely for ac-blowing-warm-air!

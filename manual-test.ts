@@ -6,14 +6,16 @@ async function run() {
   console.log("TESTING RAW GENERATION API");
   const slug = "ac-blowing-warm-air";
   
-  const rawDg = await generateDiagnosticEngineJson(slug, {
-    slug: slug,
-    system: "HVAC",
-    pageType: "symptom",
-    coreOnly: false,
-    schemaVersion: "v2_goldstandard",
-    bypassAutoMode: true,
-  });
+  const rawDg = await generateDiagnosticEngineJson(
+    { symptom: slug, city: "", pageType: "symptom" },
+    "",
+    {
+      system: "HVAC",
+      coreOnly: false,
+      schemaVersion: "v2_goldstandard",
+      bypassAutoMode: true,
+    }
+  );
 
   console.log("--- KEY EXTRACTION ---");
   console.log(Object.keys(rawDg));

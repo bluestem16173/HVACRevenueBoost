@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useId, useMemo, useRef } from "react";
-import mermaid from "mermaid";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -140,6 +139,24 @@ function slugify(value: string) {
     .replace(/\s+/g, "-");
 }
 
+/** Mermaid must receive a string; malformed JSON sometimes nests chart data as objects. */
+function toMermaidString(input: unknown): string | undefined {
+  if (input == null) return undefined;
+  if (typeof input === "string") {
+    const t = input.trim();
+    return t.length ? t : undefined;
+  }
+  if (typeof input === "object") {
+    const o = input as Record<string, unknown>;
+    const nested =
+      (typeof o.mermaid === "string" && o.mermaid.trim()) ||
+      (typeof o.chart === "string" && o.chart.trim()) ||
+      (typeof o.code === "string" && o.code.trim());
+    if (nested) return nested;
+  }
+  return undefined;
+}
+
 function SectionHeading({
   title,
   subtitle,
@@ -183,28 +200,30 @@ function ProbabilityPill({ value }: { value: Probability }) {
   );
 }
 
-function MermaidDiagram({ code }: { code: string }) {
+function MermaidDiagram({ code }: { code?: string }) {
   const id = useId().replace(/:/g, "");
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let mounted = true;
 
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: "default",
-      securityLevel: "loose",
-      flowchart: {
-        useMaxWidth: true,
-        htmlLabels: true,
-      },
-    });
+    const safeCode = typeof code === "string" ? code : "";
 
     async function renderChart() {
-      if (!ref.current || !code?.trim()) return;
+      if (!ref.current || !safeCode.trim()) return;
 
       try {
-        const { svg } = await mermaid.render(`mermaid-${id}`, code);
+        const mermaid = (await import("mermaid")).default;
+        mermaid.initialize({
+          startOnLoad: false,
+          theme: "default",
+          securityLevel: "loose",
+          flowchart: {
+            useMaxWidth: true,
+            htmlLabels: true,
+          },
+        });
+        const { svg } = await mermaid.render(`mermaid-${id}`, safeCode);
         if (mounted && ref.current) {
           ref.current.innerHTML = svg;
         }
@@ -219,7 +238,7 @@ function MermaidDiagram({ code }: { code: string }) {
       }
     }
 
-    renderChart();
+    void renderChart();
 
     return () => {
       mounted = false;
@@ -407,7 +426,7 @@ function DiagnosticFlow({
   return (
     <section
       id="diagnostic-flow"
-      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+      className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-x-auto"
     >
       <div className="bg-slate-900 px-5 py-3 text-sm font-bold uppercase tracking-[0.16em] text-white">
         {title}
@@ -1133,7 +1152,7 @@ export function GoldStandardSymptomPage(props: GoldStandardSymptomPageProps) {
   }, [props]);
 
   return (
-    <main className="min-h-screen bg-slate-100 text-slate-900">
+    <div className="min-h-screen bg-slate-100 text-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
         <nav className="mb-6 text-sm text-slate-500">
           <div className="flex flex-wrap items-center gap-2">
@@ -1323,13 +1342,52 @@ export function GoldStandardSymptomPage(props: GoldStandardSymptomPageProps) {
           </aside>
         </div>
       </div>
-    </main>
+    </div>
+  );
+}
+
+function GoldStandardFallback({
+  title,
+  detail,
+  extra,
+}: {
+  title: string;
+  detail?: string;
+  extra?: unknown;
+}) {
+  return (
+    <div className="mx-auto max-w-4xl px-4 py-10 text-slate-800">
+      <div className="rounded-2xl border border-amber-300 bg-amber-50 p-6 shadow-sm">
+        <p className="text-sm font-black uppercase tracking-wide text-amber-900">{title}</p>
+        {detail ? <p className="mt-2 text-sm text-slate-700">{detail}</p> : null}
+        {extra != null ? (
+          <pre className="mt-4 max-h-96 overflow-auto rounded-lg border border-amber-200 bg-white p-3 text-xs text-slate-800">
+            {typeof extra === "string" ? extra : JSON.stringify(extra, null, 2)}
+          </pre>
+        ) : null}
+      </div>
+    </div>
   );
 }
 
 export default function GoldStandardPage({ data }: { data: any }) {
-  if (!data) return null;
-  if (data?.schemaVersion && data.schemaVersion !== "v1") return null;
+  if (!data) {
+    return (
+      <GoldStandardFallback
+        title="Gold standard layout — no data"
+        detail="The page record loaded but GoldStandardPage received no data object. Check normalization and props."
+      />
+    );
+  }
+  if (data?.schemaVersion && data.schemaVersion !== "v1") {
+    return (
+      <GoldStandardFallback
+        title="Gold standard layout — schema mismatch"
+        detail={`Expected schemaVersion "v1", got ${JSON.stringify(data.schemaVersion)}.`}
+        extra={{ slug: data.slug, schemaVersion: data.schemaVersion }}
+      />
+    );
+  }
 
   const validCauses = Array.isArray(data.causes) ? data.causes : [];
   const validDeepCauses = Array.isArray(data.deep_causes) ? data.deep_causes : [];
@@ -1349,10 +1407,12 @@ export default function GoldStandardPage({ data }: { data: any }) {
       ? validCauses.find((c: any) => c?.probability === "High") || validCauses[0]
       : null;
 
-  const chart =
-    typeof data.diagnostic_flow === "object"
-      ? data.diagnostic_flow?.chart || data.diagnostic_flow?.mermaid
-      : data.diagnostic_flow || data.system_flow;
+  const flow = data.diagnostic_flow;
+  const chartRaw =
+    flow != null && typeof flow === "object"
+      ? (flow as Record<string, unknown>).chart ?? (flow as Record<string, unknown>).mermaid
+      : flow ?? data.system_flow;
+  const chart = toMermaidString(chartRaw);
 
   const defaultCTA = {
     title: "Need AC diagnosed by a local HVAC technician?",
@@ -1379,8 +1439,13 @@ export default function GoldStandardPage({ data }: { data: any }) {
     fastAnswerTitle: "AI Diagnosis Summary",
     mostLikelyIssue:
       data.ai_summary?.most_likely_issue || topCause?.name || "System fault detected",
-    summaryBullets: (data.ai_summary?.bullets || []).map((b: string) => ({
-      text: b,
+    summaryBullets: (data.ai_summary?.bullets || []).map((b: unknown) => ({
+      text:
+        typeof b === "string"
+          ? b
+          : b != null && typeof b === "object" && "text" in (b as object)
+            ? String((b as { text?: unknown }).text ?? "")
+            : String(b ?? ""),
     })),
 
     mostCommonFix: topCause
@@ -1406,7 +1471,9 @@ export default function GoldStandardPage({ data }: { data: any }) {
       action: c.fix_summary || c.description || "Review diagnostics and repair path",
     })),
 
-    checklist: (data.checklist || []).map((c: string) => ({ text: c })),
+    checklist: (data.checklist || []).map((c: unknown) => ({
+      text: typeof c === "string" ? c : String(c ?? ""),
+    })),
     diagnosticFlowTitle: "System Flowchart",
     mermaidCode: chart,
 

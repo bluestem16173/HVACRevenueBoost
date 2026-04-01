@@ -2,20 +2,23 @@ import "dotenv/config";
 import sql from '../lib/db';
 import * as fs from 'fs';
 
-async function checkRecentPages() {
+async function run() {
   try {
-    const recentCount = await sql`SELECT COUNT(*) FROM pages WHERE created_at > NOW() - INTERVAL '24 hours'`;
-    const recentPages = await sql`SELECT slug, created_at FROM pages ORDER BY created_at DESC LIMIT 10`;
+    const rawData = fs.readFileSync('payload_out.json', 'utf8');
+    const jsonData = JSON.parse(rawData);
     
-    fs.writeFileSync('recent_pages.json', JSON.stringify({
-      count_last_24h: recentCount[0].count,
-      recent_pages: recentPages
-    }, null, 2));
-
+    console.log("Updating ac-blowing-warm-air row with payload_out.json...");
+    await sql`
+      UPDATE pages 
+      SET content_json = ${JSON.stringify(jsonData)}::jsonb,
+          schema_version = 'v5_master'
+      WHERE slug = 'ac-blowing-warm-air'
+    `;
+    console.log("Successfully overloaded DB with V2 Gold Standard JSON!");
   } catch (err) {
     console.error(err);
   } finally {
     process.exit(0);
   }
 }
-checkRecentPages();
+run();

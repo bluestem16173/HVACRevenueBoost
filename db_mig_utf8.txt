@@ -1,0 +1,65 @@
+﻿[dotenv@17.3.1] injecting env (9) from .env.local -- tip: ≡ƒñû agentic secret storage: https://dotenvx.com/as2
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ≡ƒöÉ encrypt with Dotenvx: https://dotenvx.com
+≡ƒÜÇ Running V2 Relational Database Migration...
+node.exe : Γ¥î 
+Migration failed: 
+NeonDbError: column 
+"failure_mode_id" does 
+not exist
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Users\anedo\AppData
+\Roaming\ ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
+~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (Γ¥î Migration   
+  f... does not exi    
+st:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+    at mr.execute (C:\U
+sers\anedo\Desktop\HVAC
+\HVACRevenueBoostWeb\no
+de_modules\@neondatabas
+e\serverless\index.js:1
+300:10)
+    at process.processT
+icksAndRejections (node
+:internal/process/task_
+queues:105:5)
+    at async run (C:\Us
+ers\anedo\Desktop\HVAC\
+HVACRevenueBoostWeb\scr
+ipts\db-migrate-relatio
+nal.ts:59:3) {
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: 
+undefined,
+  internalQuery: 
+undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: 
+undefined,
+  file: 'indexcmds.c',
+  line: '1888',
+  routine: 
+'ComputeIndexAttrs',
+  sourceError: 
+undefined
+}

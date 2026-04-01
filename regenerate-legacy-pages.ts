@@ -11,8 +11,8 @@ async function main() {
   // We can just set their status to "pending" to let the worker re-run them
   const result = await sql`
     UPDATE pages 
-    SET status = 'pending' 
-    WHERE status != 'pending' 
+    SET status = 'draft'
+    WHERE status NOT IN ('draft', 'pending')
     AND page_type = 'symptom'
     AND NOT (content_json ? 'decision_tree')
     RETURNING slug;

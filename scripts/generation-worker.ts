@@ -17,11 +17,15 @@ import {
   checkSpendSpikeAndShutdown,
   isEmergencyGenerationShutdown,
 } from "../lib/emergency-generation-shutdown";
-import { validatePage } from "../lib/validators/page-validator";
+import { validateV2 } from "../lib/validators/validate-v2";
+import { migrateOnePage } from "../lib/content-engine/relational-upsert";
+import { QueueStatus } from "../lib/queue-status";
+import { pagesStatusAfterSuccessfulGeneration } from "../lib/page-status";
+import { describeQueueJobForLogs } from "../lib/content-system/registry";
 
 console.log("DB URL:", process.env.DATABASE_URL);
 if (process.env.DRY_RUN === "true") {
-  console.log("🧪 DRY_RUN=true — no AI calls; jobs will be released back to pending.");
+  console.log("🧪 DRY_RUN=true — no AI calls; jobs will be released back to draft.");
 }
 
 function normalizeSlug(input: string) {
@@ -33,8 +37,6 @@ function normalizeSlug(input: string) {
     .replace(/\s+/g, '-')
     .trim();
 }
-
-const QUEUE_STATUS = { pending: 'pending', processing: 'processing', completed: 'completed', failed: 'failed' };
 
 let isWorkerRunning = false;
 
@@ -63,11 +65,13 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         AND status = 'published'
     `;
     const todaySpend = parseInt((spendRes as any[])[0]?.generated_today || "0", 10);
-    const DAILY_LIMIT = process.env.DAILY_LIMIT ? parseInt(process.env.DAILY_LIMIT, 10) : 10;
+    // Hard $5 Daily Budget Cap
+    const DAILY_BUDGET = 5; // dollars
+    const estimatedCost = todaySpend * 0.01; // ~1 cent per generation
 
-    if (todaySpend >= DAILY_LIMIT) {
-      console.log(`💸 Daily budget hit (${todaySpend}/${DAILY_LIMIT}) — stopping`);
-      return { success: false, reason: "Daily budget hit" };
+    if (estimatedCost >= DAILY_BUDGET) {
+      console.log(`💸 Daily budget reached ($${estimatedCost.toFixed(2)} / $${DAILY_BUDGET}). Stopping.`);
+      process.exit(0);
     }
   } catch (e) {
     console.log("⚠️ Could not verify daily spend guard, proceeding with caution.");
@@ -112,14 +116,20 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
       }
     }
 
-    const batchSize =
+    let batchSize =
       typeof options.limit === "number" && options.limit > 0
         ? options.limit
         : parseInt(process.env.CANARY_BATCH_SIZE || String(BATCH_SIZE), 10) || BATCH_SIZE;
 
+    const MAX_JOBS_PER_RUN = 50;
+    if (batchSize > MAX_JOBS_PER_RUN) {
+      console.log(`⚠️ Requested batch size (${batchSize}) exceeds hard limit. Capping to ${MAX_JOBS_PER_RUN}.`);
+      batchSize = MAX_JOBS_PER_RUN;
+    }
+
     const items = (await getQueuedJobs(batchSize, options.type)) as any[];
 
-    console.log(`📦 Fetched ${items.length} pending jobs (batch up to ${batchSize}).`);
+    console.log(`📦 Fetched ${items.length} draft/queued jobs (batch up to ${batchSize}).`);
 
     for (const job of items) {
       if (process.env.GENERATION_ENABLED !== "true") {
@@ -127,8 +137,8 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         for (const j of items) {
           await sql`
             UPDATE generation_queue
-            SET status = 'pending'
-            WHERE id = ${j.id} AND status = 'processing'
+            SET status = ${QueueStatus.DRAFT}
+            WHERE id = ${j.id} AND status IN ('generated', 'processing')
           `;
         }
         break;
@@ -146,11 +156,13 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
       const pageTypeForSlug = job.proposed_slug?.startsWith("repair/") ? "repair" : (job.page_type || "symptom");
       const pageType = pageTypeForSlug || "symptom";
 
+      console.log("📖 Content OS registry:", describeQueueJobForLogs(String(job.page_type), String(proposedSlug)));
+
       if (process.env.DRY_RUN === "true") {
         console.log("Would generate:", proposedSlug, { page_type: job.page_type, id: job.id });
         await sql`
           UPDATE generation_queue
-          SET status = 'pending'
+          SET status = ${QueueStatus.DRAFT}
           WHERE id = ${job.id}
         `;
         continue;
@@ -164,7 +176,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         await sql`
           UPDATE generation_queue
           SET
-            status = 'completed',
+            status = ${QueueStatus.PUBLISHED},
             last_error = 'layer8_template_expansion'
           WHERE id = ${job.id}
         `;
@@ -175,67 +187,54 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
       try {
         console.log("🚀 GENERATING:", proposedSlug);
 
-        let attempt = 0;
+        let attempts = 0;
+        let lastError = "";
         let finalResult: any = null;
-        let finalStatus: 'published' | 'failed' | 'needs_regen' = 'published';
-        let currentFeedback: string[] = [];
-        let schemaVersion = "v2_goldstandard";
+        /** Never `generation_queue.status` — only `pages.status` lifecycle (see lib/page-status.ts). */
+        let pagesInsertStatus: ReturnType<typeof pagesStatusAfterSuccessfulGeneration> | null = null;
+        let schemaVersion = "v5_master";
 
-        // Max 2 retries (3 attempts total)
-        const maxAttempts = 3;
+        while (attempts < 3) {
+          const rawDg = await generateDiagnosticEngineJson(
+            { symptom: proposedSlug, city: job.city || "Florida", pageType },
+            lastError,
+            job.orchestrator_options
+          );
 
-        while (attempt < maxAttempts) {
-          const rawDg = await generateDiagnosticEngineJson(proposedSlug, {
-            slug: proposedSlug,
-            system: "HVAC",
-            pageType: pageType,
-            coreOnly: false,
-            schemaVersion: "v2_goldstandard",
-            retryFeedback: currentFeedback.length > 0 ? buildRetryPromptFragment(currentFeedback) : undefined,
-            bypassAutoMode: options.manual === true,
-          });
+          console.log(`📦 JSON GENERATED (Attempt ${attempts + 1}/3):`, proposedSlug);
 
-          console.log(`📦 DG JSON GENERATED (Attempt ${attempt + 1}/${maxAttempts}):`, proposedSlug);
-
+          let validation = { valid: false, error: "" };
           try {
-            // STEP 5 — VALIDATE AI OUTPUT (THIS IS HUGE)
-            if (!rawDg.ai_summary) throw new Error("Missing summary");
-            if (!rawDg.system_flow) throw new Error("Missing system flow");
-            if (!rawDg.diagnostic_flow) throw new Error("Missing diagnostic flow");
-            if (!rawDg.causes || rawDg.causes.length < 4) throw new Error("Weak causes");
-
-            console.log("✅ GOLD STANDARD VALIDATION PASSED:", proposedSlug);
-            finalResult = rawDg;
-            finalStatus = 'published';
-            break;
-            
-          } catch (err: any) {
-            console.log(`⚠️ Validation failed: ${err.message}. Initiating RETRY for ${proposedSlug}.`);
-            currentFeedback = [err.message];
-            attempt++;
-            
-            if (attempt >= maxAttempts) {
-              finalStatus = 'failed';
-              console.error(`❌ Rejected weak page ${proposedSlug}. Failed on: ${err.message}`);
-              break;
-            }
-            continue;
+            validateV2(rawDg);
+            validation = { valid: true, error: "" };
+          } catch(ve: any) {
+            validation = { valid: false, error: ve.message };
           }
+
+          if (validation.valid) {
+            console.log(`✅ Validation passed for ${proposedSlug}`);
+            finalResult = rawDg;
+            pagesInsertStatus = pagesStatusAfterSuccessfulGeneration();
+            break;
+          }
+
+          console.log(`⚠️ Validation failed: ${validation.error}. Retrying ${proposedSlug}...`);
+          lastError = validation.error || "Unknown validation failure";
+          attempts++;
+        }
+
+        if (!pagesInsertStatus || !finalResult) {
+          console.error(`❌ Rejected weak page ${proposedSlug}. Failed on: ${lastError}`);
+          throw new Error(lastError || "Failed all 3 attempts to generate valid schema");
         }
 
         const result = finalResult;
-        
-        // 🛡️ STRICT VALIDATION GATE (Drop-in Validator)
-        const valRes = validatePage(result);
-        let status = 'failed';
-        
-        if (!valRes.valid) {
-          console.log(`❌ Validation failed for ${proposedSlug}:`, valRes.errors);
-          status = 'failed';
-        } else {
-          console.log(`✅ Validation passed for ${proposedSlug}`);
-          status = 'validated';
-        }
+
+        await sql`
+          UPDATE generation_queue
+          SET status = ${QueueStatus.VALIDATED}
+          WHERE id = ${job.id}
+        `;
 
         // Add required properties
         (result as any)._prompt_hash = EXPECTED_PROMPT_HASH;
@@ -243,7 +242,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
 
         console.log({
           slug: proposedSlug,
-          status: status,
+          pages_status: pagesInsertStatus,
           causes: result?.content?.causes?.length || result?.content?.top_causes?.length,
           steps: result?.content?.diagnostic_flow?.length || result?.content?.diagnosticFlow?.length,
         });
@@ -257,14 +256,20 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
           }
         }
 
-        console.log("💾 INSERT START:", cleanSlug);
+        console.log("💾 DUAL-WRITE V2 START:", cleanSlug);
 
+        // V2 Relational Engine Native Upsert
+        // (This validates, drops junctions, and transactionally layers Causes, Repais, Flowcharts into PG)
+        await migrateOnePage(sql, null, cleanSlug, result);
+
+        // V1 Legacy Fallback Upsert (True Dual-Write)
+        // pages.status is NOT derived from generation_queue.status.
         const res = await sql`
           INSERT INTO pages (slug, content_json, status, page_type, title, city, schema_version)
           VALUES (
             ${cleanSlug},
             ${JSON.stringify(result)}::jsonb,
-            ${status},
+            ${pagesInsertStatus},
             ${result.page_type || pageType},
             ${result.title || 'Untitled'},
             ${city},
@@ -280,12 +285,13 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
           RETURNING slug;
         `;
 
-        console.log("✅ INSERT SUCCESS:", res[0]?.slug || cleanSlug);
+        console.log("✅ DUAL-WRITE SUCCESS:", cleanSlug);
+        console.log(`ORCH::PAGE_CREATED=${JSON.stringify({ slug: cleanSlug, url: "/diagnose/" + cleanSlug })}`);
         await new Promise(res => setTimeout(res, 1000));
 
         await sql`
           UPDATE generation_queue
-          SET status = 'completed'
+          SET status = ${QueueStatus.PUBLISHED}
           WHERE id = ${job.id}
         `;
 
@@ -297,23 +303,33 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         else console.error(err.message || err);
 
         const msg = String(err?.message || err);
+        console.log(`ORCH::ERROR=${JSON.stringify({ slug: proposedSlug, error: msg.slice(0, 500) })}`);
         const isDailyLimit = msg.includes("DAILY_SPEND_LIMIT_REACHED");
+        const isRateLimit = err?.code === '429' || err?.status === 429 || msg.includes("429") || msg.toLowerCase().includes("rate limit") || msg.toLowerCase().includes("quota");
+        const PAGE_QUEUE_FAIL_AFTER_ATTEMPTS = parseInt(process.env.PAGE_QUEUE_FAIL_AFTER_ATTEMPTS || "3", 10);
+
         if (isDailyLimit) {
           await sql`
             UPDATE generation_queue
-            SET status = 'pending'
+            SET status = ${QueueStatus.DRAFT}
+            WHERE id = ${job.id}
+          `;
+        } else if (isRateLimit) {
+          console.log("🛑 429 Rate Limit hit. Failing job permanently to prevent burn loop.");
+          await sql`
+            UPDATE generation_queue
+            SET attempts = ${PAGE_QUEUE_FAIL_AFTER_ATTEMPTS}, status = ${QueueStatus.FAILED}, last_error = ${msg.slice(0, 2000)}
             WHERE id = ${job.id}
           `;
         } else {
           const prev = queueAttemptCount(job as Record<string, unknown>);
           const next = prev + 1;
-          if (next > 1) {
+          if (next >= PAGE_QUEUE_FAIL_AFTER_ATTEMPTS) {
             await sql`
               UPDATE generation_queue
               SET
                 attempts = ${next},
-                regeneration_attempts = ${next},
-                status = 'failed',
+                status = ${QueueStatus.FAILED},
                 last_error = ${msg.slice(0, 2000)}
               WHERE id = ${job.id}
             `;
@@ -322,8 +338,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
               UPDATE generation_queue
               SET
                 attempts = ${next},
-                regeneration_attempts = ${next},
-                status = 'pending',
+                status = ${QueueStatus.DRAFT},
                 last_error = ${msg.slice(0, 2000)}
               WHERE id = ${job.id}
             `;
@@ -335,8 +350,8 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
           for (const oid of otherIds) {
             await sql`
               UPDATE generation_queue
-              SET status = 'pending'
-              WHERE id = ${oid} AND status = 'processing'
+              SET status = ${QueueStatus.DRAFT}
+              WHERE id = ${oid} AND status IN ('generated', 'processing')
             `;
           }
           break;
@@ -355,6 +370,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
   }
 
   console.log('🏁 Worker batch complete.');
+  console.log(`ORCH::COMPLETE=${JSON.stringify({ processedCount, failedCount })}`);
   try { await sql`INSERT INTO system_logs (event_type, message) VALUES ('worker_end', 'Worker completed batch')`; } catch(e) {}
   isWorkerRunning = false;
 

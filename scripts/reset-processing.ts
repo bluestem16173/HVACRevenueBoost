@@ -2,7 +2,7 @@ import "dotenv/config";
 import sql from '../lib/db';
 
 async function reset() {
-  const result = await sql`UPDATE generation_queue SET status = 'pending' WHERE status = 'processing'`;
+  const result = await sql`UPDATE generation_queue SET status = 'draft' WHERE status IN ('generated', 'processing')`;
   console.log(`Reset ${(result as any).count ?? result.length} processing pages back to pending.`);
   process.exit(0);
 }

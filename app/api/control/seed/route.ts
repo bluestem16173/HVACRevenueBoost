@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       if (!existingSlugs.has(slug)) {
         await sql`
           INSERT INTO generation_queue (proposed_slug, page_type, status, started_at, finished_at)
-          VALUES (${slug}, 'symptom', 'pending', NULL, NULL)
+          VALUES (${slug}, 'symptom', 'draft', NULL, NULL)
         `;
         seeded++;
       }

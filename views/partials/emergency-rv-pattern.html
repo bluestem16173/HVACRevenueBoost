@@ -1,0 +1,70 @@
+<% 
+  var _lead = (typeof emergencyPage !== 'undefined' && emergencyPage) ? emergencyPage.leadStyle : '';
+  var _anchor = '#local-professionals-cta';
+  if (_lead === 'hvac') { _anchor = '#rv-service-area-lead-capture'; }
+%>
+<% if (typeof emergencyPage !== 'undefined' && emergencyPage) { %>
+<section class="emergency-stack" aria-label="Emergency quick response">
+  <div class="emergency-banner">
+    <p class="emergency-banner-kicker">Emergency checklist</p>
+    <h2 class="emergency-banner-title"><%= emergencyPage.bannerHeadline %></h2>
+    <p class="emergency-banner-danger"><%= emergencyPage.dangerLine %></p>
+    <p class="emergency-banner-sub">Check these three things immediately:</p>
+    <ol class="emergency-banner-checks">
+      <li><%= emergencyPage.immediateChecks[0] %></li>
+      <li><%= emergencyPage.immediateChecks[1] %></li>
+      <li><%= emergencyPage.immediateChecks[2] %></li>
+    </ol>
+    <p class="emergency-banner-cta-line">
+      <a href="<%= _anchor %>">Need immediate help?</a>
+      <% if (_lead === 'hvac') { %>
+      <span class="emergency-banner-partner"> · </span>
+      <a href="https://hvacrevenueboost.com/rv-ac-repair" rel="noopener noreferrer">Find RV HVAC repair near you</a>
+      <% } %>
+    </p>
+  </div>
+
+  <div class="fix-60-block">
+    <h3 class="fix-60-title"><%= emergencyPage.fix60Title %></h3>
+    <p class="fix-60-intro">Try this first—many issues resolve without tools.</p>
+    <ol class="fix-60-steps">
+      <% emergencyPage.fix60Steps.forEach(function (step) { %>
+      <li><%= step %></li>
+      <% }); %>
+    </ol>
+  </div>
+
+  <div class="most-likely-fix">
+    <h3 class="most-likely-title"><%= emergencyPage.mostLikelyTitle %></h3>
+    <p class="most-likely-body"><%= emergencyPage.mostLikelyFix %></p>
+    <dl class="most-likely-meta">
+      <div><dt>Cost band</dt><dd><%= emergencyPage.costBand %></dd></div>
+      <div><dt>Difficulty</dt><dd><%= emergencyPage.difficulty %></dd></div>
+      <div><dt>Time</dt><dd><%= emergencyPage.timeEstimate %></dd></div>
+    </dl>
+    <p class="most-likely-cta">
+      <a href="<%= _anchor %>">Get a local RV tech</a>
+      <% if (_lead === 'hvac') { %>
+      <span> · </span>
+      <a href="https://hvacrevenueboost.com/rv-ac-repair" rel="noopener noreferrer">HVAC Revenue Boost partner network</a>
+      <% } %>
+    </p>
+  </div>
+
+  <div class="emergency-monetization" role="region" aria-label="Professional service">
+    <h3 class="emergency-monetization-title"><%= emergencyPage.monetizationHeadline %></h3>
+    <p class="emergency-monetization-lead">We connect you with local RV-capable technicians when DIY hits a wall.</p>
+    <ul class="emergency-monetization-bullets">
+      <li><%= emergencyPage.monetizationBullets[0] %></li>
+      <li><%= emergencyPage.monetizationBullets[1] %></li>
+      <li><%= emergencyPage.monetizationBullets[2] %></li>
+    </ul>
+    <p class="emergency-monetization-cta">
+      <a class="emergency-monetization-button" href="<%= _anchor %>">Get help near you</a>
+      <% if (_lead === 'hvac') { %>
+      <a class="emergency-monetization-link" href="https://hvacrevenueboost.com/rv-ac-repair" rel="noopener noreferrer">RV AC repair (partner)</a>
+      <% } %>
+    </p>
+  </div>
+</section>
+<% } %>

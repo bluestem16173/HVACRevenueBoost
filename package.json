@@ -5,9 +5,11 @@
   "scripts": {
     "dev": "next dev",
     "dev:3001": "next dev -p 3001",
+    "dev:3003": "next dev -p 3003",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "docs:diagnose-md": "node scripts/build-diagnose-docs-md.mjs",
     "db:seed-diagnostic-tests": "tsx scripts/seed-diagnostic-tests.ts",
     "db:seed-hvac-graph": "tsx scripts/seed-hvac-graph.ts",
     "db:seed-core": "npx tsx scripts/seed-hvac-core.ts",
@@ -34,6 +36,9 @@
     "analyze-pages": "npx tsx scripts/analyze-pages-export.ts",
     "seed:tier1": "npx tsx scripts/seed-tier1-conditions.ts",
     "worker": "npx tsx scripts/generation-worker.ts",
+    "worker:run": "npx tsx scripts/generation-worker.ts",
+    "worker:one": "npx tsx scripts/generation-worker.ts --manual --limit 1",
+    "regen:latest": "npx tsx scripts/force-regen-latest.ts",
     "pr": "node scripts/open-pr.js"
   },
   "dependencies": {

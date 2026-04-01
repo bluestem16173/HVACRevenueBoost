@@ -15,8 +15,15 @@ import {
 } from "./core";
 
 import {
-  getFallback
+  getFallback,
+  SCHEMA_STRING
 } from "./schema";
+import { normalizePageTypeKey } from "@/config/page-types";
+import {
+  buildHrbTaskPrompt,
+  HRB_SYSTEM_LOCK,
+  isDecisionGridDiagnosticMode,
+} from "./prompts/hvac-revenue-boost";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const gemini = new OpenAI({ 
@@ -66,7 +73,7 @@ function finalizeOutput(raw: string, pageType: string) {
     const result = validateContent(source, pageType);
 
     if (!result.success) {
-      console.error("ZOD ERROR:", result.error.flatten());
+      console.error("ZOD ERROR:", result.error?.flatten());
       return fallback;
     }
 
@@ -468,89 +475,174 @@ export function assertCriticalDiagnosticFields(
   }
 }
 
-export async function generateDiagnosticEngineJson(problem: string, options: any = {}) {
-  const { slug = "", system = "HVAC", pageType = "symptom", keyword = "", context = "" } = options;
+export const LAYER1_SYSTEM_LOCK = `You are a senior HVAC diagnostic engineer generating structured diagnostic data for a relational database.
 
+You are NOT writing content.
+You are building a diagnostic system.
+
+All outputs must:
+- Be mechanically accurate
+- Use measurable thresholds
+- Eliminate ambiguity
+- Follow strict schema`;
+
+export const LAYER2_HARD_CONSTRAINTS = `NON-NEGOTIABLE RULES:
+
+0. TECHNICIAN DENSITY (MASTER)
+You are a senior HVAC diagnostic technician.
+
+You MUST explain failures using:
+- airflow dynamics (CFM, static pressure, mass flow)
+- thermodynamics (heat transfer, phase change, superheat/subcool, enthalpy)
+- electrical behavior (capacitors, contactors, voltage, current, motors)
+
+FORBIDDEN in fast_answer.technical_summary, fast_answer.primary_mechanism, cause.mechanism, repair.system_effect:
+- Generic comfort-language-only explanations
+- Consumer-blog tone
+- Hedge words: "may", "might", "could" (use testable, decisive technician phrasing instead)
+
+REQUIRED:
+- Every cause MUST include a physical failure mechanism (chain: component → system effect → symptom).
+- Every repair MUST include system_effect: what behavior is restored (compression cycle, airflow, control sequence, heat transfer).
+- Every diagnostic step / test MUST tie to measurable or observable conditions (temperature, pressure, voltage, airflow).
+
+---
+
+1. FAILURE MODES
+- Must represent physical system failure states
+- Must NOT be generic categories
+- Must describe what is physically failing
+
+BAD EXAMPLES: Electrical Issues, Airflow Problems
+GOOD EXAMPLES: Compressor Activation Failure, Refrigerant Circuit Pressure Loss, Heat Exchange Failure, Air Distribution Failure
+
+---
+
+2. TESTS (CRITICAL)
+Every cause MUST include:
+- A real-world diagnostic test
+- A measurable or observable threshold
+
+BAD: "Check capacitor"
+GOOD: "Measure capacitance with multimeter; must be within ±6% of rating"
+
+---
+
+3. EXPECTED RESULT
+Must define:
+- what CONFIRMS the issue
+- what ELIMINATES other failure modes
+
+---
+
+4. FLOWCHART
+- Must be valid Mermaid flowchart TD
+- MUST branch early by physical system state
+- Each node MUST be a binary decision ending in a question mark (?)
+- The exact, case-sensitive name of EVERY failure mode MUST appear as a node in the Mermaid diagram.
+
+---
+
+5. LANGUAGE
+- Use technician confirmation language: "this confirms", "this indicates", "this eliminates"
+- No blog phrasing
+- No fluff
+
+---
+
+6. INTERNAL SELF-CHECK (MANDATORY)
+Before returning JSON, verify internally:
+- Each failure mode is a physical system state
+- Each cause has a measurable test
+- Each expected_result defines pass/fail
+- Flowchart includes all failure modes exactly as named
+- No generic terms are used
+
+If any rule is violated, restructure your logic silently before outputting the final JSON.`;
+
+export function buildLayer3TaskPrompt(symptom: string, system: string) {
+  return `Generate a diagnostic system for:
+
+SYMPTOM: ${symptom}
+SYSTEM: ${system}
+
+REQUIREMENTS:
+
+- Produce 3–5 failure modes
+- Produce >=4 causes
+- Every cause must map to ONE failure mode
+- Every cause must include:
+  - test
+  - expected_result
+- Every cause must have >=1 repair
+
+- Include:
+  - diagnostic_order
+  - guided_diagnosis (3+ scenarios)
+  - mermaid_diagram
+
+Return ONLY valid JSON matching schema.
+`;
+}
+
+export async function generateDiagnosticEngineJson(input: { symptom: string, city: string, pageType?: string }, retryFeedback: string = "", orchestratorOptions: any = null) {
   if (process.env.GENERATION_ENABLED !== "true") {
     console.log("🚫 Generation globally disabled");
     return undefined as any;
   }
-  await assertAutoModeEnabled({ bypassAutoMode: options.bypassAutoMode === true });
+  await assertAutoModeEnabled({ bypassAutoMode: true });
   await assertDailySpendAllows("generateDiagnosticEngineJson:start");
   console.log("GENERATION TRIGGERED", new Date());
 
-  const { composePromptForPageType } = await import("../prompt-schema-router");
-  const sysMsg = composePromptForPageType(pageType, slug, { schemaVersion: options.schemaVersion });
-  
-  let userMsg = `Generate a complete HVAC diagnostic guide for the symptom:\n"${problem}"\n\nSystem: "${system}"`;
+  const canonical = normalizePageTypeKey(input.pageType, input.symptom);
+  const useDecisionGrid = isDecisionGridDiagnosticMode();
 
-  if (options.schemaVersion !== "v2_goldstandard") {
-    userMsg += `\n\nGenerate JSON matching this exact schema:
-{
-  "fastAnswer": "string",
-  "mostCommonFix": {
-    "title": "string",
-    "cost": "string",
-    "difficulty": "string",
-    "time": "string",
-    "summary": "string"
-  },
-  "quickChecklist": ["string"],
-  "diagnosticFlow": ["string"],
-  "causes": [
-    {
-      "name": "string",
-      "description": "string"
-    }
-  ],
-  "repairOptions": [
-    {
-      "name": "string",
-      "description": "string",
-      "cost": "string",
-      "difficulty": "string"
-    }
-  ],
-  "tools": ["string"],
-  "costBreakdown": {
-    "low": "string",
-    "medium": "string",
-    "high": "string"
-  },
-  "ignoredConsequences": "string",
-  "technicianInsights": "string",
-  "uniqueElement": "string",
-  "internalLinks": {
-    "diagnostics": ["string"],
-    "causes": ["string"],
-    "repairs": ["string"],
-    "system": "string"
+  let finalPrompt: string;
+  if (useDecisionGrid) {
+    const taskPrompt = buildLayer3TaskPrompt(input.symptom, input.pageType || "HVAC");
+    finalPrompt = `${LAYER1_SYSTEM_LOCK}\n\n${LAYER2_HARD_CONSTRAINTS}\n\n${taskPrompt}`;
+  } else {
+    finalPrompt = `${HRB_SYSTEM_LOCK}\n\n${buildHrbTaskPrompt({
+      canonicalType: canonical,
+      symptom: input.symptom,
+      city: input.city || "Florida",
+      pageTypeRaw: input.pageType,
+    })}`;
   }
-}`;
+
+  const { DiagnosticPageSchema } = await import("./schema");
+  finalPrompt += `\n\nCRITICAL ENFORCEMENT:\nYou MUST return your JSON matching this exact schema specification. Do not deviate. Do not add nested roots.\n${JSON.stringify(DiagnosticPageSchema, null, 2)}\n`;
+
+  if (orchestratorOptions && Object.keys(orchestratorOptions).length > 0) {
+    finalPrompt += `\n\nCRITICAL SYSTEM OVERRIDES (ORCHESTRATOR FLAGS):\nYou MUST obey these strict conditions: ${JSON.stringify(orchestratorOptions, null, 2)}\n`;
   }
-  
+  const systemMessage = useDecisionGrid
+    ? "You are the core diagnostic parsing engine. You output strict JSON perfectly according to instructions."
+    : "You are the HVAC Revenue Boost JSON generator for local lead generation. Output strict JSON only. Conversion-first, homeowner language, no technical lectures.";
+
   return callWithRetry(async () => {
     await assertDailySpendAllows("generateDiagnosticEngineJson:retry");
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: sysMsg },
-        { role: "user", content: userMsg }
-      ],
       response_format: { type: "json_object" },
-      temperature: 0.3,
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: finalPrompt }
+      ],
+      max_completion_tokens: 2800
     });
-    await recordOpenAiChatUsage("gpt-4o", response.usage, "diagnostic-engine");
+    
+    console.log(`ORCH::METRIC=${JSON.stringify({ tokens: response.usage?.total_tokens || 0, cost: (response.usage?.total_tokens || 0) * 0.000002 })}`);
+    await recordOpenAiChatUsage("gpt-4o-mini", response.usage, "master-validator-generator");
 
     const contentStr = response.choices[0]?.message?.content;
     if (!contentStr) throw new Error("Empty AI response");
-    
+
     try {
-      const parsed = JSON.parse(contentStr.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim());
-      return parsed;
+      return JSON.parse(contentStr.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim());
     } catch(e: any) {
       console.error("❌ OpenAI API Parsing Failed:", e.message || e);
       throw new Error("Invalid JSON from LLM: " + e);
     }
-  }, { maxRetries: 3, pageType });
+  }, { maxRetries: 1 }); // Retries are handled cleanly in the generation-worker queue loop
 }

@@ -5,19 +5,45 @@ import { getDiagnosticSteps, getCauseDetails, getSymptomWithCausesFromDB, getDia
 import { getInternalLinksForPage } from "@/lib/seo-linking";
 import { getContractorsByCity } from "@/lib/db";
 import ServicePageTemplate from "@/templates/service-page";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
 
 // Enable ISR
 export const revalidate = 3600;
 export const dynamicParams = true; // allow pages not in generateStaticParams to render via SSR
 
+// HELPER: Validate slug against known entities to avoid junk URLs indexing
+const isValidSymptom = (slug: string) => {
+  return SYMPTOMS.some(s => s.id === slug);
+};
+
 export async function generateMetadata({ params }: { params: { city: string, symptom: string } }): Promise<Metadata> {
-  const aiPage = await getDiagnosticPageFromDB(params.symptom, 'repair', params.city);
-  if (aiPage?.quality_status === 'noindex') {
-    return { robots: { index: false, follow: true } };
+  // STATE 3: Invalid -> Will redirect, so metadata doesn't matter
+  if (!isValidSymptom(params.symptom) || !FLORIDA_CITIES.find(c => c.slug === params.city)) {
+    return {};
   }
-  return {};
+
+  const aiPage = await getDiagnosticPageFromDB(params.symptom, 'repair', params.city);
+  const isThin = !aiPage || !aiPage.content_json || aiPage.quality_status === "needs_regen" || aiPage.quality_status === 'noindex';
+
+  const generatedSeo = aiPage?.content_json?.seo;
+
+  // STATE 1 & 2: Canonical Strategy
+  // If Thin (STATE 2): Roll up authority to parent symptom hub.
+  // If Full (STATE 1): Self-canonical.
+  return {
+    title: generatedSeo?.title,
+    description: generatedSeo?.meta_description,
+    alternates: {
+      canonical: isThin
+        ? `https://www.hvacrevenueboost.com/repair/${params.symptom}`
+        : `https://www.hvacrevenueboost.com/repair/${params.city}/${params.symptom}`
+    },
+    robots: {
+      index: !isThin,
+      follow: true
+    }
+  };
 }
 
 export async function generateStaticParams() {
@@ -67,10 +93,9 @@ export default async function CitySymptomPage({
   
   const symptom = symptomData as any;
 
-  if (!city || !symptomData) {
-    // We shouldn't 404 here during build time since generateStaticParams provides the base arrays,
-    // but we should fail gracefully if something is fundamentally missing.
-    notFound();
+  // STATE 3: Truly Invalid URL (Garbage slug) -> Consolidate via 301
+  if (!city || !isValidSymptom(params.symptom)) {
+    permanentRedirect('/repair');
   }
 
   const causeDetails = isFromDB
@@ -96,18 +121,42 @@ export default async function CitySymptomPage({
   };
 
   return (
-    <ServicePageTemplate
-      city={city}
-      symptom={symptom}
-      causeDetails={causeDetails}
-      diagnosticSteps={diagnosticSteps}
-      internalLinks={internalLinks}
-      localContractors={localContractors}
-      htmlContent={htmlContent}
-      symptomSlug={params.symptom}
-      qualityScore={qualityScore}
-      scalingData={scalingData}
-      rawContent={rawContent}
-    />
+    <>
+      <ServicePageTemplate
+        city={city}
+        symptom={symptom}
+        causeDetails={causeDetails}
+        diagnosticSteps={diagnosticSteps}
+        internalLinks={internalLinks}
+        localContractors={localContractors}
+        htmlContent={htmlContent}
+        symptomSlug={params.symptom}
+        qualityScore={qualityScore}
+        scalingData={scalingData}
+        rawContent={rawContent}
+      />
+      
+      {raw?.cta && (
+         <div className="container mx-auto px-4 max-w-5xl mt-8">
+           <div className="bg-blue-600 text-white rounded-xl p-8 text-center shadow-lg border border-blue-500">
+             <h3 className="text-xl md:text-2xl font-bold mb-6 font-display">{raw.cta}</h3>
+             <a href="tel:1-800-HVAC" className="inline-block bg-white text-blue-700 font-bold px-8 py-4 rounded-full hover:scale-105 transition-transform shadow-md">Get Local HVAC Quotes</a>
+           </div>
+         </div>
+      )}
+
+      {raw?.internal_links && raw.internal_links.length > 0 && (
+         <div className="container mx-auto px-4 max-w-5xl mt-8 pb-16">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Related Diagnostic Guides</h3>
+            <div className="flex flex-wrap gap-2">
+              {raw.internal_links.map((link: string) => (
+                <a key={link} href={`/repair/${link}`} className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium px-4 py-2 rounded-lg text-sm transition-colors border border-slate-200 dark:border-slate-700 capitalize">
+                  {link.replace(/-/g, ' ')}
+                </a>
+              ))}
+            </div>
+         </div>
+      )}
+    </>
   );
 }

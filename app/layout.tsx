@@ -15,8 +15,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="font-sans min-h-screen bg-slate-50 text-slate-900">
+    <html lang="en" suppressHydrationWarning>
+      <body
+        className="font-sans min-h-screen bg-slate-50 text-slate-900"
+        suppressHydrationWarning
+      >
         <header className="bg-hvac-navy text-white py-4 shadow-lg sticky top-0 z-50">
           <div className="container mx-auto px-4 flex justify-between items-center">
             <Link href="/" className="text-2xl font-black tracking-tighter flex items-center gap-2">

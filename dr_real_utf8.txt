@@ -1,0 +1,22 @@
+﻿[dotenv@17.3.1] injecting env (9) from .env.local -- tip: ≡ƒ¢í∩╕Å auth for agents: https://vestauth.com
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ΓÜÖ∩╕Å  specify custom .env file path with { path: '/custom/path/.env' }
+≡ƒÜÇ Starting Relational Engine Migration... [DRY RUN MODE]
+
+--- Migration Summary ---
+Total Pages Inspected: 312
+Processed: 312
+Succeeded: 0
+Failed:    312
+Skipped:   0
+
+--- First 10 Failures ---
+[indoor-blower-not-working] -> At least 3 failure modes required
+[ac-wont-start] -> At least 3 failure modes required
+[ac-turns-on-then-off] -> At least 3 failure modes required
+[hvac-system-not-responding] -> At least 3 failure modes required
+[ac-smells-like-burning] -> At least 3 failure modes required
+[furnace-not-turning-on] -> At least 3 failure modes required
+[ac-condensation-inside-unit] -> At least 3 failure modes required
+[ac-smells-musty] -> At least 3 failure modes required
+[ac-weak-airflow] -> At least 3 failure modes required
+[ac-making-noise] -> At least 3 failure modes required

@@ -15,7 +15,7 @@ async function seedCanaries() {
   for (const c of canaries) {
     await sql`
       INSERT INTO generation_queue (proposed_slug, proposed_title, page_type, status)
-      VALUES (${c.slug}, ${c.title}, ${c.type}, 'pending')
+      VALUES (${c.slug}, ${c.title}, ${c.type}, 'draft')
     `;
     console.log(`Inserted: ${c.slug}`);
   }

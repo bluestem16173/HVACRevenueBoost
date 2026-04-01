@@ -13,7 +13,7 @@ async function queueHybridPages() {
     try {
       await sql`
         INSERT INTO generation_queue (proposed_slug, page_type, status, city, created_at, updated_at)
-        VALUES (${r.slug}, 'hybrid', 'pending', ${r.city}, NOW(), NOW())
+        VALUES (${r.slug}, 'hybrid', 'draft', ${r.city}, NOW(), NOW())
       `;
       console.log(`QUEUED: ${r.slug}`);
     } catch (e: any) {

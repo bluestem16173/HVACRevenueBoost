@@ -19,7 +19,7 @@ async function seed() {
     const title = slug.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
     const exists = await sql`
       SELECT 1 FROM generation_queue
-      WHERE proposed_slug = ${slug} AND status IN ('pending', 'processing')
+      WHERE proposed_slug = ${slug} AND status IN ('draft', 'pending', 'generated', 'processing')
       LIMIT 1
     `;
     if (exists.length > 0) {
@@ -28,7 +28,7 @@ async function seed() {
     }
     await sql`
       INSERT INTO generation_queue (page_type, proposed_slug, proposed_title, status)
-      VALUES ('symptom', ${slug}, ${title}, 'pending')
+      VALUES ('symptom', ${slug}, ${title}, 'draft')
     `;
     console.log("✅ Queued:", slug);
   }

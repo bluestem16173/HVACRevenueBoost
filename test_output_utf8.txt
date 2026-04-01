@@ -1,0 +1,102 @@
+﻿[dotenv@17.3.1] injecting env (9) from .env.local -- tip: ΓÜÖ∩╕Å  suppress all logs with { quiet: true }
+[dotenv@17.3.1] injecting env (0) from .env.local -- tip: ΓÜÖ∩╕Å  specify custom .env file path with { path: '/custom/path/.env' }
+Generating DG payload...
+GENERATION TRIGGERED 2026-03-27T02:41:28.939Z
+ORCH::METRIC={"tokens":2158,"cost":0.0043159999999999995}
+node.exe : [ai-spend-guard] 
+recordAiUsage failed: 
+NeonDbError: column 
+"model_name" of relation 
+"ai_usage" does not exist
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" "C:\U
+sers\anedo\AppData\Roaming\ 
+...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: ([ai-s  
+  pend-guard... does not    
+ exist:String) [], Remot    
+eException
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
+    at mr.execute (C:\Users\
+anedo\Desktop\HVAC\HVACReven
+ueBoostWeb\node_modules\@neo
+ndatabase\serverless\index.j
+s:1300:10)
+    at process.processTicksA
+ndRejections (node:internal/
+process/task_queues:105:5)
+    at async recordAiUsage (
+C:\Users\anedo\Desktop\HVAC\
+HVACRevenueBoostWeb\lib\ai-s
+pend-guard.ts:72:5)
+    at async 
+recordOpenAiChatUsage (C:\Us
+ers\anedo\Desktop\HVAC\HVACR
+evenueBoostWeb\lib\ai-spend-
+guard.ts:96:3)
+    at async 
+callWithRetry.maxRetries (C:
+\Users\anedo\Desktop\HVAC\HV
+ACRevenueBoostWeb\lib\conten
+t-engine\generator.ts:573:5)
+    at async callWithRetry (
+C:\Users\anedo\Desktop\HVAC\
+HVACRevenueBoostWeb\lib\cont
+ent-engine\generator.ts:45:1
+4)
+    at async test (C:\Users\
+anedo\Desktop\HVAC\HVACReven
+ueBoostWeb\scripts\test-dg-g
+eneration.ts:11:19) {
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: undefined,
+  position: '40',
+  internalPosition: 
+undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_target.c',
+  line: '1065',
+  routine: 
+'checkInsertTargets',
+  sourceError: undefined
+}
+DG payload keys: [
+  'title',
+  'symptom',
+  'system',
+  'fast_answer',
+  'failure_modes',
+  'diagnostic_order',
+  'guided_diagnosis',
+  'mermaid_diagram',
+  'causes',
+  'repairs'
+]
+Transforming to unified format...
+Parsing with Unified Schema...
+FAILED.
+TypeError: 
+import_schema.Schema.parse 
+is not a function
+    at test (C:\Users\anedo\
+Desktop\HVAC\HVACRevenueBoos
+tWeb\scripts\test-dg-generat
+ion.ts:18:33)
+    at process.processTicksA
+ndRejections (node:internal/
+process/task_queues:105:5)

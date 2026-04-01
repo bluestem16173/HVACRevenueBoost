@@ -82,7 +82,10 @@ function topMatches(
   max: number,
 ): string[] {
   return rows
-    .filter((r) => r.page_type === type && ["generated", "published", "pending"].includes(r.status))
+    .filter((r) =>
+      r.page_type === type &&
+      ["generated", "published", "draft", "pending", "validated"].includes(r.status)
+    )
     .map((r) => ({ slug: r.slug, score: scorePair(source, r) }))
     .filter((x) => x.score > 0)
     .sort((a, b) => b.score - a.score)

@@ -1,0 +1,207 @@
+{
+  "title": "AC Leaking Water Diagnosis",
+  "seo": {
+    "title": "AC Leaking Water Troubleshooting",
+    "meta_description": "Diagnose and resolve AC water leakage issues effectively."
+  },
+  "thirty_second_answer": "AC units may leak water due to clogged drains, improper installation, or refrigerant issues. Let's identify the cause systematically.",
+  "failure_modes": [
+    {
+      "title": "Drainage Issues",
+      "summary": "Clogged or damaged drain lines can cause water to back up and leak.",
+      "signs": [
+        "Water pooling around the unit",
+        "Overflowing drain pan"
+      ],
+      "likely_system": "Drainage",
+      "urgency": "low"
+    },
+    {
+      "title": "Airflow Problems",
+      "summary": "Insufficient airflow can lead to freezing and subsequent thawing, causing leaks.",
+      "signs": [
+        "Reduced cooling efficiency",
+        "Ice on evaporator coils"
+      ],
+      "likely_system": "Airflow/Freeze",
+      "urgency": "low"
+    },
+    {
+      "title": "Refrigerant Issues",
+      "summary": "Low refrigerant levels can cause the evaporator coil to freeze, leading to leaks when it thaws.",
+      "signs": [
+        "Hissing sound",
+        "Inconsistent cooling"
+      ],
+      "likely_system": "Refrigerant",
+      "urgency": "low"
+    },
+    {
+      "title": "Installation Errors",
+      "summary": "Improper installation can lead to misalignment and leaks.",
+      "signs": [
+        "Visible gaps in ductwork",
+        "Unit not level"
+      ],
+      "likely_system": "Electrical/Control",
+      "urgency": "low"
+    }
+  ],
+  "guided_diagnosis": [
+    {
+      "scenario": "Leaking while running",
+      "match_signals": [
+        "Water pooling under the unit"
+      ],
+      "first_checks": [
+        "Inspect drain line for clogs",
+        "Check drain pan for damage"
+      ],
+      "likely_systems": [
+        "Drainage"
+      ],
+      "likely_causes": [
+        "Clogged drain line",
+        "Damaged drain pan"
+      ]
+    },
+    {
+      "scenario": "Ice forming on coils",
+      "match_signals": [
+        "Reduced airflow",
+        "Frost on evaporator coils"
+      ],
+      "first_checks": [
+        "Inspect air filters",
+        "Check blower operation"
+      ],
+      "likely_systems": [
+        "Airflow/Freeze"
+      ],
+      "likely_causes": [
+        "Dirty air filter",
+        "Faulty blower motor"
+      ]
+    },
+    {
+      "scenario": "Unusual noises and leaks",
+      "match_signals": [
+        "Hissing sound",
+        "Water dripping"
+      ],
+      "first_checks": [
+        "Check refrigerant levels",
+        "Inspect for leaks in refrigerant lines"
+      ],
+      "likely_systems": [
+        "Refrigerant"
+      ],
+      "likely_causes": [
+        "Low refrigerant",
+        "Refrigerant line leak"
+      ]
+    }
+  ],
+  "mermaid_diagram": "flowchart TD\n symptom --> observation --> check --> likely cause",
+  "system_groups": [
+    {
+      "system": "Drainage",
+      "overview": "Involves the removal of condensate water from the AC unit.",
+      "causes": [
+        {
+          "title": "Clogged Drain Line",
+          "why_it_happens": "Debris or algae buildup obstructs water flow.",
+          "symptoms": [
+            "Water pooling",
+            "Overflowing drain pan"
+          ],
+          "checks": [
+            "Inspect drain line",
+            "Use a wet/dry vacuum to clear blockages"
+          ],
+          "fixes": [
+            "Clear the clog",
+            "Install a drain pan float switch"
+          ],
+          "difficulty": "easy",
+          "estimated_cost": "$50-$150"
+        },
+        {
+          "title": "Damaged Drain Pan",
+          "why_it_happens": "Corrosion or physical damage leads to leaks.",
+          "symptoms": [
+            "Water leaks from the unit"
+          ],
+          "checks": [
+            "Inspect drain pan for cracks"
+          ],
+          "fixes": [
+            "Replace drain pan"
+          ],
+          "difficulty": "easy",
+          "estimated_cost": "$100-$200"
+        }
+      ]
+    },
+    {
+      "system": "Airflow/Freeze",
+      "overview": "Relates to the movement of air through the AC system.",
+      "causes": [
+        {
+          "title": "Dirty Air Filter",
+          "why_it_happens": "Filters become clogged, restricting airflow.",
+          "symptoms": [
+            "Reduced cooling",
+            "Ice on coils"
+          ],
+          "checks": [
+            "Inspect and replace air filter"
+          ],
+          "fixes": [
+            "Replace air filter regularly"
+          ],
+          "difficulty": "easy",
+          "estimated_cost": "$10-$30"
+        },
+        {
+          "title": "Faulty Blower Motor",
+          "why_it_happens": "Motor failure leads to insufficient airflow.",
+          "symptoms": [
+            "No airflow",
+            "Ice buildup"
+          ],
+          "checks": [
+            "Test blower motor operation"
+          ],
+          "fixes": [
+            "Replace blower motor"
+          ],
+          "difficulty": "medium",
+          "estimated_cost": "$200-$500"
+        }
+      ]
+    }
+  ],
+  "parts_likely_involved": [
+    "Drain line",
+    "Drain pan",
+    "Air filter",
+    "Blower motor"
+  ],
+  "tools_required": [
+    "Wet/dry vacuum",
+    "Screwdriver",
+    "Refrigerant gauge"
+  ],
+  "what_happens_if_ignored": [
+    "Continued water leakage can lead to mold growth and structural damage."
+  ],
+  "delayed_cta": {
+    "heading": "Further Assistance",
+    "body": "If issues persist after initial checks, consider consulting a professional for a thorough inspection.",
+    "triggers": [
+      "Persistent leaks",
+      "Recurring ice formation"
+    ]
+  }
+}

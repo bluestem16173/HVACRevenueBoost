@@ -4,7 +4,7 @@ async function check() {
   const r = await sql`
     SELECT attempts, regeneration_attempts 
     FROM generation_queue 
-    WHERE status = 'pending' 
+    WHERE status IN ('draft', 'pending') 
     LIMIT 5
   `;
   console.log(r);
@@ -13,7 +13,7 @@ async function check() {
   await sql`
     UPDATE generation_queue 
     SET attempts = 0, regeneration_attempts = 0 
-    WHERE status = 'pending'
+    WHERE status IN ('draft', 'pending')
   `;
   console.log("Reset all attempts for pending items!");
   process.exit(0);

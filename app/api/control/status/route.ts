@@ -10,45 +10,53 @@ export async function GET(req: Request) {
   }
 
   try {
-    const queueCounts = await sql`
-      SELECT status, COUNT(*) as count 
+    const queueCounts = (await sql`
+      SELECT status, COUNT(*)::int as count 
       FROM generation_queue 
       GROUP BY status
-    ` as any[];
+    `) as { status: string; count: number }[];
 
-    const generatedToday = await sql`
+    const byStatus: Record<string, number> = {};
+    for (const row of queueCounts) {
+      byStatus[row.status] = row.count;
+    }
+
+    const pick = (...keys: string[]) =>
+      keys.reduce((sum, k) => sum + (byStatus[k] ?? 0), 0);
+
+    /** Backward-compatible aliases for the admin dashboard */
+    const pending = pick("draft", "pending", "queued");
+    const processing = pick("generated", "processing", "validated");
+    const failed = pick("failed");
+
+    const generatedToday = (await sql`
       SELECT COUNT(*) as count
       FROM pages
       WHERE created_at >= CURRENT_DATE
-    ` as any[];
+    `) as { count: string }[];
 
-    const qStatus = { pending: 0, processing: 0, failed: 0 };
-    for (const row of queueCounts) {
-      if (row.status in qStatus) {
-        qStatus[row.status as keyof typeof qStatus] = parseInt(row.count, 10);
-      }
-    }
-
-    const lastCronLog = await sql`
+    const lastCronLog = (await sql`
       SELECT created_at 
       FROM system_logs 
       WHERE event_type = 'cron_heartbeat' 
       ORDER BY created_at DESC 
       LIMIT 1
-    ` as any[];
+    `) as { created_at: string }[];
 
-    // Check Auto Mode system_state
-    const autoModeState = await sql`
+    const autoModeState = (await sql`
       SELECT value FROM system_state WHERE key = 'auto_mode' LIMIT 1
-    ` as any[];
+    `) as { value: string }[];
 
     return NextResponse.json({
       success: true,
-      ...qStatus,
+      pending,
+      processing,
+      failed,
+      queue_by_status: byStatus,
       generated_today: parseInt(generatedToday[0]?.count || "0", 10),
       last_cron_run: lastCronLog[0]?.created_at || null,
-      auto_mode: autoModeState[0]?.value === 'ON',
-      lock_status: qStatus.processing > 0 ? 'Active' : 'Idle'
+      auto_mode: autoModeState[0]?.value === "ON",
+      lock_status: processing > 0 ? "Active" : "Idle",
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });

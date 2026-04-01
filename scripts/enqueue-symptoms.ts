@@ -22,7 +22,7 @@ async function enqueue() {
       AND pt.slug NOT IN (
         SELECT gq.proposed_slug 
         FROM generation_queue gq 
-        WHERE gq.status IN ('pending', 'processing')
+        WHERE gq.status IN ('draft', 'pending', 'generated', 'processing', 'validated')
       )
     ORDER BY RANDOM()
     LIMIT ${limit}
@@ -41,7 +41,7 @@ async function enqueue() {
     const title = t.slug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
     await sql`
       INSERT INTO generation_queue (proposed_slug, proposed_title, page_type, status)
-      VALUES (${t.slug}, ${title}, ${t.page_type}, 'pending')
+      VALUES (${t.slug}, ${title}, ${t.page_type}, 'draft')
       ON CONFLICT DO NOTHING
     `;
   }

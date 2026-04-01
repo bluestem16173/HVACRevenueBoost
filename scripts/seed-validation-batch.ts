@@ -15,7 +15,7 @@ async function seed() {
   for (const row of batch) {
     const exists = await sql`
       SELECT 1 FROM generation_queue
-      WHERE proposed_slug = ${row.proposed_slug} AND status = 'pending'
+      WHERE proposed_slug = ${row.proposed_slug} AND status IN ('draft', 'pending')
       LIMIT 1
     `;
     if (exists.length > 0) {
@@ -24,7 +24,7 @@ async function seed() {
     }
     await sql`
       INSERT INTO generation_queue (page_type, proposed_slug, proposed_title, status)
-      VALUES (${row.page_type}, ${row.proposed_slug}, ${row.proposed_title}, 'pending')
+      VALUES (${row.page_type}, ${row.proposed_slug}, ${row.proposed_title}, 'draft')
     `;
     console.log('✅ Queued:', row.page_type, row.proposed_slug);
   }

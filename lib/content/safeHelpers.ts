@@ -80,8 +80,11 @@ export function toObjectArray<T = Record<string, unknown>>(
 /** Normalize a single cause-like object to { name, indicator?, explanation?, ... } */
 export const causeCardShape = {
   name: (o: Record<string, unknown>) => toSafeString(o.name) ?? "Unknown",
-  indicator: (o: Record<string, unknown>) => toSafeString(o.indicator),
-  explanation: (o: Record<string, unknown>) => toSafeString(o.explanation ?? o.symptoms),
+  indicator: (o: Record<string, unknown>) => {
+    if (Array.isArray(o.symptoms_to_confirm)) return toStringArray(o.symptoms_to_confirm).join(", ");
+    return toSafeString(o.indicator ?? o.symptoms_to_confirm);
+  },
+  explanation: (o: Record<string, unknown>) => toSafeString(o.explanation ?? o.symptoms ?? o.why_it_happens),
   difficulty: (o: Record<string, unknown>) => toSafeString(o.difficulty),
   difficultyColor: (o: Record<string, unknown>) => toSafeString(o.difficultyColor),
   cost: (o: Record<string, unknown>) => toSafeString(o.cost ?? o.estimated_cost),

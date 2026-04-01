@@ -9,9 +9,9 @@ async function run() {
     try {
       await sql`
         INSERT INTO generation_queue (proposed_slug, page_type, status, city)
-        VALUES (${sys.slug}, 'system', 'pending', NULL)
+        VALUES (${sys.slug}, 'system', 'draft', NULL)
         ON CONFLICT (proposed_slug, COALESCE(city, '')) 
-        DO UPDATE SET status = 'pending', page_type = 'system'
+        DO UPDATE SET status = 'draft', page_type = 'system'
       `;
     } catch(e) {
       console.log(`Failed to enqueue ${sys.slug}`, e);

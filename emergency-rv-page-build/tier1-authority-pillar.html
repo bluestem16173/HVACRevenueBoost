@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title><%= meta.title %></title>
+  <meta name="description" content="<%= meta.description %>" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="canonical" href="<%= meta.canonical %>" />
+  <style>
+    .pillar{font-family:system-ui,-apple-system,sans-serif;color:#1f2937;line-height:1.6;max-width:800px;margin:0 auto;padding:1.5rem 1.25rem}
+    .pillar-hero{background:linear-gradient(135deg,#f0f9ff 0%,#e0f2fe 100%);border-radius:12px;padding:2rem;margin-bottom:2.5rem;border:1px solid #bae6fd}
+    .pillar-hero h1{font-size:1.75rem;font-weight:700;margin:0 0 .5rem 0;letter-spacing:-.02em}
+    .pillar-hero .tagline{color:#0284c7;font-weight:600;font-size:1rem;margin:0 0 1rem 0}
+    .pillar-hero .subhead{color:#475569;font-size:1.05rem;margin:0 0 1rem 0}
+    .pillar-hero .trust{color:#64748b;font-size:.95rem;margin:0 0 1.25rem 0}
+    .pillar-hero .cta{display:inline-block;background:#0284c7;color:#fff;padding:.6rem 1.25rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:.9375rem}
+    .pillar-hero .cta:hover{background:#0369a1}
+    .pillar h2{font-size:1.4rem;font-weight:600;margin:2.5rem 0 1rem 0;padding-top:.5rem;border-top:1px solid #e2e8f0}
+    .pillar h2:first-of-type{margin-top:0;padding-top:0;border-top:0}
+    .pillar h3{font-size:1.15rem;font-weight:600;margin:1.5rem 0 .6rem 0;color:#334155}
+    .pillar p{margin:0 0 1rem 0}
+    .pillar ul,.pillar ol{margin:0 0 1rem 0;padding-left:1.5rem}
+    .pillar li{margin:.35rem 0}
+    .pillar table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9375rem}
+    .pillar th,.pillar td{border:1px solid #cbd5e1;padding:8px 12px;text-align:left}
+    .pillar th{background:#f1f5f9;font-weight:600}
+    .pillar .flow{background:#f8fafc;border-radius:8px;padding:1rem 1.25rem;margin:1rem 0;font-family:ui-monospace,monospace;font-size:.9rem;line-height:1.7}
+    .pillar .diagnosis{background:#fef3c7;border-left:4px solid #f59e0b;padding:.75rem 1rem;margin:.75rem 0;border-radius:0 6px 6px 0}
+    .pillar .end-cta{background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:1.75rem;margin:2.5rem 0;text-align:center}
+    .pillar .end-cta h2{margin:0 0 1rem 0;border:0;padding:0}
+    .pillar .end-cta p{margin:0 0 1rem 0}
+    .pillar .end-cta a{margin:0 .5rem;color:#0284c7;font-weight:600}
+    .pillar .see-link{display:inline-block;margin-top:.5rem;font-weight:600}
+    .pillar .upgrade-path{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1.5rem 1.75rem;margin:1.5rem 0}
+    .pillar .upgrade-path h3{margin:0 0 .5rem 0}
+    .pillar .upgrade-path ul{margin:0 0 1rem 0;padding-left:1.25rem}
+    .pillar .upgrade-path ul:last-child{margin-bottom:0}
+    .pillar .toc{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:1.25rem 1.5rem;margin:0 0 2rem 0}
+    .pillar .toc h2{font-size:1rem;margin:0 0 .75rem 0;padding:0;border:0;font-weight:600}
+    .pillar .toc ul{margin:0;padding-left:1.25rem}
+    .pillar .toc li{margin:.3rem 0}
+    .pillar .toc a{color:#0284c7;text-decoration:none}
+    .pillar .toc a:hover{text-decoration:underline}
+    .pillar .guide-card{display:inline-block;margin:.25rem .5rem .25rem 0}
+    .mermaid{margin:2.5rem 0;display:flex;justify-content:center;overflow:hidden;max-width:100%}
+    .mermaid svg{max-width:100%;height:auto}
+    .field-insight{margin:1.5rem 0;background:#f8fafc;border-left:4px solid #94a3b8;padding:1rem 1.25rem;border-radius:0 8px 8px 0;font-size:.9375rem}
+    .rv-service-cta{background:#f3f4f6;padding:40px;margin-top:40px;border-radius:10px;text-align:center}
+    .rv-service-cta h2{font-size:1.35rem;margin:0 0 1rem 0;padding:0;border:0}
+    .service-coming-soon{background:#fff;padding:25px;border-radius:8px;margin-top:20px}
+    .cta-button{display:inline-block;background:#2563eb;color:#fff;padding:14px 26px;border-radius:6px;text-decoration:none;font-weight:600;margin-top:15px;border:none;cursor:pointer;font-size:1rem}
+    .cta-button.disabled{background:#9ca3af;cursor:not-allowed;pointer-events:none}
+    .cta-button-wrapper{display:inline-block;text-align:center;margin-top:15px}
+    .cta-coming-soon-label{display:block;font-size:.8rem;color:#6b7280;margin-top:.35rem}
+    @media(min-width:640px){.pillar{padding:2rem}.pillar-hero h1{font-size:2rem}}
+    .emergency-stack{margin-bottom:2rem}
+    .emergency-banner{background:linear-gradient(135deg,#fef2f2 0%,#fff7ed 100%);border:2px solid #ea580c;border-radius:12px;padding:1.5rem 1.25rem;margin:0 0 1.25rem 0}
+    .emergency-banner-kicker{margin:0 0 .35rem 0;font-size:.75rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#c2410c}
+    .emergency-banner-title{margin:0 0 .5rem 0;font-size:1.35rem;font-weight:700;color:#7c2d12}
+    .emergency-banner-danger{margin:0 0 .75rem 0;font-size:.98rem;color:#431407}
+    .emergency-banner-sub{margin:0 0 .35rem 0;font-weight:600;font-size:.95rem}
+    .emergency-banner-checks{margin:0;padding-left:1.25rem}
+    .emergency-banner-checks li{margin:.35rem 0}
+    .emergency-banner-cta-line{margin:.85rem 0 0 0;font-size:.95rem;font-weight:600}
+    .fix-60-block{background:#f0fdf4;border:1px solid #86efac;border-radius:12px;padding:1.35rem 1.25rem;margin:0 0 1.25rem 0}
+    .fix-60-title{margin:0 0 .35rem 0;font-size:1.15rem;color:#14532d}
+    .fix-60-intro{margin:0 0 .65rem 0;font-size:.92rem;color:#365314}
+    .fix-60-steps{margin:0;padding-left:1.25rem}
+    .fix-60-steps li{margin:.35rem 0}
+    .most-likely-fix{background:#eff6ff;border:1px solid #93c5fd;border-radius:12px;padding:1.35rem 1.25rem;margin:0 0 1.25rem 0}
+    .most-likely-title{margin:0 0 .5rem 0;font-size:1.1rem;color:#1e3a8a}
+    .most-likely-body{margin:0 0 .75rem 0;font-size:.95rem}
+    .most-likely-meta{display:grid;gap:.35rem;margin:0 0 .75rem 0;font-size:.9rem}
+    .most-likely-meta dt{display:inline;font-weight:600;color:#334155}
+    .most-likely-meta dd{display:inline;margin:0 0 0 .35rem;color:#475569}
+    .most-likely-meta div{margin:0}
+    .most-likely-cta{margin:0;font-size:.92rem;font-weight:600}
+    .emergency-monetization{background:#f8fafc;border:1px solid #cbd5e1;border-radius:12px;padding:1.35rem 1.25rem;margin:0 0 1.5rem 0}
+    .emergency-monetization-title{margin:0 0 .35rem 0;font-size:1.1rem;color:#0f172a}
+    .emergency-monetization-lead{margin:0 0 .65rem 0;font-size:.92rem;color:#475569}
+    .emergency-monetization-bullets{margin:0;padding-left:1.25rem}
+    .emergency-monetization-bullets li{margin:.3rem 0}
+    .emergency-monetization-cta{margin:.85rem 0 0 0;display:flex;flex-wrap:wrap;gap:.65rem;align-items:center}
+    .emergency-monetization-button{display:inline-block;background:#2563eb;color:#fff;padding:.55rem 1.1rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:.95rem}
+    .emergency-monetization-button:hover{background:#1d4ed8;color:#fff}
+    .emergency-monetization-link{font-size:.9rem;font-weight:600}
+  </style>
+  <% if (schemaConfig) { %>
+  <%- include('../partials/schema-jsonld.html', { schemaConfig }) %>
+  <% } %>
+  <% if (typeof faqSchemaJson !== 'undefined' && faqSchemaJson) { %>
+  <script type="application/ld+json"><%- faqSchemaJson %></script>
+  <% } %>
+  <% if (typeof aiSummary !== 'undefined' && aiSummary && aiSummary.enabled) { %>
+  <script src="/public/js/summary-analytics.js" defer></script>
+  <% } %>
+  <% if (typeof wizard !== 'undefined' && wizard) { %>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <% } %>
+</head>
+<body class="pillar">
+
+<p><a href="<%= breadcrumb.backHref %>">← <%= breadcrumb.backLabel %></a> · <a href="<%= breadcrumb.currentHref %>"><%= breadcrumb.currentLabel %></a></p>
+
+<%- include('../partials/tier1/hero.html') %>
+
+<%- include('../partials/emergency-rv-pattern.html') %>
+
+<%- include('../partials/ai-summary-card.html') %>
+
+<%- include('../partials/tier1/toc-nav.html') %>
+
+<%- include('../partials/tier1/system-architecture.html') %>
+
+<%- include('../partials/tier1/common-failures.html') %>
+
+<% if (typeof contentPartial !== 'undefined' && contentPartial) { %>
+<%- include(contentPartial) %>
+<% } %>
+
+<% if (typeof serviceCtaType !== 'undefined' && (serviceCtaType === 'electrician' || serviceCtaType === 'plumber')) { %>
+<%- include('../partials/local-professionals-cta.html') %>
+<% } else if (typeof showRvServiceCta !== 'undefined' && showRvServiceCta) { %>
+<%- include('../partials/rv-service-cta.html') %>
+<% } %>
+
+<%- include('../partials/tier1/upgrade-path.html') %>
+
+<%- include('../partials/tier1/faq-block.html') %>
+
+<%- include('../partials/tier1/related-guides.html') %>
+
+<%- include('../partials/explore-cluster.html') %>
+
+<%- include('../partials/tier1/references.html') %>
+
+<%- include('../partials/editorial-standards.html') %>
+
+<%- include('../partials/author-box.html') %>
+
+<%- include('../partials/safety-disclaimer.html') %>
+
+<p style="color:#64748b;font-size:.9rem;margin-bottom:8px;">As an Amazon Associate I earn from qualifying purchases.</p>
+<p style="color:#64748b;font-size:.9rem;"><em>Last updated: <%= meta.lastUpdated || 'February 2026' %> · Reviewed for technical accuracy</em></p>
+<p><a href="/">← Home</a> · <a href="<%= breadcrumb.backHref %>"><%= breadcrumb.backLabel %></a></p>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    if (document.querySelectorAll(".mermaid").length === 0) return;
+    mermaid.initialize({ startOnLoad: false, theme: "default", securityLevel: "loose" });
+    mermaid.run({ querySelector: ".mermaid", suppressErrors: true }).catch(function (e) {
+      console.warn("Mermaid run failed:", e);
+    });
+  });
+</script>
+
+</body>
+</html>

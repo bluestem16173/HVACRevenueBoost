@@ -1,0 +1,1 @@
+﻿templates/DiagnoseHubTemplate.tsx(170,68): error TS1109: Expression expected.
