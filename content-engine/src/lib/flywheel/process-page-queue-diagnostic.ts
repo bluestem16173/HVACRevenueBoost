@@ -1,7 +1,7 @@
 import { generateDiagnosticEngineJson } from "../ai/generateDiagnosticEngineJson";
 import { validateDiagnostic } from "../validation/validateDiagnostic";
 import { scoreDiagnostic } from "../quality/scoreDiagnostic";
-import { getFallbackIntro } from "../Render/diagnosticIntroCatalog";
+import { getFallbackIntro } from "../render/diagnosticIntroCatalog";
 
 export async function processDiagnosticPageQueue(items: any[]) {
   console.log(`[Queue Worker] Processing ${items.length} diagnostic items`);
@@ -28,7 +28,7 @@ export async function processDiagnosticPageQueue(items: any[]) {
 
       // 5. Envelope mapping per v2 schema requirements
       const content_json = {
-        schema_version: "v2",
+        schema_version: "v2_goldstandard",
         diagnostic_indexing: true,
         quality_score,
         model_confidence: validatedPayload.confidence_score || 0,

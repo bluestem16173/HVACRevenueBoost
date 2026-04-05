@@ -2,12 +2,11 @@ Generate a complete diagnostic page using production v2 schema (see diagnosticSc
 
 INPUT:
 - slug: {{SLUG}}
-- page_type: {{PAGE_TYPE}}
+- page_type: symptom
 - system: {{SYSTEM_SLUG_OPTIONAL}}
 - extra_context: {{OPTIONAL_TECH_NOTES}}
 - include_image_map: {{true_or_false}}
 
-FOCUS EMPHASIS:
 {{PAGE_EMPHASIS_BLOCK}}
 
 🔥 CRITICAL RULE (LOCK THIS)

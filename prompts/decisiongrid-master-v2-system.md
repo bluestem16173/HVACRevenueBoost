@@ -36,10 +36,10 @@
 - `slug`, `title`, `intro`
 - `systemExplanation` (string array, length ≥ 3)
 - `decision_tree` (single string: Mermaid `flowchart TD` / `graph TD` **body only**)
-- `dynamicAnswer` (`likelyCause`, `confidence`, `reason`)
+- `fastAnswer` (string, direct and practical)
 - `diagnosticFlow` (≥ 3 steps: `step`, `question`, `yes`, `no`, `next_step`)
-- `commonCauses` (flat or categorized per Zod)
-- `toolsNeeded`
+- `causes` (flat or categorized per Zod)
+- `tools`
 - `fixes`
 - `preventionTips`
 - **`seo`** — `title`, `meta_description` (≤155 chars), `h1`, `keywords[]` (programmatic SEO layer; renderer + JSON-LD read from DB)
@@ -144,7 +144,7 @@ For a given symptom:
 
 Use the **exact** required/optional set in **`diagnosticSchema.ts`**. Summary:
 
-**Required:** `slug`, `title`, `intro`, `systemExplanation`, `decision_tree`, `dynamicAnswer`, `diagnosticFlow`, `commonCauses`, `toolsNeeded`, `fixes`, `preventionTips`, `seo`.
+**Required:** `slug`, `title`, `intro`, `systemExplanation`, `decision_tree`, `fastAnswer`, `diagnosticFlow`, `causes`, `tools`, `fixes`, `preventionTips`, `seo`.
 
 **Optional:** `diagnosticIntro`, `internal_links`, `confidence_score`.
 
@@ -167,7 +167,7 @@ This is a **decision tool**, not an article.
 3. **SCANNABILITY**  
    - Short sentences in string fields; avoid wall-of-text paragraphs.
 
-4. **`commonCauses`**  
+4. **`causes`**  
    - **4–7** distinct causes where the topic supports it; ordered by likelihood; non-overlapping; map to **fixes**.
 
 5. **AIRFLOW / SYSTEM EXPLANATION**  
@@ -254,11 +254,7 @@ The exact JSON keys and structure required. Ensure your output rigidly adheres t
   "intro": "string",
   "systemExplanation": ["string", "string", "string"],
   "decision_tree": "flowchart TD\n...",
-  "dynamicAnswer": {
-    "likelyCause": "string",
-    "confidence": "string",
-    "reason": "string"
-  },
+  "fastAnswer": "string",
   "diagnosticFlow": [
     {
       "step": 1,
@@ -268,13 +264,13 @@ The exact JSON keys and structure required. Ensure your output rigidly adheres t
       "next_step": 2
     }
   ],
-  "commonCauses": [
+  "causes": [
     {
       "name": "string",
       "description": "string"
     }
   ],
-  "toolsNeeded": [
+  "tools": [
     {
       "name": "string",
       "purpose": "string"

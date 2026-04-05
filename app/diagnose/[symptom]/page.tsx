@@ -11,7 +11,6 @@ import GoldStandardPage from "@/components/gold/GoldStandardPage";
 import DiagnosticGoldPage from "@/components/diagnostic/DiagnosticGoldPage";
 import AuthoritySymptomPage from "@/components/authority/AuthoritySymptomPage";
 import MasterDecisionGridPage from "@/components/decisiongrid/MasterDecisionGridPage";
-import DecisionGridV2Page from "@/components/decisiongrid/DecisionGridV2Page";
 import { normalizePageData } from "@/lib/content";
 import { Metadata } from "next";
 
@@ -144,15 +143,10 @@ export default async function SymptomPage({
     );
   }
 
-  if (schema === "decisiongrid_v2" && content && typeof content === "object") {
-    return (
-      <>
-        <DecisionGridV2Page payload={content as any} />
-        {showDiagnoseDebugFooter() ? <DebugFooter meta={debugMetaResolved} /> : null}
-      </>
-    );
-  }
+  // Removed custom DecisionGridV2Page intercept. 
+  // All payloads conforming to the schema will correctly hit the pre-existing renderers.
 
+  // Fallback for older existing objects tagged v5_master
   if (schema === "v5_master" || schema === "v6_dg_hvac_hybrid") {
     if (!content) {
       return (
@@ -174,6 +168,7 @@ export default async function SymptomPage({
     );
   }
 
+  // Legacy v2 checks remain here for continuity
   if (schema === "v2_goldstandard") {
     if (!content || typeof content !== "object") {
       return (

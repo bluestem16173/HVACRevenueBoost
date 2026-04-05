@@ -8,11 +8,7 @@ export const diagnosticEngineJsonSchema = z.object({
   decision_tree: z.string().refine(val => val.includes('flowchart') || val.includes('graph'), {
     message: "decision_tree must be a valid Mermaid flowchart or graph"
   }),
-  dynamicAnswer: z.object({
-    likelyCause: z.string(),
-    confidence: z.string(),
-    reason: z.string()
-  }),
+  fastAnswer: z.string().describe("Direct and practical fast answer. 2-3 short paragraphs max. No fluff."),
   diagnosticFlow: z.array(z.object({
     step: z.number(),
     question: z.string(),
@@ -20,8 +16,8 @@ export const diagnosticEngineJsonSchema = z.object({
     no: z.string(),
     next_step: z.number().nullable()
   })).min(3, "At least 3 diagnostic steps required"),
-  commonCauses: z.array(z.any()), // Can be flat or categorized, keeping it flexible per spec "flat or categorized per Zod"
-  toolsNeeded: z.array(z.any()),
+  causes: z.array(z.any()),
+  tools: z.array(z.any()),
   fixes: z.array(z.any()),
   preventionTips: z.array(z.string()),
   seo: z.object({

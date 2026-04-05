@@ -11,14 +11,30 @@ export async function generateDiagnosticEngineJson(
   system: string = "", 
   extraContext: string = "", 
   includeImageMap: boolean = false,
-  pageType: "diagnostic" | "authority" = "diagnostic"
+  pageType: "diagnostic" | "authority" | "repair" = "diagnostic"
 ): Promise<DiagnosticEngineJson> {
   const systemInstruction = fs.readFileSync(SYSTEM_PROMPT_PATH, "utf-8");
   let userInstruction = fs.readFileSync(USER_PROMPT_PATH, "utf-8");
 
-  const emphasisBlock = pageType === "diagnostic" 
-    ? "Focus:\n- decision flow\n- ranked causes\n- actionable fixes"
-    : "Focus:\n- deep system explanation\n- failure mechanisms\n- education";
+  let emphasisBlock = "";
+  if (pageType === "authority") {
+    emphasisBlock = `FOCUS EMPHASIS: AUTHORITY (BUT STILL DIAGNOSTIC FORMAT)
+- deeper explanations
+- more technical reasoning
+- richer cause descriptions
+- expanded prevention + system behavior`;
+  } else if (pageType === "repair") {
+    emphasisBlock = `FOCUS EMPHASIS: REPAIR (BUT STILL DIAGNOSTIC FORMAT)
+- emphasize fixes
+- step-by-step actions
+- tools required
+- difficulty + cost`;
+  } else {
+    emphasisBlock = `FOCUS EMPHASIS: DIAGNOSTIC
+- decision flow
+- ranked causes
+- actionable fixes`;
+  }
 
   // Replace placeholders in user prompt
   userInstruction = userInstruction
