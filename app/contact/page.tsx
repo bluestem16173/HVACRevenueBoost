@@ -43,8 +43,7 @@ export default function ContactPage() {
         <br /><br />
 
         <p style={{ fontSize: 12 }}>
-          By submitting this form, you agree to receive SMS messages regarding your service request.
-          Message and data rates may apply. Reply STOP to opt out.
+          By submitting this form, you agree to receive SMS messages regarding your service request and coordination with local service providers. Message and data rates may apply. Reply STOP to opt out.
         </p>
 
         <button type="submit">Check Availability</button>

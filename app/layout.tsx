@@ -60,8 +60,13 @@ export default function RootLayout({
                 </p>
               </div>
             </div>
-            <div className="border-t border-slate-800 pt-8 text-xs text-center">
-              &copy; {new Date().getFullYear()} HVAC Revenue Boost. All rights reserved.
+            <div className="border-t border-slate-800 pt-8 flex flex-col items-center text-xs text-center">
+              <div className="flex gap-6 mb-4">
+                <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+                <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+                <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
+              </div>
+              <p>&copy; {new Date().getFullYear()} HVAC Revenue Boost. All rights reserved.</p>
             </div>
           </div>
         </footer>

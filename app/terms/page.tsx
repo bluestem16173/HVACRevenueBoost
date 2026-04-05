@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms & Conditions | HVAC Revenue Boost",
+  description: "Terms and conditions for HVAC Revenue Boost.",
+};
+
 export default function TermsPage() {
   return (
     <main style={{ maxWidth: 800, margin: "40px auto", padding: 20 }}>
@@ -31,6 +38,11 @@ export default function TermsPage() {
       <h2>Changes</h2>
       <p>
         We may update these terms at any time.
+      </p>
+
+      <br />
+      <p>
+        For questions, contact us at support@hvacrevenueboost.com
       </p>
     </main>
   );

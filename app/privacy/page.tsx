@@ -1,3 +1,10 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | HVAC Revenue Boost",
+  description: "Privacy policy for HVAC Revenue Boost regarding how we collect and use your data.",
+};
+
 export default function PrivacyPage() {
   return (
     <main style={{ maxWidth: 800, margin: "40px auto", padding: 20 }}>
@@ -27,6 +34,11 @@ export default function PrivacyPage() {
       <h2>Security</h2>
       <p>
         We take reasonable steps to protect your data.
+      </p>
+
+      <br />
+      <p>
+        For questions, contact us at support@hvacrevenueboost.com
       </p>
     </main>
   );
