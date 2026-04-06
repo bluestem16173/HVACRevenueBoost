@@ -1,86 +1,140 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db';
+import twilio from 'twilio';
+
+export type Lead = {
+  id?: string;
+
+  // core
+  name: string;
+  phone: string;
+  location_raw: string;
+
+  // normalized
+  zip?: string;
+  city?: string;
+  state?: string;
+
+  // context
+  service_type: "hvac" | "rv_hvac";
+  issue: string; // "ac_not_cooling"
+  urgency: "asap" | "today" | "week" | string;
+
+  // meta
+  source_page: string; // slug
+  created_at?: string;
+};
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body: Partial<Lead> = await req.json();
 
-    // Verify required fields
-    if (!body.firstName || !body.phone || !body.zip) {
+    // 1. DYNAMIC NORMALIZATION
+    let { 
+      name, phone, location_raw, urgency, service_type, issue, source_page 
+    } = body;
+    
+    let zip = '';
+    let city = '';
+    let state = '';
+
+    // Normalizing Location (Smart Hybrid Parsing)
+    if (location_raw) {
+      // Check for ZIP (5 digits)
+      const zipMatch = location_raw.match(/\b\d{5}\b/);
+      if (zipMatch) zip = zipMatch[0];
+
+      // Check for City, State framing
+      if (location_raw.includes(',')) {
+        const parts = location_raw.split(',');
+        city = parts[0].trim();
+        const statePart = parts[1].trim();
+        const stateMatch = statePart.match(/^[A-Za-z]{2}/);
+        if (stateMatch) state = stateMatch[0].toUpperCase();
+      } else if (!zip) {
+        // Fallback: they wrote something like "Near Orlando" 
+        city = location_raw.trim();
+      }
+    }
+
+    // 2. VERIFICATION
+    if (!name || !phone || !location_raw) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Missing core fields: name, phone, and location are required.' },
         { status: 400 }
       );
     }
 
-    // Resolve city_slug - only use if it matches a known city to satisfy FK
+    // 3. DATABASE INGESTION
     let citySlug: string | null = null;
-    if (body.city) {
-      const slug = body.city.toLowerCase().replace(/\s+/g, '-');
+    if (city) {
+      const slug = city.toLowerCase().replace(/\s+/g, '-');
       try {
         const found = await sql`SELECT slug FROM cities WHERE slug = ${slug} LIMIT 1`;
         if ((found as any[]).length) citySlug = (found as any[])[0].slug;
       } catch {}
     }
 
-    // Store in leads table (shared schema)
     try {
       await sql`
         INSERT INTO leads (
-          first_name, last_name, email, phone, zip_code,
-          system_type, issue_description, urgency, preferred_contact_time,
+          first_name, last_name, phone, zip_code,
+          system_type, issue_description, urgency, 
           city_slug, status
         ) VALUES (
-          ${body.firstName || ''},
-          ${body.lastName || ''},
-          ${body.email || ''},
-          ${body.phone || ''},
-          ${body.zip || ''},
-          ${body.systemType || null},
-          ${body.service || null},
-          ${body.urgency || null},
-          ${body.preferredContactTime || null},
+          ${name?.split(' ')[0] || ''},
+          ${name?.split(' ').slice(1).join(' ') || ''},
+          ${phone || ''},
+          ${zip || location_raw || ''},
+          ${service_type || 'hvac'},
+          ${issue || ''},
+          ${urgency || ''},
           ${citySlug},
           'new'
         )
       `;
       console.log('[API/LEAD] Lead archived in database');
     } catch (dbErr) {
-      console.error('[API/LEAD] DB insert failed (table may not exist yet):', dbErr);
+      console.error('[API/LEAD] DB insert failed:', dbErr);
     }
 
-    // Forward to GHL Webhook
-    const GHL_WEBHOOK_URL = process.env.GHL_WEBHOOK_URL || 'https://services.leadconnectorhq.com/hooks/BvM4rA6CgU4s3C4xG7T';
+    // 4. TWILIO SMS NOTIFICATION & DISPATCH
+    console.log(`[API/LEAD] Processing Twilio SMS to ${phone}`);
     
-    console.log(`[API/LEAD] Received lead for ${body.firstName} in ${body.city}, ${body.state}`);
+    // Assumes TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_FROM_NUMBER are defined in .env
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const twilioPhone = process.env.TWILIO_FROM_NUMBER;
+    const adminPhone = process.env.LEAD_NOTIFY_SMS_TO;
 
-    const response = await fetch(GHL_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        firstName: body.firstName,
-        lastName: body.lastName,
-        phone: body.phone,
-        email: body.email,
-        address: body.address,
-        city: body.city,
-        state: body.state,
-        zip: body.zip,
-        service: body.service,
-        systemType: body.systemType,
-        urgency: body.urgency,
-        preferredContactTime: body.preferredContactTime,
-        source: 'HVACRevenueBoost-Modal',
-        timestamp: new Date().toISOString()
-      }),
-    });
+    if (accountSid && authToken && twilioPhone) {
+      try {
+        const client = twilio(accountSid, authToken);
+        const textMessage = `Hi ${name.split(' ')[0]}, we received your request for ${location_raw}. An expert will be assigned shortly. Reply STOP to cancel.`;
 
-    if (!response.ok) {
-      console.error(`[API/LEAD] GHL Webhook failed with status ${response.status}`);
+        // 4a. SMS Confirmation to the Lead 
+        await client.messages.create({
+          body: textMessage,
+          from: twilioPhone,
+          to: phone
+        });
+        console.log('[API/LEAD] Twilio confirmation SMS successfully sent to lead.');
+
+        // 4b. SMS Alert to the Administrator
+        if (adminPhone) {
+          await client.messages.create({
+            body: `🔥 NEW LEAD ALERT 🔥\nName: ${name}\nPhone: ${phone}\nLocation: ${location_raw}\nUrgency: ${urgency || 'N/A'}\nType: ${service_type || 'HVAC'}`,
+            from: twilioPhone,
+            to: adminPhone
+          });
+          console.log('[API/LEAD] Twilio Admin Alert SMS successfully sent.');
+        }
+
+      } catch (twilioErr) {
+        console.error('[API/LEAD] Twilio API Error:', twilioErr);
+      }
     } else {
-      console.log('[API/LEAD] Lead successfully pushed to GHL Webhook.');
+      console.warn('[API/LEAD] Twilio credentials missing in ENV. Skipping SMS dispatch. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_FROM_NUMBER.');
     }
 
     return NextResponse.json({ success: true });

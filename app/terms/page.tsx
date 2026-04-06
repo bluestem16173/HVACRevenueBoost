@@ -21,8 +21,9 @@ export default function TermsPage() {
 
       <h2>SMS Communications</h2>
       <p>
+        Users must provide consent before receiving SMS communications. Message frequency varies based on service requests.
         By submitting your information, you consent to receive SMS messages related to your service request.
-        Message frequency may vary. Message and data rates may apply. Reply STOP to opt out.
+        Message and data rates may apply. Reply STOP to opt out.
       </p>
 
       <h2>No Guarantee</h2>

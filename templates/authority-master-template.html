@@ -1,0 +1,110 @@
+<!--
+  DecisionGrid — Master Authority BODY partial (HTML fragment only)
+
+  • Full page shell: views/layouts/authority-guide.html
+  • Golden reference (copy structure + ids): views/guides/rv-water-pump-not-working-authority-master.html
+  • Prompts: docs/DECISIONGRID-UNIFIED-CORE-PROMPT.md + docs/DECISIONGRID-MASTER-AUTHORITY-HTML-PROMPT.md
+  • Save as: views/guides/<slug>-authority-master.html
+  • Route: contentPartial → '../guides/<slug>-authority-master.html'
+
+  Rules:
+  - Mermaid: graph code ONLY inside <div class="mermaid"> — flowchart TD or graph TD, no SVG inside.
+  - Keep section ids below stable (anchors / internal links).
+-->
+
+<h2 id="hero-overview">Problem overview</h2>
+<p><!-- Short intro + failure modes + safety --></p>
+<ul>
+  <li><!-- mode 1 --></li>
+  <li><!-- mode 2 --></li>
+</ul>
+
+<section aria-label="Quick decision tree">
+  <h2 id="decision-tree">Quick decision tree</h2>
+  <p><!-- Instructions --></p>
+  <ol type="A">
+    <li><!-- Question + branches --></li>
+  </ol>
+</section>
+
+<h2 id="system-explanation">How the system works</h2>
+<p><!-- Conceptual explanation --></p>
+
+<h2 id="diagnostic-flow">Diagnostic flow</h2>
+<p><!-- Optional intro --></p>
+<div class="mermaid">
+flowchart TD
+  A[Start] --> B{Branch?}
+  B -->|Yes| C[Next step]
+  B -->|No| D[Other path]
+</div>
+
+<h2 id="top-causes">Top causes</h2>
+<ol>
+  <li><!-- cause --></li>
+</ol>
+
+<h2 id="repair-matrix">Repair matrix</h2>
+<table>
+  <thead>
+    <tr><th>Symptom pattern</th><th>Common fix</th><th>Cost band (USD)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+<h3>Replace vs repair</h3>
+<p><!-- When to repair vs replace --></p>
+
+<h3>Bench procedure: <!-- topic --></h3>
+<p><!-- Steps --></p>
+<ul>
+  <li><!-- step --></li>
+</ul>
+<div class="field-insight">
+  <strong>🔧 Field Insight:</strong><!-- technician note -->
+</div>
+
+<h3>Preventative maintenance</h3>
+<ul>
+  <li><!-- tip --></li>
+</ul>
+
+<h2 id="tools">Tools</h2>
+<table>
+  <thead>
+    <tr><th>Tool</th><th>Purpose</th><th>Difficulty</th></tr>
+  </thead>
+  <tbody>
+    <tr><td></td><td></td><td></td></tr>
+  </tbody>
+</table>
+
+<div class="lead-trigger-mid" style="margin:1.5rem 0;padding:1rem 1.25rem;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;font-size:.9375rem;">
+  <strong><!-- Mid-page lead hook --></strong>
+  <a href="#local-professionals-cta">Link to local professionals block</a>
+</div>
+
+<nav class="related-box" aria-label="Related troubleshooting guides">
+  <h2>Related troubleshooting guides</h2>
+  <ul>
+    <li><a href="/rv/hvac/"><!-- related 1 --></a></li>
+    <li><a href="/rv/hvac/"><!-- related 2 --></a></li>
+    <li><a href="/rv/hvac/"><!-- related 3 --></a></li>
+    <li><a href="/rv/hvac/"><!-- related 4 --></a></li>
+  </ul>
+</nav>
+
+<h2 id="final-cta">When to stop DIY</h2>
+<p><!-- Scope limits + link to <a href="#local-professionals-cta"> --></p>
+
+<h2 id="faq-heading">Frequently Asked Questions</h2>
+<% if (typeof faqs !== 'undefined' && faqs && faqs.length > 0) { %>
+<% faqs.forEach(f => { %>
+<div class="faq-box">
+  <strong><%- f.question %></strong>
+  <p><%- f.answer %></p>
+</div>
+<% }); %>
+<% } %>

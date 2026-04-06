@@ -23,7 +23,7 @@ export default function PrivacyPage() {
       <h2>SMS Consent</h2>
       <p>
         By submitting your information, you consent to receive SMS messages related to your request.
-        You may opt out at any time by replying STOP.
+        You may opt out at any time by replying STOP. We only send SMS messages in response to user-initiated requests and do not send unsolicited marketing messages.
       </p>
 
       <h2>Data Sharing</h2>
