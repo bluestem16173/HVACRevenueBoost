@@ -11,29 +11,24 @@ export const HRB_BRAND = "hvac_revenue_boost" as const;
 
 /** Required top-level fields for lead pages (plus existing v5 diagnostic fields). */
 export const HRB_OUTPUT_CONTRACT = `
-REQUIRED TOP-LEVEL JSON FIELDS (in addition to schema-required diagnostic fields):
+REQUIRED TOP-LEVEL JSON FIELDS (MANDATORY STRICT MATCH TO V3 AUTHORITY SCHEMA):
+- "layout": "hvac_authority_v3"
+- "page_type": "diagnostic"
+- "schema_version": "v3"
 - "meta_title" — ≤60 chars, local + benefit + brand intent
 - "meta_description" — ≤155 chars, CTA-oriented
-- "cta_blocks" — array of exactly 3 objects:
-  { "placement": "above_fold" | "mid_page" | "bottom", "headline": string, "subtext": string, "button_text": string, "phone_prompt": string }
-- "sections" — array of { "id": string, "heading": string, "body": string } for the page-type blueprint below (keep bodies short: 2–5 sentences each)
-
-FAQ: keep "faq" array short (3–5), answers focused on booking/reassurance, not engineering lectures.
 `;
 
 export const HRB_SYSTEM_LOCK = `You generate structured JSON for HVAC Revenue Boost — a local LEAD GENERATION business.
 
 ABSOLUTE RULES:
-- Goal #1: get the homeowner to CALL or REQUEST SERVICE. Education supports trust, not depth.
-- Tone: clear, confident, helpful, action-oriented. No academic or technician-exam voice.
-- FORBIDDEN: deep thermodynamics lectures, enthalpy/subcool tutorials, long diagnostic theory.
+- Goal #1: Help the homeowner triage the issue, followed by a strong push to professional resolution.
+- Tone: Clinical, authoritative, safety-first. No academic or technician-exam voice, but do not sound like a cheesy salesperson.
 - FORBIDDEN: blog filler ("In this article", "This guide will explore").
 - Location: weave in the provided CITY / SERVICE AREA naturally (trust + local SEO) without stuffing keywords.
-- fast_answer.technical_summary: 2–3 short sentences a homeowner understands; name at most ONE technical term if helpful.
-- fast_answer.primary_mechanism: ONE short sentence (cause in plain English).
-- Mermaid: keep SMALL (≤10 nodes), plain-language labels, still valid flowchart TD with "?" binary checks where required.
-- Causes/tests: simple homeowner-executable checks where possible; avoid requiring shop tools unless necessary.
-- Every page must feel like "call now" is the rational next step — not "become an HVAC student."
+- fast_answer: replaced by 'summary_30s' — keep it brief and helpful.
+- Mermaid: strictly functional flowchart that tracks the 'advanced_diagnostic_flow' steps.
+- Every page must feel like "call a pro" is the rational, safe next step after basic DIY checks fail.
 `;
 
 export function buildHrbTaskPrompt(params: {
@@ -95,10 +90,10 @@ PAGE BLUEPRINT — city_service (hybrid) (e.g. AC Repair in ${loc}):
     default:
       return `${base}
 
-PAGE BLUEPRINT — diagnostic symptom (lead-safe):
-1) sections: fast_answer, likely_causes, quick_checks, when_to_call_pro, trust
-2) Keep failure_modes / causes / mermaid for schema compliance but LANGUAGE stays homeowner-first
-3) CTAs: primary above fold, mid, bottom — booking language
+PAGE BLUEPRINT — Authority Template v3 (diagnostic):
+1) This is a strictly locked 19-step architecture.
+2) Populate 'summary_30s', 'immediate_quick_checks', 'diy_tools', 'high_risk_warning', 'most_common_causes' (exactly 4), 'repair_matrix', 'when_to_stop_diy', etc.
+3) All content must adhere precisely to the JSON schema keys provided. Do NOT output legacy 'fast_answer' or 'sections' keys.
 `;
   }
 }

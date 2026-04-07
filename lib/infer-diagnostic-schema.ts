@@ -8,6 +8,10 @@ export function inferDiagnosticSchemaVersion(content: unknown): string | null {
   if (content == null || typeof content !== "object") return null;
   const o = content as Record<string, unknown>;
 
+  if (o.layout === "hvac_authority_v3" || o.schemaVersion === "hvac_authority_v3") {
+    return "hvac_authority_v3";
+  }
+
   if (o.layout === "authority_symptom" || o.schemaVersion === "authority_symptom") {
     return "authority_symptom";
   }

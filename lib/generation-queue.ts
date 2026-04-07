@@ -27,7 +27,7 @@ export async function getQueuedJobs(
       UPDATE generation_queue SET status = ${QueueStatus.GENERATED}
       WHERE id IN (
         SELECT id FROM generation_queue
-        WHERE status IN ('draft', 'stale', 'pending')
+        WHERE status IN ('draft', 'stale', 'pending', 'queued')
           AND page_type = ${pageType}
           AND COALESCE(attempts, regeneration_attempts, 0) <= 1
         ORDER BY created_at ASC
@@ -40,7 +40,7 @@ export async function getQueuedJobs(
     UPDATE generation_queue SET status = ${QueueStatus.GENERATED}
     WHERE id IN (
       SELECT id FROM generation_queue
-      WHERE status IN ('draft', 'stale', 'pending')
+      WHERE status IN ('draft', 'stale', 'pending', 'queued')
         AND COALESCE(attempts, regeneration_attempts, 0) <= 1
       ORDER BY created_at ASC
       LIMIT ${batchSize}
@@ -63,7 +63,7 @@ export async function peekQueuedJobs(
       SELECT id, proposed_slug, proposed_title, page_type, status, city, created_at,
         COALESCE(attempts, regeneration_attempts, 0) AS attempt_count
       FROM generation_queue
-      WHERE status IN ('draft', 'stale', 'pending')
+      WHERE status IN ('draft', 'stale', 'pending', 'queued')
         AND page_type = ${pageType}
         AND COALESCE(attempts, regeneration_attempts, 0) <= 1
       ORDER BY created_at ASC
@@ -74,7 +74,7 @@ export async function peekQueuedJobs(
     SELECT id, proposed_slug, proposed_title, page_type, status, city, created_at,
       COALESCE(attempts, regeneration_attempts, 0) AS attempt_count
     FROM generation_queue
-    WHERE status IN ('draft', 'stale', 'pending')
+    WHERE status IN ('draft', 'stale', 'pending', 'queued')
       AND COALESCE(attempts, regeneration_attempts, 0) <= 1
     ORDER BY created_at ASC
     LIMIT ${cap}

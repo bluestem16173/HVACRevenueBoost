@@ -275,6 +275,94 @@ export const DiagnosticPageSchema = {
   }
 };
 
+export const HVACAuthorityPageJsonSchema = {
+  type: "object",
+  required: [
+    "layout", "page_type", "schema_version", "slug", "title", "h1",
+    "meta_title", "meta_description", "canonical_path", "intro",
+    "summary_30s", "immediate_quick_checks", "diy_tools", "high_risk_warning",
+    "emergency_cta", "most_common_causes", "how_the_system_works",
+    "advanced_diagnostic_flow", "mermaid_diagram", "repair_matrix",
+    "repair_vs_replace", "when_to_stop_diy", "prevention_tips",
+    "faqs", "internal_links", "bottom_cta", "author_note"
+  ],
+  properties: {
+    layout: { type: "string", enum: ["hvac_authority_v3"] },
+    page_type: { type: "string", enum: ["diagnostic"] },
+    schema_version: { type: "string", enum: ["v3"] },
+    slug: { type: "string" },
+    title: { type: "string" },
+    h1: { type: "string" },
+    meta_title: { type: "string" },
+    meta_description: { type: "string" },
+    canonical_path: { type: "string" },
+    intro: { type: "string" },
+    summary_30s: {
+      type: "object",
+      properties: { label: { type: "string" }, overview: { type: "string" }, bullets: { type: "array", items: { type: "string" } } }
+    },
+    immediate_quick_checks: {
+      type: "array",
+      items: { type: "object", properties: { step_number: { type: "number" }, instruction: { type: "string" }, why_it_matters: { type: "string" } } }
+    },
+    diy_tools: {
+       type: "array",
+       items: { type: "object", properties: { tool: { type: "string" }, purpose: { type: "string" }, safe_for_basic_diy: { type: "boolean" }, caution_note: { type: "string" } } }
+    },
+    high_risk_warning: {
+       type: "object",
+       properties: { severity: { type: "string", enum: ["medium", "high", "critical"] }, title: { type: "string" }, body: { type: "string" }, risk_points: { type: "array", items: { type: "string" } }, show_emergency_cta: { type: "boolean" } }
+    },
+    emergency_cta: {
+       type: "object",
+       properties: { title: { type: "string" }, body: { type: "string" }, button_text: { type: "string" }, urgency_note: { type: "string" } }
+    },
+    most_common_causes: {
+       type: "array",
+       description: "EXACTLY 4 ITEMS REQUIRED",
+       items: { type: "object", properties: { cause: { type: "string" }, probability_note: { type: "string" }, explanation: { type: "string" }, signs: { type: "array", items: { type: "string" } } } }
+    },
+    how_the_system_works: {
+       type: "object",
+       properties: { overview: { type: "string" }, components: { type: "array", items: { type: "string" } } }
+    },
+    advanced_diagnostic_flow: {
+       type: "array",
+       items: { type: "object", properties: { step_number: { type: "number" }, title: { type: "string" }, check: { type: "string" }, normal_result: { type: "string" }, danger_or_fail_result: { type: "string" }, next_action: { type: "string" } } }
+    },
+    mermaid_diagram: {
+       type: "object",
+       properties: { title: { type: "string" }, code: { type: "string" } }
+    },
+    repair_matrix: {
+       type: "array",
+       items: { type: "object", properties: { symptom: { type: "string" }, likely_issue: { type: "string" }, fix_type: { type: "string" }, difficulty: { type: "string" }, estimated_cost: { type: "string" } } }
+    },
+    repair_vs_replace: {
+       type: "object",
+       properties: { repair_when: { type: "string" }, replace_when: { type: "string" }, decision_note: { type: "string" } }
+    },
+    when_to_stop_diy: {
+       type: "object",
+       properties: { title: { type: "string" }, intro: { type: "string" }, danger_points: { type: "array", items: { type: "string" } }, conversion_body: { type: "string" }, cta_text: { type: "string" } }
+    },
+    prevention_tips: { type: "array", items: { type: "string" } },
+    faqs: {
+       type: "array",
+       items: { type: "object", properties: { question: { type: "string" }, answer: { type: "string" } } }
+    },
+    internal_links: {
+       type: "object",
+       properties: { related_symptoms: { type: "array", items: { type: "string" } }, related_system_pages: { type: "array", items: { type: "string" } }, pillar_page: { type: "string" } }
+    },
+    bottom_cta: {
+       type: "object",
+       properties: { title: { type: "string" }, body: { type: "string" }, urgency_bullets: { type: "array", items: { type: "string" } }, button_text: { type: "string" } }
+    },
+    author_note: { type: "string" }
+  }
+};
+
 export const Schema = DiagnosticPageSchema;
 export type GeneratedContent = any; 
 

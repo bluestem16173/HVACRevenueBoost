@@ -101,21 +101,21 @@ export async function POST(req: Request) {
     // 4. TWILIO SMS NOTIFICATION & DISPATCH
     console.log(`[API/LEAD] Processing Twilio SMS to ${phone}`);
     
-    // Assumes TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_FROM_NUMBER are defined in .env
+    // Assumes TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_MG_SID are defined in .env
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const twilioPhone = process.env.TWILIO_FROM_NUMBER;
+    const messagingServiceSid = process.env.TWILIO_MG_SID;
     const adminPhone = process.env.LEAD_NOTIFY_SMS_TO;
 
-    if (accountSid && authToken && twilioPhone) {
+    if (accountSid && authToken && messagingServiceSid) {
       try {
         const client = twilio(accountSid, authToken);
-        const textMessage = `Hi ${name.split(' ')[0]}, we received your request for ${location_raw}. An expert will be assigned shortly. Reply STOP to cancel.`;
+        const textMessage = "Got your request — checking availability now. Reply YES to connect with a technician.";
 
         // 4a. SMS Confirmation to the Lead 
         await client.messages.create({
           body: textMessage,
-          from: twilioPhone,
+          messagingServiceSid: messagingServiceSid,
           to: phone
         });
         console.log('[API/LEAD] Twilio confirmation SMS successfully sent to lead.');
@@ -124,7 +124,7 @@ export async function POST(req: Request) {
         if (adminPhone) {
           await client.messages.create({
             body: `🔥 NEW LEAD ALERT 🔥\nName: ${name}\nPhone: ${phone}\nLocation: ${location_raw}\nUrgency: ${urgency || 'N/A'}\nType: ${service_type || 'HVAC'}`,
-            from: twilioPhone,
+            messagingServiceSid: messagingServiceSid,
             to: adminPhone
           });
           console.log('[API/LEAD] Twilio Admin Alert SMS successfully sent.');
@@ -134,7 +134,7 @@ export async function POST(req: Request) {
         console.error('[API/LEAD] Twilio API Error:', twilioErr);
       }
     } else {
-      console.warn('[API/LEAD] Twilio credentials missing in ENV. Skipping SMS dispatch. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_FROM_NUMBER.');
+      console.warn('[API/LEAD] Twilio credentials missing in ENV. Skipping SMS dispatch. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_MG_SID.');
     }
 
     return NextResponse.json({ success: true });

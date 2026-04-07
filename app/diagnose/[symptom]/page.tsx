@@ -1,8 +1,3 @@
-/**
- * Diagnose symptom route — no “strict lock” 404s:
- * Drift (wrong schema, bad JSON, unknown page_type) renders visible debug — never a blank 404.
- * Missing DB row: inline message + slug (still no 404). Content: normalize once, then branch.
- */
 import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { inferDiagnosticSchemaVersion } from "@/lib/infer-diagnostic-schema";
 import { normalizeDiagnosticToDisplayModel } from "@/lib/normalize-diagnostic-display";
@@ -10,19 +5,16 @@ import { normalizeContent } from "@/lib/normalize-content";
 import GoldStandardPage from "@/components/gold/GoldStandardPage";
 import DiagnosticGoldPage from "@/components/diagnostic/DiagnosticGoldPage";
 import AuthoritySymptomPage from "@/components/authority/AuthoritySymptomPage";
+import DgAuthorityV2Page from "@/components/authority/DgAuthorityV2Page";
 import MasterDecisionGridPage from "@/components/decisiongrid/MasterDecisionGridPage";
+import DiagnosticModal from "@/components/DiagnosticModal";
 import { normalizePageData } from "@/lib/content";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import sql from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
-
-/** Amber JSON footer — dev-only unless NEXT_PUBLIC_DIAGNOSE_DEBUG=1 */
-function showDiagnoseDebugFooter(): boolean {
-  return (
-    process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_DIAGNOSE_DEBUG === "1"
-  );
-}
 
 /**
  * Soft Retry Proxy to handle Neon DB replica lag and race conditions.
@@ -34,6 +26,9 @@ async function getPageWithRetry(symptom: string, retries = 2) {
 
   for (let i = 0; i <= retries; i++) {
     const aiPage =
+      (await getDiagnosticPageFromDB(symptom, "hvac_authority_v3")) ??
+      (await getDiagnosticPageFromDB(symptom, "hvac_authority_v2")) ??
+      (await getDiagnosticPageFromDB(symptom, "dg_authority_v2")) ??
       (await getDiagnosticPageFromDB(symptom, "diagnose")) ??
       (await getDiagnosticPageFromDB(symptom, "symptom")) ??
       (await getDiagnosticPageFromDB(prefixed, "symptom")) ??
@@ -55,19 +50,112 @@ export async function generateMetadata({
 }: {
   params: { symptom: string };
 }): Promise<Metadata> {
-  const aiPage = await getPageWithRetry(params.symptom);
-  if (aiPage?.quality_status === "noindex") {
+  const query = await sql`SELECT * FROM pages WHERE slug = ${params.symptom} LIMIT 1`;
+  const page = query[0] || null;
+
+  if (page?.quality_status === "noindex") {
     return { robots: { index: false, follow: true } };
   }
   return {};
 }
 
-function DebugFooter({ meta }: { meta: Record<string, unknown> }) {
-  return (
-    <pre className="mx-auto mt-8 max-w-4xl whitespace-pre-wrap break-words rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-slate-800">
-      {JSON.stringify(meta, null, 2)}
-    </pre>
-  );
+function buildHtml(title: string) {
+  return `
+    <div style="
+    position:sticky;
+    top:0;
+    z-index:999;
+    background:#dc2626;
+    color:white;
+    padding:12px;
+    text-align:center;
+    font-weight:bold;
+    ">
+      🚨 AC Issue? Don’t Risk a $2,000 Repair — 
+      <button onclick="openLeadCard()" style="
+        margin-left:10px;
+        padding:8px 14px;
+        background:white;
+        color:#dc2626;
+        border:none;
+        border-radius:6px;
+        font-weight:bold;
+        cursor:pointer;
+      ">
+        Get Help Now
+      </button>
+    </div>
+
+    <script>
+      function openLeadCard() {
+        window.dispatchEvent(new CustomEvent("open-leadcard"));
+      }
+    </script>
+
+    <h1>${title} – Causes, Fixes, and What To Do</h1>
+
+    <p style="background:#fef3c7;padding:12px;border-radius:6px;">
+      <strong>Quick Answer:</strong> This HVAC issue is usually caused by airflow restrictions, system imbalance, or failing components.
+    </p>
+
+    <!-- 🔥 IMMEDIATE CTA -->
+    <div style="margin:16px 0;">
+      <button onclick="openLeadCard()" style="
+      padding:14px 24px;
+      background:#dc2626;
+      color:white;
+      border:none;
+      border-radius:8px;
+      font-weight:bold;
+      font-size:16px;
+      cursor:pointer;
+      ">
+      🚨 Get Immediate HVAC Help
+      </button>
+    </div>
+
+    <h2>What’s Happening</h2>
+    <p>Your HVAC system is not operating efficiently. In Florida heat and humidity, this problem can escalate quickly and lead to higher costs or system damage.</p>
+
+    <h2>Most Common Causes</h2>
+    <ul>
+      <li><strong>Dirty air filter:</strong> Blocks airflow and reduces efficiency</li>
+      <li><strong>Low refrigerant:</strong> Reduces cooling capacity</li>
+      <li><strong>Thermostat issues:</strong> Sends incorrect signals</li>
+    </ul>
+
+    <h2>What You Can Check First</h2>
+    <ul>
+      <li>Replace air filter</li>
+      <li>Check thermostat settings</li>
+      <li>Ensure vents are open and unobstructed</li>
+    </ul>
+
+    <h2>Why This Gets Worse</h2>
+    <ul>
+      <li>Higher energy bills</li>
+      <li>System overworking</li>
+      <li>Component damage</li>
+    </ul>
+
+    <!-- 🔥 STRONG CTA -->
+    <div style="margin-top:20px;padding:16px;background:#fee2e2;border-radius:8px;">
+      <h3>Don’t Wait — This Can Get Expensive Fast</h3>
+      <p>Florida heat makes HVAC issues worse quickly. A technician can diagnose and fix this before it turns into a major repair.</p>
+      <button onclick="openLeadCard()" style="
+      padding:14px 24px;
+      background:#dc2626;
+      color:white;
+      border:none;
+      border-radius:8px;
+      font-weight:bold;
+      font-size:16px;
+      cursor:pointer;
+      ">
+      🚨 Get Immediate HVAC Help
+      </button>
+    </div>
+  `;
 }
 
 export default async function SymptomPage({
@@ -75,127 +163,37 @@ export default async function SymptomPage({
 }: {
   params: { symptom: string };
 }) {
-  const aiPage = await getPageWithRetry(params.symptom);
+  const query = await sql`SELECT * FROM pages WHERE slug = ${params.symptom} LIMIT 1`;
+  const page = query[0] || null;
 
-  const debugMeta = {
-    slug: params.symptom,
-    page_type: aiPage?.page_type,
-    schema: aiPage?.schema_version,
-    quality: aiPage?.quality_status,
-  };
+  if (!page) {
+    return <div>Page not found</div>;
+  }
 
-  if (!aiPage) {
+  const html =
+    page.content_html ||
+    (typeof page.content === "string" ? page.content : null);
+
+  if (html) {
     return (
-      <div className="mx-auto max-w-4xl p-6 text-slate-600">
-        ❌ No page found: {params.symptom}
-      </div>
+      <main style={{ padding: 24, paddingBottom: 60 }}>
+        <DiagnosticModal />
+        <div dangerouslySetInnerHTML={{ __html: html }} />
+      </main>
     );
   }
 
-  const row = aiPage as { schema_version?: string; content_json?: unknown; data?: unknown };
-  const pageContent = row.content_json ?? row.data;
+  if (page.content_json) {
+    const title = params.symptom.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase());
+    const finalHtml = buildHtml(title);
 
-  /** Parse first (handles JSON string from DB), then infer schema — infer on raw string always fails. */
-  let content = normalizeContent(pageContent, "", { slug: params.symptom });
-
-  const schema =
-    (typeof row.schema_version === "string" && row.schema_version.trim() !== ""
-      ? row.schema_version
-      : null) ??
-    inferDiagnosticSchemaVersion(content) ??
-    "";
-
-  const debugMetaResolved = { ...debugMeta, schema_resolved: schema };
-
-  if (schema === "v2_goldstandard" && content && typeof content === "object") {
-    content = {
-      ...(content as Record<string, unknown>),
-      schemaVersion: "v1",
-      slug: params.symptom,
-    };
-  }
-
-  if (schema === "authority_symptom" && content && typeof content === "object") {
     return (
-      <>
-        <AuthoritySymptomPage content={content as Record<string, unknown>} />
-        {showDiagnoseDebugFooter() ? <DebugFooter meta={debugMetaResolved} /> : null}
-      </>
+      <main style={{ padding: 24, paddingBottom: 60 }}>
+        <DiagnosticModal />
+        <div dangerouslySetInnerHTML={{ __html: finalHtml }} />
+      </main>
     );
   }
 
-  if (schema === "decisiongrid_master" && content && typeof content === "object") {
-    const c = content as Record<string, unknown>;
-    const slug = typeof c.slug === "string" && c.slug.trim() ? c.slug : params.symptom;
-    const title =
-      typeof c.title === "string" && c.title.trim() ? c.title : params.symptom.replace(/-/g, " ");
-    const pageViewModel = normalizePageData({
-      rawContent: c,
-      pageType: "symptom",
-      slug,
-      title,
-    });
-    return (
-      <>
-        <MasterDecisionGridPage pageViewModel={pageViewModel} rawContent={c} />
-        {showDiagnoseDebugFooter() ? <DebugFooter meta={debugMetaResolved} /> : null}
-      </>
-    );
-  }
-
-  // Removed custom DecisionGridV2Page intercept. 
-  // All payloads conforming to the schema will correctly hit the pre-existing renderers.
-
-  // Fallback for older existing objects tagged v5_master
-  if (schema === "v5_master" || schema === "v6_dg_hvac_hybrid") {
-    if (!content) {
-      return (
-        <div className="mx-auto max-w-4xl p-6 text-slate-600">
-          ⚠️ Invalid v5 content {JSON.stringify(debugMetaResolved)}
-        </div>
-      );
-    }
-
-    const display = normalizeDiagnosticToDisplayModel(content as Record<string, unknown>, {
-      routeSlug: params.symptom,
-    });
-
-    return (
-      <>
-        <DiagnosticGoldPage display={display} routeSlug={params.symptom} />
-        {showDiagnoseDebugFooter() ? <DebugFooter meta={debugMetaResolved} /> : null}
-      </>
-    );
-  }
-
-  // Legacy v2 checks remain here for continuity
-  if (schema === "v2_goldstandard") {
-    if (!content || typeof content !== "object") {
-      return (
-        <div className="mx-auto max-w-4xl p-6 text-slate-600">
-          ⚠️ Invalid v2 content {JSON.stringify(debugMetaResolved)}
-        </div>
-      );
-    }
-
-    const normalized = {
-      ...(content as Record<string, unknown>),
-      schemaVersion: "v1",
-      slug: params.symptom,
-    };
-
-    return (
-      <>
-        <GoldStandardPage data={normalized} />
-        {showDiagnoseDebugFooter() ? <DebugFooter meta={debugMetaResolved} /> : null}
-      </>
-    );
-  }
-
-  return (
-    <div className="mx-auto max-w-4xl p-6 text-slate-600">
-      ⚠️ Unknown schema: {String(schema || "(missing)")}
-      {showDiagnoseDebugFooter() ? <DebugFooter meta={debugMetaResolved} /> : null}
-    </div>
-  );
+  return <div>Empty page</div>;
 }

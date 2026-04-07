@@ -1,0 +1,162 @@
+{
+  "faq": [
+    {
+      "answer": "Short cycling can be caused by incorrect refrigerant levels, thermostat issues, or electrical control failures.",
+      "question": "Why is my AC short cycling?"
+    }
+  ],
+  "cost": {
+    "low": "$50",
+    "high": "$1000+",
+    "medium": "$200"
+  },
+  "tools": [
+    {
+      "name": "Manifold Gauge Set",
+      "purpose": "Used to measure system refrigerant pressures.",
+      "beginner": "No"
+    },
+    {
+      "name": "Digital Multimeter",
+      "purpose": "Used for electrical diagnostics and testing.",
+      "beginner": "Moderate"
+    }
+  ],
+  "causes": [
+    {
+      "name": "Refrigerant Charge Imbalance",
+      "quick_fix": "Recharge or recover refrigerant to proper levels.",
+      "description": "Incorrect refrigerant levels can cause the system to short cycle.",
+      "probability": "High"
+    },
+    {
+      "name": "Thermostat Malfunction",
+      "quick_fix": "Replace or recalibrate the thermostat.",
+      "description": "Faulty thermostat readings can lead to improper cycling.",
+      "probability": "Medium"
+    },
+    {
+      "name": "Electrical Control Failure",
+      "quick_fix": "Inspect and replace faulty electrical components.",
+      "description": "Issues with control board or contactor can cause cycling.",
+      "probability": "Low"
+    }
+  ],
+  "ai_summary": {
+    "bullets": [
+      "Frequent on/off cycling of the AC unit.",
+      "Potential causes include refrigerant issues or control failures."
+    ],
+    "most_likely_issue": "Refrigerant Charge Imbalance"
+  },
+  "comparison": [
+    {
+      "value": "Upgraded/Heavy-duty component",
+      "budget": "Standard OEM replacement",
+      "category": "Contactor"
+    },
+    {
+      "value": "Smart thermostat with Wi-Fi",
+      "budget": "Basic digital model",
+      "category": "Thermostat"
+    }
+  ],
+  "prevention": [
+    "Schedule regular maintenance checks.",
+    "Ensure proper thermostat placement."
+  ],
+  "deep_causes": [
+    {
+      "cause": "Refrigerant Charge Imbalance",
+      "fix_steps": [
+        "Connect manifold gauges to service ports.",
+        "Compare readings to manufacturer specifications.",
+        "Adjust refrigerant levels accordingly."
+      ],
+      "tools_needed": [
+        "Manifold gauge set",
+        "Refrigerant recovery machine"
+      ],
+      "why_it_happens": "A system with too much or too little refrigerant can cause pressure imbalances, leading to the compressor's protective mechanisms triggering frequent shutdowns."
+    },
+    {
+      "cause": "Thermostat Malfunction",
+      "fix_steps": [
+        "Verify thermostat placement and settings.",
+        "Test with a multimeter for proper voltage.",
+        "Replace if necessary."
+      ],
+      "tools_needed": [
+        "Digital multimeter",
+        "Thermostat calibration tool"
+      ],
+      "why_it_happens": "Thermostats that are improperly calibrated or located in poor positions can misread the ambient temperature, causing the system to cycle incorrectly."
+    }
+  ],
+  "quick_steps": [
+    "Inspect thermostat settings and location.",
+    "Check refrigerant levels and pressures."
+  ],
+  "safety_note": "Warning: Short cycling can cause electrical components to overheat, leading to potential fire hazards or electrical shock.",
+  "system_flow": "flowchart LR\nA[Thermostat] --> B[Control Board] --> C[Compressor] --> D[Condenser Coil] --> E[Evaporator Coil] --> F[Return Air] --> G[Supply Air]",
+  "repair_paths": [
+    {
+      "cost": "$150 - $300",
+      "title": "Refrigerant Recharge",
+      "difficulty": "Moderate"
+    },
+    {
+      "cost": "$100 - $250",
+      "title": "Thermostat Replacement",
+      "difficulty": "Easy"
+    }
+  ],
+  "related_links": [
+    {
+      "href": "/diagnose/refrigerant-charge-issues",
+      "label": "Condition",
+      "title": "Refrigerant Charge Issues"
+    },
+    {
+      "href": "/diagnose/hvac-control-systems",
+      "label": "System",
+      "title": "HVAC Control Systems"
+    },
+    {
+      "href": "/diagnose/thermostat-placement-guide",
+      "label": "Location",
+      "title": "Thermostat Placement Guide"
+    }
+  ],
+  "schemaVersion": "v1",
+  "diagnostic_flow": {
+    "chart": "flowchart TD\nA[Check Thermostat] --> B{Correctly Set?}\nB -- Yes --> C[Check Refrigerant Levels]\nB -- No --> D[Adjust Thermostat]\nC --> E{Proper Charge?}\nE -- Yes --> F[Check Electrical Components]\nE -- No --> G[Recharge System]",
+    "steps": [
+      {
+        "step": "Check Thermostat",
+        "detail": "Verify thermostat is set to the correct mode and temperature. Ensure it is not near heat sources or in direct sunlight."
+      },
+      {
+        "step": "Check Refrigerant Levels",
+        "detail": "Use a manifold gauge set to measure system pressures. Compare with manufacturer’s specifications (e.g., 68-72 psig for R-410A at 40°F evaporator temperature)."
+      },
+      {
+        "step": "Check Electrical Components",
+        "detail": "Inspect contactor, capacitors, and control board for signs of wear or damage. Measure voltage drop across contactor (should not exceed 3% of line voltage)."
+      }
+    ]
+  },
+  "problem_summary": "The homeowner notices that their AC unit turns on and off frequently, failing to maintain a consistent temperature.",
+  "quick_diagnosis": [
+    {
+      "action": "Check and adjust refrigerant levels.",
+      "symptom": "AC short cycling",
+      "likely_cause": "Improper refrigerant charge"
+    }
+  ],
+  "deep_explanation": "Short cycling in an HVAC system typically results from improper refrigerant charge, malfunctioning thermostats, or electrical control failures. This condition causes the compressor to start and stop frequently, leading to increased wear and tear. The rapid cycling prevents the system from reaching the desired temperature, reducing efficiency and increasing energy consumption.",
+  "before_calling_tech": [
+    "Ensure thermostat is set correctly.",
+    "Check for blocked vents or filters."
+  ]
+}

@@ -1,4 +1,8 @@
+import { z } from "zod";
+
 export const DiagnosticPageSchema = z.object({
+  layout: z.string().optional(),
+  schemaVersion: z.string().optional(),
   headline: z.string(),
 
   summary: z.object({

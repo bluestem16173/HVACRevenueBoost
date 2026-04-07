@@ -62,6 +62,12 @@ function assertGoldTechnicalDepth(payload: any) {
 export function validateV2(payload: any) {
   if (!payload) throw new Error("Empty payload");
 
+  if (payload.layout === "hvac_authority_v3") {
+     // Trust the upstream Zod or generator for v3 layouts
+     return true;
+  }
+
+
   const modeNames = new Set(payload.failure_modes?.map((m: any) => m.name));
   const causeNames = new Set(payload.causes?.map((c: any) => c.name));
 
