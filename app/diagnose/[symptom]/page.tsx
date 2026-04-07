@@ -50,8 +50,18 @@ export async function generateMetadata({
 }: {
   params: { symptom: string };
 }): Promise<Metadata> {
-  const query = await sql`SELECT * FROM pages WHERE slug = ${params.symptom} LIMIT 1`;
-  const page = query[0] || null;
+  let query;
+  try {
+    query = await sql`SELECT * FROM pages WHERE slug = ${params.symptom} LIMIT 1`;
+  } catch (e) {
+    return {};
+  }
+
+  if (!query || query.length === 0) {
+    return {};
+  }
+  
+  const page = query[0];
 
   if (page?.quality_status === "noindex") {
     return { robots: { index: false, follow: true } };
@@ -163,12 +173,18 @@ export default async function SymptomPage({
 }: {
   params: { symptom: string };
 }) {
-  const query = await sql`SELECT * FROM pages WHERE slug = ${params.symptom} LIMIT 1`;
-  const page = query[0] || null;
+  let query;
+  try {
+    query = await sql`SELECT * FROM pages WHERE slug = ${params.symptom} LIMIT 1`;
+  } catch (err) {
+    return <div>Database Connection Error</div>;
+  }
 
-  if (!page) {
+  if (!query || query.length === 0) {
     return <div>Page not found</div>;
   }
+  
+  const page = query[0];
 
   const html =
     page.content_html ||

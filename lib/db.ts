@@ -33,9 +33,7 @@ function getSql(): NeonQueryFunction<false, false> {
     );
   }
 
-  // Force NO Next.js Route Cache intercept
-  const fs = require('fs');
-  fs.appendFileSync('debug-render.txt', `\n[DB CONNECTION] Connecting to: ${url.replace(/:[^:@]+@/, ':***@')}\n`);
+  // Initialize the native Neon Serverless driver and forcefully bypass route caching
   _sql = neon(url, { fetchOptions: { cache: 'no-store' } });
   return _sql;
 }
