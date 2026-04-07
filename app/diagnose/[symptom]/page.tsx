@@ -53,7 +53,17 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   let query;
   try {
-    query = await sql`SELECT * FROM pages WHERE slug = ${params.symptom} LIMIT 1`;
+    const res = await fetch(process.env.NEON_HTTP_URL!, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: "SELECT * FROM pages WHERE slug = $1 LIMIT 1",
+        params: [params.symptom]
+      })
+    });
+    const json = await res.json();
+    // Accommodate standard DB data shapes
+    query = json.rows || json.data || json || [];
   } catch (e) {
     return {};
   }
@@ -176,7 +186,17 @@ export default async function SymptomPage({
 }) {
   let query;
   try {
-    query = await sql`SELECT * FROM pages WHERE slug = ${params.symptom} LIMIT 1`;
+    const res = await fetch(process.env.NEON_HTTP_URL!, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: "SELECT * FROM pages WHERE slug = $1 LIMIT 1",
+        params: [params.symptom]
+      }),
+      cache: "no-store"
+    });
+    const json = await res.json();
+    query = json.rows || json.data || json || [];
   } catch (err) {
     return <div>Database Connection Error</div>;
   }
