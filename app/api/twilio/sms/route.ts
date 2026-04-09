@@ -44,6 +44,7 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error("Twilio Webhook Error:", error);
-    return new NextResponse("Error processing webhook", { status: 500 });
+    // Twilio best practice: Return 200 OK even on error to prevent infinite retries
+    return new Response("OK", { status: 200 });
   }
 }

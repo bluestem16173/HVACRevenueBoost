@@ -243,19 +243,41 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
       batchSize = MAX_JOBS_PER_RUN;
     }
 
-    const items = (await getQueuedJobs(batchSize, options.type)) as any[];
+    const regenItemsRes = await sql`
+      SELECT slug as proposed_slug, page_type, status, quality_status, city
+      FROM pages 
+      WHERE quality_status = 'needs_regen' 
+      LIMIT ${batchSize}
+    ` as any[];
 
-    console.log(`📦 Fetched ${items.length} draft/queued jobs (batch up to ${batchSize}).`);
+    const regenItems = regenItemsRes.map(p => ({
+      id: "regen_" + p.proposed_slug,
+      proposed_slug: p.proposed_slug,
+      page_type: p.page_type,
+      city: p.city,
+      orchestrator_options: null,
+      is_regen: true
+    }));
+
+    let items = regenItems;
+    if (items.length < batchSize) {
+      const queued = (await getQueuedJobs(batchSize - items.length, options.type)) as any[];
+      items = [...items, ...queued];
+    }
+
+    console.log(`📦 Fetched ${items.length} jobs (Regen: ${regenItems.length}, New: ${items.length - regenItems.length}) (batch capped at ${batchSize}).`);
 
     for (const job of items) {
       if (process.env.GENERATION_ENABLED !== "true") {
         console.log("🛑 Mid-batch stop — GENERATION_ENABLED off (e.g. emergency spend spike)");
         for (const j of items) {
-          await sql`
-            UPDATE generation_queue
-            SET status = ${QueueStatus.DRAFT}
-            WHERE id = ${j.id} AND status IN ('generated', 'processing')
-          `;
+          if (!j.is_regen) {
+            await sql`
+              UPDATE generation_queue
+              SET status = ${QueueStatus.DRAFT}
+              WHERE id = ${j.id} AND status IN ('generated', 'processing')
+            `;
+          }
         }
         break;
       }
@@ -277,11 +299,13 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
 
       if (process.env.DRY_RUN === "true") {
         console.log("Would generate:", proposedSlug, { page_type: job.page_type, id: job.id });
-        await sql`
-          UPDATE generation_queue
-          SET status = ${QueueStatus.DRAFT}
-          WHERE id = ${job.id}
-        `;
+        if (!job.is_regen) {
+          await sql`
+            UPDATE generation_queue
+            SET status = ${QueueStatus.DRAFT}
+            WHERE id = ${job.id as number}
+          `;
+        }
         continue;
       }
 
@@ -290,13 +314,15 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
           "📍 Layer 8 — skipping AI for location/template page (expand from canonical symptom in code):",
           proposedSlug
         );
-        await sql`
-          UPDATE generation_queue
-          SET
-            status = ${QueueStatus.PUBLISHED},
-            last_error = 'layer8_template_expansion'
-          WHERE id = ${job.id}
-        `;
+        if (!job.is_regen) {
+          await sql`
+            UPDATE generation_queue
+            SET
+              status = ${QueueStatus.PUBLISHED},
+              last_error = 'layer8_template_expansion'
+            WHERE id = ${job.id as number}
+          `;
+        }
         processedCount++;
         continue;
       }
@@ -355,11 +381,13 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
 
         const result = finalResult;
 
-        await sql`
-          UPDATE generation_queue
-          SET status = ${QueueStatus.VALIDATED}
-          WHERE id = ${job.id}
-        `;
+        if (!job.is_regen) {
+          await sql`
+            UPDATE generation_queue
+            SET status = ${QueueStatus.VALIDATED}
+            WHERE id = ${job.id as number}
+          `;
+        }
 
         // Add required properties safely to avoid null reference crashes
         if (result && typeof result === 'object') {
@@ -400,12 +428,13 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
 
           // V1 Legacy Fallback Upsert (True Dual-Write)
           const res = await sql`
-            INSERT INTO pages (slug, content_json, content_html, status, page_type, title, city, schema_version)
+            INSERT INTO pages (slug, content_json, content_html, status, quality_status, page_type, title, city, schema_version)
             VALUES (
               ${cleanSlug},
               ${JSON.stringify(finalResult)}::jsonb,
               ${html},
               ${pagesInsertStatus},
+              'approved',
               ${pageType},
               ${finalResult.title || 'Untitled'},
               ${city},
@@ -418,6 +447,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
                 page_type = EXCLUDED.page_type,
                 schema_version = EXCLUDED.schema_version,
                 status = EXCLUDED.status,
+                quality_status = EXCLUDED.quality_status,
                 updated_at = NOW()
             RETURNING slug;
           `;
@@ -427,11 +457,20 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
           await new Promise(res => setTimeout(res, 1000));
         }
 
-        await sql`
-          UPDATE generation_queue
-          SET status = ${QueueStatus.PUBLISHED}
-          WHERE id = ${job.id}
-        `;
+        if (!job.is_regen) {
+          await sql`
+            UPDATE generation_queue
+            SET status = ${QueueStatus.PUBLISHED}
+            WHERE id = ${job.id as number}
+          `;
+        } else {
+          // Double verify for regen updates just in case the legacy dual-write above wasn't executed
+          await sql`
+            UPDATE pages 
+            SET quality_status = 'approved', updated_at = NOW()
+            WHERE slug = ${cleanSlug}
+          `;
+        }
 
         processedCount++;
 
@@ -447,49 +486,57 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         const PAGE_QUEUE_FAIL_AFTER_ATTEMPTS = parseInt(process.env.PAGE_QUEUE_FAIL_AFTER_ATTEMPTS || "3", 10);
 
         if (isDailyLimit) {
-          await sql`
-            UPDATE generation_queue
-            SET status = ${QueueStatus.DRAFT}
-            WHERE id = ${job.id}
-          `;
+          if (!job.is_regen) {
+            await sql`
+              UPDATE generation_queue
+              SET status = ${QueueStatus.DRAFT}
+              WHERE id = ${job.id as number}
+            `;
+          }
         } else if (isRateLimit) {
           console.log("🛑 429 Rate Limit hit. Failing job permanently to prevent burn loop.");
-          await sql`
-            UPDATE generation_queue
-            SET attempts = ${PAGE_QUEUE_FAIL_AFTER_ATTEMPTS}, status = ${QueueStatus.FAILED}, last_error = ${msg.slice(0, 2000)}
-            WHERE id = ${job.id}
-          `;
+          if (!job.is_regen) {
+            await sql`
+              UPDATE generation_queue
+              SET attempts = ${PAGE_QUEUE_FAIL_AFTER_ATTEMPTS}, status = ${QueueStatus.FAILED}, last_error = ${msg.slice(0, 2000)}
+              WHERE id = ${job.id as number}
+            `;
+          }
         } else {
-          const prev = queueAttemptCount(job as Record<string, unknown>);
-          const next = prev + 1;
-          if (next >= PAGE_QUEUE_FAIL_AFTER_ATTEMPTS) {
-            await sql`
-              UPDATE generation_queue
-              SET
-                attempts = ${next},
-                status = ${QueueStatus.FAILED},
-                last_error = ${msg.slice(0, 2000)}
-              WHERE id = ${job.id}
-            `;
+          if (!job.is_regen) {
+            const prev = queueAttemptCount(job as Record<string, unknown>);
+            const next = prev + 1;
+            if (next >= PAGE_QUEUE_FAIL_AFTER_ATTEMPTS) {
+              await sql`
+                UPDATE generation_queue
+                SET
+                  attempts = ${next},
+                  status = ${QueueStatus.FAILED},
+                  last_error = ${msg.slice(0, 2000)}
+                WHERE id = ${job.id as number}
+              `;
+            } else {
+              await sql`
+                UPDATE generation_queue
+                SET
+                  attempts = ${next},
+                  status = ${QueueStatus.DRAFT},
+                  last_error = ${msg.slice(0, 2000)}
+                WHERE id = ${job.id as number}
+              `;
+            }
           } else {
-            await sql`
-              UPDATE generation_queue
-              SET
-                attempts = ${next},
-                status = ${QueueStatus.DRAFT},
-                last_error = ${msg.slice(0, 2000)}
-              WHERE id = ${job.id}
-            `;
+             await sql`UPDATE pages SET quality_status = 'failed_regen' WHERE slug = ${job.proposed_slug}`;
           }
         }
         if (isDailyLimit) {
           console.log("💸 Stopping batch — daily budget; job re-queued for later.");
-          const otherIds = items.map((j: { id: number }) => j.id).filter((id: number) => id !== job.id);
+          const otherIds = items.filter(j => !j.is_regen).map((j: any) => j.id).filter((id: any) => id !== job.id);
           for (const oid of otherIds) {
             await sql`
               UPDATE generation_queue
               SET status = ${QueueStatus.DRAFT}
-              WHERE id = ${oid} AND status IN ('generated', 'processing')
+              WHERE id = ${oid as number} AND status IN ('generated', 'processing')
             `;
           }
           break;

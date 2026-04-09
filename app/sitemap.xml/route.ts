@@ -8,7 +8,8 @@ import { toSitemapIndexXml } from "@/lib/sitemap-engine";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://hvacrevenueboost.com";
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   const now = new Date().toISOString().split("T")[0];
@@ -25,6 +26,7 @@ export async function GET() {
     { loc: `${BASE_URL}/sitemaps/components-index`, lastmod: now },
     { loc: `${BASE_URL}/sitemaps/cities-index`, lastmod: now },
     { loc: `${BASE_URL}/sitemaps/local-index`, lastmod: now },
+    { loc: `${BASE_URL}/sitemaps/diagnose`, lastmod: now },
   ];
 
   const xml = toSitemapIndexXml(sitemaps);
@@ -32,7 +34,7 @@ export async function GET() {
   return new NextResponse(xml, {
     headers: {
       "Content-Type": "application/xml",
-      "Cache-Control": "public, max-age=3600, s-maxage=3600",
+      "Cache-Control": "no-store, max-age=0",
     },
   });
 }

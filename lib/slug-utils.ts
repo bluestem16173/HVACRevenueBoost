@@ -1,0 +1,148 @@
+export function normalizeSlug(rawSlug: string): string {
+  if (!rawSlug) return "";
+  
+  let slug = rawSlug.toLowerCase().trim();
+
+  // Strip prefixes
+  if (slug.startsWith("diagnose/")) slug = slug.replace(/^diagnose\//, "");
+  if (slug.startsWith("repair/")) slug = slug.replace(/^repair\//, "");
+  
+  // Strip garbage terms
+  const badTerms = ["canary", "test", "v1", "full", "fixed"];
+  for (const term of badTerms) {
+    slug = slug.replace(new RegExp(`-${term}|${term}-`, "g"), "");
+  }
+
+  // Remove any remaining slashes (no nesting allowed)
+  slug = slug.replace(/\//g, "-");
+  
+  // Clean multiple hyphens
+  slug = slug.replace(/-+/g, "-").replace(/^-|-$/g, "");
+
+  return slug;
+}
+
+export function isValidSlug(slug: string): boolean {
+  if (!slug) return false;
+  
+  const badTerms = [
+    "canary", "test", "v1", "full", "fixed", 
+    "after-", "when-", "while-",
+    "cause/", "causes/", "repair/", "diagnose/"
+  ];
+  
+  if (badTerms.some(t => slug.includes(t))) return false;
+  
+  if (slug.includes("/")) return false;
+  
+  return true;
+}
+
+export function hasRenderableContent(page: any): boolean {
+  // Rule 2: content_html is present (or legacy content block)
+  const html =
+    page.content_html ||
+    (typeof page.content === "string" ? page.content : null);
+  // We strictly require HTML as per Rule 2, even if JSON exists. 
+  // If JSON only, it's not fully rendered for SEO yet!
+  return !!html;
+}
+
+export function isValidTitle(page: any): boolean {
+  // Rule 3: title exists and is not junk
+  const title = page.title || (page.content_json?.name) || page.h1;
+  if (!title) return false;
+  
+  const lower = title.toLowerCase();
+  if (lower.includes("test") || lower.includes("canary") || lower.includes("untitled") || lower.length < 5) {
+    return false;
+  }
+  return true;
+}
+
+export function isAllowedType(page: any): boolean {
+  // Rule 5: page type is allowed
+  const type = page.page_type || page.record_type || page.type || page.layer;
+  if (!type) return false; // Enforce strict type schema presence
+  
+  if (type === "symptom") return true;
+  if (type === "diagnostic") return true;
+  if (type === "hvac_html") return true;
+  if (type === "hvac_authority_v3") return true;
+  
+  if (type === "dg_authority_v2") {
+    // only if slug is clean and not legacy v1-style junk
+    if (!page.slug) return false;
+    const lowerSlug = page.slug.toLowerCase();
+    if (lowerSlug.includes("-v1") || lowerSlug.includes("v1-") || lowerSlug.includes("v1")) return false;
+    if (lowerSlug.includes("test") || lowerSlug.includes("canary")) return false;
+    if (!isValidSlug(page.slug)) return false;
+    return true;
+  }
+  
+  return false;
+}
+
+export function isHighIntentSlug(slug: string): boolean {
+  if (!slug) return false;
+  const highIntentKeywords = ["not-cooling", "broken", "emergency", "leaking", "smell", "blowing-warm", "stopped", "won't-turn-on", "wont-turn-on"];
+  return highIntentKeywords.some(kw => slug.toLowerCase().includes(kw));
+}
+
+export function calculateQualityScore(page: any): number {
+  // If the DB already hard-assigns a score, we optionally trust it,
+  // but to guarantee this 100-point logic, we calculate dynamically.
+  let score = 0;
+
+  // +20 clean slug
+  if (isValidSlug(page.slug)) score += 20;
+
+  // +15 title present and human-readable
+  if (isValidTitle(page)) score += 15;
+
+  // +15 content_html length above threshold (Assuming 1500 chars as a robust threshold)
+  const htmlStr = (page.content_html || page.content || "").toLowerCase();
+  if (htmlStr.length > 1500) score += 15;
+
+  // +10 content_json or structured sections present
+  if (page.content_json && Object.keys(page.content_json).length > 0) score += 10;
+
+  // +10 no junk tokens / debug markers
+  const hasJunk = ["undefined", "null", "[insert", "todo:", "error:", "lorem ipsum"].some(junk => htmlStr.includes(junk));
+  if (!hasJunk && htmlStr.length > 0) score += 10;
+
+  // +10 page type in approved set
+  if (isAllowedType(page)) score += 10;
+
+  // +10 internal links present
+  if (htmlStr.includes("href=") || htmlStr.includes("href=")) score += 10;
+
+  // +10 local or high-intent keyword match
+  const isLocalOrIntent = isHighIntentSlug(page.slug) || htmlStr.includes("florida") || htmlStr.includes("orlando") || htmlStr.includes("hvac") || htmlStr.includes("ac ");
+  if (isLocalOrIntent) score += 10;
+
+  return score;
+}
+
+export function isIndexable(page: any): boolean {
+  if (!page) return false;
+  
+  // Strict Auto-Fails (overrides the algorithm)
+  if (page.status !== 'published') return false;
+  if (page.noindex) return false;
+  if (!isValidSlug(page.slug)) return false; // Auto-fail exact nested paths and spam patterns
+  if (!isAllowedType(page)) return false; // Auto-fail non-approved schema structures
+
+  // If it survives the auto-fails, gracefully grade it
+  const score = calculateQualityScore(page);
+
+  // 90-100 => approved
+  if (score >= 90) return true;
+
+  // 75-89 => approved if high-intent slug
+  if (score >= 75 && score <= 89 && isHighIntentSlug(page.slug)) return true;
+
+  // 60-74 => needs_regen (not indexable)
+  // <60 => noindex or rejected
+  return false;
+}

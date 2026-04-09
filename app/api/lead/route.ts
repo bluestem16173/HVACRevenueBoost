@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import sql from '@/lib/db';
-import twilio from 'twilio';
+import { sendLeadSMS } from '@/lib/twilio/send-sms';
 
 export type Lead = {
   id?: string;
@@ -101,40 +101,24 @@ export async function POST(req: Request) {
     // 4. TWILIO SMS NOTIFICATION & DISPATCH
     console.log(`[API/LEAD] Processing Twilio SMS to ${phone}`);
     
-    // Assumes TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_MG_SID are defined in .env
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const messagingServiceSid = process.env.TWILIO_MG_SID;
-    const adminPhone = process.env.LEAD_NOTIFY_SMS_TO;
+    try {
+      // 🔥 Notify YOU instantly
+      const adminMessage = await sendLeadSMS(
+        `🔥 New HVAC Lead\nName: ${name}\nPhone: ${phone}\nIssue: ${issue || 'N/A'}\nLocation: ${location_raw || 'N/A'}`
+      );
+      console.log("TWILIO RESPONSE (ADMIN):", adminMessage);
+      console.log('[API/LEAD] Twilio Admin Alert SMS successfully sent.');
 
-    if (accountSid && authToken && messagingServiceSid) {
-      try {
-        const client = twilio(accountSid, authToken);
-        const textMessage = "Got your request — checking availability now. Reply YES to connect with a technician.";
-
-        // 4a. SMS Confirmation to the Lead 
-        await client.messages.create({
-          body: textMessage,
-          messagingServiceSid: messagingServiceSid,
-          to: phone
-        });
-        console.log('[API/LEAD] Twilio confirmation SMS successfully sent to lead.');
-
-        // 4b. SMS Alert to the Administrator
-        if (adminPhone) {
-          await client.messages.create({
-            body: `🔥 NEW LEAD ALERT 🔥\nName: ${name}\nPhone: ${phone}\nLocation: ${location_raw}\nUrgency: ${urgency || 'N/A'}\nType: ${service_type || 'HVAC'}`,
-            messagingServiceSid: messagingServiceSid,
-            to: adminPhone
-          });
-          console.log('[API/LEAD] Twilio Admin Alert SMS successfully sent.');
-        }
-
-      } catch (twilioErr) {
-        console.error('[API/LEAD] Twilio API Error:', twilioErr);
-      }
-    } else {
-      console.warn('[API/LEAD] Twilio credentials missing in ENV. Skipping SMS dispatch. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_MG_SID.');
+      // 🔥 Optional: confirm to user
+      const message = await sendLeadSMS(
+        `Thanks ${name}, we received your request. A tech will contact you shortly.`,
+        phone
+      );
+      console.log("TWILIO RESPONSE:", message);
+      console.log('[API/LEAD] Twilio confirmation SMS successfully sent to lead.');
+    } catch (twilioErr) {
+      console.error('[API/LEAD] Twilio API Error:', twilioErr);
+      console.warn('[API/LEAD] Make sure TWILIO_ACCOUNT_SID at TWILIO_AUTH_TOKEN and TWILIO_PHONE_NUMBER are set in ENV.');
     }
 
     return NextResponse.json({ success: true });

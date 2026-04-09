@@ -91,13 +91,16 @@ export async function getSystemEntries(): Promise<SitemapEntry[]> {
 export async function getDiagnosticEntries(): Promise<SitemapEntry[]> {
   const now = toLastmod(new Date());
   try {
-    const rows = await sql`SELECT slug FROM diagnostics`;
-    return (rows as any[]).map((r) => ({
-      loc: `${BASE_URL}/diagnostic/${r.slug}`,
-      lastmod: now,
-      changefreq: "weekly",
-      priority: 0.8,
-    }));
+    const rows = await sql`SELECT slug, created_at, updated_at FROM pages WHERE status = 'published'`;
+    return (rows as any[]).map((r) => {
+      const slugValue = r.slug.startsWith("diagnose/") ? r.slug : `diagnose/${r.slug}`;
+      return {
+        loc: `${BASE_URL}/${slugValue}`,
+        lastmod: r.updated_at ? toLastmod(new Date(r.updated_at)) : (r.created_at ? toLastmod(new Date(r.created_at)) : now),
+        changefreq: "weekly",
+        priority: 0.8,
+      };
+    });
   } catch {
     return [];
   }
