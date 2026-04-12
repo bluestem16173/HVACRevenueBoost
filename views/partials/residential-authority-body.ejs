@@ -1,0 +1,145 @@
+<section id="problem-overview">
+  <h2>Problem overview</h2>
+  <p><%- content.introHtml %></p>
+  <div class="fix-60-block">
+    <h3 class="fix-60-title">30-Second Summary</h3>
+    <p class="fix-60-intro"><strong>What it usually means:</strong> <%- content.summary30s.what_it_usually_means %></p>
+    <ul class="fix-60-steps">
+      <% content.summary30s.most_likely_causes.forEach(cause => { %>
+        <li><%- cause %></li>
+      <% }) %>
+    </ul>
+    <p><strong>Urgency:</strong> <%- content.summary30s.urgency_level %></p>
+  </div>
+
+  <h3>Safe homeowner checks</h3>
+  <ul>
+    <% content.safeChecks.forEach(check => { %>
+      <li><strong><%- check.check %>:</strong> <%- check.what_to_look_for %></li>
+    <% }) %>
+  </ul>
+</section>
+
+<section id="quick-decision-tree">
+  <h2>Quick decision tree</h2>
+  <ol type="A">
+    <% content.quickDecisionTree.forEach(node => { %>
+      <li>
+        <strong>Step <%- node.step || '' %>: </strong><%- node.question %><br/>
+        <em>Yes:</em> <%- node.yes_path %><br/>
+        <em>No:</em> <%- node.no_path %>
+      </li>
+    <% }) %>
+  </ol>
+</section>
+
+<section id="system-explanation">
+  <h2>How the system works</h2>
+  <p><%- content.systemExplanation %></p>
+</section>
+
+<section id="diagnostic-flow">
+  <h2>Diagnostic flow</h2>
+  <div class="mermaid">
+  flowchart TD
+  <% content.diagnosticFlow.forEach((flow, i) => { %>
+    Node<%- i %>["<%- flow.label %>: <%- flow.purpose %>"] --> Node<%- (i+1) %>
+  <% }) %>
+  </div>
+</section>
+
+<section id="top-causes">
+  <h2>Top causes</h2>
+  <ol>
+    <% content.topCauses.forEach(cause => { %>
+      <li>
+        <strong><%- cause.cause %> (<%- cause.category || 'General' %>)</strong><br/>
+        <%- cause.what_it_is ? cause.what_it_is + '<br/>' : '' %>
+        <%- cause.why_it_causes_this_symptom %><br/>
+        <% if (cause.common_signs) { %><em>Signs:</em> <%- cause.common_signs %><br/><% } %>
+        <em>Expected Fix:</em> <%- cause.typical_fix %> (<%- cause.estimated_cost_band || 'Varies' %>)
+      </li>
+    <% }) %>
+  </ol>
+</section>
+
+<section id="repair-matrix">
+  <h2>Repair matrix &amp; cost range</h2>
+  <table>
+    <thead>
+      <tr><th>Symptom pattern</th><th>Likely issue</th><th>Common fix</th><th>Cost band</th></tr>
+    </thead>
+    <tbody>
+      <% content.repairMatrix.forEach(row => { %>
+        <tr>
+          <td><%- row.symptom_pattern %></td>
+          <td><%- row.likely_issue %></td>
+          <td><%- row.typical_fix %></td>
+          <td><%- row.rough_cost %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+
+  <h3>Replace vs repair</h3>
+  <p><strong>When to Repair:</strong> <%- content.replaceVsRepair.when_repair_makes_sense %></p>
+  <p><strong>When to Replace:</strong> <%- content.replaceVsRepair.when_replacement_should_be_considered %></p>
+  <div class="field-insight">
+    <strong>🔧 Takeaway:</strong> <%- content.replaceVsRepair.homeowner_takeaway %>
+  </div>
+</section>
+
+<section id="tools">
+  <h2>Safe homeowner tools</h2>
+  <table>
+    <thead>
+      <tr><th>Tool</th><th>Purpose</th><th>DIY Safe?</th></tr>
+    </thead>
+    <tbody>
+      <% content.tools.forEach(tool => { %>
+        <tr>
+          <td><%- tool.tool %></td>
+          <td><%- tool.use %></td>
+          <td><%- tool.homeowner_safe ? 'Yes' : 'No' %></td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</section>
+
+<section id="mid-lead-trigger">
+  <div class="lead-trigger-mid" style="margin:1.5rem 0;padding:1rem 1.25rem;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;font-size:.9375rem;">
+    <strong><%- content.cta.urgency_line || content.cta.title %></strong>
+    <br/><a href="#local-professionals-cta"><%- content.cta.primary || content.cta.button_text %></a>
+  </div>
+</section>
+
+<section id="related-cluster-nav">
+  <nav class="related-box" aria-label="Related HVAC guides">
+    <h2>Related troubleshooting guides</h2>
+    <ul>
+      <% content.internalLinks.forEach(link => { %>
+        <li><a href="/repair/<%- link.target_topic || link.href %>"><%- link.anchor || link.title %></a></li>
+      <% }) %>
+    </ul>
+  </nav>
+</section>
+
+<section id="when-to-stop-diy">
+  <h2>When to stop DIY and call a pro</h2>
+  <ul>
+    <% content.whenToCallPro.forEach(trigger => { %>
+      <li><%- trigger %></li>
+    <% }) %>
+  </ul>
+</section>
+
+<section id="faq">
+  <h2>Frequently Asked Questions</h2>
+  <% content.faq.forEach(f => { %>
+  <div class="faq-box">
+    <strong><%- f.question %></strong>
+    <p><%- f.answer %></p>
+  </div>
+  <% }) %>
+</section>

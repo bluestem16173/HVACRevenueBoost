@@ -58,11 +58,12 @@ export default async function CatchAllHybridPage({ params }: { params: { symptom
   // Only attempt to match if the slug is actively in the DB under 'hybrid'
   const page = await getDiagnosticPageFromDB(params.symptom, 'hybrid');
 
-  if (!page || !page.content_json) {
+  if (page) {
+    // BYPASS REACT: Residential authority and city pages are strictly rendered by Fastify using EJS.
+    // We intentionally 404 here on the Next.js side so the route drops through to the Fastify server.
     notFound(); 
   }
 
-  const content = page.content_json as unknown as CityServiceSchema;
-
-  return <HybridServicePageTemplate data={content} />;
+  // Fallback
+  notFound();
 }

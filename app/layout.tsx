@@ -67,6 +67,7 @@ export default function RootLayout({
                 <Link href="/contact" className="hover:text-white transition-colors">Contact</Link>
               </div>
               <p>&copy; {new Date().getFullYear()} HVAC Revenue Boost. All rights reserved.</p>
+              <p className="mt-2 text-slate-500">HVAC Revenue Boost is operated by AH Operations Group</p>
             </div>
           </div>
         </footer>
