@@ -7,8 +7,9 @@ import LeadCaptureModal from "@/components/LeadCaptureModal";
 const RV_DIAGNOSTICS_URL = "https://decisiongrid.com";
 
 export const metadata: Metadata = {
-  title: "HVAC Diagnostic Authority | Professional Repair Manual",
-  description: "Diagnose your home HVAC system with our expert-led residential repair manual. Step-by-step guides for central AC, furnaces, and heat pumps.",
+  title: "Home Service Diagnostics | HVAC, Plumbing & Electrical",
+  description:
+    "Diagnose home HVAC, plumbing, and electrical problems with structured guides — then fix it yourself or get matched with a local pro.",
 };
 
 export default function RootLayout({
@@ -24,9 +25,14 @@ export default function RootLayout({
       >
         <header className="bg-hvac-navy text-white py-4 shadow-lg sticky top-0 z-50">
           <div className="container mx-auto px-4 flex justify-between items-center">
-            <Link href="/" className="text-2xl font-black tracking-tighter flex items-center gap-2">
-              <span className="bg-hvac-gold text-hvac-navy px-2 py-1 rounded">HVAC</span>
-              <span>DIAGNOSTIC</span>
+            <Link href="/" className="flex min-w-0 max-w-[55vw] items-center gap-2 sm:max-w-none">
+              <span className="shrink-0 rounded bg-hvac-gold px-2 py-1 text-[10px] font-black uppercase leading-none text-hvac-navy sm:text-xs">
+                HSD
+              </span>
+              <span className="truncate text-base font-black leading-tight tracking-tight sm:text-xl">
+                <span className="text-white">Home Service </span>
+                <span className="text-hvac-gold">Diagnostics</span>
+              </span>
             </Link>
             <nav
               className="flex flex-wrap justify-end gap-x-4 sm:gap-x-6 gap-y-2 text-sm sm:text-base font-medium items-center max-w-[min(100%,42rem)]"
@@ -75,16 +81,44 @@ export default function RootLayout({
           <div className="container mx-auto px-4">
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
               <div>
-                <h4 className="text-white font-bold mb-4">HVAC Diagnostic Engine</h4>
-                <p className="text-sm">Scalable residential HVAC authority site powered by deterministic knowledge graphs.</p>
+                <h4 className="text-white font-bold mb-4">Home Service Diagnostic Engine</h4>
+                <p className="text-sm">
+                  Structured diagnostics for residential systems — built to mirror how pros troubleshoot in the field.
+                </p>
               </div>
               <div>
                 <h4 className="text-white font-bold mb-4">Quick Links</h4>
                 <ul className="text-sm space-y-2">
-                  <li><Link href="/diagnose" className="hover:text-white">Diagnose Problems</Link></li>
-                  <li><Link href="/repair" className="hover:text-white">Find Technicians</Link></li>
-                  <li><Link href="/appliance-repair" className="hover:text-white">Appliance repair</Link></li>
-                  <li><Link href="/mold-remediation" className="hover:text-white">Mold remediation</Link></li>
+                  <li>
+                    <Link href="/diagnose" className="hover:text-white">
+                      Diagnose Problems
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/repair" className="hover:text-white">
+                      Find Local Help
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/hvac" className="hover:text-white">
+                      HVAC
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/plumbing" className="hover:text-white">
+                      Plumbing
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/electrical" className="hover:text-white">
+                      Electrical
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/roofing" className="hover:text-white">
+                      Roofing
+                    </Link>
+                  </li>
                 </ul>
               </div>
               <div className="md:col-span-2 lg:col-span-2 rounded-xl border border-slate-700/60 bg-slate-800/30 p-5 lg:p-6">

@@ -1,230 +1,263 @@
-import { SYSTEM_HUBS } from "@/lib/system-hubs";
-import { getConditionsForPillar } from "@/lib/conditions";
-import { getCitiesByState } from "@/lib/locations";
 import Link from "next/link";
+import { buildHvacLocalizedPillarPath } from "@/lib/localized-city-path";
 
 const RV_DIAGNOSTICS_URL = "https://decisiongrid.com";
 
-export default function Home() {
-  const statesWithCities = getCitiesByState();
+/** Example FL metro for HVAC localized URLs (indexable symptom × city pattern). */
+const DEMO_CITY_SLUG = "tampa-fl";
 
+const IMG_HVAC =
+  "https://images.unsplash.com/photo-1631540579298-3689d0680f5b?w=800&q=80&auto=format&fit=crop";
+const IMG_PLUMBING =
+  "https://images.unsplash.com/photo-1585704032919-cb0a7da62d8a?w=800&q=80&auto=format&fit=crop";
+const IMG_ELECTRICAL =
+  "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800&q=80&auto=format&fit=crop";
+
+function SystemSelectorCard({
+  href,
+  imageSrc,
+  imageAlt,
+  title,
+  description,
+  cta,
+}: {
+  href: string;
+  imageSrc: string;
+  imageAlt: string;
+  title: string;
+  description: string;
+  cta: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md transition-all hover:-translate-y-1 hover:border-hvac-blue/40 hover:shadow-xl"
+    >
+      <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-200">
+        <img
+          src={imageSrc}
+          alt={imageAlt}
+          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-hvac-navy/80 via-hvac-navy/20 to-transparent" />
+        <div className="absolute bottom-3 left-3 right-3">
+          <h3 className="m-0 text-xl font-black text-white drop-shadow-sm sm:text-2xl">{title}</h3>
+        </div>
+      </div>
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <p className="m-0 flex-1 text-sm leading-relaxed text-slate-600">{description}</p>
+        <span className="mt-4 inline-flex items-center gap-1 text-sm font-black uppercase tracking-wide text-hvac-blue">
+          {cta}
+          <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+            →
+          </span>
+        </span>
+      </div>
+    </Link>
+  );
+}
+
+export default function Home() {
   return (
     <div>
-      {/* Hero Section */}
-      <section className="bg-hvac-navy text-white pt-20 pb-32 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-hvac-navy pb-20 pt-16 text-white sm:pb-24 sm:pt-20">
+        <div className="container relative z-10 mx-auto px-4">
           <div className="max-w-3xl">
-            <span className="bg-hvac-gold text-hvac-navy px-4 py-1 rounded-full text-sm font-bold uppercase tracking-widest mb-6 inline-block">
-              Professional HVAC Repair Manual
+            <span className="mb-5 inline-block rounded-full bg-hvac-gold px-4 py-1 text-xs font-bold uppercase tracking-widest text-hvac-navy sm:text-sm">
+              Home service diagnostics
             </span>
-            <h1 className="text-white lg:text-7xl mb-8 leading-tight">
-              Diagnose HVAC Problems <span className="text-hvac-gold">Like a Pro</span>
+            <h1 className="mb-6 text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+              Diagnose Home System Problems{" "}
+              <span className="text-hvac-gold">Before They Cost You Thousands</span>
             </h1>
-            <p className="text-xl text-slate-300 mb-10 leading-relaxed">
-              The national authority on residential HVAC diagnostics. Use our deterministic repair manuals to identify causes, find repairs, and connect with verified local technicians.
+            <p className="mb-10 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
+              Identify HVAC, plumbing, and electrical issues fast using structured diagnostic guides — then decide
+              whether to fix it yourself or call a pro.
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link href="/diagnose" className="btn-primary px-10 py-4 bg-hvac-gold text-hvac-navy hover:bg-yellow-500 font-black text-xl">
-                START DIAGNOSTIC
+            <div className="flex flex-wrap gap-3 sm:gap-4">
+              <Link
+                href="/diagnose"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-hvac-gold px-8 py-3.5 text-base font-black uppercase tracking-wide text-hvac-navy shadow-lg transition-colors hover:bg-yellow-400 sm:px-10 sm:text-lg"
+              >
+                Start My Diagnosis
               </Link>
-              <Link href="/repair" className="btn-primary px-10 py-4 bg-white text-hvac-navy hover:bg-slate-100 font-bold text-xl border-2 border-white">
-                FIND LOCAL HELP
-              </Link>
-              <Link href="/hvac" className="btn-primary px-10 py-4 bg-hvac-blue/20 text-white hover:bg-hvac-blue/30 font-bold text-lg border-2 border-white/50">
-                HVAC PILLARS
-              </Link>
-              <Link href="/hub/home-ac" className="btn-primary px-10 py-4 bg-hvac-blue/10 text-white hover:bg-hvac-blue/20 font-bold text-lg border-2 border-white/30">
-                DIAGNOSTIC HUBS
+              <Link
+                href="/repair"
+                className="inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-white bg-white/5 px-8 py-3.5 text-base font-bold text-white backdrop-blur-sm transition-colors hover:bg-white hover:text-hvac-navy sm:px-10 sm:text-lg"
+              >
+                Get Local Help
               </Link>
             </div>
           </div>
         </div>
-        <div className="absolute right-0 bottom-0 opacity-10 pointer-events-none">
-          <div className="w-[800px] h-[800px] border-[50px] border-white rounded-full translate-x-1/2 translate-y-1/2"></div>
+        <div className="pointer-events-none absolute bottom-0 right-0 opacity-10">
+          <div className="h-[480px] w-[480px] translate-x-1/4 translate-y-1/4 rounded-full border-[40px] border-white sm:h-[640px] sm:w-[640px]" />
         </div>
       </section>
 
-      <div className="bg-slate-100/90 border-b border-slate-200/90">
-        <div className="container mx-auto px-4 py-2.5 text-center">
-          <p className="text-[11px] sm:text-xs text-slate-500 m-0 leading-snug">
-            Troubleshooting an RV system instead?{" "}
-            <a
-              href={RV_DIAGNOSTICS_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-hvac-blue hover:decoration-hvac-blue/40 font-medium"
-            >
-              Explore our specialized RV diagnostic platform
-            </a>
-            <span className="text-hvac-gold font-bold ml-0.5" aria-hidden>
-              ↗
-            </span>
-            <span className="sr-only"> (opens in new tab)</span>
-          </p>
-        </div>
-      </div>
-
-      {/* Trust Stats */}
-      <section className="container mx-auto px-4 -mt-16 relative z-20">
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="manual-card bg-white border-b-8 border-b-hvac-gold shadow-xl">
-            <div className="text-4xl font-black text-hvac-navy mb-2">50,000+</div>
-            <div className="text-gray-500 font-bold uppercase tracking-widest text-xs">Diagnostic Pages</div>
-          </div>
-          <div className="manual-card bg-white border-b-8 border-b-hvac-blue shadow-xl">
-            <div className="text-4xl font-black text-hvac-navy mb-2">100%</div>
-            <div className="text-gray-500 font-bold uppercase tracking-widest text-xs">Deterministic Logic</div>
-          </div>
-          <div className="manual-card bg-white border-b-8 border-b-hvac-navy shadow-xl">
-            <div className="text-4xl font-black text-hvac-navy mb-2">Verified</div>
-            <div className="text-gray-500 font-bold uppercase tracking-widest text-xs">Technician Network</div>
+      {/* Visual system selector */}
+      <section className="relative z-20 -mt-10 px-4 pb-4 sm:-mt-12">
+        <div className="container mx-auto">
+          <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
+            <SystemSelectorCard
+              href="/hvac"
+              imageSrc={IMG_HVAC}
+              imageAlt="HVAC technician working on outdoor AC unit"
+              title="Diagnose HVAC Problems"
+              description="AC not cooling, weak airflow, thermostat issues, strange noises"
+              cta="Start HVAC Diagnosis"
+            />
+            <SystemSelectorCard
+              href="/plumbing"
+              imageSrc={IMG_PLUMBING}
+              imageAlt="Plumbing — sink and water lines"
+              title="Diagnose Plumbing Problems"
+              description="No hot water, leaks, clogged drains, low pressure"
+              cta="Start Plumbing Diagnosis"
+            />
+            <SystemSelectorCard
+              href="/electrical"
+              imageSrc={IMG_ELECTRICAL}
+              imageAlt="Electrical breaker panel"
+              title="Diagnose Electrical Problems"
+              description="Power outages, breaker trips, outlet failures, wiring issues"
+              cta="Start Electrical Diagnosis"
+            />
           </div>
         </div>
       </section>
 
-      {/* HVAC Pillar System — Authoritative Guides */}
-      <section className="container mx-auto px-4 py-24">
-        <div className="text-center mb-16">
-          <h2 className="mt-0">HVAC System Pillars</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Navigate by system domain. Each pillar links to an authoritative guide with problem clusters and condition variations.
+      {/* Common problems — fast entry (localized HVAC examples) */}
+      <section className="border-t border-slate-200 bg-white py-16 sm:py-20">
+        <div className="container mx-auto px-4">
+          <h2 className="mb-2 text-center text-2xl font-black text-hvac-navy sm:text-3xl">
+            Common Issues Homeowners Are Facing
+          </h2>
+          <p className="mb-10 text-center text-sm text-slate-500">
+            Example metro: Tampa area — same pattern scales to your city pages.
           </p>
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {SYSTEM_HUBS.map((hub) => {
-            const conditions = getConditionsForPillar(hub.slug);
-            return (
-              <div key={hub.slug} className="manual-card">
-                <Link href={`/${hub.slug}`} className="block group">
-                  <h3 className="group-hover:text-hvac-gold transition-colors mb-2">{hub.name}</h3>
-                  <p className="text-sm text-gray-500 line-clamp-2 mb-4">{hub.description}</p>
-                  <span className="text-hvac-blue font-bold text-xs uppercase tracking-widest">
-                    Authoritative Guide →
+          <ul className="mx-auto grid max-w-4xl gap-3 sm:grid-cols-2">
+            {[
+              { label: "AC Not Cooling", href: buildHvacLocalizedPillarPath("ac-not-cooling", DEMO_CITY_SLUG) },
+              { label: "AC Not Turning On", href: buildHvacLocalizedPillarPath("ac-not-turning-on", DEMO_CITY_SLUG) },
+              { label: "No Hot Water", href: "/plumbing" },
+              { label: "Water Heater Leaking", href: "/plumbing" },
+              { label: "Breaker Keeps Tripping", href: "/electrical" },
+              { label: "Power Out in One Room", href: "/electrical" },
+            ].map((item) => (
+              <li key={item.label}>
+                <Link
+                  href={item.href}
+                  className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-sm font-bold text-hvac-navy transition-colors hover:border-hvac-blue hover:bg-white sm:text-base"
+                >
+                  <span>{item.label}</span>
+                  <span className="text-hvac-blue" aria-hidden>
+                    →
                   </span>
                 </Link>
-                {conditions.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-slate-100">
-                    <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                      Conditions ({conditions.length})
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {conditions.slice(0, 4).map((c) => (
-                        <Link
-                          key={c.slug}
-                          href={`/conditions/${c.slug}`}
-                          className="text-xs text-hvac-blue hover:underline"
-                        >
-                          {c.name}
-                        </Link>
-                      ))}
-                      {conditions.length > 4 && (
-                        <Link href={`/${hub.slug}`} className="text-xs text-slate-500 hover:text-hvac-blue">
-                          +{conditions.length - 4} more
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      {/* Florida Service Hubs — State column with sub-items */}
-      <section className="bg-slate-50 py-24">
-        <div className="container mx-auto px-4">
-          <h2 className="text-center mb-4">Verified HVAC Service — Florida</h2>
-          <p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-            We currently serve Florida. Expert HVAC diagnostics and repair services. More states coming soon.
+      {/* Guided diagnostic */}
+      <section className="bg-slate-100 py-16 sm:py-20">
+        <div className="container mx-auto max-w-3xl px-4 text-center">
+          <h2 className="mb-3 text-2xl font-black text-hvac-navy sm:text-3xl">Not Sure What&apos;s Wrong?</h2>
+          <p className="mb-8 text-slate-600">
+            Start a guided diagnosis and we&apos;ll help you identify the problem in minutes.
           </p>
-          <div className="max-w-4xl mx-auto">
-            {statesWithCities.map(({ state, stateName, cities }) => (
-              <div key={state} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="bg-hvac-navy text-white px-6 py-4 font-bold text-lg">
-                  {stateName}
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+            <Link
+              href="/diagnose"
+              className="inline-flex min-h-[48px] items-center justify-center rounded-xl bg-hvac-gold px-8 py-3.5 font-black uppercase tracking-wide text-hvac-navy shadow-md hover:bg-yellow-400"
+            >
+              Start Diagnosis
+            </Link>
+            <button
+              type="button"
+              data-open-lead-modal
+              className="inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-hvac-navy bg-white px-8 py-3.5 font-bold text-hvac-navy hover:bg-slate-50"
+            >
+              Find a Local Technician
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="py-16 sm:py-20">
+        <div className="container mx-auto px-4">
+          <h2 className="mb-12 text-center text-2xl font-black text-hvac-navy sm:text-3xl">How It Works</h2>
+          <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
+            {[
+              {
+                step: "1",
+                title: "Identify the Problem",
+                text: "We help you quickly narrow down what is going wrong.",
+              },
+              {
+                step: "2",
+                title: "Diagnose the Cause",
+                text: "Follow structured steps used by professionals.",
+              },
+              {
+                step: "3",
+                title: "Fix or Get Help",
+                text: "Handle it yourself or connect with a trusted local expert.",
+              },
+            ].map((s) => (
+              <div
+                key={s.step}
+                className="relative rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm"
+              >
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-hvac-navy text-xl font-black text-hvac-gold">
+                  {s.step}
                 </div>
-                <div className="p-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {cities.slice(0, 12).map((city) => (
-                    <div key={city.slug} className="border border-slate-100 rounded-lg p-4 hover:border-hvac-blue transition-colors">
-                      <h4 className="font-bold text-hvac-navy mb-2">{city.name}</h4>
-                      <div className="space-y-1.5">
-                        <Link
-                          href={`/repair/${city.slug}/ac-blowing-warm-air`}
-                          className="block text-sm text-hvac-blue hover:underline"
-                        >
-                          AC Blowing Warm Air
-                        </Link>
-                        <Link
-                          href={`/repair/${city.slug}/ac-not-turning-on`}
-                          className="block text-sm text-hvac-blue hover:underline"
-                        >
-                          AC Not Turning On
-                        </Link>
-                        <Link
-                          href={`/repair/${city.slug}/ice-on-outdoor-unit`}
-                          className="block text-sm text-hvac-blue hover:underline"
-                        >
-                          Ice on Outdoor Unit
-                        </Link>
-                        <Link
-                          href={`/repair/${city.slug}`}
-                          className="block text-sm font-bold text-hvac-gold hover:underline mt-2"
-                        >
-                          All {city.name} Repairs →
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                  {cities.length > 12 && (
-                    <div className="sm:col-span-2 lg:col-span-3 text-center py-4">
-                      <Link href="/repair" className="text-hvac-blue font-bold hover:underline">
-                        View all {cities.length} Florida cities →
-                      </Link>
-                    </div>
-                  )}
-                </div>
+                <h3 className="mb-2 text-lg font-bold text-hvac-navy">{s.title}</h3>
+                <p className="m-0 text-sm leading-relaxed text-slate-600">{s.text}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Home Service Authority — umbrella verticals */}
-      <section className="container mx-auto px-4 py-16 border-t border-slate-200">
-        <div className="max-w-3xl mx-auto text-center mb-10">
-          <h2 className="text-hvac-navy">Home Service Authority</h2>
-          <p className="text-gray-600">
-            HVAC is live today; additional trades use the same DecisionGrid-style engine, routing, and lead layer.
-            Each vertical gets its own pillar library and programmatic city expansion.
+      {/* Authority — light */}
+      <section className="border-y border-slate-200 bg-white py-14 sm:py-16">
+        <div className="container mx-auto max-w-3xl px-4 text-center">
+          <h2 className="mb-4 text-xl font-black text-hvac-navy sm:text-2xl">
+            Built for Real-World Home System Problems
+          </h2>
+          <p className="m-0 text-slate-600 leading-relaxed">
+            Our diagnostic engine is designed to mirror how experienced technicians troubleshoot issues — not generic
+            advice, but real diagnostic logic.
           </p>
         </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
-          {[
-            { href: "/hvac", label: "HVAC", sub: "Cooling, heating, airflow" },
-            { href: "/plumbing", label: "Plumbing", sub: "Pressure, drains, water heaters" },
-            { href: "/electrical", label: "Electrical", sub: "Panels, GFCIs, tripping breakers" },
-            { href: "/roofing", label: "Roofing", sub: "Leaks, flashing, storm damage" },
-            { href: "/appliance-repair", label: "Appliance repair", sub: "Kitchen & laundry triage" },
-            { href: "/mold-remediation", label: "Mold remediation", sub: "Moisture drivers & containment" },
-          ].map((v) => (
-            <Link
-              key={v.href}
-              href={v.href}
-              className="manual-card block text-left hover:border-hvac-gold/40 transition-colors"
-            >
-              <h3 className="text-hvac-navy mb-1">{v.label}</h3>
-              <p className="text-sm text-gray-500 m-0">{v.sub}</p>
-              <span className="text-hvac-blue font-bold text-xs uppercase tracking-widest mt-3 inline-block">
-                Open vertical →
-              </span>
-            </Link>
-          ))}
+      </section>
+
+      {/* RV bridge */}
+      <section className="bg-slate-50 py-10">
+        <div className="container mx-auto max-w-2xl px-4 text-center">
+          <h2 className="mb-2 text-sm font-bold uppercase tracking-widest text-slate-500">Diagnosing an RV System?</h2>
+          <p className="mb-4 text-sm text-slate-600">
+            For RV air conditioning, electrical, and water system issues, visit our specialized platform.
+          </p>
+          <a
+            href={RV_DIAGNOSTICS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-sm font-bold text-hvac-blue hover:text-hvac-navy"
+          >
+            Go to RV Diagnostics
+            <span className="text-hvac-gold" aria-hidden>
+              ↗
+            </span>
+            <span className="sr-only">(opens in new tab)</span>
+          </a>
         </div>
-        <p className="text-center text-sm text-gray-500 mt-8 max-w-2xl mx-auto">
-          Localized HVAC example URL pattern:{" "}
-          <span className="font-mono text-xs">/hvac/ac-not-cooling/tampa-fl</span> (pillar + city slug).
-        </p>
       </section>
     </div>
   );
