@@ -35,6 +35,7 @@
     "canary": "npx tsx scripts/canary-batch.ts",
     "analyze-pages": "npx tsx scripts/analyze-pages-export.ts",
     "seed:tier1": "npx tsx scripts/seed-tier1-conditions.ts",
+    "db:seed-first50-hvac-fl": "npx tsx scripts/seed-first-50-hvac-fl-diagnostics.ts",
     "worker": "npx tsx scripts/generation-worker.ts",
     "worker:run": "npx tsx scripts/generation-worker.ts",
     "worker:one": "npx tsx scripts/generation-worker.ts --manual --limit 1",

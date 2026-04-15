@@ -2,97 +2,93 @@ import Link from "next/link";
 import { HubHero } from "@/components/hub/HubHero";
 import { ProblemCard } from "@/components/diagnostic-hub/ProblemCard";
 import { ProblemClusterSection } from "@/components/diagnostic-hub/ProblemClusterSection";
-import { buildHvacLocalizedPillarPath } from "@/lib/localized-city-path";
-import { HVAC_SYSTEM_HUB_PATHS, hvacPillarPath } from "@/lib/hvac-hub-clusters";
+import { buildPlumbingLocalizedPillarPath } from "@/lib/localized-city-path";
 import { FL_EXAMPLE_CITIES, HOW_IT_WORKS_STEPS } from "@/lib/vertical-hub-shared";
 
 export const revalidate = 3600;
 
-const DEMO_SYMPTOM = "ac-not-cooling";
+const DEMO_SYMPTOM = "no-hot-water";
 
-export default function ResidentialHub() {
-  const p = hvacPillarPath;
+export default function PlumbingHubPage() {
+  const p = (slug: string) => `/plumbing/${slug.trim().toLowerCase()}`;
 
   const problemClusters = [
     {
-      icon: "🧊",
-      heading: "AIR CONDITIONING",
-      items: [
-        { title: "AC Not Cooling", href: p("ac-not-cooling") },
-        { title: "AC Not Turning On", href: p("ac-not-turning-on") },
-        { title: "AC Blowing Warm Air", href: p("ac-blowing-warm-air") },
-        { title: "AC Freezing Up", href: p("ac-freezing-up") },
-        { title: "AC Leaking Water", href: p("hvac-leaking-water") },
-      ],
-      viewAllHref: HVAC_SYSTEM_HUB_PATHS.airConditioning,
-      viewAllLabel: "View All AC Problems",
-    },
-    {
-      icon: "🌬️",
-      heading: "AIRFLOW & DUCTWORK",
-      items: [
-        { title: "Weak Airflow from Vents", href: p("weak-airflow") },
-        { title: "Air Not Reaching Rooms", href: p("uneven-cooling") },
-        { title: "Hot and Cold Spots", href: p("uneven-cooling") },
-        { title: "Airflow Worse Upstairs", href: p("weak-airflow") },
-      ],
-      viewAllHref: HVAC_SYSTEM_HUB_PATHS.airflow,
-      viewAllLabel: "View All Airflow Issues",
-    },
-    {
       icon: "🔥",
-      heading: "HEATING SYSTEMS",
+      heading: "WATER HEATER PROBLEMS",
+      sectionId: "water-heater-problems",
       items: [
-        { title: "Furnace Not Turning On", href: p("furnace-not-turning-on") },
-        { title: "No Heat", href: p("furnace-not-heating") },
-        { title: "Furnace Blowing Cold Air", href: p("furnace-blowing-cold-air") },
-        { title: "Furnace Shutting Off", href: p("furnace-short-cycling") },
+        { title: "Water Heater Not Working", href: p("water-heater-not-working") },
+        { title: "No Hot Water", href: p("no-hot-water") },
+        { title: "Not Enough Hot Water", href: p("not-enough-hot-water") },
+        { title: "Water Heater Leaking", href: p("water-heater-leaking") },
+        { title: "Strange Noises from Tank", href: p("water-heater-strange-noises") },
       ],
-      viewAllHref: HVAC_SYSTEM_HUB_PATHS.heating,
-      viewAllLabel: "View All Heating Problems",
     },
     {
-      icon: "⚡",
-      heading: "ELECTRICAL & CONTROLS",
+      icon: "🚿",
+      heading: "LEAKS & WATER DAMAGE",
+      sectionId: "leaks-water-damage",
       items: [
-        { title: "AC Has No Power", href: p("hvac-not-turning-on") },
-        { title: "Thermostat Not Working", href: p("hvac-not-responding-to-thermostat") },
-        { title: "Outdoor Unit Not Starting", href: p("ac-not-turning-on") },
-        { title: "AC Clicking But Not Starting", href: p("furnace-clicking-no-ignition") },
+        { title: "Pipe Leaking Under Sink", href: p("pipe-leaking-under-sink") },
+        { title: "Water Leak in Wall", href: p("water-leak-in-wall") },
+        { title: "Ceiling Water Leak", href: p("ceiling-water-leak") },
+        { title: "Faucet Dripping", href: p("faucet-dripping") },
+        { title: "Toilet Leaking at Base", href: p("toilet-leaking-at-base") },
       ],
-      viewAllHref: HVAC_SYSTEM_HUB_PATHS.electrical,
-      viewAllLabel: "View All Electrical Issues",
+    },
+    {
+      icon: "🚰",
+      heading: "DRAIN & SEWER ISSUES",
+      sectionId: "drain-sewer",
+      items: [
+        { title: "Drain Clogged", href: p("drain-clogged") },
+        { title: "Shower Drain Backing Up", href: p("shower-drain-backing-up") },
+        { title: "Main Sewer Line Clogged", href: p("main-sewer-line-clogged") },
+        { title: "Slow Draining Sink", href: p("slow-draining-sink") },
+        { title: "Gurgling Drains", href: p("gurgling-drains") },
+      ],
+    },
+    {
+      icon: "⚙️",
+      heading: "WATER PRESSURE & FLOW",
+      sectionId: "water-pressure-flow",
+      items: [
+        { title: "Low Water Pressure", href: p("low-water-pressure") },
+        { title: "No Water in House", href: p("no-water-in-house") },
+        { title: "Uneven Water Pressure", href: p("uneven-water-pressure") },
+        { title: "Water Pressure Drops Suddenly", href: p("water-pressure-drops-suddenly") },
+      ],
     },
     {
       icon: "🛠️",
-      heading: "MAINTENANCE & COMMON FAILURES",
+      heading: "FIXTURES & APPLIANCES",
+      sectionId: "fixtures-appliances",
       items: [
-        { title: "Water Leaking After Filter Change", href: p("hvac-leaking-water") },
-        { title: "AC Dripping from Ceiling", href: p("ac-freezing-up") },
-        { title: "System Short Cycling", href: p("hvac-short-cycling") },
-        { title: "Strange Noises", href: p("hvac-making-noise") },
+        { title: "Toilet Keeps Running", href: p("toilet-keeps-running") },
+        { title: "Garbage Disposal Not Working", href: p("garbage-disposal-not-working") },
+        { title: "Dishwasher Not Draining", href: p("dishwasher-not-draining") },
+        { title: "Sink Not Draining", href: p("sink-not-draining") },
       ],
-      viewAllHref: HVAC_SYSTEM_HUB_PATHS.maintenance,
-      viewAllLabel: "View All Maintenance Issues",
     },
   ] as const;
 
   const quickEntry = [
-    { title: "AC Not Cooling", href: p("ac-not-cooling") },
-    { title: "AC Not Turning On", href: p("ac-not-turning-on") },
-    { title: "Weak Airflow", href: p("weak-airflow") },
-    { title: "Thermostat Not Working", href: p("hvac-not-responding-to-thermostat") },
+    { title: "No Hot Water", href: p("no-hot-water") },
+    { title: "Water Heater Leaking", href: p("water-heater-leaking") },
+    { title: "Toilet Keeps Running", href: p("toilet-keeps-running") },
+    { title: "Drain Clogged", href: p("drain-clogged") },
   ] as const;
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
       <HubHero
         theme="residential"
-        badgeText="Residential HVAC diagnostics"
-        title="HVAC problems, organized"
-        description="Jump straight to the symptom that matches what you are seeing, then go deeper with localized guides where we serve Florida."
+        badgeText="Residential plumbing diagnostics"
+        title="Diagnose plumbing problems like a pro"
+        description="Identify leaks, water heater issues, pressure problems, and drain failures using structured diagnostic guides — then decide whether to fix it or call a plumber."
         primaryCTA={{ label: "Start Diagnosis", href: "/diagnose" }}
-        secondaryCTA={{ label: "Browse problem clusters", href: "#problem-clusters" }}
+        secondaryCTA={{ label: "Get local plumbing help", href: "/repair" }}
       />
 
       <div className="container mx-auto max-w-4xl px-4 py-12 sm:py-16">
@@ -101,7 +97,7 @@ export default function ResidentialHub() {
             Home
           </Link>
           <span className="mx-2 text-slate-300">/</span>
-          <span className="font-medium text-slate-800 dark:text-slate-200">HVAC</span>
+          <span className="font-medium text-slate-800 dark:text-slate-200">Plumbing</span>
         </nav>
 
         <header id="problem-clusters" className="mb-10 scroll-mt-28">
@@ -109,13 +105,16 @@ export default function ResidentialHub() {
             Problem clusters
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-400">
-            Each card links to a national diagnostic pillar under{" "}
-            <span className="font-mono text-sm text-slate-800 dark:text-slate-200">/hvac/…</span>. From there,
-            open your city page (example:{" "}
-            <Link className="font-medium text-hvac-blue hover:underline" href={buildHvacLocalizedPillarPath(DEMO_SYMPTOM, "tampa-fl")}>
-              /hvac/{DEMO_SYMPTOM}/tampa-fl
+            Each card opens a national pillar under{" "}
+            <span className="font-mono text-sm text-slate-800 dark:text-slate-200">/plumbing/…</span>. Add your city
+            for Florida context (example:{" "}
+            <Link
+              className="font-medium text-hvac-blue hover:underline"
+              href={buildPlumbingLocalizedPillarPath(DEMO_SYMPTOM, "tampa-fl")}
+            >
+              /plumbing/{DEMO_SYMPTOM}/tampa-fl
             </Link>
-            ) for Florida-specific context.
+            ).
           </p>
         </header>
 
@@ -125,14 +124,13 @@ export default function ResidentialHub() {
             icon={cluster.icon}
             heading={cluster.heading}
             items={[...cluster.items]}
-            viewAllHref={cluster.viewAllHref}
-            viewAllLabel={cluster.viewAllLabel}
+            sectionId={cluster.sectionId}
           />
         ))}
 
         <section className="mb-14 border-t border-slate-200 pt-12 dark:border-slate-800" aria-labelledby="quick-entry-heading">
           <h2 id="quick-entry-heading" className="mb-2 text-2xl font-black text-hvac-navy dark:text-white">
-            Common HVAC problems right now
+            Common plumbing problems right now
           </h2>
           <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
             High-intent entry points — each opens the matching diagnostic pillar.
@@ -152,7 +150,7 @@ export default function ResidentialHub() {
             Not sure what&apos;s wrong?
           </h2>
           <p className="mt-3 max-w-xl text-slate-600 dark:text-slate-400">
-            Start a guided diagnosis and we&apos;ll help you narrow it down in minutes.
+            Start a guided diagnosis and we&apos;ll help you identify the issue quickly.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
@@ -165,7 +163,7 @@ export default function ResidentialHub() {
               href="/repair"
               className="inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-slate-300 bg-white px-8 py-3.5 text-center text-sm font-bold text-hvac-navy transition hover:border-hvac-blue hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-white dark:hover:border-hvac-blue"
             >
-              Talk to a Technician
+              Find a local plumber
             </Link>
           </div>
         </section>
@@ -196,7 +194,7 @@ export default function ResidentialHub() {
             {FL_EXAMPLE_CITIES.map((city) => (
               <li key={city.slug}>
                 <Link
-                  href={buildHvacLocalizedPillarPath(DEMO_SYMPTOM, city.slug)}
+                  href={buildPlumbingLocalizedPillarPath(DEMO_SYMPTOM, city.slug)}
                   className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-hvac-navy shadow-sm transition hover:border-hvac-blue dark:border-slate-600 dark:bg-slate-900 dark:text-white"
                 >
                   {city.label}

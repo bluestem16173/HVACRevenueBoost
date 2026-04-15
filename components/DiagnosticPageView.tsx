@@ -2,6 +2,8 @@ import DiagnosticModal from "@/components/DiagnosticModal";
 import { RelatedLinks } from "@/components/RelatedLinks";
 import { StickyCTA } from "@/components/StickyCTA";
 import { LegacyRenderer } from "@/components/LegacyRenderer";
+import type { ServiceVertical } from "@/lib/localized-city-path";
+import { getDefaultRelatedSlugs } from "@/lib/default-related-slugs";
 
 type PageRow = {
   slug: string;
@@ -10,25 +12,30 @@ type PageRow = {
   title?: string | null;
 };
 
-function defaultRelatedForSlug(slug: string): string[] {
-  if (slug.includes("ac-not") || slug.includes("cooling")) {
-    return ["ac-not-cooling", "ac-running-but-not-cooling", "ac-weak-airflow", "one-room-not-cooling"];
-  }
-  return ["ac-not-cooling", "furnace-not-heating", "hvac-short-cycling", "weak-airflow-vents"];
-}
-
 /**
  * Shared HTML/JSON diagnostic article shell (used by `/diagnose/[slug]` and localized HVAC URLs).
  */
 export function DiagnosticPageView({
   page,
   localLabel,
+  relatedVertical,
 }: {
   page: PageRow;
   /** e.g. "Tampa, FL" — optional line under the sticky CTA */
   localLabel?: string | null;
+  /** When set, related links target `/{vertical}/{slug}` instead of `/diagnose/{slug}`. */
+  relatedVertical?: ServiceVertical | null;
 }) {
-  const related = defaultRelatedForSlug(page.slug);
+  const related = getDefaultRelatedSlugs(relatedVertical ?? null, page.slug);
+  const relatedPrefix = relatedVertical ? `/${relatedVertical}` : "/diagnose";
+  const relatedHeading =
+    relatedVertical === "plumbing"
+      ? "Related plumbing issues"
+      : relatedVertical === "electrical"
+        ? "Related electrical issues"
+        : relatedVertical === "hvac"
+          ? "Related HVAC issues"
+          : "Related issues";
 
   if (page.content_html && page.content_html.trim()) {
     const cleanHtml = page.content_html.replace(
@@ -47,7 +54,7 @@ export function DiagnosticPageView({
         <main style={{ padding: 24, paddingBottom: 60 }}>
           <DiagnosticModal />
           <article dangerouslySetInnerHTML={{ __html: cleanHtml || "" }} />
-          <RelatedLinks slugs={related} />
+          <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
         </main>
       </>
     );
@@ -71,7 +78,7 @@ export function DiagnosticPageView({
         <main style={{ padding: 24, paddingBottom: 60 }}>
           <DiagnosticModal />
           <LegacyRenderer title={fallbackTitle} data={parsedJson} />
-          <RelatedLinks slugs={related} />
+          <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
         </main>
       </>
     );

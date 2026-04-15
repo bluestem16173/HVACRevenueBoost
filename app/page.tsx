@@ -18,8 +18,8 @@ export default function Home() {
               Home service diagnostics
             </span>
             <h1 className="mb-6 text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-              Diagnose Home System Issues{" "}
-              <span className="text-hvac-gold">Before They Cost You Thousands</span>
+              Diagnose problems{" "}
+              <span className="text-hvac-gold">before they cost you thousands</span>
             </h1>
             <p className="mb-10 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
               Identify HVAC, plumbing, and electrical issues fast using structured diagnostic guides — then decide

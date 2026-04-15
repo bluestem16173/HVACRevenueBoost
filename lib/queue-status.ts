@@ -1,8 +1,11 @@
 /**
  * generation_queue lifecycle (app-side; DB stores TEXT — no schema migration required).
  *
+ * **Naming note:** some docs call the in-flight step `generating`. In this codebase the
+ * worker claim step uses **`generated`** (see `getQueuedJobs` in `lib/generation-queue.ts`).
+ *
  * draft       → seeded / waiting for worker (replaces legacy `pending`)
- * generated   → job claimed, worker running (replaces legacy `processing`)
+ * generated   → job claimed, worker running (replaces legacy `processing`) — maps to “generating”
  * validated   → validateV2 passed; relational + pages write next
  * published   → job finished successfully (replaces legacy `completed`)
  * failed      → terminal failure

@@ -22,3 +22,27 @@ export function formatCityPathSegmentForDisplay(citySlug: string): string {
 export function buildHvacLocalizedPillarPath(pillarSlug: string, citySlug: string): string {
   return `/hvac/${pillarSlug.trim().toLowerCase()}/${citySlug.trim().toLowerCase()}`;
 }
+
+/** Canonical pillar + city URL under plumbing vertical */
+export function buildPlumbingLocalizedPillarPath(pillarSlug: string, citySlug: string): string {
+  return `/plumbing/${pillarSlug.trim().toLowerCase()}/${citySlug.trim().toLowerCase()}`;
+}
+
+/** Canonical pillar + city URL under electrical vertical */
+export function buildElectricalLocalizedPillarPath(pillarSlug: string, citySlug: string): string {
+  return `/electrical/${pillarSlug.trim().toLowerCase()}/${citySlug.trim().toLowerCase()}`;
+}
+
+export type ServiceVertical = "hvac" | "plumbing" | "electrical";
+
+export function buildLocalizedPillarPath(
+  vertical: ServiceVertical,
+  pillarSlug: string,
+  citySlug: string
+): string {
+  const s = pillarSlug.trim().toLowerCase();
+  const c = citySlug.trim().toLowerCase();
+  if (vertical === "plumbing") return `/plumbing/${s}/${c}`;
+  if (vertical === "electrical") return `/electrical/${s}/${c}`;
+  return `/hvac/${s}/${c}`;
+}
