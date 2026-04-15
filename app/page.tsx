@@ -1,62 +1,11 @@
 import Link from "next/link";
+import DiagnosticCard from "@/components/DiagnosticCard";
 import { buildHvacLocalizedPillarPath } from "@/lib/localized-city-path";
 
-const RV_DIAGNOSTICS_URL = "https://decisiongrid.com";
+const RV_DIAGNOSTICS_URL = "https://www.decisiongrid.co";
 
 /** Example FL metro for HVAC localized URLs (indexable symptom × city pattern). */
 const DEMO_CITY_SLUG = "tampa-fl";
-
-const IMG_HVAC =
-  "https://images.unsplash.com/photo-1631540579298-3689d0680f5b?w=800&q=80&auto=format&fit=crop";
-const IMG_PLUMBING =
-  "https://images.unsplash.com/photo-1585704032919-cb0a7da62d8a?w=800&q=80&auto=format&fit=crop";
-const IMG_ELECTRICAL =
-  "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800&q=80&auto=format&fit=crop";
-
-function SystemSelectorCard({
-  href,
-  imageSrc,
-  imageAlt,
-  title,
-  description,
-  cta,
-}: {
-  href: string;
-  imageSrc: string;
-  imageAlt: string;
-  title: string;
-  description: string;
-  cta: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md transition-all hover:-translate-y-1 hover:border-hvac-blue/40 hover:shadow-xl"
-    >
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-200">
-        <img
-          src={imageSrc}
-          alt={imageAlt}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-hvac-navy/80 via-hvac-navy/20 to-transparent" />
-        <div className="absolute bottom-3 left-3 right-3">
-          <h3 className="m-0 text-xl font-black text-white drop-shadow-sm sm:text-2xl">{title}</h3>
-        </div>
-      </div>
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
-        <p className="m-0 flex-1 text-sm leading-relaxed text-slate-600">{description}</p>
-        <span className="mt-4 inline-flex items-center gap-1 text-sm font-black uppercase tracking-wide text-hvac-blue">
-          {cta}
-          <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
-            →
-          </span>
-        </span>
-      </div>
-    </Link>
-  );
-}
 
 export default function Home() {
   return (
@@ -69,7 +18,7 @@ export default function Home() {
               Home service diagnostics
             </span>
             <h1 className="mb-6 text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-              Diagnose Home System Problems{" "}
+              Diagnose Home System Issues{" "}
               <span className="text-hvac-gold">Before They Cost You Thousands</span>
             </h1>
             <p className="mb-10 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
@@ -97,35 +46,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Visual system selector */}
-      <section className="relative z-20 -mt-10 px-4 pb-4 sm:-mt-12">
-        <div className="container mx-auto">
-          <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
-            <SystemSelectorCard
-              href="/hvac"
-              imageSrc={IMG_HVAC}
-              imageAlt="HVAC technician working on outdoor AC unit"
+      {/* Visual system selector — primary funnel: /hvac | /plumbing | /electrical */}
+      <section className="relative z-20 -mt-10 px-4 pb-6 sm:-mt-12">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <DiagnosticCard
               title="Diagnose HVAC Problems"
-              description="AC not cooling, weak airflow, thermostat issues, strange noises"
-              cta="Start HVAC Diagnosis"
+              description="AC not cooling, airflow issues, thermostat problems"
+              href="/hvac"
+              image="/images/hvac.jpg"
+              icon="❄️"
+              ctaLine="Start HVAC diagnosis →"
             />
-            <SystemSelectorCard
-              href="/plumbing"
-              imageSrc={IMG_PLUMBING}
-              imageAlt="Plumbing — sink and water lines"
+            <DiagnosticCard
               title="Diagnose Plumbing Problems"
-              description="No hot water, leaks, clogged drains, low pressure"
-              cta="Start Plumbing Diagnosis"
+              description="Leaks, water heater issues, clogged drains"
+              href="/plumbing"
+              image="/images/plumbing.jpg"
+              icon="🚿"
+              ctaLine="Start plumbing diagnosis →"
             />
-            <SystemSelectorCard
-              href="/electrical"
-              imageSrc={IMG_ELECTRICAL}
-              imageAlt="Electrical breaker panel"
+            <DiagnosticCard
               title="Diagnose Electrical Problems"
-              description="Power outages, breaker trips, outlet failures, wiring issues"
-              cta="Start Electrical Diagnosis"
+              description="Breaker trips, power loss, outlet issues"
+              href="/electrical"
+              image="/images/electrical.jpg"
+              icon="⚡"
+              ctaLine="Start electrical diagnosis →"
             />
           </div>
+          <p className="mt-5 text-center text-[11px] text-slate-400">
+            Card photos are curated stock images; replace files in{" "}
+            <span className="font-mono">public/images/</span> with your own licensed assets anytime.
+          </p>
         </div>
       </section>
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import MobileStickyCallButton from "@/components/MobileStickyCallButton";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
 
-const RV_DIAGNOSTICS_URL = "https://decisiongrid.com";
+const RV_DIAGNOSTICS_URL = "https://www.decisiongrid.co";
 
 export const metadata: Metadata = {
   title: "Home Service Diagnostics | HVAC, Plumbing & Electrical",
