@@ -17,9 +17,8 @@ export default function Home() {
             <span className="mb-5 inline-block rounded-full bg-hvac-gold px-4 py-1 text-xs font-bold uppercase tracking-widest text-hvac-navy sm:text-sm">
               Home service diagnostics
             </span>
-            <h1 className="mb-6 text-4xl font-black leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
-              Diagnose problems{" "}
-              <span className="text-hvac-gold">before they cost you thousands</span>
+            <h1 className="mb-6 text-4xl font-black leading-[1.08] tracking-tight text-hvac-gold sm:text-5xl lg:text-6xl">
+              Catch Costly Home Problems Early
             </h1>
             <p className="mb-10 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
               Identify HVAC, plumbing, and electrical issues fast using structured diagnostic guides — then decide
