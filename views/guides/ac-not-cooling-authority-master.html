@@ -1,0 +1,147 @@
+<!--
+  HVAC Revenue Boost — Master Authority BODY partial (v1)
+  Mapped precisely to HRB_AUTHORITY_PROMPT ("hvac_authority_v1" layout)
+-->
+
+<section class="hrb-authority-summary" aria-label="30-Second Summary" style="background:#f8fafc; border-left:4px solid #0f172a; padding:1.5rem; margin-bottom:2rem; border-radius:4px;">
+  <h2 style="margin-top:0; color:#0f172a; font-size:1.5rem;">The 30-Second Summary</h2>
+  <% if (typeof summary_30s !== 'undefined' && summary_30s.length) { %>
+    <ul style="margin-bottom:0;">
+      <% summary_30s.forEach(bullet => { %>
+        <li style="margin-bottom:0.5rem;"><strong><%- bullet %></strong></li>
+      <% }); %>
+    </ul>
+  <% } %>
+  <% if (typeof what_this_usually_means !== 'undefined') { %>
+    <p style="margin-top:1rem; color:#475569; font-style:italic;">
+      <%- what_this_usually_means %>
+    </p>
+  <% } %>
+</section>
+
+<section class="hrb-quick-checks" aria-label="Quick Checks">
+  <h2 id="quick-checks">Quick Checks to Try First</h2>
+  <% if (typeof quick_checks !== 'undefined' && quick_checks.length) { %>
+    <ul class="checklist">
+      <% quick_checks.forEach(check => { %>
+        <li><%- check %></li>
+      <% }); %>
+    </ul>
+  <% } %>
+</section>
+
+<section class="hrb-system-explanation" aria-label="How the System Works">
+  <h2 id="system-explanation">How This Actually Works</h2>
+  <% if (typeof system_explanation !== 'undefined' && system_explanation.length) { %>
+    <% system_explanation.forEach(paragraph => { %>
+      <p><%- paragraph %></p>
+    <% }); %>
+  <% } %>
+</section>
+
+<section class="hrb-decision-tree" aria-label="Diagnostic Decision Tree">
+  <h2 id="diagnostic-flow">Diagnostic Decision Tree</h2>
+  <p>Follow this flow to trace the root cause accurately before calling a tech.</p>
+  <div class="mermaid" style="margin:2rem 0;">
+    <%- typeof decision_tree_mermaid !== 'undefined' ? decision_tree_mermaid : '' %>
+  </div>
+</section>
+
+<section class="hrb-failure-clusters" aria-label="Failure Clusters">
+  <h2 id="failure-clusters">Primary Failure Clusters</h2>
+  <p>HVAC technicians organize failures by system domain. Here are the most likely failure paths for this issue:</p>
+  
+  <div class="clusters-grid" style="display:flex; flex-direction:column; gap:1.5rem; margin-top:1.5rem;">
+    <% if (typeof failure_clusters !== 'undefined' && failure_clusters.length) { %>
+      <% failure_clusters.forEach(cluster => { %>
+        <div class="cluster-card" style="border:1px solid #e2e8f0; border-radius:8px; padding:1.5rem; background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <h3 style="margin-top:0; color:#1e40af; display:flex; align-items:center; gap:0.5rem;">
+            <span style="background:#dbeafe; color:#1e40af; padding:0.2rem 0.6rem; border-radius:4px; font-size:0.875rem; text-transform:uppercase; font-weight:700;"><%- cluster.category %></span>
+          </h3>
+          <p><strong>Mechanics:</strong> <%- cluster.why_it_causes_this_symptom %></p>
+          <div style="margin:1rem 0;">
+            <strong>Warning Signals:</strong>
+            <ul style="margin:0; padding-left:1.5rem; color:#475569;">
+              <% cluster.signals.forEach(signal => { %>
+                <li><%- signal %></li>
+              <% }); %>
+            </ul>
+          </div>
+          <p><strong>First Check:</strong> <%- cluster.first_checks %></p>
+          <p style="color:#b45309;"><strong>Risk if Ignored:</strong> <%- cluster.risk_if_ignored %></p>
+        </div>
+      <% }); %>
+    <% } %>
+  </div>
+</section>
+
+<section class="hrb-repair-matrix" aria-label="Repair Matrix">
+  <h2 id="repair-matrix">Technical Repair Matrix</h2>
+  <% if (typeof repair_matrix !== 'undefined' && repair_matrix.length) { %>
+    <div style="overflow-x:auto; margin-top:1rem;">
+      <table style="width:100%; border-collapse:collapse; min-width:600px;">
+        <thead>
+          <tr style="background:#f1f5f9; text-align:left; border-bottom:2px solid #cbd5e1;">
+            <th style="padding:1rem;">Issue Trigger</th>
+            <th style="padding:1rem;">Urgency</th>
+            <th style="padding:1rem;">Cost Band</th>
+            <th style="padding:1rem;">Pro Required?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% repair_matrix.forEach(row => { %>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+              <td style="padding:1rem; font-weight:600;"><%- row.issue_name %></td>
+              <td style="padding:1rem;">
+                <% if(row.urgency.includes("Critical") || row.urgency.includes("High")) { %>
+                  <span style="color:#b91c1c; font-weight:600;"><%- row.urgency %></span>
+                <% } else { %>
+                  <span style="color:#0f766e;"><%- row.urgency %></span>
+                <% } %>
+              </td>
+              <td style="padding:1rem; color:#475569;"><%- row.cost_band %></td>
+              <td style="padding:1rem;">
+                <% if(row.pro_required) { %>
+                  <span style="background:#fee2e2; color:#b91c1c; padding:0.2rem 0.5rem; border-radius:4px; font-weight:600; font-size:0.875rem;">Yes</span>
+                <% } else { %>
+                  <span style="background:#dcfce3; color:#166534; padding:0.2rem 0.5rem; border-radius:4px; font-weight:600; font-size:0.875rem;">No</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="hrb-stop-diy" aria-label="When to Stop DIY">
+  <h2 id="when-to-stop-diy">Danger Zones: When to Stop DIY</h2>
+  <div style="background:#fef2f2; border-left:4px solid #dc2626; padding:1.5rem; margin-bottom:2rem; border-radius:4px;">
+    <p style="margin-top:0; font-weight:600; color:#991b1b;">Stop your diagnosis and call a licensed technician immediately if you encounter:</p>
+    <% if (typeof when_to_stop_diy !== 'undefined' && when_to_stop_diy.length) { %>
+      <ul style="color:#7f1d1d; margin-bottom:0;">
+        <% when_to_stop_diy.forEach(trigger => { %>
+          <li style="margin-bottom:0.5rem;"><%- trigger %></li>
+        <% }); %>
+      </ul>
+    <% } %>
+  </div>
+</section>
+
+<% if (typeof replace_vs_repair !== 'undefined') { %>
+  <section class="hrb-replace-repair" aria-label="Replace vs Repair Logic">
+    <h2 id="replace-vs-repair">Replace vs. Repair</h2>
+    <p><%- replace_vs_repair %></p>
+  </section>
+<% } %>
+
+<div class="lead-trigger-final" style="margin:2.5rem 0; padding:2rem; background:#0f172a; color:#f8fafc; border-radius:8px; text-align:center;">
+  <h2 style="color:#ffffff; margin-top:0; border:none; padding-bottom:0;"><%- typeof cta !== 'undefined' ? cta : 'Ready for a Professional Diagnostic?' %></h2>
+  <p style="color:#cbd5e1; font-size:1.1rem; max-width:600px; margin:0 auto 1.5rem auto;">
+    Don't ignore the warning signs. Severe system damage and high energy bills add up quickly.
+  </p>
+  <a href="#schedule-service" style="display:inline-block; background:#3b82f6; color:#ffffff; font-weight:600; padding:0.75rem 2rem; border-radius:6px; text-decoration:none; font-size:1.125rem;">
+    Find Local HVAC Experts
+  </a>
+</div>

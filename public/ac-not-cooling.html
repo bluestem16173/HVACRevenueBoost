@@ -1,0 +1,160 @@
+<!--
+  DecisionGrid — Master Authority BODY partial (HTML fragment only)
+
+  • Full page shell: views/layouts/authority-guide.html
+  • Prompts: docs/DECISIONGRID-UNIFIED-CORE-PROMPT.md + docs/DECISIONGRID-MASTER-AUTHORITY-HTML-PROMPT.md
+  • Save as: views/guides/ac-not-cooling-authority-master.html
+  • Route: contentPartial → '../guides/ac-not-cooling-authority-master.html'
+
+  Rules:
+  - Mermaid: graph code ONLY inside <div class="mermaid"> — flowchart TD or graph TD, no SVG inside.
+  - Keep section ids below stable (anchors / internal links).
+-->
+
+<h2 id="hero-overview">Problem overview</h2>
+<p>An AC that runs but fails to cool your home is one of the most common—and frustrating—HVAC issues. It wastes energy, increases your utility bills, and leaves your home uncomfortable. Before calling a professional, understanding the failure modes can save you time and money.</p>
+<ul>
+  <li><strong>Airflow Restriction:</strong> The system is struggling to pull in or blow out enough air.</li>
+  <li><strong>Refrigerant Issue:</strong> The vital fluid that moves heat is low or leaking.</li>
+  <li><strong>Mechanical/Electrical Failure:</strong> A component like a capacitor, compressor, or fan motor has failed.</li>
+  <li><strong>Thermostat Problem:</strong> The system isn't getting the right signals to cool.</li>
+</ul>
+
+<section aria-label="Quick decision tree">
+  <h2 id="decision-tree">Quick decision tree</h2>
+  <p>Follow these quick checks to isolate the most likely cause of your AC not cooling.</p>
+  <ol type="A">
+    <li><strong>Is there air blowing from the vents?</strong>
+      <ul>
+        <li><em>Yes, but it's warm:</em> Check thermostat settings, outdoor condenser, and refrigerant levels.</li>
+        <li><em>No, or very weakly:</em> Check the air filter, indoor blower motor, and look for frozen evaporator coils.</li>
+      </ul>
+    </li>
+    <li><strong>Is the outside unit (condenser) running?</strong>
+      <ul>
+        <li><em>Yes:</em> The fan is spinning, but listen for the compressor hum. If the compressor isn't running, it could be a bad capacitor.</li>
+        <li><em>No:</em> Check the breaker panel, disconnect switch, and thermostat wiring.</li>
+      </ul>
+    </li>
+  </ol>
+</section>
+
+<h2 id="system-explanation">How the system works</h2>
+<p>Your air conditioner doesn't "create" cold air; it removes heat from the inside of your home and transfers it outside. The indoor evaporator coil absorbs heat via refrigerant, while the blower fan circulates the cooled air. The heated refrigerant travels to the outdoor condenser unit, where the compressor pressurizes it, and the condenser coil and fan release the heat into the outside air. Any disruption in airflow or refrigerant flow will result in the AC not cooling effectively.</p>
+
+<h2 id="diagnostic-flow">Diagnostic flow</h2>
+<p>Follow this flowchart to quickly identify the root cause of your cooling issue.</p>
+<div class="mermaid">
+flowchart TD
+  A[AC Not Cooling] --> B{Air Blowing from Vents?}
+  B -->|Yes| C{Is Air Warm or Cool?}
+  C -->|Warm| D[Check Thermostat Settings]
+  D --> E{Set to COOL & AUTO?}
+  E -->|Yes| F[Check Outdoor Unit]
+  F --> G{Is Fan & Compressor Running?}
+  G -->|Fan Only| H[Likely Bad Capacitor]
+  G -->|Not Running| I[Check Breaker/Power]
+  G -->|Both Running| J[Likely Low Refrigerant]
+  B -->|No/Weak| K[Check Air Filter]
+  K --> L{Is Filter Dirty?}
+  L -->|Yes| M[Replace Filter & Wait 24h]
+  L -->|No| N[Check for Frozen Coils]
+</div>
+
+<h2 id="top-causes">Top causes</h2>
+<ol>
+  <li><strong>Dirty Air Filter:</strong> The #1 cause of restricted airflow, leading to frozen coils and poor cooling.</li>
+  <li><strong>Incorrect Thermostat Settings:</strong> Set to "Fan ON" instead of "AUTO", or accidentally set to "HEAT".</li>
+  <li><strong>Blocked Outdoor Condenser:</strong> Leaves, debris, or dirt smothering the outdoor coil.</li>
+  <li><strong>Failed Capacitor:</strong> A small electrical part that gives the compressor the jolt it needs to start.</li>
+  <li><strong>Low Refrigerant (Leak):</strong> Refrigerant doesn't just get "used up"; a low charge means there is a leak in the system.</li>
+  <li><strong>Frozen Evaporator Coil:</strong> Caused by low airflow or low refrigerant, preventing heat absorption.</li>
+</ol>
+
+<h2 id="repair-matrix">Repair matrix</h2>
+<table>
+  <thead>
+    <tr><th>Symptom pattern</th><th>Common fix</th><th>Cost band (USD)</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>No airflow from vents, AC running</td><td>Replace air filter, thaw coils</td><td>$10 - $25</td></tr>
+    <tr><td>Warm air, outdoor fan running but no compressor hum</td><td>Replace dual run capacitor</td><td>$150 - $350</td></tr>
+    <tr><td>Warm air, frost on refrigerant lines</td><td>Leak search and refrigerant recharge</td><td>$400 - $1,200+</td></tr>
+    <tr><td>Outside unit not turning on at all</td><td>Reset breaker / check disconnect box</td><td>$0 - $150</td></tr>
+  </tbody>
+</table>
+
+<h3>Replace vs repair</h3>
+<p>Consider replacing the entire system if it is older than 10-15 years, requires expensive refrigerant (like R-22) that is phased out, or if the repair cost (like a failed compressor) exceeds 50% of the cost of a new system. If the fix is a simple capacitor, contactor, or filter, always opt for repair.</p>
+
+<h3>Bench procedure: Capacitor Replacement</h3>
+<p>If you have identified a failed capacitor (often bulging at the top) and are comfortable working with high voltage, here is the general procedure.</p>
+<ul>
+  <li>Turn off power at the breaker panel AND pull the outdoor disconnect at the unit.</li>
+  <li>Verify zero voltage with a multimeter.</li>
+  <li>Short the capacitor terminals with an insulated screwdriver to discharge stored energy.</li>
+  <li>Note the wiring arrangement (take a picture).</li>
+  <li>Remove the old capacitor and install the new one with matching MFD and Voltage ratings.</li>
+  <li>Reconnect the wires and restore power.</li>
+</ul>
+<div class="field-insight">
+  <strong>🔧 Field Insight:</strong> Never assume the power is off just because the thermostat is off. The outdoor disconnect must be pulled, and always test with a meter. Capacitors can hold a lethal charge even when power is removed.
+</div>
+
+<h3>Preventative maintenance</h3>
+<ul>
+  <li>Change your 1-inch air filters every 30-90 days during cooling season.</li>
+  <li>Keep the outdoor condenser unit clear of debris (at least 2 feet of clearance on all sides).</li>
+  <li>Gently wash the outdoor coils with a garden hose once a year (do not use a pressure washer).</li>
+  <li>Schedule an annual professional tune-up before the heat of summer.</li>
+</ul>
+
+<h2 id="tools">Tools</h2>
+<table>
+  <thead>
+    <tr><th>Tool</th><th>Purpose</th><th>Difficulty</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Multimeter</td><td>Checking voltage and capacitance (for capacitors)</td><td>Intermediate</td></tr>
+    <tr><td>Insulated Screwdriver</td><td>Discharging capacitors safely</td><td>Beginner</td></tr>
+    <tr><td>Garden Hose</td><td>Washing the outdoor condenser coil</td><td>Beginner</td></tr>
+    <tr><td>Nut Driver (1/4" or 5/16")</td><td>Removing the service panel on the outdoor unit</td><td>Beginner</td></tr>
+  </tbody>
+</table>
+
+<div class="lead-trigger-mid" style="margin:1.5rem 0;padding:1rem 1.25rem;background:#fef3c7;border-left:4px solid #f59e0b;border-radius:0 8px 8px 0;font-size:.9375rem;">
+  <strong>Still blowing warm air? Give your AC a break and let an expert find the leak.</strong>
+  <a href="#local-professionals-cta">Find local HVAC professionals near you</a>
+</div>
+
+<nav class="related-box" aria-label="Related troubleshooting guides">
+  <h2>Related troubleshooting guides</h2>
+  <ul>
+    <li><a href="/hvac/troubleshooting/ac-freezing-up/">Why is my AC Freezing Up?</a></li>
+    <li><a href="/hvac/troubleshooting/bad-capacitor-symptoms/">Symptoms of a Bad AC Capacitor</a></li>
+    <li><a href="/hvac/troubleshooting/ac-blower-not-working/">AC Blower Motor Not Working</a></li>
+    <li><a href="/hvac/troubleshooting/how-to-unclog-ac-drain-line/">How to Unclog an AC Drain Line</a></li>
+  </ul>
+</nav>
+
+<h2 id="final-cta">When to stop DIY</h2>
+<p>If you've checked the filter, verified the thermostat settings, and confirmed the breakers are on, it's usually time to call a pro. Do not attempt to add refrigerant yourself or tamper with the sealed refrigeration circuit, as this requires specialized tools and EPA certifications. If you suspect a refrigerant leak or compressor failure, stop the DIY and <a href="#local-professionals-cta">find local professionals</a>.</p>
+
+<h2 id="faq-heading">Frequently Asked Questions</h2>
+<% if (typeof faqs !== 'undefined' && faqs && faqs.length > 0) { %>
+<% faqs.forEach(f => { %>
+<div class="faq-box">
+  <strong><%- f.question %></strong>
+  <p><%- f.answer %></p>
+</div>
+<% }); %>
+<% } else { %>
+<div class="faq-box">
+  <strong>Why is my AC running but not cooling the house?</strong>
+  <p>The most common reasons are a dirty air filter blocking airflow, low refrigerant due to a leak, a dirty condenser coil, or a failed capacitor preventing the outdoor compressor from starting.</p>
+</div>
+<div class="faq-box">
+  <strong>How much does it cost to fix an AC that is not cooling?</strong>
+  <p>If it's a dirty filter, the cost is minimal ($10-$25). A capacitor replacement typically costs between $150 and $350. However, if there is a refrigerant leak, repairs can range from $400 to over $1,200 depending on the severity and type of refrigerant.</p>
+</div>
+<% } %>

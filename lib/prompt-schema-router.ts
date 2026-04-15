@@ -1,3 +1,5 @@
+import { buildVerticalPromptPreamble, normalizeVerticalId } from "@/lib/verticals";
+
 export const BASE_MASTER_PROMPT = `
 You are generating a HIGH-CONVERSION, TECHNICAL AUTHORITY PAGE for a troubleshooting system.
 
@@ -432,13 +434,39 @@ No extra text. Return ONLY valid JSON matching this exact structure.
 export type ComposePromptOptions = {
   validationMode?: boolean;
   schemaVersion?: string;
+  /** Home Service Authority vertical (hvac, plumbing, electrical, …) */
+  verticalId?: string | null;
 };
 
-export function composePromptForPageType(pageType: string, slug: string, opts?: ComposePromptOptions): string {
-  if (opts?.schemaVersion === "v2_goldstandard") {
-    return GOLD_STANDARD_PROMPT;
+function withVerticalAndTopicContext(
+  basePrompt: string,
+  slug: string,
+  opts?: ComposePromptOptions
+): string {
+  const verticalKey = normalizeVerticalId(opts?.verticalId);
+  const preamble = buildVerticalPromptPreamble(verticalKey);
+  const topicLine = `PRIMARY PAGE SLUG / TOPIC SEED: "${slug}"`;
+  if (!preamble) {
+    return basePrompt;
   }
-  return buildMasterPrompt(pageType);
+  return `${preamble}\n\n${topicLine}\n\n---\n\n${basePrompt}`;
+}
+
+export function composePromptForPageType(pageType: string, slug: string, opts?: ComposePromptOptions): string {
+  let core: string;
+  if (opts?.schemaVersion === "v2_goldstandard") {
+    core = GOLD_STANDARD_PROMPT;
+  } else if (
+    opts?.schemaVersion === "diagnostic_engine" ||
+    opts?.schemaVersion === "hvac_authority_v1" ||
+    pageType === "diagnostic_engine" ||
+    pageType === "hvac_authority_v1"
+  ) {
+    core = HRB_AUTHORITY_PROMPT;
+  } else {
+    core = buildMasterPrompt(pageType);
+  }
+  return withVerticalAndTopicContext(core, slug, opts);
 }
 
 export function validateCoreForPageType(pageType: string, data: any): { valid: boolean; errors: string[] } {
@@ -587,3 +615,97 @@ You must output exactly this JSON structure. It must be a single JSON object wit
 
 No additional text.
 `;
+
+export const HRB_AUTHORITY_PROMPT = `You output a single JSON object for an HVAC Revenue Boost authority page.
+
+RETURN RULES
+- Return ONLY valid JSON
+- No markdown fences (except inside mermaid)
+- No commentary
+- No extra text
+- Every required field must be populated
+- Optional fields must be omitted if unused
+- Do not output null except where explicitly allowed
+
+PRIMARY GOAL
+Generate a high-authority, homeowner-facing HVAC diagnostic page for a local lead-generation site. This is a "cousin" to the highly technical DecisionGrid. It must be homeowner-readable but deeply authoritative, acting as a veteran HVAC diagnostician triaging an issue for a customer.
+
+TONE & NEGATIVE CONSTRAINTS
+- Professional restraint and serious expert tone.
+- NO listicle tone. NO "there are many possible reasons."
+- NO thin consumer-blog filler phrasing.
+- NO casual leap to "check refrigerant first." Always prioritize airflow and electrical basics.
+- Use licensed-tech boundaries (clarify when a pro is legally or physically required).
+- Avoid generic SEO intro language.
+
+CONTENT DENSITY & HARD VALIDATION RULES
+- summary_30s: MUST have minimum 2–4 strong bullets.
+- system_explanation: MUST have minimum 3 substantive paragraphs or structured blocks.
+- failure_clusters: MUST have at least 4 clusters (Strictly separate: Airflow, Refrigerant, Electrical, Control, and Mechanical domains).
+- repair_matrix: MUST have minimum 4–6 rows.
+- when_to_stop_diy: MUST include specific electrical/safety/refrigerant escalation triggers.
+- decision_tree_mermaid: MUST have at least 6 nodes.
+- diagnostic_flow: MUST have at least 3 steps with branch logic.
+
+REQUIRED JSON KEYS & SCHEMA
+
+1. CONSTANTS
+- layout: Must be exactly "hvac_authority_v1"
+- vertical: Must be exactly "residential_hvac"
+- page_type: Must be exactly "diagnostic"
+- technical_depth: Must be exactly "homeowner_authority"
+
+2. METADATA
+- slug: Exactly matches input path
+- title: SEO-friendly headline (e.g., "AC Not Cooling: A Complete Diagnostic Guide")
+- symptom_family: (e.g. airflow, temperature, electrical, noise, water)
+- primary_intent: (e.g. troubleshoot, repair, replace)
+
+3. TOP OF FUNNEL (Identify & Reduce Panic)
+- intro: 2 sentences. 1 stating exact problem, 1 identifying user expectation.
+- summary_30s: Array of 2-4 strong, action-oriented bullets.
+- what_this_usually_means: 2-3 sentences providing immediate clarity on the likelihood of the fault.
+
+4. DIAGNOSTICS & TEACHING (Teach & Triage)
+- quick_checks: Array of 3-5 immediate DIY homeowner-safe checks.
+- system_explanation: Array of 3+ substantive paragraphs explaining why each symptom points toward a given failure bucket.
+- decision_tree_mermaid: String containing valid flowchart TD mermaid code. (6+ nodes).
+- diagnostic_flow: Array of step-by-step logic.
+  - Each step: step (number), question, yes, no, next_step (number or null).
+
+5. AUTHORITY CLUSTERING
+- failure_clusters: Array of exactly 4+ clusters.
+  - category: (Airflow, Refrigerant, Electrical, Control, or Mechanical)
+  - why_it_causes_this_symptom: 1-2 tight sentences.
+  - signals: Array of 2-3 observable signs.
+  - first_checks: Specific check to verify.
+  - typical_fix_path: What a tech will do.
+  - risk_if_ignored: Why they can't wait.
+
+6. CONVERSION & DECISION (Force Decision & Convert)
+- repair_matrix: Array of 4-6 repair rows.
+  - issue_name
+  - cost_band: (e.g. "$150-$300")
+  - urgency: ("Low", "Medium", "High", "Critical")
+  - pro_required: (boolean)
+- next_actions: Array of 2-3 specific steps for the homeowner.
+- replace_vs_repair: 2-3 sentences advising when to stop fixing and upgrade.
+- prevention_tips: Array of 3+ specific maintenance actions.
+- when_to_stop_diy: Array of 3-4 escalation triggers (e.g., live 240V, handling refrigerant).
+- cta: Service call prompt text (e.g. "Ready for a pro diagnostic? Schedule below.")
+
+7. SEO FLYWHEEL
+- seo: metaTitle, metaDescription (140-160 chars)
+- seo_flywheel:
+  - funnel_stage ("TOFU", "MOFU", "BOFU")
+  - search_intent ("diagnostic", "repair", "comparison")
+  - lateral_expansions [{slug, type}]
+  - monetization_expansions [{slug, type}]
+  - next_best_pages [3 precise query strings]
+
+8. OPTIONAL
+- internal_links: related_symptoms [{slug, title}], related_causes [{slug, title}]
+
+FINAL OUTPUT RULE
+Return exactly one valid JSON object and nothing else.`;
+

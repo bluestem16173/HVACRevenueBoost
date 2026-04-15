@@ -3,6 +3,8 @@ import type { ComponentType } from 'react';
 import { notFound } from 'next/navigation';
 import HybridServicePageTemplate, { CityServiceSchema } from '@/templates/hybrid-service-page';
 import { getDiagnosticPageFromDB } from '@/lib/diagnostic-engine';
+import { isUmbrellaVerticalHubSlug } from '@/lib/verticals';
+import VerticalHub from '@/components/verticals/VerticalHub';
 
 import DiagnoseIndex from '../diagnose/page';
 import RepairHubPage from '../repair/page';
@@ -50,6 +52,10 @@ export async function generateMetadata({ params }: { params: { symptom: string }
 }
 
 export default async function CatchAllHybridPage({ params }: { params: { symptom: string } }) {
+  if (isUmbrellaVerticalHubSlug(params.symptom)) {
+    return <VerticalHub verticalId={params.symptom} />;
+  }
+
   const StaticPage = STATIC_TOP_LEVEL_FALLBACK[params.symptom];
   if (StaticPage) {
     return <StaticPage />;

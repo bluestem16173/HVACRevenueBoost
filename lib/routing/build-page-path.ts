@@ -1,3 +1,5 @@
+import { buildHvacLocalizedPillarPath } from "@/lib/localized-city-path";
+
 type PageType =
   | "system"
   | "symptom"
@@ -7,6 +9,11 @@ type PageType =
   | "context"
   | "component"
   | "condition";
+
+/** Localized HVAC pillar URL: `/hvac/{pillar}/{citySlug}` (e.g. citySlug `tampa-fl`). */
+export function buildHvacCityPillarPath(pillarSlug: string, citySlug: string): string {
+  return buildHvacLocalizedPillarPath(pillarSlug, citySlug);
+}
 
 export function buildPagePath(
   pageType: PageType,

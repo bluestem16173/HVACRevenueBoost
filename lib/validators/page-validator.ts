@@ -10,6 +10,65 @@ export function validatePage(page: any): ValidationResult {
   try {
     // HARD FAIL CONDITIONS
 
+    // --- HRB AUTHORITY SCHEMA VALIDATION ---
+    if (page.layout === "hvac_authority_v1") {
+      // 1. MINIMUM CONTENT BLOCKS
+      if (!Array.isArray(page.summary_30s) || page.summary_30s.length < 2) {
+        throw new Error("summary_30s must be an array with at least 2 strong bullets");
+      }
+      if (!Array.isArray(page.system_explanation) || page.system_explanation.length < 3) {
+        throw new Error("system_explanation must have at least 3 distinct mechanic paragraphs");
+      }
+      
+      // 2. FAILURE CLUSTERS
+      if (!Array.isArray(page.failure_clusters) || page.failure_clusters.length < 4) {
+        throw new Error("failure_clusters must contain at least 4 distinct category clusters");
+      }
+      page.failure_clusters.forEach((cluster: any, idx: number) => {
+        if (!cluster.category || !cluster.why_it_causes_this_symptom || !Array.isArray(cluster.signals) || !cluster.first_checks || !cluster.typical_fix_path || !cluster.risk_if_ignored) {
+          throw new Error(`Cluster at index ${idx} is missing required fields (category, why_it_causes_this_symptom, signals[], first_checks, typical_fix_path, risk_if_ignored)`);
+        }
+      });
+
+      // 3. REPAIR MATRIX
+      if (!Array.isArray(page.repair_matrix) || page.repair_matrix.length < 4) {
+        throw new Error("repair_matrix must contain at least 4 rows");
+      }
+      page.repair_matrix.forEach((row: any, idx: number) => {
+        if (typeof row.pro_required !== "boolean" || !row.issue_name || !row.cost_band || !row.urgency) {
+          throw new Error(`repair_matrix at index ${idx} is missing or has malformed required fields`);
+        }
+      });
+
+      // 4. WHEN TO STOP DIY (Safety)
+      if (!Array.isArray(page.when_to_stop_diy) || page.when_to_stop_diy.length === 0) {
+        throw new Error("when_to_stop_diy triggers missing");
+      }
+      const diyText = page.when_to_stop_diy.join(" ").toLowerCase();
+      if (!diyText.includes("refrigerant") && !diyText.includes("electrical") && !diyText.includes("volt") && !diyText.includes("power")) {
+        throw new Error("when_to_stop_diy must explicitly include electrical or refrigerant safety triggers");
+      }
+
+      // 5. MERMAID DIAGNOSTIC
+      if (!page.decision_tree_mermaid || !page.decision_tree_mermaid.includes("flowchart TD")) {
+        throw new Error("decision_tree_mermaid must start with 'flowchart TD'");
+      }
+      const mermaidNodes = page.decision_tree_mermaid.match(/[A-Z]+\[.*?\]/g) || [];
+      const mermaidConditions = page.decision_tree_mermaid.match(/[A-Z]+\{.*?\}/g) || [];
+      if ((mermaidNodes.length + mermaidConditions.length) < 6) {
+        throw new Error("decision_tree_mermaid must contain at least 6 nodes/decisions");
+      }
+
+      // 6. DIAGNOSTIC FLOW
+      if (!Array.isArray(page.diagnostic_flow) || page.diagnostic_flow.length < 3) {
+        throw new Error("diagnostic_flow requires at least 3 logical steps");
+      }
+
+      return { valid: true, errors: [] };
+    }
+
+    // --- DG GOLD STANDARD VALIDATION (Legacy/Default) ---
+
     // MUST HAVE MERMAID
     if (!page.mermaid_diagram || typeof page.mermaid_diagram !== 'string' || !page.mermaid_diagram.includes("flowchart TD")) {
       throw new Error("Missing valid Mermaid flowchart TD diagram");

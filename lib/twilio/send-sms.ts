@@ -5,11 +5,20 @@ const client = Twilio(
   process.env.TWILIO_AUTH_TOKEN!
 );
 
-export async function sendLeadSMS(message: string, to: string) {
+/** When `to` is omitted, uses `TWILIO_ADMIN_ALERT_PHONE` or `TWILIO_TO_NUMBER` (internal alert). */
+export async function sendLeadSMS(message: string, to?: string) {
+  const destination =
+    to?.trim() ||
+    process.env.TWILIO_ADMIN_ALERT_PHONE?.trim() ||
+    process.env.TWILIO_TO_NUMBER?.trim();
+  if (!destination) {
+    throw new Error("sendLeadSMS: set `to` or TWILIO_ADMIN_ALERT_PHONE / TWILIO_TO_NUMBER");
+  }
+
   const response = await client.messages.create({
     body: message,
     messagingServiceSid: process.env.TWILIO_MESSAGING_SERVICE_SID!,
-    to: to,
+    to: destination,
   });
 
   return response;

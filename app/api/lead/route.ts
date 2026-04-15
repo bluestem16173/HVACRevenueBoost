@@ -27,7 +27,8 @@ export type Lead = {
 
 export async function POST(req: Request) {
   try {
-    const body: Partial<Lead> = await req.json();
+    const body: Partial<Lead> & { smsOptIn?: boolean; sms_opt_in?: boolean } = await req.json();
+    const smsOptIn = body.smsOptIn === true || body.sms_opt_in === true;
 
     // 1. DYNAMIC NORMALIZATION
     let { 
@@ -109,13 +110,17 @@ export async function POST(req: Request) {
       console.log("TWILIO RESPONSE (ADMIN):", adminMessage);
       console.log('[API/LEAD] Twilio Admin Alert SMS successfully sent.');
 
-      // 🔥 Optional: confirm to user
-      const message = await sendLeadSMS(
-        `Thanks ${name}, we received your request. A tech will contact you shortly.`,
-        phone
-      );
-      console.log("TWILIO RESPONSE:", message);
-      console.log('[API/LEAD] Twilio confirmation SMS successfully sent to lead.');
+      // Optional: confirm to user (TCPA-style gate — only when lead opts in)
+      if (smsOptIn && phone) {
+        const message = await sendLeadSMS(
+          `Thanks ${name}, we received your request. A tech will contact you shortly.`,
+          phone
+        );
+        console.log("TWILIO RESPONSE:", message);
+        console.log("[API/LEAD] Twilio confirmation SMS successfully sent to lead.");
+      } else {
+        console.log("[API/LEAD] Skipping user confirmation SMS (sms opt-in false or missing).");
+      }
     } catch (twilioErr) {
       console.error('[API/LEAD] Twilio API Error:', twilioErr);
       console.warn('[API/LEAD] Make sure TWILIO_ACCOUNT_SID at TWILIO_AUTH_TOKEN and TWILIO_PHONE_NUMBER are set in ENV.');

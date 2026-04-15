@@ -1,7 +1,15 @@
-import sql from './lib/db';
-async function run() {
-  const res = await sql`SELECT content_json FROM pages WHERE slug = 'ac-blowing-warm-air'`;
-  console.log(JSON.stringify(res[0].content_json, null, 2));
-  process.exit(0);
-}
+import 'dotenv/config'; 
+import sql from './lib/db'; 
+
+async function run() { 
+  try { 
+    const res = await (sql as any)`SELECT id, slug, page_type, status, site FROM pages ORDER BY id DESC LIMIT 20`; 
+    console.log('=== DB PAGES ==='); 
+    console.table(res); 
+    process.exit(0);
+  } catch (err) { 
+    console.error(err); 
+    process.exit(1);
+  } 
+} 
 run();

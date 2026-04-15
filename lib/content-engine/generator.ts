@@ -598,8 +598,20 @@ export async function generateDiagnosticEngineJson(input: { symptom: string, cit
 
   const canonical = normalizePageTypeKey(input.pageType, input.symptom);
   const useDecisionGrid = isDecisionGridDiagnosticMode();
-
-  const finalPrompt = `You are generating HVAC diagnostic pages for a high-conversion website.
+  
+  let finalPrompt = "";
+  if (orchestratorOptions?.schemaVersion === "diagnostic_engine" || orchestratorOptions?.schemaVersion === "rv_diagnostic" || input.pageType === "diagnostic_engine") {
+    // Dynamically pull the masterful prompt matrix we built
+    const { composePromptForPageType } = require("../prompt-schema-router");
+    const orch =
+      orchestratorOptions && typeof orchestratorOptions === "object" ? orchestratorOptions : {};
+    finalPrompt = composePromptForPageType(input.pageType || "diagnostic_engine", input.symptom, {
+      ...orch,
+      verticalId: (orch as any).verticalId ?? (orch as any).vertical ?? "hvac",
+    });
+  } else {
+    // Fallback legacy Florida prompt
+    finalPrompt = `You are generating HVAC diagnostic pages for a high-conversion website.
 
 Output clean JSON only.
 
@@ -636,13 +648,9 @@ Topic: ${input.symptom}
 City/Region Context: ${input.city || "Florida"}
 
 Important Context: Each page should subtly reference the local city (${input.city || "Florida"}) and the intense Florida heat/humidity conditions where relevant (to establish local authority and reality without sounding forced).`;
-
-  if (orchestratorOptions && Object.keys(orchestratorOptions).length > 0) {
-    // Just append overrides gracefully if they exist
-    // finalPrompt += ...
   }
 
-  const systemMessage = "You are the HVAC Revenue Boost JSON generator. Output strict JSON only. Conversion-first, homeowner language.";
+  const systemMessage = "You are the HVAC Revenue Boost expert JSON generator. Output strict JSON only.";
 
   return callWithRetry(async () => {
     await assertDailySpendAllows("generateDiagnosticEngineJson:retry");

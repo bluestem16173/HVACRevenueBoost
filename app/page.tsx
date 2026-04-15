@@ -3,6 +3,8 @@ import { getConditionsForPillar } from "@/lib/conditions";
 import { getCitiesByState } from "@/lib/locations";
 import Link from "next/link";
 
+const RV_DIAGNOSTICS_URL = "https://decisiongrid.com";
+
 export default function Home() {
   const statesWithCities = getCitiesByState();
 
@@ -41,6 +43,26 @@ export default function Home() {
           <div className="w-[800px] h-[800px] border-[50px] border-white rounded-full translate-x-1/2 translate-y-1/2"></div>
         </div>
       </section>
+
+      <div className="bg-slate-100/90 border-b border-slate-200/90">
+        <div className="container mx-auto px-4 py-2.5 text-center">
+          <p className="text-[11px] sm:text-xs text-slate-500 m-0 leading-snug">
+            Troubleshooting an RV system instead?{" "}
+            <a
+              href={RV_DIAGNOSTICS_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-slate-600 underline decoration-slate-300 underline-offset-2 hover:text-hvac-blue hover:decoration-hvac-blue/40 font-medium"
+            >
+              Explore our specialized RV diagnostic platform
+            </a>
+            <span className="text-hvac-gold font-bold ml-0.5" aria-hidden>
+              ↗
+            </span>
+            <span className="sr-only"> (opens in new tab)</span>
+          </p>
+        </div>
+      </div>
 
       {/* Trust Stats */}
       <section className="container mx-auto px-4 -mt-16 relative z-20">
@@ -168,20 +190,41 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RV Cross-Link */}
-      <section className="container mx-auto px-4 py-20 text-center">
-        <div className="max-w-xl mx-auto">
-          <h4 className="font-bold text-hvac-navy mb-4">Troubleshooting an RV AC?</h4>
-          <p className="text-gray-500 text-sm italic mb-6">
-            &quot;If you are troubleshooting an RV air conditioner instead of a home HVAC system, visit DecisionGrid for RV repair diagnostics.&quot;
+      {/* Home Service Authority — umbrella verticals */}
+      <section className="container mx-auto px-4 py-16 border-t border-slate-200">
+        <div className="max-w-3xl mx-auto text-center mb-10">
+          <h2 className="text-hvac-navy">Home Service Authority</h2>
+          <p className="text-gray-600">
+            HVAC is live today; additional trades use the same DecisionGrid-style engine, routing, and lead layer.
+            Each vertical gets its own pillar library and programmatic city expansion.
           </p>
-          <a
-            href="https://decisiongrid.com"
-            className="text-hvac-blue font-bold hover:underline"
-          >
-            Visit DecisionGrid.com RV Diagnostics
-          </a>
         </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mx-auto">
+          {[
+            { href: "/hvac", label: "HVAC", sub: "Cooling, heating, airflow" },
+            { href: "/plumbing", label: "Plumbing", sub: "Pressure, drains, water heaters" },
+            { href: "/electrical", label: "Electrical", sub: "Panels, GFCIs, tripping breakers" },
+            { href: "/roofing", label: "Roofing", sub: "Leaks, flashing, storm damage" },
+            { href: "/appliance-repair", label: "Appliance repair", sub: "Kitchen & laundry triage" },
+            { href: "/mold-remediation", label: "Mold remediation", sub: "Moisture drivers & containment" },
+          ].map((v) => (
+            <Link
+              key={v.href}
+              href={v.href}
+              className="manual-card block text-left hover:border-hvac-gold/40 transition-colors"
+            >
+              <h3 className="text-hvac-navy mb-1">{v.label}</h3>
+              <p className="text-sm text-gray-500 m-0">{v.sub}</p>
+              <span className="text-hvac-blue font-bold text-xs uppercase tracking-widest mt-3 inline-block">
+                Open vertical →
+              </span>
+            </Link>
+          ))}
+        </div>
+        <p className="text-center text-sm text-gray-500 mt-8 max-w-2xl mx-auto">
+          Localized HVAC example URL pattern:{" "}
+          <span className="font-mono text-xs">/hvac/ac-not-cooling/tampa-fl</span> (pillar + city slug).
+        </p>
       </section>
     </div>
   );

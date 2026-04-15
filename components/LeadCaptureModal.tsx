@@ -21,6 +21,7 @@ export default function LeadCaptureModal() {
     systemType: "",
     urgency: "",
     preferredContactTime: "",
+    smsOptIn: false,
   });
 
   // Global event listeners to open the modal from ANY button on the page
@@ -93,7 +94,12 @@ export default function LeadCaptureModal() {
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const t = e.target;
+    if (t instanceof HTMLInputElement && t.type === "checkbox") {
+      setFormData((prev) => ({ ...prev, [t.name]: t.checked }));
+      return;
+    }
+    setFormData((prev) => ({ ...prev, [t.name]: t.value }));
   };
 
   if (!isOpen) return null;
@@ -236,6 +242,22 @@ export default function LeadCaptureModal() {
                 <div className="space-y-1">
                   <label className="text-xs font-bold text-slate-500 uppercase">Describe Your Problem</label>
                   <textarea required name="service" value={formData.service} onChange={handleChange} rows={3} placeholder="E.g., AC blowing warm air, thermostat screen blank..." className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-hvac-blue transition-shadow text-slate-900 dark:text-white resize-none"></textarea>
+                </div>
+
+                <div className="flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3">
+                  <input
+                    id="smsOptIn"
+                    name="smsOptIn"
+                    type="checkbox"
+                    checked={formData.smsOptIn}
+                    onChange={handleChange}
+                    className="mt-1 h-4 w-4 rounded border-slate-300 text-hvac-blue focus:ring-hvac-blue"
+                  />
+                  <label htmlFor="smsOptIn" className="text-sm text-slate-600 dark:text-slate-300 leading-snug cursor-pointer">
+                    <span className="font-bold text-slate-800 dark:text-white">SMS updates</span> — I agree to receive
+                    text messages about my request at the number above (rates may apply). You can wire Twilio for
+                    confirmations when ready.
+                  </label>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
