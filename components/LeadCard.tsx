@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { SMS_CONSENT_FULL_TEXT, SMS_CONSENT_TEXT_VERSION } from "@/lib/lead-consent";
+import {
+  SMS_CONSENT_FULL_TEXT,
+  SMS_CONSENT_ORIGINATION_DISCLOSURE,
+  SMS_CONSENT_TEXT_VERSION,
+} from "@/lib/lead-consent";
 
 export default function LeadCard({
   serviceType = "heating",
@@ -92,6 +96,11 @@ export default function LeadCard({
     setConsentError(false);
 
     const form = e.currentTarget;
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
     const fd = new FormData(form);
     const smsConsent = fd.get("sms_consent") === "on";
 
@@ -479,11 +488,13 @@ export default function LeadCard({
                   required
                   className="w-5 h-5 rounded border-slate-300 text-red-600 focus:ring-red-600 shadow-sm"
                   aria-invalid={consentError}
+                  aria-required="true"
                   onChange={() => consentError && setConsentError(false)}
                 />
               </div>
               <span className="text-[11px] text-slate-700 font-medium leading-relaxed">{SMS_CONSENT_FULL_TEXT}</span>
             </label>
+            <p className="mt-3 pl-8 text-[11px] text-slate-600 font-medium leading-relaxed">{SMS_CONSENT_ORIGINATION_DISCLOSURE}</p>
             <div className="mt-3 pl-8 flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-bold">
               <Link href="/privacy" className="text-blue-700 underline hover:text-blue-900">
                 Privacy Policy
@@ -495,7 +506,7 @@ export default function LeadCard({
           </div>
           {consentError ? (
             <p className="text-sm font-bold text-red-700" role="alert">
-              Please check the box to agree to SMS terms before submitting.
+              The form cannot be submitted unless the checkbox is checked.
             </p>
           ) : null}
         </div>
