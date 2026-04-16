@@ -115,7 +115,7 @@
   <% if (typeof showRvServiceCta !== 'undefined' && showRvServiceCta) { %>
   <p class="hero-lead-cta" style="margin:.75rem 0 0 0;font-weight:600;"><a href="#" onclick="openServiceModal(); return false;" style="color:#0369a1;">Need RV AC repair? Request local service below.</a></p>
   <% } else if (typeof serviceCtaType !== 'undefined' && serviceCtaType === 'hvac') { %>
-  <p class="hero-lead-cta" style="margin:.75rem 0 0 0;font-weight:600;"><a href="#" onclick="openHvacServiceModal(); return false;" style="color:#0369a1;">Get Help for an AC That’s Not Cooling. Talk to a Local HVAC Technician below.</a></p>
+  <p class="hero-lead-cta" style="margin:.75rem 0 0 0;font-weight:600;"><a href="#" onclick="try{window.dispatchEvent(new CustomEvent('open-leadcard'))}catch(e){}; return false;" style="color:#0369a1;">Get Help for an AC That’s Not Cooling. Talk to a Local HVAC Technician below.</a></p>
   <% } else if (typeof serviceCtaType !== 'undefined' && serviceCtaType === 'electrician') { %>
   <p class="hero-lead-cta" style="margin:.75rem 0 0 0;font-weight:600;"><a href="#local-professionals-cta" style="color:#0369a1;">Need an RV electrician? Find local professionals below.</a></p>
   <% } else if (typeof serviceCtaType !== 'undefined' && serviceCtaType === 'plumber') { %>

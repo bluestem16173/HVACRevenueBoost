@@ -4,7 +4,7 @@
     Avoid costly damage to your AC system. Our network connects you with vetted, local HVAC technicians who can diagnose and permanently fix your cooling issues.
   </p>
   <div class="cta-button-wrapper" style="margin-top:1.5rem;">
-    <button onclick="openHvacServiceModal()" class="cta-button" style="padding: 18px 32px; font-size: 1.1rem; background-color: #0369a1; border-radius: 8px;">
+    <button type="button" onclick="try{window.dispatchEvent(new CustomEvent('open-leadcard'))}catch(e){}" class="cta-button" style="padding: 18px 32px; font-size: 1.1rem; background-color: #0369a1; border-radius: 8px;">
       Talk to a Local HVAC Technician
     </button>
     <span class="cta-coming-soon-label" style="display:block; margin-top:0.75rem; color:#64748b;">Get accurate diagnostics and fast service.</span>
