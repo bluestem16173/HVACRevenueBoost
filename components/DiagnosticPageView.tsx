@@ -4,8 +4,13 @@ import { StickyCTA } from "@/components/StickyCTA";
 import { LegacyRenderer } from "@/components/LegacyRenderer";
 import { DgAuthorityV3View } from "@/components/dg/DgAuthorityV3View";
 import { isDgAuthorityV3Payload } from "@/components/dg/isDgAuthorityV3Payload";
+import type { LocalizedDiagnosticChrome } from "@/components/diagnostic-hub/LocalizedDiagnosticSeoDisclosure";
+import { LocalizedDiagnosticFooterDetails } from "@/components/diagnostic-hub/LocalizedDiagnosticFooterDetails";
 import type { ServiceVertical } from "@/lib/localized-city-path";
 import { getDefaultRelatedSlugs } from "@/lib/default-related-slugs";
+import { isHsdCityDiagnosticJson } from "@/lib/homeservice/isHsdCityDiagnosticJson";
+import { HsdCityDiagnosticView } from "@/components/homeservice/HsdCityDiagnosticView";
+import { HsdInternalSiteLinks } from "@/components/homeservice/HsdInternalSiteLinks";
 
 type PageRow = {
   slug: string;
@@ -21,12 +26,15 @@ export function DiagnosticPageView({
   page,
   localLabel,
   relatedVertical,
+  localizedChrome,
 }: {
   page: PageRow;
   /** e.g. "Tampa, FL" — optional line under the sticky CTA */
   localLabel?: string | null;
   /** When set, related links target `/{vertical}/{slug}` instead of `/diagnose/{slug}`. */
   relatedVertical?: ServiceVertical | null;
+  /** When set, breadcrumbs / pillar / hub nav move to a footer disclosure (city diagnostic UX). */
+  localizedChrome?: LocalizedDiagnosticChrome | null;
 }) {
   const related = getDefaultRelatedSlugs(relatedVertical ?? null, page.slug);
   const relatedPrefix = relatedVertical ? `/${relatedVertical}` : "/diagnose";
@@ -135,20 +143,68 @@ export function DiagnosticPageView({
     );
   }
 
-  if (page.content_json && parsedContentJson != null) {
+  if (page.content_json && parsedContentJson != null && typeof parsedContentJson === "object") {
+    const pageTitle =
+      (typeof page.title === "string" && page.title.trim()) || fallbackTitle;
+
+    if (isHsdCityDiagnosticJson(parsedContentJson)) {
+      return (
+        <>
+          {!localizedChrome && localLabel ? (
+            <div className="mx-auto max-w-4xl px-4 pt-4 text-sm text-slate-600 dark:text-slate-400">
+              Local guide: <span className="font-semibold text-slate-900 dark:text-white">{localLabel}</span>
+            </div>
+          ) : null}
+          <main className="pb-16">
+            <DiagnosticModal />
+            <HsdCityDiagnosticView
+              data={parsedContentJson}
+              pageTitle={pageTitle}
+              storageSlug={page.slug}
+              deferInternalSiteLinks={Boolean(localizedChrome)}
+            />
+          </main>
+          {localizedChrome ? (
+            <LocalizedDiagnosticFooterDetails
+              chrome={localizedChrome}
+              related={related}
+              relatedPrefix={relatedPrefix}
+              relatedHeading={relatedHeading}
+            >
+              <HsdInternalSiteLinks data={parsedContentJson} />
+            </LocalizedDiagnosticFooterDetails>
+          ) : (
+            <div className="mx-auto max-w-4xl px-4 pb-16">
+              <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
+            </div>
+          )}
+        </>
+      );
+    }
+
     return (
       <>
         <StickyCTA />
-        {localLabel ? (
+        {!localizedChrome && localLabel ? (
           <div className="max-w-4xl mx-auto px-4 pt-4 text-sm text-slate-600 dark:text-slate-400">
             Local guide: <span className="font-semibold text-slate-900 dark:text-white">{localLabel}</span>
           </div>
         ) : null}
-        <main style={{ padding: 24, paddingBottom: 60 }}>
+        <main style={{ padding: 24, paddingBottom: localizedChrome ? 24 : 60 }}>
           <DiagnosticModal />
           <LegacyRenderer title={fallbackTitle} data={parsedContentJson} />
-          <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
+          {!localizedChrome ? (
+            <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
+          ) : null}
         </main>
+        {localizedChrome ? (
+          <LocalizedDiagnosticFooterDetails
+            chrome={localizedChrome}
+            related={related}
+            relatedPrefix={relatedPrefix}
+            relatedHeading={relatedHeading}
+          />
+        ) : null}
       </>
     );
   }

@@ -5,171 +5,415 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>AC Not Cooling in Tampa, FL — Diagnosis &amp; Fix Guide</title>
   <style>
-    body { font-family: Georgia, "Times New Roman", serif; max-width: 48rem; margin: 0 auto; padding: 1.5rem; line-height: 1.55; color: #1a1a1a; }
-    h1 { font-size: 1.85rem; line-height: 1.2; margin-bottom: 0.75rem; }
-    h2 { font-size: 1.25rem; margin-top: 2rem; border-bottom: 1px solid #ccc; padding-bottom: 0.25rem; }
-    ul, ol { margin: 0.5rem 0 1rem 1.25rem; }
-    p { margin: 0.65rem 0; }
-    table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.95rem; }
-    th, td { border: 1px solid #bbb; padding: 0.45rem 0.6rem; text-align: left; vertical-align: top; }
-    th { background: #f0f0f0; }
-    .note { font-size: 0.9rem; color: #444; border-left: 4px solid #c90; padding-left: 0.75rem; margin: 1rem 0; }
+    :root {
+      --dg-navy: #152a45;
+      --dg-gold: #c90;
+      --dg-text: #1a1a1a;
+      --dg-muted: #5a5a5a;
+      --dg-border: #e2e2e2;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 1rem;
+      line-height: 1.55;
+      color: var(--dg-text);
+      background: #fff;
+    }
+    .dg-page {
+      max-width: 42rem;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 3rem;
+    }
+    .dg-local {
+      font-size: 0.8125rem;
+      color: var(--dg-muted);
+      margin: 0 0 1.25rem;
+    }
+    .dg-local strong { color: var(--dg-text); font-weight: 600; }
+    .dg-page a { color: #2d4a6f; text-underline-offset: 2px; }
+    .dg-page a:hover { color: var(--dg-navy); }
+
+    /* Yellow vertical bar section marker */
+    .dg-sec {
+      margin-top: 2.25rem;
+      padding-top: 0.25rem;
+      border: none;
+      background: transparent;
+    }
+    .dg-sec:first-of-type { margin-top: 0; }
+    .dg-sec__h {
+      margin: 0 0 0.75rem;
+      padding-left: 0.65rem;
+      border-left: 4px solid var(--dg-gold);
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--dg-navy);
+      line-height: 1.25;
+    }
+    .dg-sec p, .dg-sec li { font-size: 0.9375rem; color: #333; }
+    .dg-sec p { margin: 0.5rem 0; }
+    .dg-sec ul, .dg-sec ol { margin: 0.35rem 0 0.75rem; padding-left: 1.2rem; }
+    .dg-sec li { margin: 0.3rem 0; }
+
+    .dg-hero__h1 {
+      font-size: clamp(1.45rem, 4vw, 1.85rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--dg-navy);
+      margin: 0 0 0.65rem;
+      line-height: 1.15;
+    }
+    .dg-hero__sub {
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.45;
+      color: #222;
+      margin: 0 0 1.25rem;
+    }
+    .dg-hero__sum li { margin-bottom: 0.45rem; }
+
+    .dg-tree-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .dg-tree-list > li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--dg-border);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .dg-tree-list > li:last-child { border-bottom: none; }
+
+    .dg-mermaid-wrap {
+      margin-top: 0.75rem;
+      padding: 1rem;
+      border: 1px solid var(--dg-border);
+      background: #fff;
+    }
+    .dg-mermaid-wrap .dg-mermaid-inner {
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+    .dg-mermaid-fallback {
+      font-size: 0.8rem;
+      color: var(--dg-muted);
+      margin: 0.5rem 0 0;
+    }
+
+    .dg-cause-block { margin-bottom: 1.35rem; }
+    .dg-cause-block h3 {
+      margin: 0 0 0.35rem;
+      font-size: 0.875rem;
+      font-weight: 800;
+      color: var(--dg-navy);
+    }
+    .dg-cause-block p { margin: 0.25rem 0; font-size: 0.875rem; }
+    .dg-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dg-muted); margin-top: 0.5rem; }
+
+    table.dg-matrix {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      margin-top: 0.5rem;
+    }
+    table.dg-matrix th, table.dg-matrix td {
+      border: 1px solid var(--dg-border);
+      padding: 0.45rem 0.5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.dg-matrix th { font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--dg-muted); }
+
+    .dg-cta {
+      margin-top: 2rem;
+      padding-left: 0.65rem;
+      border-left: 4px solid var(--dg-gold);
+    }
+    .dg-cta p { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.75rem; }
+    .dg-cta a {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #fff;
+      background: var(--dg-navy);
+      padding: 0.65rem 1.1rem;
+    }
+    .dg-cta a:hover { background: #2d4a6f; color: #fff; }
+
+    .dg-disclaimer {
+      margin-top: 1rem;
+      padding: 0.75rem 0 0;
+      border-top: 1px solid var(--dg-border);
+      font-size: 0.8125rem;
+      line-height: 1.45;
+    }
+    .dg-disclaimer strong { color: #6b1c1c; }
+
+    details.dg-seo {
+      margin-top: 2.5rem;
+      padding: 0;
+      border: 1px solid var(--dg-border);
+      font-size: 0.75rem;
+      color: var(--dg-muted);
+    }
+    details.dg-seo summary {
+      cursor: pointer;
+      padding: 0.65rem 0.85rem;
+      font-weight: 600;
+      list-style: none;
+    }
+    details.dg-seo summary::-webkit-details-marker { display: none; }
+    details.dg-seo > div { padding: 0 0.85rem 0.85rem; border-top: 1px solid var(--dg-border); }
+    details.dg-seo nav { margin-bottom: 0.5rem; }
+    .dg-hero--bar {
+      border-left: 4px solid var(--dg-gold);
+      padding-left: 0.65rem;
+    }
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   </style>
 </head>
 <body>
 
-<h1>AC Not Cooling in Tampa, FL — Diagnosis &amp; Fix Guide</h1>
+<article class="dg-page" data-dg-authority-v3="1" lang="en">
+  <p class="dg-local">Local guide: <strong>Tampa, FL</strong></p>
 
-<p>This guide is written from the field perspective: high wet-bulb summers, long cooling seasons, and equipment that runs hard from late spring through October. If your house is not pulling sensible heat down, you are usually looking at a capacity problem (airflow or refrigerant mass flow), a control problem (not calling for full cooling), or a mechanical/electrical failure that stopped the refrigeration cycle from doing useful work. Below is the order I use on a service truck when the complaint is “not cooling enough” or “warm air,” before I start swapping parts.</p>
+  <header class="dg-sec" style="margin-top:0;padding-top:0">
+    <div class="dg-hero--bar">
+    <h1 class="dg-hero__h1">AC Not Cooling in Tampa, FL</h1>
+    <p class="dg-hero__sub">If your AC isn’t keeping up in Tampa heat, small airflow or refrigerant problems can escalate into compressor failure or coil damage — often a $2,000+ repair — when the wrong “fix” is applied without measurements.</p>
+    <p class="dg-label" style="margin-top:0">30-second summary</p>
+    <ul class="dg-hero__sum">
+      <li><strong>Most likely:</strong> Low airflow across the indoor coil or outdoor coil, or refrigerant mass flow too low for the load.</li>
+      <li><strong>Check first:</strong> Real cooling call at equipment, clean filter, unobstructed returns, condenser coil face, outdoor fan rotation — then wet-bulb context before any charge work.</li>
+      <li><strong>Risk:</strong> Moderate same-day; high if you keep running iced or starving the compressor on a 95°F+ afternoon.</li>
+    </ul>
+    </div>
+  </header>
 
-<h2>Quick Answer (What’s Most Likely Wrong)</h2>
+  <section class="dg-sec" aria-labelledby="h-tree">
+    <h2 class="dg-sec__h" id="h-tree">Start Here: Find Your Situation</h2>
+    <ul class="dg-tree-list">
+      <li>Strong airflow at vents but supply air stays warm → think capacity / refrigerant control path.</li>
+      <li>Weak or uneven airflow → filter, blower, duct restriction, or iced coil before you blame “freon.”</li>
+      <li>Outdoor fan not moving or only humming/clicks → electrical start path (cap, contactor, 24V, disconnect).</li>
+      <li>Ice on suction line or indoor coil → stop running; airflow or charge/metering — don’t chip ice off and restart blind.</li>
+      <li>Water in secondary pan or random indoor shutdown → condensate safeties and control interlocks.</li>
+    </ul>
+  </section>
 
-<p><strong>Most probable #1 — Low airflow across the indoor coil or outdoor coil.</strong> In Tampa, systems run with a high latent load (humidity removal). When airflow drops, evaporator suction pressure falls, the coil runs colder than design, and you get rapid condensate production and sometimes ice—then airflow drops further and supply air temperature climbs even though the compressor is still running. The homeowner feels “warm air” or weak cooling. Dirty filters, collapsed flex, stuck dampers, blower wheel buildup, or a blower not making RPM under load are the usual culprits. Fix the airflow first; many “low charge” symptoms disappear once you restore design CFM.</p>
+  <section class="dg-sec" aria-labelledby="h-mermaid">
+    <h2 class="dg-sec__h" id="h-mermaid">Visual Diagnostic Flow</h2>
+    <p class="dg-mermaid-fallback" style="margin-top:0">Follow the branch that matches what you’re seeing.</p>
+    <div class="dg-mermaid-wrap">
+      <div id="mermaid-diagram" class="dg-mermaid-inner" role="img" aria-label="Diagnostic flowchart"></div>
+    </div>
+    <p class="dg-mermaid-fallback">If the diagram does not appear, enable JavaScript. This page renders the chart in-browser; it is not shown as raw diagram text.</p>
+    <noscript><p class="dg-mermaid-fallback">Enable JavaScript to view the diagnostic flow diagram.</p></noscript>
+  </section>
 
-<p><strong>Most probable #2 — Refrigerant-side undercharge or restricted liquid line (mass flow problem).</strong> Tampa’s heat load means a small refrigerant deficit shows up fast: longer run times, poor sensible drop across the coil, sometimes high superheat at the compressor if metering is fixed orifice, sometimes unstable TXV hunting if the valve is starved. You cannot confirm charge by “feel.” You confirm with measured superheat/subcooling (airflow verified), compressor amp draw versus history, and visual oil trace patterns at braze joints and service ports. Undercharge often tracks to leaks at flare fittings, indoor coil leaks in fin pack, or vibration cracks on the condenser circuit—salt air and coastal corrosion accelerate outdoor coil leaks in some neighborhoods, but inland Pinellas/Hillsborough still sees plenty of classic vibration and rub-through failures.</p>
+  <section class="dg-sec" aria-labelledby="h-system">
+    <h2 class="dg-sec__h" id="h-system">How Your AC System Works</h2>
+    <p>Split cooling moves heat using refrigerant phase change. Sequence on a normal start: thermostat closes the cool call → indoor control enables blower and outdoor path → contactor pulls in → capacitors assist compressor and outdoor fan → compressor establishes mass flow → metering device sets coil operating point → indoor airflow completes the heat exchange.</p>
+    <p><strong>Tampa stress:</strong> High wet-bulb keeps latent load on the coil; long run times and hot outdoor electrical compartments accelerate capacitor and contactor wear; peak neighborhood load can show marginal voltage during compressor start.</p>
+    <p><strong>Symptom → failure bucket:</strong></p>
+    <ul>
+      <li>No indoor response → thermostat power, transformer, low-voltage fuse, air-handler door switch.</li>
+      <li>Clicking, outdoor never spins → capacitor µF, contactor coil/pull, weak 24V under load.</li>
+      <li>Indoor runs, outdoor silent → disconnect, breaker, contactor not closed, line voltage — confirm before condemning compressor.</li>
+      <li>Air moves but never gets cold → airflow verified first, then refrigerant side (charge, restriction, metering).</li>
+    </ul>
+  </section>
 
-<p class="note">Tampa-specific reasoning: high outdoor ambient raises condensing pressure, which raises compressor power and discharge temperature. Anything that reduces indoor airflow or raises liquid line pressure drop makes the system work closer to its margin. That is why “not cooling” complaints spike on the hottest, most humid afternoons—not because the thermostat is wrong, but because the plant is already at the edge of its operating envelope.</p>
+  <section class="dg-sec" aria-labelledby="h-causes">
+    <h2 class="dg-sec__h" id="h-causes">Top Causes</h2>
 
-<h2>What This Usually Means (Technical Explanation)</h2>
+    <div class="dg-cause-block">
+      <h3>Airflow restriction</h3>
+      <p class="dg-label">What it is</p>
+      <p>CFM across the evaporator (or condenser air path) below what the system was matched to — filter, collapsed flex, dirty coil face, blower not making RPM, iced coil from a prior fault.</p>
+      <p class="dg-label">How to confirm</p>
+      <p>Static drop across filter if equipped; visual coil and blower wheel; supply/return temps; defrost fully before trusting any pressure reading.</p>
+      <p class="dg-label">Typical cost (Tampa bands, not quotes)</p>
+      <p>Filter service / coil clean $150–$450; blower pull-and-clean $250–$650; duct repairs $400–$2,500+.</p>
+      <p class="dg-label">Technical note</p>
+      <p>Low airflow drops suction pressure; the coil can run colder than design and spike latent removal while sensible cooling stalls — feels “humid and warm.”</p>
+    </div>
 
-<p>A split residential air conditioner is a vapor-compression refrigerator moving heat from indoors to outdoors. Indoors, the evaporator operates at low pressure so liquid refrigerant flashes and absorbs latent and sensible heat from the return air. Outdoors, the condenser rejects that heat at high pressure. The compressor is the pump that maintains the pressure differential. The metering device (TXV, piston, or EEV) sets the relationship between high and low sides for a given load.</p>
+    <div class="dg-cause-block">
+      <h3>Refrigerant problem</h3>
+      <p class="dg-label">What it is</p>
+      <p>Undercharge, leak, or restriction that reduces mass flow through the metering device relative to load.</p>
+      <p class="dg-label">How to confirm</p>
+      <p>Leak check at suspect joints; superheat/subcooling vs OEM chart with stable indoor conditions and <em>verified</em> airflow — never “top off” on guesswork.</p>
+      <p class="dg-label">Typical cost</p>
+      <p>Leak locate + repair $300–$900; recharge after repair $200–$800+ by weight; major coil replacement $2,200–$5,800.</p>
+      <p class="dg-label">Technical note</p>
+      <p>High superheat at the compressor with long run times cooks oil and windings; icing can be a secondary sign, not the root.</p>
+    </div>
 
-<p><strong>Why cooling fails mechanically</strong> almost always comes down to one of these physical states: (1) insufficient air volume or poor air distribution so the evaporator cannot exchange BTUs; (2) insufficient refrigerant mass flow so the evaporator cannot absorb BTUs at the rate the house is gaining heat; (3) the compressor is not pumping (electrical fault, mechanical valve damage, severe floodback); (4) the system is not in the cooling mode you think it is (reversing valve, t-stat staging, zoning board, dehumidify overcool logic); or (5) heat is being added downstream of the coil (electric strip heat energized, duct leakage pulling attic air).</p>
+    <div class="dg-cause-block">
+      <h3>Electrical / control failure</h3>
+      <p class="dg-label">What it is</p>
+      <p>Break in 24V call chain, bad contactor, weak capacitor, high-voltage path fault, zoning or stat miswire, float switch open.</p>
+      <p class="dg-label">How to confirm</p>
+      <p>Y–C present at air handler during demand; contactor pull and contact condition; cap within label tolerance; disconnect seated; OEM fault codes where applicable.</p>
+      <p class="dg-label">Typical cost</p>
+      <p>Stat/LV repair $120–$450; cap + contactor $180–$450; zoning board $300–$900+.</p>
+      <p class="dg-label">Technical note</p>
+      <p>Ants across outdoor contacts and heat-cycled caps are routine in Florida installs — treat intermittent “no start” as electrical until proven otherwise.</p>
+    </div>
 
-<p>From a thermodynamics standpoint, “comfort” is sensible plus latent removal. Tampa runs high dew points; if the coil is too cold because of low airflow, latent removal spikes and sensible cooling stalls—rooms feel clammy and “not cold.” If the coil is starved of refrigerant, superheat climbs, the coil does not fully wet out, latent removal drops, and the space may feel dry-ish but hot. Technicians learn to read supply delta-T only after confirming the system is not iced, the blower is correct, and the return path is intact. A naive “delta-T = 20°F so it’s fine” reading is meaningless if you measured across a partially blocked coil or with a wet bulb mismatch.</p>
+    <div class="dg-cause-block">
+      <h3>System overload (heat / humidity)</h3>
+      <p class="dg-label">What it is</p>
+      <p>Equipment at the edge of its operating envelope: high ambient raises condensing pressure; high indoor dew point raises coil load; marginal charge or airflow shows up as “not cooling” only on peak days.</p>
+      <p class="dg-label">How to confirm</p>
+      <p>Log outdoor DB at condenser inlet, indoor return WB, head vs ambient trend; compare to normal history for the same setpoint.</p>
+      <p class="dg-label">Typical cost</p>
+      <p>Address root restriction or charge — not a separate “overload part”; if undersized, load calc + replacement economics apply ($7k–$16k+ full changeout ranges).</p>
+      <p class="dg-label">Technical note</p>
+      <p>Overload here is physics margin, not a single component — fix fundamentals first.</p>
+    </div>
+  </section>
 
-<h2>Step-by-Step Diagnosis (Do This First)</h2>
+  <section class="dg-sec" aria-labelledby="h-rr">
+    <h2 class="dg-sec__h" id="h-rr">Repair vs Replace</h2>
+    <p><strong>Repair makes sense</strong> when the failure is localized (bad cap, clogged coil, small leak in accessible tubing), the heat exchanger and coil integrity are good, efficiency is still acceptable for your hold time, and installed cost is well under half the replacement ticket on equipment under ~8–10 years with documented maintenance.</p>
+    <p><strong>Replace is smarter</strong> on compressor failure out of warranty with mismatched indoor coil, repeated major refrigerant loss, acid/moisture history, or R-22 conversion economics; also when repair + deferred efficiency upgrades exceed rational payback in a long Tampa cooling season.</p>
+    <p><strong>Tampa note:</strong> Heat and humidity extend run hours — wear compounds. If you’re already on borrowed time with two major components, replacement planning beats stacking emergency repairs in August.</p>
+  </section>
 
-<ol>
-  <li><strong>Confirm the complaint in measurable terms.</strong> Record indoor dry-bulb, supply dry-bulb at closest supply, and return dry-bulb at the filter grille (same height as possible). If you have a psychrometer, log wet-bulb at return and supply. Note outdoor ambient at the condenser inlet face.</li>
-  <li><strong>Verify the equipment is actually calling for cooling.</strong> At the air handler/furnace: 24VAC between Y and C when cooling is demanded. If you have a communicating system, use the OEM interface to read active mode, fault history, and compressor command—do not guess from the thermostat animation.</li>
-  <li><strong>Inspect and replace/clean the filter if there is any doubt.</strong> A filter that “looks okay” can still be a pressure drop problem. Measure static if you have a manometer: filter-in vs filter-out is a quick tell.</li>
-  <li><strong>Inspect the indoor coil and blower wheel visually (safe access).</strong> Look for matting on the coil face, microbial bridging, or a blower wheel coated in fuzz. If you see ice, stop and defrost before continuing—do not keep the system running into a solid ice block.</li>
-  <li><strong>Check condenser coil cleanliness and fan blade condition.</strong> Cottonwood, grass clippings, and dog hair pack the coil fin depth. Wash from inside-out on applicable coils; straight-fin damage costs capacity permanently.</li>
-  <li><strong>Measure line set temps and pressures (if you are licensed and equipped).</strong> With stable indoor conditions, attach gauges (or use wireless probes) and record suction/saturation, liquid/saturation, superheat, and subcooling per manufacturer chart for the outdoor ambient and indoor wet-bulb. If airflow is not verified, do not “top off” charge.</li>
-  <li><strong>Electrical quick checks (safe homeowner boundary).</strong> Confirm disconnect is seated, fuses intact, contactor pulled in with Y present, and capacitor not visibly vented. If you measure microfarads, compare to label ± tolerance; weak run caps show up as high head, low suction, and hot compressor shell in Tampa heat.</li>
-  <li><strong>Voltage stability.</strong> Under 240V line during compressor start, sag can cause chatter and nuisance trips. Log L1–L2 at outdoor unit during start and run.</li>
-  <li><strong>TXV / piston behavior.</strong> Fixed-bore systems show predictable superheat movement with charge. TXV systems should hold stable superheat within spec when bulb is insulated and mounted correctly. A starved TXV from moisture in the circuit behaves like a restriction—filter-drier and acid test considerations apply.</li>
-  <li><strong>Water management.</strong> A plugged condensate trap or safety switch can shut off the air handler while the outdoor unit still runs on some wiring schemes—or vice versa depending on interlock. Confirm float switch state.</li>
-</ol>
+  <section class="dg-sec" aria-labelledby="h-bench">
+    <h2 class="dg-sec__h" id="h-bench">Why Bench Testing Is Not Recommended for DIY</h2>
+    <p>HVAC diagnosis is a <em>system</em> problem: pressures, superheat, subcooling, and amp draw only mean something with live airflow, indoor wet-bulb, and outdoor ambient at the condenser.</p>
+    <p>Pulling a capacitor or contactor and “testing” it on the bench without load and inrush context misses weak-under-load failures — the exact mode that fails on start in Tampa heat.</p>
+      <p>Misdiagnosis from bench-only conclusions leads to swapped parts, repeated callbacks, and can leave a marginal compressor running into a hard failure — that’s real money and real fire/shock exposure if you chase the wrong branch.</p>
+  </section>
 
-<p>Exact field checks I expect a tech to write down on the invoice: return air temp, supply air temp (post-coil), outdoor dry-bulb, filter static drop (if measured), suction pressure/saturation, liquid pressure/saturation, superheat, subcooling, compressor amps, and whether the liquid line filter-drier has a temperature “lump” across it.</p>
+  <section class="dg-sec" aria-labelledby="h-tools">
+    <h2 class="dg-sec__h" id="h-tools">Basic Tools for Initial Checks</h2>
+    <ul>
+      <li>Thermostat access — mode, setpoint, batteries if applicable.</li>
+      <li>Correct filter size on hand; flashlight for coil face inspection through access.</li>
+      <li>Screwdriver for service panel <em>only if</em> you already know how to verify power is isolated — otherwise stop at visual.</li>
+      <li>Multimeter: useful for safe 24V checks if trained; <strong>do not</strong> open 240V enclosures or probe live lugs without qualification.</li>
+    </ul>
+  </section>
 
-<h2>Top Causes (Ranked by Probability)</h2>
+  <section class="dg-sec" aria-labelledby="h-tech">
+    <h2 class="dg-sec__h" id="h-tech">What a Technician Will Check</h2>
+    <p>Expect these tied to diagnosis, not “random numbers on an invoice”:</p>
+    <ul>
+      <li><strong>Suction pressure / saturation</strong> — low with normal airflow suggests charge or metering; low with bad airflow suggests restriction or icing behavior.</li>
+      <li><strong>Head (liquid) pressure / saturation</strong> — high with clean condenser suggests non-condensables, overcharge, or weak fan; high with dirty coil is rejection path.</li>
+      <li><strong>Superheat / subcooling</strong> — anchors charge and TXV behavior against manufacturer chart for measured indoor WB and outdoor DB.</li>
+      <li><strong>Compressor amps</strong> — compared to map and prior baseline; rising amps with flat capacity is mechanical or winding stress.</li>
+      <li><strong>Delta-T</strong> — only after ice is cleared and airflow is verified; otherwise it lies.</li>
+    </ul>
+  </section>
 
-<h3>1) Low indoor airflow (dirty filter, blower issue, restricted duct, iced coil)</h3>
-<p><strong>What it is:</strong> anything that reduces CFM across the evaporator below what the compressor and metering device were matched to.</p>
-<p><strong>Why it happens:</strong> neglected maintenance, poor duct design, collapsing flex in hot attics, blower speed set wrong after a motor replacement, or coil icing from prior low charge that was “charged to feel cold.”</p>
-<p><strong>How to confirm it:</strong> static pressure profile, visual coil/blower inspection, RPM verification against spec for PSC/ECM, and sensible recovery after correcting airflow. Delta-T climbs with severe low airflow but can look “okay” early.</p>
-<p><strong>Typical repair cost (Tampa market, parts + labor ranges, not quotes):</strong> filter service and deep coil cleaning $150–$450; blower wheel pull-and-clean $250–$650; duct repairs for major restriction $400–$2,500+ depending on accessibility.</p>
+  <section class="dg-sec" aria-labelledby="h-costs">
+    <h2 class="dg-sec__h" id="h-costs">Typical Repair Costs (Tampa)</h2>
+    <table class="dg-matrix">
+      <thead>
+        <tr><th>Item</th><th>Typical range</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Air filter service / replacement (visit)</td><td>$40–$120</td></tr>
+        <tr><td>Refrigerant recharge <em>after</em> leak repair (weight-based)</td><td>$200–$800+</td></tr>
+        <tr><td>Capacitor + contactor service call</td><td>$180–$450</td></tr>
+        <tr><td>Thermostat replace / low-voltage repair</td><td>$120–$450</td></tr>
+        <tr><td>Full system replacement (common split)</td><td>$7,000–$16,000+</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.8rem;color:var(--dg-muted);margin-top:0.5rem">Ranges are planning bands for the Tampa Bay metro, not bids.</p>
+  </section>
 
-<h3>2) Refrigerant undercharge or leak</h3>
-<p><strong>What it is:</strong> mass flow too low for the expansion device and coil geometry.</p>
-<p><strong>Why it happens:</strong> vibration leaks, corrosion, poor previous braze, or long-term seep at Schrader cores.</p>
-<p><strong>How to confirm it:</strong> leak search with electronic detector + bubble at suspect joints; weigh-in charge after repair on small critical charge systems; otherwise superheat/subcooling method with known airflow.</p>
-<p><strong>Typical repair cost:</strong> leak locate and repair $300–$900; recharge after repair with R-410A priced by weight $200–$800+ depending on loss; coil replacement if leak is not economically repairable $2,000–$6,500+ installed for common split systems.</p>
+  <section class="dg-sec" aria-labelledby="h-call">
+    <h2 class="dg-sec__h" id="h-call">When to Call a Technician</h2>
+    <ul>
+      <li>Repeat breaker trips, burning odor, or scorched disconnect / contactor.</li>
+      <li>Ice that returns after defrost with a clean filter.</li>
+      <li>Any intentional refrigerant circuit work, leak suspicion, or acid indicators.</li>
+      <li>Water into secondary pan continuously or ceiling stains.</li>
+      <li>Compressor fault codes you cannot clear after a proper power cycle.</li>
+    </ul>
+    <div class="dg-disclaimer">
+      <p><strong>⚠️ Disclaimer:</strong> Attempting HVAC repairs without proper training can result in: severe equipment damage; voided manufacturer warranties; electrical shock; refrigerant exposure; fire hazard; serious personal injury or death. If you are unsure at any step, stop and contact a licensed HVAC technician.</p>
+    </div>
+  </section>
 
-<h3>3) Condenser heat rejection problem (dirty coil, bad fan motor/cap, recirculation)</h3>
-<p><strong>What it is:</strong> head pressure rises, compressor works harder, capacity falls.</p>
-<p><strong>Why it happens:</strong> outdoor coil fouling, failed condenser fan capacitor, bent blade reducing flow, or unit installed too close to a wall with hot air recirc.</p>
-<p><strong>How to confirm it:</strong> head pressure vs ambient chart, discharge line temperature trend, amp draw, and visual inspection of condenser air path.</p>
-<p><strong>Typical repair cost:</strong> thorough coil wash and fan cap $150–$450; condenser fan motor $350–$850; major coil damage replacement overlaps with outdoor section replacement economics.</p>
+  <section class="dg-cta" aria-labelledby="h-cta">
+    <h2 class="visually-hidden" id="h-cta">Get help</h2>
+    <p>Still not working? In Tampa heat, delays can turn minor issues into major system failure. Get help now.</p>
+    <p><a href="/request-service">Request HVAC service</a></p>
+  </section>
 
-<h3>4) Compressor not pumping effectively (valve damage, severe floodback history, overheating)</h3>
-<p><strong>What it is:</strong> reduced volumetric efficiency or no pumping.</p>
-<p><strong>Why it happens:</strong> slugging, long-running low airflow, prior lightning damage, or plain wear in old R-22 conversions stressed by high head.</p>
-<p><strong>How to confirm it:</strong> amp draw vs map, suction/discharge line temperature behavior, megohm to ground trend (interpret carefully), and pump-down/isolation tests where appropriate.</p>
-<p><strong>Typical repair cost:</strong> compressor changeout on a middle-age system $2,200–$5,500+; full system replacement often chosen if indoor coil and line set are mismatched or warranty is gone.</p>
+  <details class="dg-seo">
+    <summary>Page details &amp; navigation</summary>
+    <div>
+      <nav>
+        <a href="/">Home</a> · <a href="/hvac">HVAC</a> · <a href="/hvac/ac-not-cooling">AC not cooling (pillar)</a> · Tampa, FL
+      </nav>
+      <p>National pillar: <a href="/hvac/ac-not-cooling">/hvac/ac-not-cooling</a> · Local URL: <span style="font-family:ui-monospace,monospace;font-size:0.7rem">/hvac/ac-not-cooling/tampa-fl</span></p>
+      <p>Related: use your site’s hub links here for internal SEO — kept collapsed so the page reads as a diagnostic tool first.</p>
+    </div>
+  </details>
+</article>
 
-<h3>5) Thermostat, zoning, or control wiring errors</h3>
-<p><strong>What it is:</strong> equipment not receiving sustained Y/O/G as expected, or staging locked out.</p>
-<p><strong>Why it happens:</strong> DIY thermostat swaps without C-wire solutions, damaged low-voltage at the stat cable, zone panel misconfiguration, or float switch break.</p>
-<p><strong>How to confirm it:</strong> voltage map at indoor and outdoor, continuity on safety chain, and OEM diagnostics.</p>
-<p><strong>Typical repair cost:</strong> $120–$450 for straightforward wiring/stat; $300–$900+ for zoning board issues.</p>
+<script type="module">
+  const chartDef = `flowchart TD
+    A[AC not cooling] --> B{Strong vent airflow?}
+    B -->|No| C[Airflow path: filter, coil, blower, ducts]
+    B -->|Yes| D{Outdoor fan + compressor running?}
+    D -->|No| E[Electrical: disconnect, cap, contactor, 24V]
+    D -->|Yes| F[Refrigerant / metering: SH, SC, leak check]`;
 
-<h2>What You Can Safely Check Yourself</h2>
-
-<ul>
-  <li>Set the thermostat to Cool, fan Auto or On per your preference, and a realistic setpoint—then wait 15 minutes on a hot day before declaring failure.</li>
-  <li>Replace a visibly dirty filter; if you have pets or drywall dust from renovations, do not stretch filter change intervals through a Tampa summer.</li>
-  <li>Verify all supply registers are open and returns are unobstructed; a couch pushed over a low return in a single-return home kills performance.</li>
-  <li>Look at the outdoor unit: fan spinning when compressor is on, no obvious ice on the insulated suction line back to the house (some sweat is normal).</li>
-  <li>Check the indoor air handler float switch if accessible—some models have a clear trap you can see plugged.</li>
-  <li>Listen for blower ramp on variable-speed systems; silence with a call for cool usually means a control or power issue—stop and call a pro if you are not comfortable with a multimeter.</li>
-</ul>
-
-<p>Do not open the refrigerant circuit, do not add refrigerant from a DIY can, and do not bypass safeties. EPA 608 is required for intentional refrigerant handling on stationary equipment, and mixing wrong refrigerants or dumping charge is a hard liability in Florida’s enforcement climate.</p>
-
-<h2>When You Need a Technician</h2>
-
-<ul>
-  <li>Any suspicion of refrigerant leak, acid burnout, or burnt wire odor.</li>
-  <li>Breaker trips immediately on compressor start, or you see burnt contacts in the outdoor disconnect/contactor.</li>
-  <li>Ice returns after a defrost even with a new filter—there is a root cause you have not fixed.</li>
-  <li>Water leaking into the secondary pan continuously—drainage or coil freezing issue that can damage ceilings.</li>
-  <li>Communicating equipment throwing compressor fault codes you cannot clear after power reset.</li>
-  <li>Head pressure or amp readings outside manufacturer charts—those are not homeowner tune-ups.</li>
-</ul>
-
-<h2>Repair Cost Guide (Tampa, FL)</h2>
-
-<p>Labor rates in the Tampa Bay metro vary by shop size, warranty status, and after-hours policy. The table below is a <strong>planning range</strong> for common repairs on residential split heat pumps or straight cools, not a bid.</p>
-
-<table>
-  <thead>
-    <tr>
-      <th>Job type</th>
-      <th>Typical range (USD)</th>
-      <th>Notes</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Seasonal tune-up + coil wash</td>
-      <td>$120–$280</td>
-      <td>Does not include major leak repair; ask if static/ charge tests are included.</td>
-    </tr>
-    <tr>
-      <td>Capacitor + contactor service</td>
-      <td>$180–$450</td>
-      <td>OEM vs generic caps; surge history matters on coastal installs.</td>
-    </tr>
-    <tr>
-      <td>Leak repair + weigh-in charge</td>
-      <td>$450–$1,800</td>
-      <td>Highly dependent on leak location and refrigerant weight lost.</td>
-    </tr>
-    <tr>
-      <td>Evaporator coil replacement</td>
-      <td>$2,200–$5,800</td>
-      <td>Attic access, AHRI match, and line set flush decisions drive price.</td>
-    </tr>
-    <tr>
-      <td>Condenser replacement (like-for-like)</td>
-      <td>$3,200–$7,500</td>
-      <td>Permitting, lift equipment, and pad/line set condition matter.</td>
-    </tr>
-    <tr>
-      <td>Full system replacement</td>
-      <td>$7,000–$16,000+</td>
-      <td>SEER2 equipment, duct repairs, and thermostat upgrades move the needle.</td>
-    </tr>
-  </tbody>
-</table>
-
-<p>Florida’s insurance and litigation environment also means reputable contractors document photos, model/serial, and pressures—if your quote is far below market with no load calculation discussion on a replacement, ask why.</p>
-
-<h2>What Happens If You Ignore This</h2>
-
-<p>Running low airflow cooks compressors: high discharge temperature, oil breakdown, and winding insulation stress. Running low charge drives high superheat at the compressor and can slug oil in some piping layouts. Ignoring a water safety can flood a ceiling. Ignoring rising head from a dirty condenser short-cycles the compressor on high-pressure control and wears contactors. In Tampa’s long season, “I’ll wait until fall” often means September is still 90°F outside and the machine fails on a Friday afternoon—exactly when emergency rates apply and parts counters are thin on OEM boards.</p>
-
-<p>From a moisture standpoint, an underperforming system that still runs enough to pull some latent load can hide behind “it runs all day” while humidity creeps—mold risk on cold surfaces and comfort complaints follow. That is not alarmism; it is building science in a humid subtropical climate.</p>
-
-<h2>Get Help Now (CTA)</h2>
-
-<p>If indoor temperature is climbing toward unsafe levels for vulnerable occupants, treat it as priority. Florida afternoon heat index routinely exceeds safe exposure limits for elderly people in homes above 82°F with high humidity. A licensed HVAC contractor can verify airflow and charge legally, isolate electrical faults, and give you a repair-vs-replace decision with real numbers—not a script about “freon being illegal” or vague “tune-up specials.”</p>
-
-<p>When you call, be ready with: system age, last filter change date, whether ice has ever formed on the copper, any recent storms or power blips, and the exact thermostat model. That cuts diagnostic time and saves you money. In Tampa, the heat does not negotiate—your system either moves BTUs or it does not. Fix the fundamentals first, confirm with gauges after airflow is right, and only then talk about major component swaps.</p>
+  const el = document.getElementById("mermaid-diagram");
+  if (!el) {
+  } else {
+    try {
+      const mermaid = (await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")).default;
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        themeVariables: {
+          primaryColor: "#152a45",
+          primaryTextColor: "#ffffff",
+          primaryBorderColor: "#1e293b",
+          lineColor: "#64748b",
+          secondaryColor: "#f8fafc",
+          tertiaryColor: "#f1f5f9",
+        },
+        flowchart: { htmlLabels: false, curve: "basis" },
+      });
+      const id = "dg-flow-" + Math.random().toString(36).slice(2, 10);
+      const { svg } = await mermaid.render(id, chartDef);
+      el.innerHTML = svg;
+    } catch (e) {
+      console.error(e);
+      el.innerHTML = '<p class="dg-mermaid-fallback">Diagram could not load. Check your network or refresh the page.</p>';
+    }
+  }
+</script>
 
 </body>
 </html>

@@ -13,6 +13,20 @@ export const HsdCityDiagnosticPageSchema = z.object({
   problem: z.string().min(1),
   city: z.string().min(1),
   summary_30s: z.string().min(1),
+  /** DG-style briefing; validated loosely — see parseHowSystemStarts + publish gate. */
+  how_system_starts: z.record(z.string(), z.unknown()).optional(),
+  quick_decision_tree: z
+    .array(
+      z.object({
+        situation: z.string().min(1),
+        leads_to: z.string().min(1),
+        anchor: z.string().min(1),
+        section_ids: z.array(z.string()).min(1).max(4).optional(),
+      })
+    )
+    .min(3)
+    .max(8)
+    .optional(),
   quick_checks: z.array(z.string()).min(4).max(8),
   likely_causes: z.array(z.string()).min(4).max(8),
   diagnostic_steps: z.array(z.string()).min(6).max(12),

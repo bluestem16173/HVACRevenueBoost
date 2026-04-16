@@ -700,6 +700,8 @@ Requirements:
   - problem
   - city
   - summary_30s
+  - how_system_starts (object: DG-style technical briefing — NOT a wall of text; see rules below)
+  - quick_decision_tree (array: dominant “start here” triage — NOT a buried flowchart)
   - quick_checks
   - likely_causes
   - diagnostic_steps
@@ -711,12 +713,31 @@ Rules:
 - Keep the problem narrowly focused to this slug only
 - Do not drift into unrelated issues
 - Do not create duplicate-intent content
-- Make summary_30s specific and useful (one tight paragraph, 2–4 sentences, or 2–4 short bullets joined with spaces — plain string only)
+- title: H1-style headline including city when the slug is localized (e.g. "AC Not Turning On in Tampa, FL")
+- problem: One subhead sentence under the title: Tampa heat urgency + consequence if misdiagnosed or ignored (plain string)
+- summary_30s: Plain string; strongly prefer exactly three lines separated by newline, each starting with "• " — (1) most likely cause class, (2) fastest safe check, (3) risk level (e.g. "Moderate → High if ignored"). Alternative: one tight paragraph if bullets do not fit the symptom.
+- how_system_starts: REQUIRED object (DecisionGrid / authority tone — technical briefing for homeowners). Goals: credibility, how the system behaves, tie behavior to diagnosis. Fields:
+  - "section_title": e.g. "How Your AC System Starts (And Why It Fails)" or "How Your AC System Starts (Simplified)"
+  - "eyebrow" (optional): short label above title, e.g. "Technical briefing"
+  - "authority_line": one confident sentence, e.g. systems fail predictably under load / electrical stress / wear (no fluff)
+  - "startup_sequence": array of 4–6 objects { "title": "short step name", "detail": "one–two tight sentences" } in real power-on order: thermostat signal → indoor control/contactor → capacitor assist → compressor + outdoor fan (adapt to symptom vertical)
+  - "environment_title": e.g. "Why failures show up faster in Tampa"
+  - "environment_bullets": 2–5 short strings (heat, humidity, peak demand, capacitor life, etc.) — concrete, not generic marketing
+  - "mapping_title": e.g. "What this means for your issue"
+  - "symptom_mapping": 2–4 objects { "cue": "what the homeowner notices", "points_to": "failure bucket / next check" } — must align with quick_decision_tree language where applicable
+  STYLE: concise, field-tech voice; no long intros; no generic "HVAC comfort" filler.
+  DESIGN (for the React renderer): content will be shown with a subtle top divider and numbered steps only — do NOT rely on colored background boxes in the text; keep paragraphs short.
+- quick_decision_tree: REQUIRED. Array of 4–6 objects, each with:
+  - "situation": homeowner-visible state (short)
+  - "leads_to": likely diagnosis bucket (short label)
+  - "anchor": unique kebab-case id for this branch (used in href="#anchor"); prefix "qdt-" recommended (e.g. "qdt-thermostat-no-power")
+  - "section_ids" (optional): array of 1–4 strings, each one of: "section-quick-checks", "section-likely-causes", "section-diagnostic-steps", "section-repair-vs-pro" — where to send the reader after they pick this branch (conversion: tree → deep sections).
+  This block is the conversion engine: branches must map to on-page anchors, not off-site links.
 - quick_checks: 4–6 items; safe, realistic homeowner observations (power, filters, stats, obvious leaks, breaker, airflow basics)
 - likely_causes: 4–6 strings; each states the cause and the key differentiator for this symptom
 - diagnostic_steps: 6–10 strings; technician-style narrowing (what to observe, what to measure if homeowner-safe, what result implies); ordered logically
 - repair_vs_pro: object with diy_ok (3–5 strings) and call_pro (3–5 strings); clearly separate simple checks from licensed/pro-only work
-- cta: object with primary and secondary; primary should encourage booking local service when needed; secondary can be self-serve triage / related guide
+- cta: object with primary and secondary; primary label should be action-oriented (default tone: "Get Local HVAC Help"); secondary can be self-serve triage / related guide
 
 Internal link rules (path-only strings relative to site, no domain):
 - internal_links.parent: vertical hub slug/path for this trade (e.g. hub for HVAC / plumbing / electrical on this site)
@@ -735,6 +756,37 @@ Output shape (populate every field; arrays must be non-empty where specified abo
   "problem": "",
   "city": "",
   "summary_30s": "",
+  "how_system_starts": {
+    "section_title": "How Your AC System Starts (And Why It Fails)",
+    "eyebrow": "Technical briefing",
+    "authority_line": "AC systems don't fail randomly — they fail in predictable ways based on load, electrical stress, and component wear.",
+    "startup_sequence": [
+      { "title": "Thermostat calls for cooling", "detail": "Low-voltage signal leaves the stat when indoor temp is above setpoint." },
+      { "title": "Contactor pulls in", "detail": "Control closes the high-voltage path to the outdoor unit." },
+      { "title": "Capacitor assists start", "detail": "Start/run assist helps compressor and fan motor come up to speed." },
+      { "title": "Compressor + fan run", "detail": "Refrigerant circulates; outdoor fan rejects heat." }
+    ],
+    "environment_title": "Why failures happen faster in Tampa",
+    "environment_bullets": [
+      "Capacitors age faster when case temps stay high.",
+      "Peak demand can show marginal voltage / weak contacts.",
+      "High latent load keeps run times long."
+    ],
+    "mapping_title": "What this means for your issue",
+    "symptom_mapping": [
+      { "cue": "No indoor response", "points_to": "Thermostat power / low-voltage path" },
+      { "cue": "Clicking but no start", "points_to": "Capacitor or contactor" },
+      { "cue": "Outdoor silent", "points_to": "Disconnect, breaker, or compressor circuit" }
+    ]
+  },
+  "quick_decision_tree": [
+    {
+      "situation": "",
+      "leads_to": "",
+      "anchor": "qdt-example-branch",
+      "section_ids": ["section-quick-checks", "section-diagnostic-steps"]
+    }
+  ],
   "quick_checks": [],
   "likely_causes": [],
   "diagnostic_steps": [],

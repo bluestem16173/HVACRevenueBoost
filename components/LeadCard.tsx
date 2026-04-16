@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   SMS_CONSENT_FULL_TEXT,
   SMS_CONSENT_ORIGINATION_DISCLOSURE,
+  SMS_CONSENT_REQUIRED_ERROR,
   SMS_CONSENT_TEXT_VERSION,
 } from "@/lib/lead-consent";
 
@@ -506,7 +507,7 @@ export default function LeadCard({
           </div>
           {consentError ? (
             <p className="text-sm font-bold text-red-700" role="alert">
-              The form cannot be submitted unless the checkbox is checked.
+              {SMS_CONSENT_REQUIRED_ERROR}
             </p>
           ) : null}
         </div>

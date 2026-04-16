@@ -77,7 +77,8 @@ export async function POST(req: Request) {
       }
     }
 
-    if (!firstName || !phone || phone.length < 10 || !location_raw) {
+    const hasLocation = Boolean(String(location_raw || "").trim());
+    if (!firstName || !phone || phone.length < 10 || !hasLocation) {
       return NextResponse.json(
         {
           error:

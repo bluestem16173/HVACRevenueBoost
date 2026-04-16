@@ -23,7 +23,10 @@ export default function MobileStickyCallButton() {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden animate-in slide-in-from-bottom-full duration-300">
+    <div
+      className="fixed left-0 right-0 z-50 md:hidden animate-in slide-in-from-bottom-full duration-300"
+      style={{ bottom: "var(--hvacrb-sticky-call-offset, 0px)" }}
+    >
       <a 
         href="tel:1-800-555-0199" // TODO: Replace with dynamic/GHL tracking number
         className="flex items-center justify-center gap-3 bg-hvac-navy text-white font-black w-full py-4 text-center text-lg shadow-[0_-5px_15px_rgba(0,0,0,0.1)] active:bg-blue-900 transition-colors"

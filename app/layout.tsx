@@ -3,6 +3,7 @@ import "./globals.css";
 import Link from "next/link";
 import MobileStickyCallButton from "@/components/MobileStickyCallButton";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
+import StickySmsLeadCta from "@/components/StickySmsLeadCta";
 
 const RV_DIAGNOSTICS_URL = "https://www.decisiongrid.co";
 
@@ -154,6 +155,8 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
+        {/* Twilio A2P 10DLC: fixed bottom SMS consent + phone (see components/StickySmsLeadCta.tsx) */}
+        <StickySmsLeadCta />
         <MobileStickyCallButton />
         <LeadCaptureModal />
       </body>

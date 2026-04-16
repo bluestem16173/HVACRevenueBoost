@@ -60,12 +60,10 @@ export default function MermaidRenderer({ chart }: { chart: string }) {
 
   if (hasError) {
     return (
-      <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center dark:border-red-800 dark:bg-red-900/10">
-        <p className="mb-2 font-bold text-red-600 dark:text-red-400">Error rendering diagnostic flowchart</p>
-        <p className="text-sm text-red-500/80">
-          The system encountered an structural issue while mapping the node relationships.
-        </p>
-        <div className="mt-4 overflow-x-auto rounded bg-slate-100 p-4 text-left text-xs text-slate-500 dark:bg-slate-900">
+      <div className="rounded-lg border border-slate-300 bg-slate-50 p-4 text-center dark:border-slate-600 dark:bg-slate-900/60">
+        <p className="mb-1 text-sm font-semibold text-slate-800 dark:text-slate-200">Could not render flowchart</p>
+        <p className="text-xs text-slate-600 dark:text-slate-400">Check the diagram syntax in content JSON.</p>
+        <div className="mt-3 overflow-x-auto rounded border border-slate-200 bg-white p-3 text-left text-[11px] text-slate-500 dark:border-slate-700 dark:bg-slate-950">
           <code>{chart}</code>
         </div>
       </div>
