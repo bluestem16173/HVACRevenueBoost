@@ -3,9 +3,10 @@ import dotenv from "dotenv";
 dotenv.config({ path: ".env.local" });
 
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
+import { enforceStoredSlug } from "./slug-utils";
 
 function normalizeSlug(slug: string) {
-  return slug.replace(/^\/+/, "").trim();
+  return enforceStoredSlug(slug);
 }
 
 /**

@@ -63,6 +63,11 @@ export default function DiagnosticModal() {
         {/* Constrain height and allow scrolling if the screen is super short */}
         <div className="max-h-[80vh] overflow-y-auto rounded-2xl shadow-2xl">
           <LeadCard serviceType="ac" />
+          <p className="text-center text-xs text-slate-300 mt-3 px-2">
+            <a href="/request-service" className="underline hover:text-white">
+              Open the same form without this popup
+            </a>
+          </p>
         </div>
       </div>
     </div>

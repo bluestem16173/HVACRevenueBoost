@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DiagnosticPageView } from "@/components/DiagnosticPageView";
 import { DiagnosticVerticalNav } from "@/components/diagnostic-hub/DiagnosticVerticalNav";
-import { getIndexablePageBySlug } from "@/lib/get-indexable-page";
+import { getIndexablePageForLocalizedRoute } from "@/lib/get-indexable-page";
 import { buildHvacLocalizedPillarPath, formatCityPathSegmentForDisplay } from "@/lib/localized-city-path";
 
 export const runtime = "nodejs";
@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function HvacLocalizedPillarPage({ params }: Props) {
-  const page = await getIndexablePageBySlug(params.symptom);
+  const page = await getIndexablePageForLocalizedRoute("hvac", params.symptom, params.city);
   if (!page) {
     notFound();
   }

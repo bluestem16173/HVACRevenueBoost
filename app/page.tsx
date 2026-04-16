@@ -14,13 +14,16 @@ export default function Home() {
       <section className="relative overflow-hidden bg-hvac-navy pb-20 pt-16 text-white sm:pb-24 sm:pt-20">
         <div className="container relative z-10 mx-auto px-4">
           <div className="max-w-3xl">
-            <span className="mb-5 inline-block rounded-full bg-hvac-gold px-4 py-1 text-xs font-bold uppercase tracking-widest text-hvac-navy sm:text-sm">
-              Home service diagnostics
-            </span>
-            <h1 className="mb-6 text-4xl font-black leading-[1.08] tracking-tight text-hvac-gold sm:text-5xl lg:text-6xl">
-              Catch Costly Home Problems Early
-            </h1>
-            <p className="mb-10 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">
+            <div className="flex flex-col gap-10 sm:gap-12">
+              <span className="inline-block max-w-full self-start rounded-full bg-hvac-gold px-4 py-2 text-xs font-bold uppercase leading-normal tracking-widest text-hvac-navy shadow-sm sm:px-5 sm:text-sm">
+                Home service diagnostics
+              </span>
+              <h1 className="text-4xl font-black leading-[1.12] tracking-tight sm:text-5xl lg:text-6xl">
+                <span className="text-white">Diagnose problems </span>
+                <span className="text-hvac-gold">before they cost you thousands</span>
+              </h1>
+            </div>
+            <p className="mb-10 mt-8 max-w-2xl text-lg leading-relaxed text-slate-300 sm:mt-10 sm:text-xl">
               Identify HVAC, plumbing, and electrical issues fast using structured diagnostic guides — then decide
               whether to fix it yourself or call a pro.
             </p>

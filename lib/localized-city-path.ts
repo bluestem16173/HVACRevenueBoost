@@ -1,3 +1,76 @@
+import { enforceStoredSlug } from "./slug-utils";
+
+export type ServiceVertical = "hvac" | "plumbing" | "electrical";
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
+ * Strip wrapper segments from messy input (matches the HVAC + Tampa pattern, generalized):
+ *
+ * `raw.replace(/^\/+/, '').replace(/^hvac\//, '').replace(/\/tampa-fl$/, '').toLowerCase()`
+ *
+ * — here `vertical` and `citySlug` replace the hard-coded `hvac` / `tampa-fl`.
+ */
+export function normalizeLocalizedSlugInput(
+  raw: string,
+  vertical: ServiceVertical,
+  citySlug: string
+): string {
+  const v = vertical.toLowerCase();
+  const c = enforceStoredSlug(citySlug).toLowerCase();
+  return enforceStoredSlug(raw)
+    .replace(new RegExp(`^${escapeRegExp(v)}/`, "i"), "")
+    .replace(new RegExp(`/${escapeRegExp(c)}$`, "i"), "")
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * Canonical `pages.slug` / queue slug: `hvac/${normalizeLocalizedSlugInput(...)}/tampa-fl` (no leading slash).
+ */
+export function buildLocalizedStorageSlug(
+  vertical: ServiceVertical,
+  raw: string,
+  citySlug: string
+): string {
+  const core = normalizeLocalizedSlugInput(raw, vertical, citySlug);
+  const c = enforceStoredSlug(citySlug).toLowerCase();
+  const v = vertical.toLowerCase() as ServiceVertical;
+  if (!core) return enforceStoredSlug(raw);
+  return `${v}/${core}/${c}`;
+}
+
+export function parseLocalizedStorageSlug(slug: string): {
+  vertical: ServiceVertical;
+  pillarCore: string;
+  citySlug: string;
+} | null {
+  const s = enforceStoredSlug(slug);
+  const parts = s.split("/").filter(Boolean);
+  if (parts.length !== 3) return null;
+  const v = parts[0].toLowerCase();
+  if (v !== "hvac" && v !== "plumbing" && v !== "electrical") return null;
+  return {
+    vertical: v as ServiceVertical,
+    pillarCore: parts[1],
+    citySlug: parts[2],
+  };
+}
+
+/** Tampa HVAC: "hvac/" + normalizeLocalizedSlugInput(input, "hvac", "tampa-fl") + "/tampa-fl". */
+export function buildHvacTampaFlStorageSlug(input: string): string {
+  return buildLocalizedStorageSlug("hvac", input, "tampa-fl");
+}
+
+/** If `slug` is `{vertical}/{pillar}/{city}`, rebuild with {@link normalizeLocalizedSlugInput}; else {@link enforceStoredSlug} only. */
+export function canonicalLocalizedStorageSlug(slug: string): string {
+  const parsed = parseLocalizedStorageSlug(slug);
+  if (!parsed) return enforceStoredSlug(slug);
+  return buildLocalizedStorageSlug(parsed.vertical, slug, parsed.citySlug);
+}
+
 /**
  * Parses URL segments like `tampa-fl` → display "Tampa, FL".
  * Heuristic: trailing `-xx` where xx is two letters = state abbreviation.
@@ -33,8 +106,6 @@ export function buildElectricalLocalizedPillarPath(pillarSlug: string, citySlug:
   return `/electrical/${pillarSlug.trim().toLowerCase()}/${citySlug.trim().toLowerCase()}`;
 }
 
-export type ServiceVertical = "hvac" | "plumbing" | "electrical";
-
 export function buildLocalizedPillarPath(
   vertical: ServiceVertical,
   pillarSlug: string,
@@ -45,4 +116,13 @@ export function buildLocalizedPillarPath(
   if (vertical === "plumbing") return `/plumbing/${s}/${c}`;
   if (vertical === "electrical") return `/electrical/${s}/${c}`;
   return `/hvac/${s}/${c}`;
+}
+
+/** `pages.slug` for localized HSD / city_symptom rows (no leading slash). */
+export function pagesSlugForLocalizedPillar(
+  vertical: ServiceVertical,
+  pillarSlug: string,
+  citySlug: string
+): string {
+  return buildLocalizedStorageSlug(vertical, pillarSlug, citySlug);
 }

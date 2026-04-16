@@ -24,6 +24,13 @@ import {
   HRB_SYSTEM_LOCK,
   isDecisionGridDiagnosticMode,
 } from "./prompts/hvac-revenue-boost";
+import {
+  composePromptForPageType,
+  DG_AUTHORITY_V3_SCHEMA_VERSION,
+  HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION,
+} from "@/lib/prompt-schema-router";
+import { applyHsdTampaPresetInternalLinks } from "@/lib/homeservice/hsdCityInternalLinksRegistry";
+import { enforceStoredSlug } from "@/lib/slug-utils";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const gemini = new OpenAI({ 
@@ -600,14 +607,23 @@ export async function generateDiagnosticEngineJson(input: { symptom: string, cit
   const useDecisionGrid = isDecisionGridDiagnosticMode();
   
   let finalPrompt = "";
-  if (orchestratorOptions?.schemaVersion === "diagnostic_engine" || orchestratorOptions?.schemaVersion === "rv_diagnostic" || input.pageType === "diagnostic_engine") {
-    // Dynamically pull the masterful prompt matrix we built
-    const { composePromptForPageType } = require("../prompt-schema-router");
-    const orch =
-      orchestratorOptions && typeof orchestratorOptions === "object" ? orchestratorOptions : {};
+  const orch =
+    orchestratorOptions && typeof orchestratorOptions === "object" ? orchestratorOptions : {};
+  const schemaV = (orch as { schemaVersion?: string }).schemaVersion;
+  if (
+    schemaV === "diagnostic_engine" ||
+    schemaV === "rv_diagnostic" ||
+    schemaV === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION ||
+    schemaV === DG_AUTHORITY_V3_SCHEMA_VERSION ||
+    input.pageType === "diagnostic_engine" ||
+    input.pageType === "dg_authority_v3"
+  ) {
     finalPrompt = composePromptForPageType(input.pageType || "diagnostic_engine", input.symptom, {
       ...orch,
       verticalId: (orch as any).verticalId ?? (orch as any).vertical ?? "hvac",
+      city: input.city || (orch as any).city || null,
+      state: (orch as { state?: string | null }).state ?? null,
+      primaryIssue: (orch as { primaryIssue?: string | null }).primaryIssue ?? null,
     });
   } else {
     // Fallback legacy Florida prompt
@@ -650,7 +666,17 @@ City/Region Context: ${input.city || "Florida"}
 Important Context: Each page should subtly reference the local city (${input.city || "Florida"}) and the intense Florida heat/humidity conditions where relevant (to establish local authority and reality without sounding forced).`;
   }
 
-  const systemMessage = "You are the HVAC Revenue Boost expert JSON generator. Output strict JSON only.";
+  const systemMessage =
+    schemaV === DG_AUTHORITY_V3_SCHEMA_VERSION || input.pageType === "dg_authority_v3"
+      ? "You are a 30-year HVAC diagnostic technician. Output one JSON object only. No markdown fences. No commentary outside JSON."
+      : "You are the HVAC Revenue Boost expert JSON generator. Output strict JSON only.";
+
+  const maxCompletionTokens =
+    schemaV === DG_AUTHORITY_V3_SCHEMA_VERSION || input.pageType === "dg_authority_v3"
+      ? 5500
+      : schemaV === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION
+        ? 3200
+        : 2800;
 
   return callWithRetry(async () => {
     await assertDailySpendAllows("generateDiagnosticEngineJson:retry");
@@ -661,7 +687,7 @@ Important Context: Each page should subtly reference the local city (${input.cit
         { role: "system", content: systemMessage },
         { role: "user", content: finalPrompt }
       ],
-      max_completion_tokens: 2800
+      max_completion_tokens: maxCompletionTokens
     });
     
     console.log(`ORCH::METRIC=${JSON.stringify({ tokens: response.usage?.total_tokens || 0, cost: (response.usage?.total_tokens || 0) * 0.000002 })}`);
@@ -671,7 +697,21 @@ Important Context: Each page should subtly reference the local city (${input.cit
     if (!contentStr) throw new Error("Empty AI response");
 
     try {
-      return JSON.parse(contentStr.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim());
+      const parsed = JSON.parse(
+        contentStr.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim()
+      ) as Record<string, unknown>;
+      if (schemaV === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION) {
+        const jobSlug = enforceStoredSlug(input.symptom);
+        let merged = applyHsdTampaPresetInternalLinks(parsed, jobSlug);
+        if (merged === parsed && typeof (parsed as { slug?: unknown }).slug === "string") {
+          merged = applyHsdTampaPresetInternalLinks(
+            parsed,
+            enforceStoredSlug((parsed as { slug: string }).slug)
+          );
+        }
+        return merged;
+      }
+      return parsed;
     } catch(e: any) {
       console.error("❌ OpenAI API Parsing Failed:", e.message || e);
       throw new Error("Invalid JSON from LLM: " + e);

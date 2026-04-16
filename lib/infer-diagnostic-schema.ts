@@ -12,6 +12,10 @@ export function inferDiagnosticSchemaVersion(content: unknown): string | null {
     return "hvac_authority_v3";
   }
 
+  if (o.layout === "dg_authority_v3" || o.schemaVersion === "dg_authority_v3") {
+    return "dg_authority_v3";
+  }
+
   if (o.layout === "authority_symptom" || o.schemaVersion === "authority_symptom") {
     return "authority_symptom";
   }

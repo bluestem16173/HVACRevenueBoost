@@ -1,3 +1,11 @@
+/**
+ * Canonical storage shape for path-like slugs (`pages.slug`, `page_queue.slug`, LLM `slug`):
+ * `slug.replace(/^\/+/, "").trim()` — strip leading slashes only; internal `/` is kept.
+ */
+export function enforceStoredSlug(slug: string | null | undefined): string {
+  return String(slug ?? "").replace(/^\/+/, "").trim();
+}
+
 export function normalizeSlug(rawSlug: string): string {
   if (!rawSlug) return "";
   
@@ -22,19 +30,28 @@ export function normalizeSlug(rawSlug: string): string {
   return slug;
 }
 
+/** Slug shape written by `page_queue` / HSD worker: `hvac/ac-not-cooling/tampa-fl`. */
+export function isLocalizedPillarPageSlug(slug: string): boolean {
+  return /^(hvac|plumbing|electrical)\/[a-z0-9-]+\/[a-z0-9-]+$/.test(
+    enforceStoredSlug(slug).toLowerCase()
+  );
+}
+
 export function isValidSlug(slug: string): boolean {
   if (!slug) return false;
-  
+
+  if (isLocalizedPillarPageSlug(slug)) return true;
+
   const badTerms = [
-    "canary", "test", "v1", "full", "fixed", 
+    "canary", "test", "v1", "full", "fixed",
     "after-", "when-", "while-",
-    "cause/", "causes/", "repair/", "diagnose/"
+    "cause/", "causes/", "repair/", "diagnose/",
   ];
-  
-  if (badTerms.some(t => slug.includes(t))) return false;
-  
+
+  if (badTerms.some((t) => slug.includes(t))) return false;
+
   if (slug.includes("/")) return false;
-  
+
   return true;
 }
 
@@ -70,6 +87,8 @@ export function isAllowedType(page: any): boolean {
   if (type === "hvac_html") return true;
   if (type === "hvac_authority_v3") return true;
   
+  if (type === "dg_authority_v3") return true;
+
   if (type === "dg_authority_v2") {
     // only if slug is clean and not legacy v1-style junk
     if (!page.slug) return false;
@@ -79,14 +98,39 @@ export function isAllowedType(page: any): boolean {
     if (!isValidSlug(page.slug)) return false;
     return true;
   }
-  
+
+  if (type === "city_symptom") return true;
+
   return false;
 }
 
 export function isHighIntentSlug(slug: string): boolean {
   if (!slug) return false;
-  const highIntentKeywords = ["not-cooling", "broken", "emergency", "leaking", "smell", "blowing-warm", "stopped", "won't-turn-on", "wont-turn-on"];
-  return highIntentKeywords.some(kw => slug.toLowerCase().includes(kw));
+  const s = slug.toLowerCase();
+  const localizedSymptom = s.match(/^(?:hvac|plumbing|electrical)\/([a-z0-9-]+)\//);
+  const haystack = localizedSymptom ? `${s} ${localizedSymptom[1]}` : s;
+  const highIntentKeywords = [
+    "not-cooling",
+    "broken",
+    "emergency",
+    "leaking",
+    "smell",
+    "blowing-warm",
+    "stopped",
+    "won't-turn-on",
+    "wont-turn-on",
+    "clogged",
+    "running",
+    "drain",
+    "toilet",
+    "water-heater",
+    "pressure",
+    "freezing",
+    "thermostat",
+    "turning-on",
+    "hot-water",
+  ];
+  return highIntentKeywords.some((kw) => haystack.includes(kw));
 }
 
 export function calculateQualityScore(page: any): number {
@@ -126,10 +170,31 @@ export function calculateQualityScore(page: any): number {
 
 export function isIndexable(page: any): boolean {
   if (!page) return false;
-  
+
   // Strict Auto-Fails (overrides the algorithm)
-  if (page.status !== 'published') return false;
+  if (page.status !== "published") return false;
   if (page.noindex) return false;
+
+  // HSD city_symptom JSON pages (slug = vertical/symptom/city); HTML may be a short stub.
+  if (page.page_type === "city_symptom" && isLocalizedPillarPageSlug(page.slug)) {
+    let cj: unknown = page.content_json;
+    if (typeof cj === "string") {
+      try {
+        cj = JSON.parse(cj) as unknown;
+      } catch {
+        cj = null;
+      }
+    }
+    const jsonTitle =
+      cj && typeof cj === "object" && typeof (cj as { title?: string }).title === "string"
+        ? (cj as { title: string }).title.trim()
+        : "";
+    const rowTitle = typeof page.title === "string" ? page.title.trim() : "";
+    const title = jsonTitle || rowTitle;
+    if (title.length >= 5 && !title.toLowerCase().includes("untitled")) return true;
+    return false;
+  }
+
   if (!isValidSlug(page.slug)) return false; // Auto-fail exact nested paths and spam patterns
   if (!isAllowedType(page)) return false; // Auto-fail non-approved schema structures
 

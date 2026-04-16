@@ -1,4 +1,6 @@
 import { buildVerticalPromptPreamble, normalizeVerticalId } from "@/lib/verticals";
+import { getDgAuthorityV3SceneRequirementsBlock } from "@/lib/dg-authority-v3-scenario-prompts";
+import { enforceStoredSlug } from "@/lib/slug-utils";
 
 export const BASE_MASTER_PROMPT = `
 You are generating a HIGH-CONVERSION, TECHNICAL AUTHORITY PAGE for a troubleshooting system.
@@ -436,7 +438,325 @@ export type ComposePromptOptions = {
   schemaVersion?: string;
   /** Home Service Authority vertical (hvac, plumbing, electrical, …) */
   verticalId?: string | null;
+  /** City / metro label for localized city diagnostic JSON (optional). */
+  city?: string | null;
+  /** US state (e.g. FL) when `city` is not already "City, ST" (optional; DG_AUTHORITY_V3). */
+  state?: string | null;
+  /** Human-readable issue for DG_AUTHORITY_V3 (optional; defaults from slug). */
+  primaryIssue?: string | null;
 };
+
+/** Use with {@link composePromptForPageType} / orchestrator `schemaVersion`. */
+export const HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION = "hsd_city_diagnostic_v1" as const;
+
+/** DecisionGrid-style diagnostic engine JSON (v3). Use with `schemaVersion` or `pageType` `dg_authority_v3`. */
+export const DG_AUTHORITY_V3_SCHEMA_VERSION = "dg_authority_v3" as const;
+
+const ACRONYMS_PRIMARY_ISSUE = new Set([
+  "ac",
+  "hvac",
+  "rv",
+  "fl",
+  "uv",
+  "led",
+  "diy",
+  "co",
+  "voc",
+]);
+
+/** "ac-not-cooling" / "hvac/ac-not-cooling" → "AC Not Cooling" style label for prompts. */
+export function humanizeSlugAsPrimaryIssue(slug: string): string {
+  const s = enforceStoredSlug(slug);
+  const tail = s.replace(/^(?:hvac|plumbing|electrical)\//i, "");
+  return tail
+    .split(/[-_/]+/)
+    .filter(Boolean)
+    .map((w) => {
+      const lower = w.toLowerCase();
+      if (ACRONYMS_PRIMARY_ISSUE.has(lower)) return lower.toUpperCase();
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join(" ");
+}
+
+/**
+ * Parse "Tampa, FL" or combine `city` + `state` for DG per-page INPUT.
+ */
+export function parseCityStateForPrompt(
+  cityLine?: string | null,
+  stateHint?: string | null
+): { display: string; city: string; state: string } {
+  const raw = (cityLine || "").trim();
+  const st = (stateHint || "").trim();
+  const comma = raw.match(/^([^,]+),\s*([A-Za-z]{2})\s*$/);
+  if (comma) {
+    const c = comma[1].trim();
+    const abbr = comma[2].trim().toUpperCase();
+    return { display: `${c}, ${abbr}`, city: c, state: abbr };
+  }
+  if (raw && st) {
+    return { display: `${raw}, ${st.toUpperCase()}`, city: raw, state: st.toUpperCase() };
+  }
+  if (raw) return { display: raw, city: raw, state: st ? st.toUpperCase() : "" };
+  if (st) return { display: st.toUpperCase(), city: "", state: st.toUpperCase() };
+  return { display: "", city: "", state: "" };
+}
+
+const DG_AUTHORITY_V3_MASTER_PROMPT = `
+MASTER CONTRACT (DG_AUTHORITY_V3) — diagnostic engine, not a blog post.
+
+You are a 30-year HVAC diagnostic technician building a structured diagnostic system for homeowners.
+
+Goals (in order):
+1) Identify the exact problem quickly
+2) Guide a simple decision path
+3) Add technical depth only after clarity
+4) Lead to an informed repair-or-call decision
+
+CORE PRINCIPLES:
+- Think like a technician on a real service call
+- Decision-making beats long explanation
+- Plain English first; technical second
+- Assume the reader is stressed and wants fast answers
+- Every block must reduce uncertainty
+
+---
+
+REQUIREMENTS:
+
+LOCALIZE THE DIAGNOSIS
+- Account for climate (heat, humidity, load) for the Location given in INPUT above
+- Briefly mention how the environment shifts failure patterns (run time, coil loading, condenser stress, corrosion) where true — no keyword stuffing
+
+BUILD A CLEAR DECISION TREE (decision_tree_mermaid)
+- Start from the user symptom in INPUT
+- Branch on observable homeowner conditions: airflow, supply air temperature / feel, and system response (runs nonstop, short cycles, trips breaker, frozen line, etc.)
+- Each tree endpoint MUST map to exactly one \`paths[].id\` (same id string)
+- MERMAID: use simple words in node labels (no psig, superheat, subcool jargon in nodes)
+- Max depth: 3 levels from the root symptom
+- Valid Mermaid only; start with: flowchart TD
+- Do not wrap the diagram in markdown fences inside the JSON string
+
+CREATE 3–5 CORE PATHS (paths array)
+Each path object MUST include:
+- id: kebab-case slug (e.g. "low-airflow", "refrigerant-charge", "control-electrical")
+- title: short homeowner headline
+- simple_explanation: 2–3 short sentences (plain English)
+- technical_explanation: deeper mechanical / thermodynamic reasoning (still tight; 1–3 short paragraphs max)
+- how_to_confirm: specific observable signals (what they see/hear/feel; what pattern confirms this path)
+- typical_cost_range: realistic band for the Location in INPUT — no fake precision
+
+Cover at least these diagnostic buckets across your paths (ids may vary but concepts must appear):
+- Low / restricted airflow
+- Refrigerant / heat-transfer performance issue
+- Electrical or control failure
+
+WRITE A STRONG SUMMARY (summary_30s object)
+- most_likely_cause: one clear sentence
+- what_to_check_first: what to verify before anything else (1–2 tight sentences)
+- diy_vs_pro: whether this issue is usually homeowner-safe vs typically needs a licensed tech (one sentence)
+
+QUICK CHECKS (top-level quick_checks array)
+- 3–5 strings
+- Homeowner-safe only: filter, stat mode, breaker, visual ice/water, obvious disconnect, gentle register checks
+- No refrigerant handling, no brazing, no opening sealed refrigerant circuits
+
+TECHNICIAN SECTION (technician_section object)
+- what_they_measure: array of strings — MUST meaningfully include where relevant: suction pressure, head (liquid) pressure, superheat, subcooling, compressor amp draw, supply/return delta-T, and airflow / static pressure when useful
+- how_they_decide: short paragraph tying those readings to the paths above
+- authority_note: one short calm paragraph — no bravado
+
+COST SECTION (costs object)
+- local_context_note: one sentence tying bands to the Location in INPUT (market + climate realism)
+- items: 3–6 objects { "label", "band", "notes" } — realistic ranges for that metro; no exact dollar quotes as guarantees
+
+WHEN TO STOP DIY (when_to_stop_diy array of strings)
+Include clear triggers such as: repeated failure after reset, sustained electrical symptoms, ice formation that returns, water leaks that spread, burning smell, any 240V / smoke / sparking, refrigerant work, compressor noise extremes
+
+CTA (string)
+- Calm, practical; tie to difficulty or safety — not salesy
+
+STYLE:
+- Short paragraphs (1–3 lines) inside string fields where possible
+- Scannable; no fluff; no repetition
+- No "in this article"; no generic SEO filler
+
+OUTPUT — return ONE valid JSON object ONLY.
+No commentary outside JSON. No markdown outside JSON.
+
+Shape (populate every key; arrays non-empty where specified):
+
+{
+  "layout": "dg_authority_v3",
+  "summary_30s": {
+    "most_likely_cause": "",
+    "what_to_check_first": "",
+    "diy_vs_pro": ""
+  },
+  "decision_tree_mermaid": "",
+  "quick_checks": [],
+  "paths": [
+    {
+      "id": "",
+      "title": "",
+      "simple_explanation": "",
+      "technical_explanation": "",
+      "how_to_confirm": "",
+      "typical_cost_range": ""
+    }
+  ],
+  "technician_section": {
+    "what_they_measure": [],
+    "how_they_decide": "",
+    "authority_note": ""
+  },
+  "costs": {
+    "local_context_note": "",
+    "items": []
+  },
+  "when_to_stop_diy": [],
+  "cta": ""
+}
+`.trim();
+
+/**
+ * Per-page user prompt: INPUT (issue + location) plus DG_AUTHORITY_V3 master contract.
+ * Use with {@link composePromptForPageType} (slug still supplies PRIMARY PAGE SEED below the fold).
+ */
+export function buildDgAuthorityV3PerPageUserPrompt(
+  slug: string,
+  opts?: ComposePromptOptions
+): string {
+  const issue =
+    (opts?.primaryIssue && opts.primaryIssue.trim()) ||
+    humanizeSlugAsPrimaryIssue(slug);
+  const loc = parseCityStateForPrompt(opts?.city, opts?.state);
+  const locationLine = loc.display.trim()
+    ? loc.display
+    : "Infer city and state from the PRIMARY PAGE SLUG when possible; otherwise temperate US residential.";
+
+  const inputBlock = `
+GENERATION PROMPT (PER PAGE)
+
+This is what you run for each page (Tampa, Orlando, etc.)
+
+Generate a DecisionGrid diagnostic page using DG_AUTHORITY_V3.
+
+INPUT:
+- Primary Issue: ${issue}
+- Location: ${locationLine}
+- System Type: Residential HVAC (central air)
+`.trim();
+
+  const scenarioBody = getDgAuthorityV3SceneRequirementsBlock(
+    slug,
+    locationLine,
+    opts?.primaryIssue
+  );
+  const scenarioSection = scenarioBody
+    ? `\n\n---\n\nSCENARIO REQUIREMENTS (MANDATORY for this page — follow exactly):\n\n${scenarioBody}`
+    : "";
+
+  return `${inputBlock}${scenarioSection}
+
+---
+
+${DG_AUTHORITY_V3_MASTER_PROMPT}`.trim();
+}
+
+/**
+ * LLM instructions + output contract: single JSON object for a localized
+ * symptom × city diagnostic page (homeservicediagnostics.com tone).
+ */
+export function buildHsdCityDiagnosticJsonPrompt(
+  slug: string,
+  cityHint?: string | null
+): string {
+  const s = enforceStoredSlug(slug);
+  const cityBlock = cityHint?.trim()
+    ? `City / region context (weave in naturally; do not repeat the city name in every sentence): "${cityHint.trim()}"`
+    : "Infer city/region from the slug only when it is explicit (e.g. repair/city-slug/symptom). If unclear, keep locality light and accurate.";
+
+  return `
+Generate a production-ready diagnostic page in JSON.
+
+Slug: ${s}
+
+${cityBlock}
+
+Requirements:
+- The JSON slug field must use the same canonical form as the seed (no leading slash): "${s}"
+- Return JSON only (no markdown fences, no commentary)
+- Assume this is for homeservicediagnostics.com
+- Tone: experienced technician, clear, direct, no fluff
+- Audience: homeowner with an active problem
+- This is a city page, so include local phrasing naturally but do not stuff the city name
+- Sections required (exact top-level keys):
+  - title
+  - meta_title
+  - meta_description
+  - slug
+  - vertical
+  - problem
+  - city
+  - summary_30s
+  - quick_checks
+  - likely_causes
+  - diagnostic_steps
+  - repair_vs_pro
+  - cta
+  - internal_links
+
+Rules:
+- Keep the problem narrowly focused to this slug only
+- Do not drift into unrelated issues
+- Do not create duplicate-intent content
+- Make summary_30s specific and useful (one tight paragraph, 2–4 sentences, or 2–4 short bullets joined with spaces — plain string only)
+- quick_checks: 4–6 items; safe, realistic homeowner observations (power, filters, stats, obvious leaks, breaker, airflow basics)
+- likely_causes: 4–6 strings; each states the cause and the key differentiator for this symptom
+- diagnostic_steps: 6–10 strings; technician-style narrowing (what to observe, what to measure if homeowner-safe, what result implies); ordered logically
+- repair_vs_pro: object with diy_ok (3–5 strings) and call_pro (3–5 strings); clearly separate simple checks from licensed/pro-only work
+- cta: object with primary and secondary; primary should encourage booking local service when needed; secondary can be self-serve triage / related guide
+
+Internal link rules (path-only strings relative to site, no domain):
+- internal_links.parent: vertical hub slug/path for this trade (e.g. hub for HVAC / plumbing / electrical on this site)
+- internal_links.siblings: exactly 3 strings — related diagnostic or symptom pages in the same city cluster as this slug
+- internal_links.service: best matching local service page slug/path for this city + problem
+- internal_links.authority: relevant deep authority / guide page slug/path (national or evergreen, not a duplicate city page)
+- For the 10 Tampa FL HVAC + plumbing hub paths in the platform registry, internal_links are merged server-side after generation using exact parent/siblings/service/authority mappings — still output a syntactically valid internal_links object in your JSON
+
+Output shape (populate every field; arrays must be non-empty where specified above):
+{
+  "title": "",
+  "meta_title": "",
+  "meta_description": "",
+  "slug": "",
+  "vertical": "",
+  "problem": "",
+  "city": "",
+  "summary_30s": "",
+  "quick_checks": [],
+  "likely_causes": [],
+  "diagnostic_steps": [],
+  "repair_vs_pro": {
+    "diy_ok": [],
+    "call_pro": []
+  },
+  "cta": {
+    "primary": "",
+    "secondary": ""
+  },
+  "internal_links": {
+    "parent": "",
+    "siblings": [],
+    "service": "",
+    "authority": ""
+  }
+}
+
+Return valid JSON only.
+`.trim();
+}
 
 function withVerticalAndTopicContext(
   basePrompt: string,
@@ -445,15 +765,26 @@ function withVerticalAndTopicContext(
 ): string {
   const verticalKey = normalizeVerticalId(opts?.verticalId);
   const preamble = buildVerticalPromptPreamble(verticalKey);
-  const topicLine = `PRIMARY PAGE SLUG / TOPIC SEED: "${slug}"`;
+  const topicLine = `PRIMARY PAGE SLUG / TOPIC SEED: "${enforceStoredSlug(slug)}"`;
   if (!preamble) {
-    return basePrompt;
+    return `${topicLine}\n\n---\n\n${basePrompt}`;
   }
   return `${preamble}\n\n${topicLine}\n\n---\n\n${basePrompt}`;
 }
 
 export function composePromptForPageType(pageType: string, slug: string, opts?: ComposePromptOptions): string {
   let core: string;
+  if (opts?.schemaVersion === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION) {
+    core = buildHsdCityDiagnosticJsonPrompt(slug, opts?.city);
+    return withVerticalAndTopicContext(core, slug, opts);
+  }
+  if (
+    opts?.schemaVersion === DG_AUTHORITY_V3_SCHEMA_VERSION ||
+    pageType === "dg_authority_v3"
+  ) {
+    core = buildDgAuthorityV3PerPageUserPrompt(slug, opts);
+    return withVerticalAndTopicContext(core, slug, opts);
+  }
   if (opts?.schemaVersion === "v2_goldstandard") {
     core = GOLD_STANDARD_PROMPT;
   } else if (

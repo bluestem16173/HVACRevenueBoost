@@ -10,11 +10,14 @@
  * **Publish** is the terminal success path: `pages.status` / `quality_status` reflect a live page
  * (see `lib/page-status.ts`). Localized HVAC URLs such as `/hvac/{slug}/{city}` read from `pages`.
  *
- * ### “page_queue” vs `generation_queue`
+ * ### `page_queue` vs `generation_queue`
  *
- * Product docs may say `page_queue`. The implemented table name is **`generation_queue`**
- * (`db/migrations/010_schema_completion_and_compatibility.sql`, `lib/generation-queue.ts`).
- * Treat them as the same concept: queue row = seed blueprint.
+ * **Default / HVAC graph worker:** `generation_queue` (`lib/generation-queue.ts`, migration 010).
+ *
+ * **HSD city diagnostic batch (Tampa presets + publish gate):** real table **`page_queue`**
+ * (`db/migrations/015_page_queue.sql`, `016_page_queue_attempts.sql`, `017_page_queue_completed_at.sql`, worker `lib/homeservice/hsdPageQueueWorker.ts`,
+ * `scripts/hsd-page-queue-worker.ts`). Status flow: `pending` → `generating` → `done` | `failed`.
+ * Each claim increments **`attempts`** (`UPDATE … SET status = 'generating', attempts = attempts + 1`).
  *
  * ### Column mapping (conceptual → actual)
  *
