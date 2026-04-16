@@ -6,6 +6,7 @@
 
 import type { PageType } from "@/lib/page-types";
 import { getMasterSystemPrompt } from "./master";
+import { getMasterAuthorityConversionPrompt } from "./masterAuthorityConversion";
 import { getSymptomPrompt } from "./symptom";
 import { getSymptomConditionPrompt } from "./symptomCondition";
 import { getCausePrompt } from "./cause";
@@ -45,7 +46,15 @@ export function composePromptForPageType(pageType: PageType): string {
   return `${master}\n\n---\n\n${pagePrompt}`;
 }
 
+/** Master Authority + Conversion (homeowner) + same page-type body — for JSON/HTML pipelines that want this voice. */
+export function composeAuthorityConversionPrompt(pageType: PageType): string {
+  const master = getMasterAuthorityConversionPrompt();
+  const pagePrompt = getPromptByPageType(pageType);
+  return `${master}\n\n---\n\n${pagePrompt}`;
+}
+
 export {
+  getMasterAuthorityConversionPrompt,
   getMasterSystemPrompt,
   getSymptomPrompt,
   getSymptomConditionPrompt,

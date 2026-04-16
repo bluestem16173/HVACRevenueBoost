@@ -1,6 +1,7 @@
 import { buildVerticalPromptPreamble, normalizeVerticalId } from "@/lib/verticals";
 import { getDgAuthorityV3SceneRequirementsBlock } from "@/lib/dg-authority-v3-scenario-prompts";
 import { enforceStoredSlug } from "@/lib/slug-utils";
+import { getMasterAuthorityConversionPrompt } from "@/prompts/masterAuthorityConversion";
 
 export const BASE_MASTER_PROMPT = `
 You are generating a HIGH-CONVERSION, TECHNICAL AUTHORITY PAGE for a troubleshooting system.
@@ -661,8 +662,32 @@ INPUT:
 
 ---
 
+${getMasterAuthorityConversionPrompt()}
+
+---
+
 ${DG_AUTHORITY_V3_MASTER_PROMPT}`.trim();
 }
+
+/** Maps Master Authority + Conversion narrative beats onto {@link HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION} JSON keys only. */
+const HSD_JSON_MAPPING_FROM_CONVERSION_MASTER = `
+---
+MAPPING — apply the Master Authority + Conversion contract using ONLY the JSON keys defined below (do not add new top-level keys).
+
+- Top summary box → problem + summary_30s (risk if ignored; 2–3 quick checks; subtle technician-needed signal).
+- Decision-flow branches → quick_decision_tree (mirror symptom forks; use situation/leads_to text that signals safe checks vs airflow vs refrigerant/electrical “pro recommended”).
+- Quick checks closing line → last quick_checks item must state that if unresolved, the issue is likely internal and requires a technician.
+- Causes with consequences → each likely_causes string packs what it is, why it happens, and what happens if ignored.
+- How the system works → how_system_starts (startup_sequence + environment + symptom mapping; cover heat transfer, airflow load, refrigerant cycle in tight plain language).
+- Repair matrix (symptom / fix / cost bands) → weave realistic bands into diagnostic_steps and/or likely_causes (no fake precision).
+- Repair vs replace + 50% rule → repair_vs_pro and/or diagnostic_steps.
+- Bench / advanced + high-voltage warnings → diagnostic_steps only when relevant; discourage risky homeowner execution.
+- Field insights → diagnostic_steps (optional short “Field insight:” lead-ins) and how_system_starts.authority_line.
+- Preventative maintenance → tail of diagnostic_steps and/or environment_bullets.
+- Primary CTA + escalation → cta primary/secondary (risk-based, calm; not salesy).
+- When to stop DIY → repair_vs_pro.call_pro must cover refrigerant, electrical, compressor boundaries where applicable; include “stop running the system to avoid further damage” when escalation risk is real.
+---
+`.trim();
 
 /**
  * LLM instructions + output contract: single JSON object for a localized
@@ -678,6 +703,10 @@ export function buildHsdCityDiagnosticJsonPrompt(
     : "Infer city/region from the slug only when it is explicit (e.g. repair/city-slug/symptom). If unclear, keep locality light and accurate.";
 
   return `
+${getMasterAuthorityConversionPrompt()}
+
+${HSD_JSON_MAPPING_FROM_CONVERSION_MASTER}
+
 Generate a production-ready diagnostic page in JSON.
 
 Slug: ${s}
