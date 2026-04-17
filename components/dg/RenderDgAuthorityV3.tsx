@@ -8,7 +8,7 @@ import { renderDualLayer } from "@/components/dg/DgDualLayer";
 import { DGLegend } from "@/components/dg/DGLegend";
 import { DGHero } from "@/components/dg/DGHero";
 import { DGSection } from "@/components/dg/DGSection";
-import { DGMermaid } from "@/components/dg/DGMermaid";
+import { DGMermaid } from "@/components/dg/DGMermaidDynamic";
 import { DGTechBlock } from "@/components/dg/DGTechBlock";
 import { DGCTA } from "@/components/dg/DGCTA";
 import { DGBeforeCallChecklist } from "@/components/dg/DGBeforeCallChecklist";

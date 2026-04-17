@@ -1,14 +1,34 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { DgStructuredAuthorityArticle } from "@/components/dg/DgStructuredAuthorityArticle";
-import { DG_STRUCTURED_PREVIEW_PAGES } from "@/lib/dg-authority-structured-preview/fixtures";
+import {
+  DG_STRUCTURED_PREVIEW_PAGES,
+  type DgStructuredPreviewPage,
+} from "@/lib/dg-authority-structured-preview/fixtures";
+
+const HVAC_NATIONAL_PREVIEW_SLUGS = [
+  "hvac-ac-not-cooling",
+  "hvac-weak-airflow",
+  "hvac-frozen-evaporator-coil",
+] as const;
+
+function hvacNationalPreviewPages(): DgStructuredPreviewPage[] {
+  return HVAC_NATIONAL_PREVIEW_SLUGS.map((slug) => {
+    const p = DG_STRUCTURED_PREVIEW_PAGES.find((x) => x.slug === slug);
+    if (!p) throw new Error(`Missing structured preview fixture: ${slug}`);
+    return p;
+  });
+}
 
 export const metadata: Metadata = {
-  title: "DG Authority structured — 3-page preview",
-  description: "Renders HVAC, plumbing, and electrical structured diagnostic JSON (demo, no database).",
+  title: "DG Authority structured — HVAC national (3)",
+  description:
+    "Renders three national HVAC dg_authority_v3 demos (AC not cooling, weak airflow, frozen coil). Demo only — not read from pages.",
 };
 
 export default function DgAuthorityStructuredPreviewPage() {
+  const pages = hvacNationalPreviewPages();
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="border-b border-slate-200 bg-white">
@@ -19,12 +39,12 @@ export default function DgAuthorityStructuredPreviewPage() {
           <div>
             <h1 className="text-2xl font-black text-slate-900 md:text-3xl">DG Authority structured preview</h1>
             <p className="mt-2 max-w-2xl text-slate-600">
-              Three trade pages (HVAC, plumbing, electrical) rendered from the same JSON envelope. Demo only —
-              not read from <code className="rounded bg-slate-100 px-1">pages</code>.
+              Three national HVAC symptom pages (<code className="rounded bg-slate-100 px-1">dg_authority_v3</code>
+              ). Demo JSON only — not read from <code className="rounded bg-slate-100 px-1">pages</code>.
             </p>
           </div>
           <nav className="flex flex-wrap gap-2 text-sm">
-            {DG_STRUCTURED_PREVIEW_PAGES.map((p) => (
+            {pages.map((p) => (
               <a
                 key={p.slug}
                 href={`#${p.slug}`}
@@ -37,7 +57,7 @@ export default function DgAuthorityStructuredPreviewPage() {
         </div>
       </header>
 
-      {DG_STRUCTURED_PREVIEW_PAGES.map((p) => (
+      {pages.map((p) => (
         <section
           key={p.slug}
           id={p.slug}

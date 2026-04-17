@@ -50,5 +50,26 @@ export function buildDgAuthorityV3Page(input: DgAuthorityV3PageInput): Record<st
   };
 
   assertDgAuthorityV3StructuredPayload(out);
+
+  const metaKeys = [
+    "trade",
+    "slug",
+    "cluster",
+    "diagnostic_mermaid_cluster",
+    "diagnostic_flow_template_key",
+    "diagnostic_flow_issue_label",
+    "pillar_page",
+    "related_pages",
+    "safety_notice",
+    "where_people_get_this_wrong",
+    "diagnostic_mermaid_mode",
+  ] as const;
+  for (const k of metaKeys) {
+    const v = input[k];
+    if (v !== undefined && v !== null && v !== "") {
+      (out as Record<string, unknown>)[k] = v as unknown;
+    }
+  }
+
   return out;
 }
