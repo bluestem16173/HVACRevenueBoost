@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     const smsConsent = body.sms_consent === true;
     if (!smsConsent) {
       return NextResponse.json(
-        { error: "SMS consent is required to submit this form." },
+        { error: "You must agree to receive SMS messages to continue." },
         { status: 400 }
       );
     }

@@ -5,7 +5,7 @@ import SmsConsentLeadForm from "@/components/SmsConsentLeadForm";
 export const metadata: Metadata = {
   title: "Request HVAC Service | HVAC Revenue Boost",
   description:
-    "Request HVAC service: submit your phone number and optional name. SMS only with consent for inquiry, scheduling, and service-related updates.",
+    "Request HVAC service and receive SMS updates regarding your inquiry, scheduling, and service. Phone and optional name; explicit SMS consent required.",
 };
 
 export default function RequestServicePage() {
@@ -22,8 +22,8 @@ export default function RequestServicePage() {
 
         <h1 className="mb-3 text-3xl font-black tracking-tight text-hvac-navy">Request HVAC service</h1>
         <p className="mb-8 text-sm leading-relaxed text-slate-600">
-          Use this form for a quick SMS follow-up about your inquiry, scheduling, and service-related updates. For a
-          fuller intake (including ZIP or city), you can still open the help modal from any guide page.
+          Submit this form to request HVAC service and receive SMS updates regarding your inquiry, scheduling, and
+          service. For a fuller intake (including ZIP or city), you can still open the help modal from any guide page.
         </p>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">

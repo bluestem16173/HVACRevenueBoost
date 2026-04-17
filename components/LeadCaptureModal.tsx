@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { SMS_CONSENT_FULL_TEXT } from "@/lib/lead-consent";
 
 export default function LeadCaptureModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -254,9 +255,7 @@ export default function LeadCaptureModal() {
                     className="mt-1 h-4 w-4 rounded border-slate-300 text-hvac-blue focus:ring-hvac-blue"
                   />
                   <label htmlFor="smsOptIn" className="text-sm text-slate-600 dark:text-slate-300 leading-snug cursor-pointer">
-                    <span className="font-bold text-slate-800 dark:text-white">SMS updates</span> — I agree to receive
-                    text messages about my request at the number above (rates may apply). You can wire Twilio for
-                    confirmations when ready.
+                    {SMS_CONSENT_FULL_TEXT}
                   </label>
                 </div>
 

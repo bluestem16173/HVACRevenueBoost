@@ -493,7 +493,7 @@ export default function LeadCard({
                   onChange={() => consentError && setConsentError(false)}
                 />
               </div>
-              <span className="text-[11px] text-slate-700 font-medium leading-relaxed">{SMS_CONSENT_FULL_TEXT}</span>
+              <span className="text-sm text-slate-700 font-medium leading-relaxed">{SMS_CONSENT_FULL_TEXT}</span>
             </label>
             <p className="mt-3 pl-8 text-[11px] text-slate-600 font-medium leading-relaxed">{SMS_CONSENT_ORIGINATION_DISCLOSURE}</p>
             <div className="mt-3 pl-8 flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-bold">

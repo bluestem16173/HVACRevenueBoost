@@ -2,6 +2,7 @@ import { buildVerticalPromptPreamble, normalizeVerticalId } from "@/lib/vertical
 import { getDgAuthorityV3SceneRequirementsBlock } from "@/lib/dg-authority-v3-scenario-prompts";
 import { enforceStoredSlug } from "@/lib/slug-utils";
 import { getMasterAuthorityConversionPrompt } from "@/prompts/masterAuthorityConversion";
+import { getHvacHighConversionDecisiongridMasterPrompt } from "@/prompts/hvacHighConversionDecisiongridMaster";
 
 export const BASE_MASTER_PROMPT = `
 You are generating a HIGH-CONVERSION, TECHNICAL AUTHORITY PAGE for a troubleshooting system.
@@ -666,6 +667,10 @@ ${getMasterAuthorityConversionPrompt()}
 
 ---
 
+${getHvacHighConversionDecisiongridMasterPrompt()}
+
+---
+
 ${DG_AUTHORITY_V3_MASTER_PROMPT}`.trim();
 }
 
@@ -689,6 +694,29 @@ MAPPING — apply the Master Authority + Conversion contract using ONLY the JSON
 ---
 `.trim();
 
+/** Maps High-Conversion DecisionGrid master (13-part order) onto {@link HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION} JSON keys only. */
+const HSD_JSON_MAPPING_FROM_HIGH_CONVERSION_DG = `
+---
+MAPPING (High-Conversion DecisionGrid master) — same top-level JSON keys only; no emojis in any string values.
+
+1. CTR title pattern → title and meta_title (e.g. “[Problem]? N Causes + Fix Cost (2026 Guide)”); meta_description with stakes + cause hint + cost curiosity.
+2. 30-second summary → summary_30s plus problem line (stakes: comfort, cost, damage; name failure buckets).
+3. Cost of waiting → problem, summary_30s, and early diagnostic_steps lines (escalation “small becomes large”; homeowner delay pattern; numeric cost bands).
+4. Quick binary tree → quick_decision_tree (airflow vs not; outdoor running vs not; explicit next checks in situation/leads_to).
+5. Decision fork → quick_decision_tree rows plus repair_vs_pro framing; include one clear “most homeowners call a pro” style resolution in text.
+6. How the system works → how_system_starts (heat transfer not “making cold”; refrigerant loop; airflow load).
+7. Top causes (5–7) → likely_causes (each string: what it is, why symptom, risk if ignored).
+8. Repair matrix → diagnostic_steps as scannable lines using “symptom pattern | likely fix | cost band” style where possible.
+9. Replace vs repair → repair_vs_pro and diagnostic_steps (10–15 year rule, 50% repair cost rule, refrigerant generation note when relevant).
+10. Technician insight → diagnostic_steps (field reality; misdiagnosis; why pros narrow faster) and how_system_starts.authority_line.
+11. When to stop DIY → repair_vs_pro.call_pro (warm air with normal airflow; frost/ice; loud noise; compressor, warranty, multi-thousand risk).
+12. Preventative → tail of diagnostic_steps and/or environment_bullets (filters, coil cleaning, annual tune-up).
+13. Final CTA → cta.primary and cta.secondary (strong loss-aversion headline tone in primary; secondary e.g. find local tech). No hype words.
+
+Conversion psychology: escalation and loss aversion primarily in problem, summary_30s, diagnostic_steps; controlled confidence in quick_checks and diy_ok; decision pressure toward call_pro without sounding like a sales page.
+---
+`.trim();
+
 /**
  * LLM instructions + output contract: single JSON object for a localized
  * symptom × city diagnostic page (homeservicediagnostics.com tone).
@@ -705,7 +733,13 @@ export function buildHsdCityDiagnosticJsonPrompt(
   return `
 ${getMasterAuthorityConversionPrompt()}
 
+---
+
+${getHvacHighConversionDecisiongridMasterPrompt()}
+
 ${HSD_JSON_MAPPING_FROM_CONVERSION_MASTER}
+
+${HSD_JSON_MAPPING_FROM_HIGH_CONVERSION_DG}
 
 Generate a production-ready diagnostic page in JSON.
 

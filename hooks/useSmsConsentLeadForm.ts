@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { SMS_CONSENT_FULL_TEXT } from "@/lib/lead-consent";
+import { SMS_CONSENT_TEXT_VERSION } from "@/lib/lead-consent";
 
 export const STICKY_CTA_DISMISS_STORAGE_KEY = "hvacrb-sms-sticky-cta-dismissed";
 
@@ -46,7 +46,7 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
   const [isSuccess, setIsSuccess] = useState(false);
   const [serverError, setServerError] = useState("");
 
-  const consentTextVersion = SMS_CONSENT_FULL_TEXT;
+  const consentTextVersion = SMS_CONSENT_TEXT_VERSION;
 
   const reset = useCallback(() => {
     setPhone("");
@@ -79,6 +79,11 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
 
   const submit = useCallback(async () => {
     setServerError("");
+    if (!consent) {
+      setConsentError(true);
+      return false;
+    }
+
     const digits = validate();
     if (!digits) return false;
 
@@ -107,7 +112,7 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
           source_page: page.slice(0, 2048),
           sms_consent: true,
           consent_at: consentAt,
-          consent_text_version: consentTextVersion,
+          consent_text_version: SMS_CONSENT_TEXT_VERSION,
         }),
       });
 
@@ -125,7 +130,7 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
     } finally {
       setIsSubmitting(false);
     }
-  }, [consentTextVersion, defaultSourcePage, issueSummary, name, serviceType, validate]);
+  }, [consent, consentTextVersion, defaultSourcePage, issueSummary, name, serviceType, validate]);
 
   return {
     phone,

@@ -7,6 +7,7 @@
 import type { PageType } from "@/lib/page-types";
 import { getMasterSystemPrompt } from "./master";
 import { getMasterAuthorityConversionPrompt } from "./masterAuthorityConversion";
+import { getHvacHighConversionDecisiongridMasterPrompt } from "./hvacHighConversionDecisiongridMaster";
 import { getSymptomPrompt } from "./symptom";
 import { getSymptomConditionPrompt } from "./symptomCondition";
 import { getCausePrompt } from "./cause";
@@ -53,7 +54,23 @@ export function composeAuthorityConversionPrompt(pageType: PageType): string {
   return `${master}\n\n---\n\n${pagePrompt}`;
 }
 
+/** High-conversion DecisionGrid-aligned master + page-type body (no schema router mapping). */
+export function composeHighConversionDecisiongridPrompt(pageType: PageType): string {
+  const master = getHvacHighConversionDecisiongridMasterPrompt();
+  const pagePrompt = getPromptByPageType(pageType);
+  return `${master}\n\n---\n\n${pagePrompt}`;
+}
+
+/** Conversion master + DecisionGrid high-conversion master + page-type body. */
+export function composeAuthorityAndHighConversionPrompt(pageType: PageType): string {
+  const a = getMasterAuthorityConversionPrompt();
+  const b = getHvacHighConversionDecisiongridMasterPrompt();
+  const pagePrompt = getPromptByPageType(pageType);
+  return `${a}\n\n---\n\n${b}\n\n---\n\n${pagePrompt}`;
+}
+
 export {
+  getHvacHighConversionDecisiongridMasterPrompt,
   getMasterAuthorityConversionPrompt,
   getMasterSystemPrompt,
   getSymptomPrompt,
