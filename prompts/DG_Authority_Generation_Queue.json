@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "description": "27 supporting DG authority pages — JSON generation queue. Order: HVAC (9), plumbing (9), electrical (9). Three pillar pages are separate; see DG_Authority_Pillar_Page_Briefs.md.",
+  "supporting_pages": [
+    { "trade": "hvac", "slug": "hvac/ac-not-cooling", "title": "AC Not Cooling", "cluster": "airflow", "pillar": "hvac/why-ac-isnt-cooling", "mermaid": "hvac_v1" },
+    { "trade": "hvac", "slug": "hvac/weak-airflow", "title": "Weak Airflow", "cluster": "airflow", "pillar": "hvac/why-ac-isnt-cooling", "mermaid": "hvac_v1" },
+    { "trade": "hvac", "slug": "hvac/ac-short-cycling", "title": "AC Short Cycling", "cluster": "compressor", "pillar": "hvac/why-ac-isnt-cooling", "mermaid": "hvac_v1" },
+    { "trade": "hvac", "slug": "hvac/outside-unit-not-running", "title": "Outside Unit Not Running", "cluster": "compressor", "pillar": "hvac/why-ac-isnt-cooling", "mermaid": "hvac_v1" },
+    { "trade": "hvac", "slug": "hvac/frozen-evaporator-coil", "title": "Frozen Evaporator Coil", "cluster": "airflow", "pillar": "hvac/why-ac-isnt-cooling", "mermaid": "hvac_v1" },
+    { "trade": "hvac", "slug": "hvac/ac-blowing-warm-air", "title": "AC Blowing Warm Air", "cluster": "refrigerant", "pillar": "hvac/why-ac-isnt-cooling", "mermaid": "hvac_v1" },
+    { "trade": "hvac", "slug": "hvac/ac-making-noise", "title": "AC Making Noise", "cluster": "compressor", "pillar": "hvac/why-ac-isnt-cooling", "mermaid": "hvac_v1" },
+    { "trade": "hvac", "slug": "hvac/high-humidity-in-house", "title": "High Humidity in House", "cluster": "airflow", "pillar": "hvac/why-ac-isnt-cooling", "mermaid": "hvac_v1" },
+    { "trade": "hvac", "slug": "hvac/hvac-repair-vs-replace", "title": "HVAC Repair vs Replace", "cluster": "decision", "pillar": "hvac/why-ac-isnt-cooling", "mermaid": "hvac_v1" },
+    { "trade": "plumbing", "slug": "plumbing/water-heater-not-working", "title": "Water Heater Not Working", "cluster": "heater", "pillar": "plumbing/why-you-have-no-hot-water", "mermaid": "plumbing_v1" },
+    { "trade": "plumbing", "slug": "plumbing/no-hot-water", "title": "No Hot Water", "cluster": "heater", "pillar": "plumbing/why-you-have-no-hot-water", "mermaid": "plumbing_v1" },
+    { "trade": "plumbing", "slug": "plumbing/water-heater-leaking", "title": "Water Heater Leaking", "cluster": "tank", "pillar": "plumbing/why-you-have-no-hot-water", "mermaid": "plumbing_v1" },
+    { "trade": "plumbing", "slug": "plumbing/low-water-pressure", "title": "Low Water Pressure", "cluster": "distribution", "pillar": "plumbing/why-you-have-no-hot-water", "mermaid": "plumbing_v1" },
+    { "trade": "plumbing", "slug": "plumbing/no-water-in-house", "title": "No Water in House", "cluster": "distribution", "pillar": "plumbing/why-you-have-no-hot-water", "mermaid": "plumbing_v1" },
+    { "trade": "plumbing", "slug": "plumbing/toilet-wont-flush", "title": "Toilet Won’t Flush", "cluster": "distribution", "pillar": "plumbing/why-you-have-no-hot-water", "mermaid": "plumbing_v1" },
+    { "trade": "plumbing", "slug": "plumbing/drain-smell-in-house", "title": "Drain Smell in House", "cluster": "drain", "pillar": "plumbing/why-you-have-no-hot-water", "mermaid": "plumbing_v1" },
+    { "trade": "plumbing", "slug": "plumbing/t-p-relief-valve-dripping", "title": "T&P Valve Dripping", "cluster": "tank", "pillar": "plumbing/why-you-have-no-hot-water", "mermaid": "plumbing_v1" },
+    { "trade": "plumbing", "slug": "plumbing/water-heater-repair-vs-replace", "title": "Water Heater Repair vs Replace", "cluster": "decision", "pillar": "plumbing/why-you-have-no-hot-water", "mermaid": "plumbing_v1" },
+    { "trade": "electrical", "slug": "electrical/circuit-overload", "title": "Circuit Overload", "cluster": "load", "pillar": "electrical/why-breakers-trip", "mermaid": "electrical_v1" },
+    { "trade": "electrical", "slug": "electrical/breaker-trips-instantly", "title": "Breaker Trips Instantly", "cluster": "fault", "pillar": "electrical/why-breakers-trip", "mermaid": "electrical_v1" },
+    { "trade": "electrical", "slug": "electrical/outlet-not-working", "title": "Outlet Not Working", "cluster": "wiring", "pillar": "electrical/why-breakers-trip", "mermaid": "electrical_v1" },
+    { "trade": "electrical", "slug": "electrical/lights-flickering", "title": "Lights Flickering", "cluster": "wiring", "pillar": "electrical/why-breakers-trip", "mermaid": "electrical_v1" },
+    { "trade": "electrical", "slug": "electrical/burning-smell-from-panel", "title": "Burning Smell from Panel", "cluster": "panel", "pillar": "electrical/why-breakers-trip", "mermaid": "electrical_v1" },
+    { "trade": "electrical", "slug": "electrical/gfci-keeps-tripping", "title": "GFCI Keeps Tripping", "cluster": "fault", "pillar": "electrical/why-breakers-trip", "mermaid": "electrical_v1" },
+    { "trade": "electrical", "slug": "electrical/partial-power-in-house", "title": "Partial Power in House", "cluster": "wiring", "pillar": "electrical/why-breakers-trip", "mermaid": "electrical_v1" },
+    { "trade": "electrical", "slug": "electrical/panel-buzzing", "title": "Panel Buzzing", "cluster": "panel", "pillar": "electrical/why-breakers-trip", "mermaid": "electrical_v1" },
+    { "trade": "electrical", "slug": "electrical/electrical-repair-vs-replace", "title": "Electrical Repair vs Replace", "cluster": "decision", "pillar": "electrical/why-breakers-trip", "mermaid": "electrical_v1" }
+  ]
+}

@@ -23,8 +23,10 @@ export function DgStructuredPreviewMermaid({ chart, className }: Props) {
     if (!mermaidInitialized) {
       mermaid.initialize({
         startOnLoad: false,
+        securityLevel: "loose",
         theme: "base",
         themeVariables: {
+          fontSize: "12px",
           primaryColor: "#f1f5f9",
           primaryTextColor: "#0f172a",
           primaryBorderColor: "#94a3b8",
@@ -35,7 +37,9 @@ export function DgStructuredPreviewMermaid({ chart, className }: Props) {
         flowchart: {
           htmlLabels: true,
           curve: "basis",
-          padding: 12,
+          nodeSpacing: 40,
+          rankSpacing: 50,
+          padding: 10,
         },
       });
       mermaidInitialized = true;
@@ -67,10 +71,12 @@ export function DgStructuredPreviewMermaid({ chart, className }: Props) {
   if (!chart.trim()) return null;
 
   return (
-    <div
-      className={`dg-flow-mermaid-root not-prose overflow-x-auto rounded-lg border border-slate-200 bg-white p-4 ${className ?? ""}`}
-      ref={ref}
-      aria-label="Diagnostic flow diagram"
-    />
+    <div className={`dg-mermaid-wrapper ${className ?? ""}`}>
+      <div
+        className="mermaid dg-flow-mermaid-root not-prose rounded-lg border border-slate-200 bg-white p-4"
+        ref={ref}
+        aria-label="Diagnostic flow diagram"
+      />
+    </div>
   );
 }
