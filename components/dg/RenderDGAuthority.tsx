@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { diagnosticFlowToMermaidSource } from "@/lib/dg/diagnosticFlowToMermaid";
 import { DGHero } from "@/components/dg/DGHero";
 import { DGSection } from "@/components/dg/DGSection";
-import { DGMermaid } from "@/components/dg/DGMermaid";
+import { DGMermaid } from "@/components/dg/DGMermaidDynamic";
 import { DGFailureCluster } from "@/components/dg/DGFailureCluster";
 import { DGRepairMatrix } from "@/components/dg/DGRepairMatrix";
 import { DGTechBlock } from "@/components/dg/DGTechBlock";

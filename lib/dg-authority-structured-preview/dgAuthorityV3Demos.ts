@@ -172,6 +172,397 @@ export const HVAC_AC_NOT_COOLING_TAMPA_V3: DgAuthorityV3PageInput = {
   ],
 };
 
+/** National symptom page `hvac/ac-not-cooling` — canonical queue-aligned copy (no market line). */
+export const HVAC_AC_NOT_COOLING_V3: DgAuthorityV3PageInput = {
+  trade: "hvac",
+  slug: "hvac/ac-not-cooling",
+  cluster: "airflow",
+  diagnostic_mermaid_cluster: "airflow",
+  diagnostic_flow_template_key: "hvac_v1",
+  diagnostic_flow_issue_label: "AC Not Cooling",
+  pillar_page: "hvac/why-ac-isnt-cooling",
+  related_pages: ["hvac/weak-airflow", "hvac/frozen-evaporator-coil"],
+  safety_notice: "Working around energized HVAC systems or refrigerant circuits requires proper tools and training.",
+  where_people_get_this_wrong:
+    "Assuming all cooling problems are refrigerant-related leads to incorrect repairs.",
+
+  title: "AC Not Cooling",
+  summary_30s:
+    "If your AC is running but not cooling, the issue is usually airflow restriction, refrigerant imbalance, outdoor unit failure, or control problems. Most failures are fixable—but guessing the cause is how small issues become expensive repairs.",
+
+  cta_top: {
+    title: "Avoid replacing the wrong part",
+    body: "Many AC issues look similar but require different fixes.",
+    button: "Get HVAC Diagnosis",
+  },
+
+  quick_checks: [
+    "Check filter condition and airflow at vents",
+    "Confirm thermostat is set to COOL",
+    "Verify outdoor unit is running",
+    "Measure supply vs return temperature difference",
+    "Look for ice on indoor lines or coil",
+  ],
+  quick_checks_home:
+    "If airflow is weak or temperatures don’t separate, this is already beyond a simple fix. These checks help confirm the issue, not solve it.",
+
+  diagnostic_logic_pro:
+    "Cooling failure follows airflow, refrigerant, compressor, or control paths. Each has distinct temperature and system behavior signatures.",
+  diagnostic_logic_home: "Your AC isn’t just ‘not cooling’—it’s failing somewhere in the process.",
+
+  diagnostic_flow: {
+    nodes: [
+      { id: "start", label: "AC not cooling" },
+      { id: "air", label: "Airflow check" },
+      { id: "outdoor", label: "Outdoor unit" },
+      { id: "ref", label: "Refrigerant system" },
+      { id: "ctl", label: "Controls" },
+      { id: "end", label: "Diagnosis" },
+    ],
+    edges: [
+      { from: "start", to: "air" },
+      { from: "air", to: "outdoor" },
+      { from: "outdoor", to: "ref" },
+      { from: "ref", to: "ctl" },
+      { from: "ctl", to: "end" },
+    ],
+  },
+
+  system_explanation:
+    "AC systems remove heat from indoor air and release it outdoors. If any part of that cycle breaks, cooling performance drops even if the system is running.",
+
+  failure_clusters: [
+    {
+      title: "Airflow restriction",
+      pro: "Reduced airflow limits heat transfer and can cause coil icing.",
+      home: "If air isn’t moving, cooling can’t happen.",
+      risk: "Fixing refrigerant before airflow can damage the system.",
+    },
+    {
+      title: "Refrigerant imbalance",
+      pro: "Improper charge or restriction disrupts heat transfer.",
+      home: "Low cooling doesn’t always mean low refrigerant.",
+      risk: "Adding refrigerant blindly leads to overcharge damage.",
+    },
+    {
+      title: "Outdoor unit failure",
+      pro: "Failure to reject heat prevents cooling cycle completion.",
+      home: "If the outdoor unit fails, heat stays inside.",
+      risk: "Running the system can escalate damage quickly.",
+    },
+  ],
+
+  repair_matrix: [
+    "Capacitor replacement → $150–$400",
+    "Refrigerant repair → $300–$1,200+",
+    "Compressor replacement → $2,000–$5,500+",
+    "Full replacement → $6,000–$14,000+",
+  ],
+  repair_matrix_pro: "These are typical cost ranges based on correct diagnosis.",
+  repair_matrix_home: "Most issues fall in lower ranges.",
+  repair_matrix_risk: "Misdiagnosis is how people jump to the highest cost repairs.",
+
+  cta_mid: {
+    title: "This is where most DIY attempts go wrong",
+    body: "Replacing parts without confirming the cause leads to expensive outcomes.",
+    button: "Get HVAC Diagnosis",
+  },
+
+  field_measurements: [
+    "Temperature difference (ΔT)",
+    "Suction and liquid line temperatures",
+    "Compressor amperage",
+    "Voltage at disconnect",
+  ],
+  field_measurements_pro:
+    "ΔT, line temperatures, compressor amps, and disconnect voltage are only actionable when measured at the right points and compared to design intent for the actual load and ambient conditions.",
+  field_measurements_home: "These require tools and correct interpretation.",
+
+  repair_vs_replace_pro:
+    "Repair when faults are isolated. Replace when major components fail.",
+  repair_vs_replace_home: "Most systems can be repaired if diagnosed correctly.",
+
+  professional_threshold: "Stop at refrigerant or electrical testing without training.",
+
+  warnings: ["Electrical shock risk", "Refrigerant handling requires certification"],
+
+  risk_notes: [
+    {
+      label: "Where people get this wrong",
+      text: "Assuming all cooling problems are refrigerant-related leads to incorrect repairs.",
+    },
+  ],
+
+  cta_final: {
+    title: "Avoid a major system failure",
+    body: "Incorrect diagnosis leads to expensive outcomes.",
+    button: "Find HVAC Technician",
+  },
+
+  before_you_call: [
+    "Note how long the system runs without reaching setpoint",
+    "Check if airflow is strong at vents",
+    "Confirm outdoor unit operation",
+    "Record indoor temperature vs thermostat",
+  ],
+
+  do_not_attempt: ["Do not add refrigerant without diagnosis", "Do not open electrical panels live"],
+};
+
+/** National symptom page `hvac/weak-airflow` — queue cluster `airflow`. */
+export const HVAC_WEAK_AIRFLOW_V3: DgAuthorityV3PageInput = {
+  trade: "hvac",
+  slug: "hvac/weak-airflow",
+  cluster: "airflow",
+  diagnostic_mermaid_cluster: "airflow",
+  diagnostic_flow_template_key: "hvac_v1",
+  diagnostic_flow_issue_label: "Weak Airflow",
+  pillar_page: "hvac/why-ac-isnt-cooling",
+  related_pages: ["hvac/ac-not-cooling", "hvac/frozen-evaporator-coil"],
+
+  title: "Weak Airflow",
+  summary_30s:
+    "Weak airflow limits cooling efficiency and often leads to temperature imbalance, long runtimes, and system strain.",
+
+  cta_top: {
+    title: "Poor airflow reduces system performance",
+    body: "Airflow issues are one of the most common HVAC failures.",
+    button: "Get HVAC Diagnosis",
+  },
+
+  quick_checks: [
+    "Check filter condition",
+    "Inspect vent airflow",
+    "Confirm blower operation",
+    "Check return vents for blockage",
+  ],
+  quick_checks_home:
+    "If airflow is weak across multiple vents, this is not a simple filter issue.",
+
+  diagnostic_logic_pro:
+    "Treat weak airflow as a delivery problem first: filter and return path, blower speed and motor load, then duct leakage or restriction. Low measured airflow raises evaporator risk and collapses ΔT even when refrigerant is nominally correct.",
+  diagnostic_logic_home:
+    "When several rooms feel weak at the same time, the fault is usually shared path (filter/return/blower/duct), not a single closed damper.",
+
+  diagnostic_flow: {
+    nodes: [
+      { id: "start", label: "Weak airflow reported" },
+      { id: "filter", label: "Filter and return path" },
+      { id: "blower", label: "Blower speed and motor" },
+      { id: "duct", label: "Duct leakage or restriction" },
+      { id: "end", label: "Document findings; repair plan" },
+    ],
+    edges: [
+      { from: "start", to: "filter" },
+      { from: "filter", to: "blower" },
+      { from: "blower", to: "duct" },
+      { from: "duct", to: "end" },
+    ],
+  },
+
+  system_explanation:
+    "Central cooling relies on moving enough air across the indoor coil to absorb heat and distribute conditioned air. When delivered airflow drops, sensible and latent capacity fall, runtimes stretch, and the coil can operate outside its intended operating point.",
+
+  failure_clusters: [
+    {
+      title: "Filter or return blockage",
+      pro: "Restricted intake reduces system airflow.",
+      home: "Air can’t move if it can’t get in.",
+      risk: "Ignoring this can cause coil freezing.",
+    },
+    {
+      title: "Blower issues",
+      pro: "Fan or motor faults reduce airflow delivery.",
+      home: "The system may be running but not pushing air.",
+      risk: "Misdiagnosing as compressor failure wastes money.",
+    },
+  ],
+
+  repair_matrix: [
+    "Filter replacement → $20–$80",
+    "Blower repair → $300–$900",
+    "Duct issues → $500–$2,000+",
+  ],
+  repair_matrix_pro:
+    "Ranges assume correct diagnosis of the airflow fault; duct corrections vary sharply with access, leakage severity, and code-compliant repairs.",
+  repair_matrix_home:
+    "Most homes start with filter and blower-side fixes—duct work escalates when leakage or restriction is confirmed.",
+  repair_matrix_risk:
+    "Replacing major components while airflow remains low can mask the real fault and shorten equipment life.",
+
+  cta_mid: {
+    title: "Weak airflow leads to bigger failures",
+    body: "Fixing airflow early prevents system damage.",
+    button: "Get HVAC Diagnosis",
+  },
+
+  field_measurements: [
+    "Static pressure across filter and coil (in. w.c. where applicable)",
+    "Blower motor amps vs nameplate and tap/speed setting",
+    "Supply and return temperature split at steady state",
+    "Rough room-to-room velocity or flow balance spot checks",
+  ],
+  field_measurements_pro:
+    "Static and amp readings separate restriction from motor weakness; ΔT must be read with airflow context—low airflow can mimic charge problems.",
+  field_measurements_home: "These checks require gauges or meters and safe access—stop where training ends.",
+
+  repair_vs_replace_pro:
+    "Repair when the fault is localized (plugged filter, failed relay, worn belt, single duct collapse). Replace blower assemblies or motors when windings or bearings are compromised beyond economical repair.",
+  repair_vs_replace_home:
+    "If airflow improves immediately after a measured fix, you likely avoided coil icing and compressor stress.",
+
+  professional_threshold:
+    "Stop at opening sealed ductwork, altering gas or electrical controls, or working inside energized air handlers without training.",
+
+  warnings: ["Electrical shock risk near blower cabinets", "Coil icing can precede water damage if ignored"],
+
+  cta_final: {
+    title: "Protect capacity and comfort",
+    body: "Unresolved airflow problems increase energy use and wear on compressors and coils.",
+    button: "Find HVAC Technician",
+  },
+
+  before_you_call: [
+    "Whether weak airflow is whole-home or isolated rooms",
+    "When the blower ramps and whether noise changes with speed",
+    "Recent filter changes or duct access work",
+  ],
+
+  do_not_attempt: [
+    "Do not bypass blower limits or tape over safety switches",
+    "Do not seal ducts with non-listed materials or block combustion air paths",
+  ],
+};
+
+/** National symptom page `hvac/frozen-evaporator-coil` — queue cluster `airflow`. */
+export const HVAC_FROZEN_EVAPORATOR_COIL_V3: DgAuthorityV3PageInput = {
+  trade: "hvac",
+  slug: "hvac/frozen-evaporator-coil",
+  cluster: "airflow",
+  diagnostic_mermaid_cluster: "airflow",
+  diagnostic_flow_template_key: "hvac_v1",
+  diagnostic_flow_issue_label: "Frozen Evaporator Coil",
+  pillar_page: "hvac/why-ac-isnt-cooling",
+  related_pages: ["hvac/ac-not-cooling", "hvac/weak-airflow"],
+
+  title: "Frozen Evaporator Coil",
+  summary_30s:
+    "A frozen coil indicates airflow or refrigerant imbalance. Ice formation blocks cooling entirely.",
+
+  cta_top: {
+    title: "Ice on your AC is a warning sign",
+    body: "This is not normal and indicates a deeper issue.",
+    button: "Get HVAC Diagnosis",
+  },
+
+  quick_checks: [
+    "Look for visible ice on lines",
+    "Check airflow strength",
+    "Confirm system runtime",
+    "Check filter condition",
+  ],
+  quick_checks_home:
+    "Ice means airflow or refrigerant problems—not just a temporary issue.",
+
+  diagnostic_logic_pro:
+    "Coil icing is almost always insufficient airflow across the evaporator, incorrect metering/charge context, or both. Running the system heavily iced risks flood, water damage, and compressor slugging once ice melts or liquid reaches the compressor.",
+  diagnostic_logic_home:
+    "Turning the system off to thaw without fixing the cause usually brings the ice back—often with higher repair cost.",
+
+  diagnostic_flow: {
+    nodes: [
+      { id: "start", label: "Ice on coil or lines" },
+      { id: "air", label: "Verify airflow delivery" },
+      { id: "meter", label: "Metering and charge context" },
+      { id: "drain", label: "Condensate and drain path" },
+      { id: "end", label: "Safe thaw + repair plan" },
+    ],
+    edges: [
+      { from: "start", to: "air" },
+      { from: "air", to: "meter" },
+      { from: "meter", to: "drain" },
+      { from: "drain", to: "end" },
+    ],
+  },
+
+  system_explanation:
+    "The indoor coil removes heat by evaporating refrigerant at low pressure. When airflow is too low or refrigerant behavior is wrong for the load, coil surface temperature can fall below freezing and water on the coil turns to ice, insulating the coil and stopping heat transfer.",
+
+  failure_clusters: [
+    {
+      title: "Airflow restriction",
+      pro: "Low airflow causes coil temperature to drop below freezing.",
+      home: "Air isn’t moving fast enough to prevent freezing.",
+      risk: "Ignoring this can damage the compressor.",
+    },
+    {
+      title: "Refrigerant imbalance",
+      pro: "Incorrect charge alters pressure-temperature relationship.",
+      home: "The system is cooling too aggressively or incorrectly.",
+      risk: "Adding refrigerant blindly worsens the issue.",
+    },
+  ],
+
+  repair_matrix: [
+    "Filter/airflow fix → $50–$300",
+    "Refrigerant repair → $300–$1,200+",
+    "Compressor damage → $2,000+",
+  ],
+  repair_matrix_pro:
+    "Costs depend on whether the root cause is delivery (filter/duct/blower) versus verified leak or metering work; compressor damage is a downstream risk of running iced or liquid-flooded.",
+  repair_matrix_home:
+    "Many stops are filter and airflow corrections—refrigerant work should follow diagnosis, not guesswork.",
+  repair_matrix_risk:
+    "Chipping ice mechanically or forcing heat on the coil can damage tubing and create leaks.",
+
+  cta_mid: {
+    title: "Frozen coils lead to major failures",
+    body: "Ignoring this problem risks compressor damage.",
+    button: "Get HVAC Diagnosis",
+  },
+
+  field_measurements: [
+    "Supply/return ΔT during steady run (before and after safe thaw)",
+    "Filter delta and visual coil face (when safely accessible)",
+    "Liquid and suction line feel or measured temps if trained",
+    "Blower amps vs tap/speed and nameplate",
+  ],
+  field_measurements_pro:
+    "ΔT alone cannot prove charge while airflow is suspect; pair temperature splits with verified airflow and, when qualified, superheat/subcool appropriate to the metering device.",
+  field_measurements_home:
+    "Line ice and water under the air handler are signals to stop running the system and call for help.",
+
+  repair_vs_replace_pro:
+    "Repair when icing is traced to a localized fault (clogged filter, stuck relay, blocked drain causing safety trip patterns, small duct fix). Replace when coils are damaged, refrigerant circuits are compromised repeatedly, or compressors show damage from liquid floodback.",
+  repair_vs_replace_home:
+    "Clearing the immediate ice without fixing the driver usually repeats the failure within days.",
+
+  professional_threshold:
+    "Stop at adding refrigerant, opening lines, or forcing thaw with torches or hot water on refrigerant circuits without training and proper recovery procedures.",
+
+  warnings: [
+    "Water damage and electrical hazard under flooded air handlers",
+    "Compressor damage risk if liquid slugging occurs after thaw",
+  ],
+
+  cta_final: {
+    title: "Stop damage before it spreads",
+    body: "A controlled thaw and correct diagnosis prevents compressor failure and interior water losses.",
+    button: "Find HVAC Technician",
+  },
+
+  before_you_call: [
+    "How long ice has been present and whether water is pooling",
+    "Whether the blower is running during cooling calls",
+    "Recent filter changes or thermostat setbacks",
+  ],
+
+  do_not_attempt: [
+    "Do not chip ice off the coil with tools",
+    "Do not continue running the system with heavy ice buildup",
+  ],
+};
+
 /** Pillar hub `/hvac/why-ac-isnt-cooling` — same DG Authority v3 contract as symptom pages. */
 export const HVAC_PILLAR_WHY_AC_ISNT_COOLING_V3: DgAuthorityV3PageInput = {
   ...HVAC_AC_NOT_COOLING_TAMPA_V3,

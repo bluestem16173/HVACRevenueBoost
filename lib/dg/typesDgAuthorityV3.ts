@@ -1,4 +1,5 @@
 import type { DgAuthorityCtaPayload } from "@/lib/dg/dgAuthorityCta";
+import type { Trade } from "@/lib/dg/resolveCTA";
 
 /** Failure cluster: PRO (gold) / HOME (blue) / RISK (red) — all three required for publish quality. */
 export type DgAuthorityV3FailureClusterDual = {
@@ -61,4 +62,17 @@ export type DgAuthorityV3PageInput = {
   do_not_attempt: string[];
 
   risk_notes?: DgAuthorityV3RiskNote[];
+
+  /** Optional CMS / queue metadata (copied onto `content_json` by {@link buildDgAuthorityV3Page}). */
+  trade?: Trade;
+  slug?: string;
+  cluster?: string;
+  diagnostic_mermaid_cluster?: string;
+  diagnostic_flow_template_key?: string;
+  diagnostic_flow_issue_label?: string;
+  pillar_page?: string;
+  related_pages?: unknown;
+  safety_notice?: string;
+  where_people_get_this_wrong?: string;
+  diagnostic_mermaid_mode?: string;
 };
