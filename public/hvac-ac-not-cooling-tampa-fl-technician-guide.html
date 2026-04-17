@@ -12,10 +12,9 @@
       --dg-blue-hover: #1e40af;
       --dg-text: #1a1a1a;
       --dg-muted: #5a5a5a;
-      --dg-border: #e5e5e5;
-      --dg-tech-bg: #fffbeb;
-      --dg-tech-border: #fde68a;
-      --dg-warn: #991b1b;
+      --dg-line: #ccc;
+      --dg-insight-bg: #fffbeb;
+      --dg-warn: #7f1d1d;
     }
     * { box-sizing: border-box; }
     body {
@@ -29,183 +28,204 @@
     .dg-page {
       max-width: 42rem;
       margin: 0 auto;
-      padding: 1.5rem 1.25rem 3rem;
+      padding: 1.5rem 1.25rem 3.5rem;
     }
     .dg-local {
       font-size: 0.8125rem;
       color: var(--dg-muted);
-      margin: 0 0 1.25rem;
+      margin: 0 0 2rem;
     }
     .dg-local strong { color: var(--dg-text); font-weight: 600; }
     .dg-page a:not(.dg-btn) { color: #2d4a6f; text-underline-offset: 2px; }
     .dg-page a:not(.dg-btn):hover { color: var(--dg-navy); }
 
+    /* Section: ONLY gold bar + title — whitespace separates sections */
     .dg-sec {
-      margin-top: 2.5rem;
-      padding-top: 0;
+      margin-top: 2.75rem;
+      padding: 0;
       background: transparent;
+      border: none;
+      border-radius: 0;
     }
     .dg-sec--tight-top { margin-top: 0; }
     .dg-sec__h {
-      margin: 0 0 0.85rem;
-      padding-left: 0.65rem;
+      margin: 0 0 1rem;
+      padding: 0 0 0 0.65rem;
+      border: none;
       border-left: 4px solid var(--dg-gold);
+      border-radius: 0;
       font-size: 1.05rem;
       font-weight: 800;
       letter-spacing: -0.02em;
       color: var(--dg-navy);
       line-height: 1.25;
+      background: transparent;
     }
     .dg-sec p, .dg-sec li { font-size: 0.9375rem; color: #333; }
-    .dg-sec p { margin: 0.5rem 0; }
-    .dg-sec ul { margin: 0.35rem 0 0.75rem; padding-left: 1.2rem; }
-    .dg-sec li { margin: 0.3rem 0; }
+    .dg-sec p { margin: 0.5rem 0; max-width: 40rem; }
+    .dg-sec ul { margin: 0.35rem 0 0.75rem; padding-left: 1.25rem; }
+    .dg-sec li { margin: 0.35rem 0; }
 
+    /* Hero: typography only, no box */
     .dg-hero__h1 {
       font-size: clamp(1.45rem, 4vw, 1.85rem);
       font-weight: 800;
       letter-spacing: -0.02em;
       color: var(--dg-navy);
-      margin: 0 0 0.65rem;
+      margin: 0 0 0.75rem;
       line-height: 1.15;
     }
     .dg-hero__sub {
       font-size: 0.95rem;
       font-weight: 600;
-      line-height: 1.45;
+      line-height: 1.5;
       color: #222;
-      margin: 0 0 1.1rem;
+      margin: 0 0 1.25rem;
+      max-width: 40rem;
     }
-    .dg-sum-label {
-      font-size: 0.68rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+    .dg-hero__sum {
+      margin: 0;
+      padding-left: 1.25rem;
+      list-style-type: disc;
+    }
+    .dg-hero__sum li { margin-bottom: 0.5rem; }
+
+    /* Lists: no row borders, no tinted backgrounds */
+    .dg-plain-list {
+      list-style: disc;
+      margin: 0.25rem 0 0;
+      padding-left: 1.25rem;
+    }
+    .dg-plain-list li { margin: 0.35rem 0; font-weight: 600; font-size: 0.9rem; }
+
+    /* Mermaid: no box — vertical spacing only */
+    .dg-mermaid-host {
+      margin: 0.75rem 0 0;
+      padding: 0;
+      border: none;
+      background: transparent;
+    }
+    .dg-mermaid-host .mermaid,
+    .dg-mermaid-host svg {
+      max-width: 100%;
+      height: auto;
+    }
+    .dg-mermaid-fallback {
+      font-size: 0.875rem;
       color: var(--dg-muted);
-      margin: 1.25rem 0 0.4rem;
+      margin: 0.5rem 0 0;
     }
-    .dg-hero__sum { margin: 0; padding-left: 1.15rem; }
-    .dg-hero__sum li { margin-bottom: 0.45rem; }
 
-    .dg-checks {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    .dg-checks li {
-      display: flex;
-      gap: 0.5rem;
-      align-items: flex-start;
-      padding: 0.35rem 0;
-      font-size: 0.9rem;
-      font-weight: 600;
-      border-bottom: 1px solid var(--dg-border);
-    }
-    .dg-checks li:last-child { border-bottom: none; }
-    .dg-checks__mark { color: var(--dg-gold); font-weight: 900; flex-shrink: 0; }
-
-    .dg-tree-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    .dg-tree-list > li {
-      padding: 0.5rem 0;
-      border-bottom: 1px solid var(--dg-border);
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-    .dg-tree-list > li:last-child { border-bottom: none; }
-
-    .dg-mermaid-wrap {
-      margin-top: 0.5rem;
-      padding: 0.5rem 0;
-      border-top: 1px solid var(--dg-border);
-      border-bottom: 1px solid var(--dg-border);
-      background: #fff;
-    }
-    .dg-mermaid-inner { overflow-x: auto; display: flex; justify-content: center; }
-    .dg-mermaid-fallback { font-size: 0.8rem; color: var(--dg-muted); margin: 0.35rem 0 0; }
-
-    .dg-cause { margin-bottom: 2rem; }
+    /* Causes: whitespace separation only */
+    .dg-cause { margin-bottom: 2.25rem; }
     .dg-cause:last-of-type { margin-bottom: 0; }
     .dg-cause h3 {
-      margin: 0 0 0.4rem;
+      margin: 0 0 0.5rem;
       font-size: 1rem;
       font-weight: 800;
       color: var(--dg-navy);
     }
-    .dg-cause .dg-cause-label {
+    .dg-cause-label {
       font-size: 0.8125rem;
       font-weight: 700;
       color: var(--dg-navy);
-      margin: 0.9rem 0 0.35rem;
+      margin: 0.85rem 0 0.3rem;
     }
-    .dg-cause ul { margin-top: 0.25rem; }
+    .dg-cause ul { margin-top: 0.2rem; }
 
-    /* Technician Insight — yellow accent only, no shaded box */
-    .dg-insight {
-      margin-top: 0.85rem;
-      padding-left: 0.65rem;
-      border-left: 4px solid var(--dg-gold);
+    /* Field Insight: light yellow highlight strip only — not a card */
+    .dg-field-insight {
+      margin-top: 0.9rem;
+      padding: 0.55rem 0.65rem;
+      background: var(--dg-insight-bg);
+      border: none;
+      border-radius: 0;
+      border-left: 3px solid var(--dg-gold);
     }
-    .dg-insight__title {
+    .dg-field-insight__label {
       margin: 0 0 0.35rem;
-      font-size: 0.72rem;
+      font-size: 0.8125rem;
       font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
       color: var(--dg-navy);
     }
-    .dg-insight p { margin: 0; font-size: 0.875rem; }
+    .dg-field-insight p { margin: 0; font-size: 0.875rem; }
 
-    /* ONLY this section: light yellow panel */
-    .dg-sec--techpanel {
-      margin-top: 2.5rem;
-      padding: 1.25rem 1.15rem;
-      background: var(--dg-tech-bg);
-      border: 1px solid var(--dg-tech-border);
+    /* ONLY section-level yellow: What a Technician Will Check — no border box */
+    .dg-sec--tech-yellow {
+      margin-top: 2.75rem;
+      padding: 1.1rem 1rem 1.25rem;
+      background: var(--dg-insight-bg);
+      border: none;
+      border-radius: 0;
     }
-    .dg-sec--techpanel .dg-sec__h {
-      margin-bottom: 0.65rem;
+    .dg-sec--tech-yellow .dg-sec__h {
+      border-left-color: var(--dg-gold);
+      background: transparent;
     }
 
+    /* Matrix: grid lines only, no outer container */
     table.dg-matrix {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.84rem;
-      margin-top: 0.5rem;
+      font-size: 0.875rem;
+      margin-top: 0.65rem;
+      background: transparent;
     }
-    table.dg-matrix th, table.dg-matrix td {
-      border: 1px solid var(--dg-border);
-      padding: 0.5rem 0.55rem;
+    table.dg-matrix th,
+    table.dg-matrix td {
+      border: none;
+      border-bottom: 1px solid var(--dg-line);
+      padding: 0.55rem 0.35rem 0.55rem 0;
       text-align: left;
       vertical-align: top;
+      background: transparent;
     }
     table.dg-matrix thead th {
-      font-weight: 700;
+      font-weight: 800;
       font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.06em;
       color: var(--dg-muted);
-      background: #fff;
+      border-bottom: 2px solid var(--dg-navy);
+    }
+    table.dg-matrix tbody tr:last-child td { border-bottom: none; }
+
+    .dg-escalate {
+      font-size: 0.875rem;
+      color: #444;
+      margin-top: 0.65rem;
+      font-weight: 600;
     }
 
-    .dg-safety {
-      margin-top: 1.25rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--dg-border);
-      font-size: 0.875rem;
-      line-height: 1.5;
+    .dg-safety-final {
+      margin-top: 1.75rem;
+      padding: 0;
+      border: none;
+      background: transparent;
     }
-    .dg-safety__title { color: var(--dg-warn); font-weight: 800; margin: 0 0 0.5rem; }
+    .dg-safety-final__title {
+      color: var(--dg-warn);
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.01em;
+    }
+    .dg-safety-final p { margin: 0.4rem 0; font-weight: 600; }
+    .dg-safety-final ul {
+      margin: 0.5rem 0 0;
+      padding-left: 1.25rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+    .dg-safety-final li { margin: 0.35rem 0; }
 
     .dg-cta {
-      margin-top: 2.25rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--dg-border);
+      margin-top: 2.75rem;
+      padding: 0;
+      border: none;
+      background: transparent;
     }
-    .dg-cta p { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.75rem; }
+    .dg-cta p { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.85rem; max-width: 38rem; }
     .dg-btn {
       display: inline-block;
       font-size: 0.75rem;
@@ -217,28 +237,27 @@
       background: var(--dg-blue);
       padding: 0.65rem 1.15rem;
       border: none;
+      border-radius: 0;
     }
     .dg-btn:hover { background: var(--dg-blue-hover); color: #fff !important; }
 
     details.dg-seo {
-      margin-top: 2.5rem;
-      border: 1px solid var(--dg-border);
+      margin-top: 3rem;
       font-size: 0.75rem;
       color: var(--dg-muted);
+      border: none;
+      border-top: 1px solid var(--dg-line);
+      padding-top: 1rem;
     }
     details.dg-seo summary {
       cursor: pointer;
-      padding: 0.65rem 0.85rem;
+      padding: 0.35rem 0;
       font-weight: 600;
       list-style: none;
     }
     details.dg-seo summary::-webkit-details-marker { display: none; }
-    details.dg-seo > div { padding: 0 0.85rem 0.85rem; border-top: 1px solid var(--dg-border); }
+    details.dg-seo > div { padding: 0.35rem 0 0; }
 
-    .dg-hero--bar {
-      border-left: 4px solid var(--dg-gold);
-      padding-left: 0.65rem;
-    }
     .visually-hidden {
       position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
       overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
@@ -251,57 +270,57 @@
   <p class="dg-local">Local guide: <strong>Tampa, FL</strong></p>
 
   <header class="dg-sec dg-sec--tight-top">
-    <div class="dg-hero--bar">
-      <h1 class="dg-hero__h1">AC Not Cooling in Tampa, FL</h1>
-      <p class="dg-hero__sub">Undiagnosed airflow or refrigerant imbalance drives compressors and coils into failure territory fast — botched “quick charge” or ignored ice often turns into a multi-thousand-dollar correction.</p>
-      <p class="dg-sum-label">30-second summary</p>
-      <ul class="dg-hero__sum">
-        <li><strong>Most likely:</strong> Airflow restriction at filter, coil, or blower path — or refrigerant mass flow too low for the house load.</li>
-        <li><strong>First check:</strong> Real Y/cool call at the equipment, filter, returns, condenser coil face, outdoor fan rotation; defrost any ice before interpreting pressures.</li>
-        <li><strong>Risk level:</strong> Moderate until indoor conditions climb; high if you force-run on ice, ignore repeated trips, or add refrigerant without verification.</li>
-      </ul>
-    </div>
+    <h1 class="dg-hero__h1">AC Not Cooling in Tampa, FL</h1>
+    <p class="dg-hero__sub">What starts as a dirty filter or weak airflow becomes head pressure stress, oil starvation, and coil damage. Most homeowners wait too long — then a modest service turns into compressor or coil replacement and multi-day downtime in August heat.</p>
+    <ul class="dg-hero__sum">
+      <li><strong>Most likely:</strong> Airflow restriction (filter, coil face, blower path, duct) or refrigerant mass flow too low for the load.</li>
+      <li><strong>First check:</strong> Cool call at equipment, filter, returns, condenser coil face, outdoor fan rotation; melt ice before you interpret anything else.</li>
+      <li><strong>Risk:</strong> Moderate while the house is tolerable; high if you run on ice, ignore repeat trips, or add refrigerant without verification — incorrect handling can cascade into system destruction.</li>
+    </ul>
   </header>
+
+  <section class="dg-sec" aria-labelledby="h-wait">
+    <h2 class="dg-sec__h" id="h-wait">Cost of Waiting</h2>
+    <p>Small comfort loss widens fast here: high latent load keeps the coil wet, run hours stretch, and marginal parts (capacitor, contactor, weak charge) cross from “may need a technician” to high risk of system damage. A delayed correction often means paying for escalation diagnostics, lost refrigerant, and sometimes a failed compressor — think thousands, not hundreds.</p>
+  </section>
 
   <section class="dg-sec" aria-labelledby="h-quick">
     <h2 class="dg-sec__h" id="h-quick">Quick Checks (2–5 minutes)</h2>
-    <ul class="dg-checks">
-      <li><span class="dg-checks__mark" aria-hidden="true">✓</span> Thermostat: <strong>Cool</strong>, realistic setpoint, batteries if needed.</li>
-      <li><span class="dg-checks__mark" aria-hidden="true">✓</span> Breaker / outdoor disconnect fully seated.</li>
-      <li><span class="dg-checks__mark" aria-hidden="true">✓</span> Filter clean; returns and supplies unobstructed.</li>
-      <li><span class="dg-checks__mark" aria-hidden="true">✓</span> Outdoor unit: fan spins with compressor; no heavy ice on suction line.</li>
+    <ul class="dg-plain-list">
+      <li>Thermostat: <strong>Cool</strong>, realistic setpoint; fresh batteries if any doubt.</li>
+      <li>Breaker and outdoor disconnect fully seated — not “almost” latched.</li>
+      <li>Filter clean; supplies and returns unobstructed.</li>
+      <li>Outdoor fan spins with compressor; no heavy ice on the suction line.</li>
     </ul>
   </section>
 
   <section class="dg-sec" aria-labelledby="h-tree">
     <h2 class="dg-sec__h" id="h-tree">Start Here: Find Your Situation</h2>
-    <ul class="dg-tree-list">
-      <li>Air feels strong at vents but supply stays warm → capacity / refrigerant control branch.</li>
-      <li>Weak or uneven airflow → restriction, blower, or duct path before charge work.</li>
-      <li>Outdoor silent, hum, or click-only → electrical start and high-voltage path.</li>
-      <li>Ice on line set or indoor coil → stop the cycle; fix airflow or metering/charge root cause.</li>
-      <li>Water in pan / random indoor stop → safeties, trap, control interlock.</li>
+    <ul class="dg-plain-list">
+      <li>Strong airflow but supply stays warm → capacity / refrigerant / metering branch (do not guess a charge).</li>
+      <li>Weak or uneven airflow → restriction, blower, or duct path before any refrigerant work.</li>
+      <li>Outdoor silent, hum, or click-only → electrical start path and high-voltage integrity (serious injury risk if mishandled).</li>
+      <li>Ice on line set or indoor coil → stop the cycle; fix airflow or metering/charge root cause — running frozen risks compressor slugging and coil damage.</li>
+      <li>Water in pan or random indoor stop → safeties, trap, control interlock.</li>
     </ul>
   </section>
 
   <section class="dg-sec" aria-labelledby="h-mermaid">
     <h2 class="dg-sec__h" id="h-mermaid">Visual Diagnostic Flow</h2>
-    <div class="dg-mermaid-wrap">
-      <div id="mermaid-diagram" class="dg-mermaid-inner" role="img" aria-label="Diagnostic flowchart"></div>
-    </div>
+    <div id="mermaid-diagram" class="dg-mermaid-host" role="img" aria-label="Diagnostic flowchart"></div>
     <noscript><p class="dg-mermaid-fallback">Enable JavaScript to view the diagnostic flow diagram.</p></noscript>
   </section>
 
   <section class="dg-sec" aria-labelledby="h-fail">
     <h2 class="dg-sec__h" id="h-fail">Why Systems Fail or Stop Working</h2>
-    <p>Residential cooling fails in a small number of physical patterns. Tampa’s climate makes those patterns show up sooner: long run hours, high outdoor DB, and high indoor dew point keep the refrigerant circuit and blower under continuous load.</p>
-    <ul>
-      <li><strong>Heat stress:</strong> Hot condenser compartments and windings age capacitors and insulation; high head pressure raises compressor work.</li>
-      <li><strong>Airflow dependency:</strong> Without design CFM, the evaporator cannot exchange BTUs — low suction, ice, and “warm supply” follow.</li>
+    <p>Cooling fails in a small set of physical patterns. Tampa makes them show sooner: long run hours, high outdoor dry-bulb, and high indoor dew point keep the refrigerant circuit and blower under continuous stress.</p>
+    <ul class="dg-plain-list">
+      <li><strong>Heat stress:</strong> Hot condenser compartments age capacitors and insulation; high head pressure raises compressor work.</li>
+      <li><strong>Airflow:</strong> Without design CFM the evaporator cannot exchange BTUs — low suction, ice, and warm supply follow.</li>
       <li><strong>Refrigerant balance:</strong> Charge and restriction set coil behavior; wrong balance masquerades as airflow faults and vice versa.</li>
-      <li><strong>Electrical load:</strong> Start inrush and weak 24V under load eat contactors and caps; marginal line voltage on peak afternoons causes chatter and no-starts.</li>
+      <li><strong>Electrical:</strong> Start inrush and weak 24V under load eat contactors and caps; line voltage sag on peak afternoons causes chatter and no-starts.</li>
     </ul>
-    <p>Use that lens before you pick a part: confirm what the system is doing under real conditions, then map symptoms to the bucket above.</p>
+    <p>Map symptoms to those buckets under real conditions before you pick a part.</p>
   </section>
 
   <section class="dg-sec" aria-labelledby="h-causes">
@@ -309,82 +328,80 @@
 
     <div class="dg-cause">
       <h3>Airflow Restriction</h3>
-      <p>Anything that pulls delivered CFM below what the coil and metering device were matched to — neglected filter, matting on the coil face, blower wheel fuzz, collapsed flex in a hot attic, or ice from a prior fault.</p>
-      <p class="dg-cause-label"><strong>How to confirm</strong></p>
-      <ul>
+      <p>Anything that pulls delivered CFM below what the coil and metering device were matched to — filter, coil face matting, blower wheel fuzz, collapsed flex in a hot attic, or ice from a prior fault.</p>
+      <p class="dg-cause-label">How to confirm</p>
+      <ul class="dg-plain-list">
         <li>Visual filter and coil entry; listen for bypass whistling.</li>
         <li>Compare supply strength room-to-room; check single-return obstructions.</li>
-        <li>If any ice: melt safely, then re-test before gauges.</li>
+        <li>If ice: melt safely, then re-test before gauges.</li>
       </ul>
-      <p class="dg-cause-label"><strong>Typical cost range</strong></p>
+      <p class="dg-cause-label">Typical cost range</p>
       <p>Filter / coil service $150–$450; blower pull-clean $250–$650; duct repairs $400–$2,500+.</p>
-      <div class="dg-insight">
-        <p class="dg-insight__title">Technician Insight</p>
-        <p>Low airflow drops suction pressure first; the coil can look “cold” while the house stays uncomfortable because sensible removal stalled — don’t read that as proof of good charge.</p>
+      <div class="dg-field-insight">
+        <p class="dg-field-insight__label">Field Insight</p>
+        <p>Low airflow drops suction first; the coil can look cold while the house stays hot because sensible removal stalled — that is not proof of a correct charge.</p>
       </div>
     </div>
 
     <div class="dg-cause">
       <h3>Refrigerant Level Problem</h3>
-      <p>Leak, undercharge after prior work, or restriction that starves the metering device — mass flow no longer matches the load the house is throwing at the coil.</p>
-      <p class="dg-cause-label"><strong>How to confirm</strong></p>
-      <ul>
-        <li>Electronic leak check + visual oil trace at braze and service ports.</li>
-        <li>Superheat / subcooling vs manufacturer chart with stable WB/DB and verified airflow.</li>
+      <p>Leak, undercharge after prior work, or restriction that starves the metering device. Opening the circuit or “topping off” without locate-and-fix is high risk of system damage and can result in serious injury or system destruction if handled wrong.</p>
+      <p class="dg-cause-label">How to confirm</p>
+      <ul class="dg-plain-list">
+        <li>Electronic leak check and oil trace at braze and service ports — licensed work.</li>
+        <li>Superheat / subcooling vs OEM chart with stable conditions and verified airflow.</li>
         <li>Never add refrigerant to “make it feel colder” without that framework.</li>
       </ul>
-      <p class="dg-cause-label"><strong>Typical cost range</strong></p>
+      <p class="dg-cause-label">Typical cost range</p>
       <p>Leak locate + repair $300–$900; post-repair charge $200–$800+; coil replacement if not repairable $2,200–$5,800.</p>
-      <div class="dg-insight">
-        <p class="dg-insight__title">Technician Insight</p>
-        <p>High superheat with long run times cooks oil return and windings; icing can be a downstream symptom, not the disease.</p>
+      <div class="dg-field-insight">
+        <p class="dg-field-insight__label">Field Insight</p>
+        <p>High superheat with long run times cooks oil return and windings; icing can be downstream of the real fault.</p>
       </div>
     </div>
 
     <div class="dg-cause">
       <h3>Electrical / Control Failure</h3>
-      <p>Open 24V path, failed capacitor, pitted contactor, bad disconnect, zoning lockout, or float break — the outdoor section never gets a clean start command or high voltage.</p>
-      <p class="dg-cause-label"><strong>How to confirm</strong></p>
-      <ul>
-        <li>Y–C at air handler during a call for cool (communicating: OEM status, not animation).</li>
-        <li>Contactor pull, contact faces, ant bridges; cap µF vs label.</li>
-        <li>Line voltage at outdoor unit during start — sag explains mystery no-starts.</li>
+      <p>Open 24V path, failed capacitor, pitted contactor, bad disconnect, zoning lockout, or float break — the outdoor section never gets a clean start or clean high voltage. Incorrect handling can cause failure of the compressor or fire hazard.</p>
+      <p class="dg-cause-label">How to confirm</p>
+      <ul class="dg-plain-list">
+        <li>Y at air handler during a call for cool (communicating gear: use OEM status, not guesswork).</li>
+        <li>Contactor pull, contact faces; capacitor µF vs label — line voltage at outdoor during start.</li>
       </ul>
-      <p class="dg-cause-label"><strong>Typical cost range</strong></p>
+      <p class="dg-cause-label">Typical cost range</p>
       <p>Stat / LV repair $120–$450; cap + contactor $180–$450; board-level zoning $300–$900+.</p>
-      <div class="dg-insight">
-        <p class="dg-insight__title">Technician Insight</p>
-        <p>Intermittent “works mornings, dies at 4pm” is often heat-soaked electricals, not a random compressor — verify pull-in and voltage before you quote a compressor.</p>
+      <div class="dg-field-insight">
+        <p class="dg-field-insight__label">Field Insight</p>
+        <p>“Works mornings, dies at 4pm” is often heat-soaked electricals, not a random compressor — verify pull-in and voltage before quoting a compressor.</p>
       </div>
     </div>
 
     <div class="dg-cause">
-      <h3>System Overload / Heat Strain</h3>
-      <p>The machine is at the edge of its envelope: high ambient, high latent load, marginal charge, or slight airflow deficit reads as “fine” until the heat index spikes — then capacity collapses.</p>
-      <p class="dg-cause-label"><strong>How to confirm</strong></p>
-      <ul>
-        <li>Outdoor DB at condenser inlet vs head pressure trend.</li>
-        <li>Indoor return wet-bulb vs coil behavior over a 30-minute run.</li>
-        <li>Compare to historical performance at the same setpoint.</li>
+      <h3>Compressor Stress</h3>
+      <p>Once airflow and charge are wrong long enough, the compressor runs outside its envelope. Continuing to run in that state invites winding damage, slugging, and a $2,000–$5,000 class failure — incorrect handling here can result in serious injury or system destruction.</p>
+      <p class="dg-cause-label">How to confirm</p>
+      <ul class="dg-plain-list">
+        <li>Audible laboring, hot shell, tripping thermal or breaker with no simple electrical fix.</li>
+        <li>History of repeated “charges” or long run on ice.</li>
       </ul>
-      <p class="dg-cause-label"><strong>Typical cost range</strong></p>
-      <p>Fix the underlying restriction or charge; if truly undersized, load calc + replacement $7,000–$16,000+ typical split-system band.</p>
-      <div class="dg-insight">
-        <p class="dg-insight__title">Technician Insight</p>
-        <p>“Overload” here is physics margin, not a magic part swap — tighten fundamentals or right-size the equipment.</p>
+      <p class="dg-cause-label">Typical cost range</p>
+      <p>Compressor replacement often $2,000–$4,500+ installed; mismatch with indoor coil can push toward full system replacement.</p>
+      <div class="dg-field-insight">
+        <p class="dg-field-insight__label">Field Insight</p>
+        <p>Homeowners often misread “still running” as “still OK.” On a heat-stressed day in Tampa, running is not proof of health.</p>
       </div>
     </div>
   </section>
 
-  <section class="dg-sec dg-sec--techpanel" aria-labelledby="h-tech">
+  <section class="dg-sec dg-sec--tech-yellow" aria-labelledby="h-tech">
     <h2 class="dg-sec__h" id="h-tech">What a Technician Will Check</h2>
-    <p>Field readings only interpret when airflow and operating mode are known:</p>
-    <ul>
-      <li><strong>Suction pressure / saturation</strong> — low with good airflow points charge, metering, or restriction; low with bad airflow points coil/duct/blower path first.</li>
-      <li><strong>Head pressure / liquid saturation</strong> — elevated with a clean coil suggests fan, charge, or non-condensables; elevated with fouled coil is rejection.</li>
-      <li><strong>Superheat / subcooling</strong> — ties the low and high side together against the OEM chart for the measured indoor wet-bulb and outdoor dry-bulb.</li>
-      <li><strong>Amp draw</strong> — against map and history; rising amps without capacity gain is mechanical or winding stress.</li>
-      <li><strong>Delta-T</strong> — last, after ice is gone and CFM is credible — otherwise it misleads.</li>
+    <p>Readings only interpret when airflow and mode are known:</p>
+    <ul class="dg-plain-list">
+      <li><strong>Suction / saturation</strong> — low with good airflow points charge, metering, or restriction; low with bad airflow points coil, duct, blower first.</li>
+      <li><strong>Head / liquid saturation</strong> — elevated with clean coil: fan, charge, or non-condensables; elevated with fouled coil: heat rejection.</li>
+      <li><strong>Superheat / subcooling</strong> — tied to OEM chart for measured indoor wet-bulb and outdoor dry-bulb.</li>
+      <li><strong>Amp draw</strong> — against map and history.</li>
+      <li><strong>Delta-T</strong> — last, after ice is gone and CFM is credible.</li>
     </ul>
   </section>
 
@@ -395,48 +412,50 @@
         <tr><th scope="col">Issue</th><th scope="col">Fix</th><th scope="col">Typical cost</th></tr>
       </thead>
       <tbody>
-        <tr><td>Dirty filter</td><td>Replace</td><td>$75–$150</td></tr>
-        <tr><td>Low refrigerant</td><td>Recharge <span style="font-size:0.78rem;color:var(--dg-muted)">(after leak locate/repair)</span></td><td>$200–$500</td></tr>
-        <tr><td>Capacitor</td><td>Replace</td><td>$150–$350</td></tr>
-        <tr><td>Thermostat</td><td>Repair</td><td>$100–$300</td></tr>
-        <tr><td>Full system</td><td>Replace</td><td>$3,000–$8,000</td></tr>
+        <tr><td>Dirty filter</td><td>Replace</td><td>$10–$50</td></tr>
+        <tr><td>Capacitor</td><td>Replace</td><td>$150–$400</td></tr>
+        <tr><td>Thermostat / control</td><td>Repair or replace</td><td>$100–$350</td></tr>
+        <tr><td>Low refrigerant (after leak repair)</td><td>Locate, repair, weigh-in</td><td>$400–$1,200+</td></tr>
+        <tr><td>Compressor / major sealed system</td><td>Replace or full system</td><td>$2,000+</td></tr>
       </tbody>
     </table>
-    <p style="font-size:0.8rem;color:var(--dg-muted);margin-top:0.5rem">Metro planning ranges — not quotes. Major coil or compressor jobs can exceed single-line rows.</p>
+    <p style="font-size:0.8125rem;color:var(--dg-muted);margin-top:0.65rem">Planning ranges for the Tampa metro — not quotes. Complex jobs exceed single-line estimates.</p>
   </section>
 
   <section class="dg-sec" aria-labelledby="h-rr">
     <h2 class="dg-sec__h" id="h-rr">Repair vs Replace</h2>
-    <p><strong>Repair</strong> when the defect is isolated (cap, contactor, cleanable coil, reachable leak), major heat exchangers and coils are sound, age is in the <strong>~8–12 year</strong> window or less with rational remaining life, and repair cost stays well under ~40–50% of a quality replacement installed.</p>
-    <p><strong>Replace</strong> when the <strong>compressor</strong> fails out of warranty with a mismatched indoor coil, when you’ve already funded multiple major refrigerant repairs, or when efficiency and reliability goals outpace what the existing match can deliver.</p>
-    <p><strong>Tampa:</strong> Heat and humidity extend annual run hours — wear accelerates. Stacking August emergency calls on a 12+ year system is usually false economy versus a planned changeout with a load calculation.</p>
+    <p><strong>Repair</strong> when the defect is isolated (cap, contactor, cleanable coil, reachable leak), major heat exchangers are sound, age is roughly <strong>under ~10–12 years</strong> with rational life left, and repair cost stays <strong>under about half</strong> of a quality replacement installed.</p>
+    <p><strong>Replace</strong> when the <strong>compressor</strong> fails with a poor indoor match, after multiple major refrigerant repairs, or when <strong>R-22</strong> legacy economics and efficiency goals make continued investment a bad bet.</p>
+    <p><strong>Tampa:</strong> Long run hours and humidity accelerate wear. Stacking August emergency calls on a 12+ year system is usually false economy versus a planned changeout with a load calculation.</p>
   </section>
 
   <section class="dg-sec" aria-labelledby="h-bench">
     <h2 class="dg-sec__h" id="h-bench">Why Bench Testing Is Not Recommended</h2>
-    <p>Components don’t run on a bench — they run under inrush, head pressure, return-air wet-bulb, and line voltage sag. A capacitor that “tests fine” disconnected can still collapse under compressor load at 95°F ambient.</p>
-    <p>Bench-only conclusions drive wrong parts swaps, erase warranty goodwill, and can leave a damaged compressor in circuit until it fails hard — that’s avoidable cost and safety exposure.</p>
+    <p>Parts do not run on a bench — they run under inrush, head pressure, return wet-bulb, and line voltage sag. A capacitor that “tests fine” disconnected can still collapse under compressor load at 95°F ambient.</p>
+    <p>Bench-only conclusions drive wrong parts swaps, voided warranty goodwill, and can leave a damaged compressor in circuit until it fails hard — that is misdiagnosis risk and cost escalation.</p>
   </section>
 
   <section class="dg-sec" aria-labelledby="h-call">
     <h2 class="dg-sec__h" id="h-call">When to Call a Technician</h2>
-    <ul>
-      <li>Repeat failures — same symptom after a recent repair, or breaker trips without a clear cause.</li>
-      <li>Burning smell, or discolored / pitted disconnect or contactor.</li>
-      <li>Ice that returns after defrost with a known-good filter.</li>
-      <li>Any planned refrigerant circuit opening, leak oil trails, or acid test concerns.</li>
-      <li>Continuous water in the secondary pan or ceiling staining.</li>
-      <li>Locked compressor or OEM fault codes that do not clear after a proper power cycle.</li>
+    <p>Stop running the system if you see burning smell, repeated breaker trips, spreading water, or a locked rotor — continued operation can cause catastrophic damage.</p>
+    <ul class="dg-plain-list">
+      <li>Same symptom returns after a recent repair, or trips without a clear cause.</li>
+      <li>Ice returns after defrost with a known-good filter.</li>
+      <li>Any planned refrigerant circuit opening, oil trails at ports, or acid test concerns.</li>
+      <li>Water in the secondary pan or ceiling staining.</li>
+      <li>Compressor noise extremes, hot shell, or OEM fault codes that do not clear after a proper power cycle.</li>
     </ul>
-    <div class="dg-safety">
-      <p class="dg-safety__title">⚠️ Important Safety Notice</p>
+
+    <div class="dg-safety-final">
+      <p class="dg-safety-final__title">Final safety escalation</p>
       <p>Attempting HVAC repairs without proper training can result in:</p>
       <ul>
-        <li>Severe system damage</li>
-        <li>Voided manufacturer warranty</li>
-        <li>Electrical shock or fire hazard</li>
+        <li>System destruction</li>
+        <li>Voided warranty</li>
+        <li>Electrical shock</li>
         <li>Refrigerant exposure</li>
-        <li>Serious personal injury or death</li>
+        <li>Fire hazard</li>
+        <li>Serious injury or death</li>
       </ul>
       <p>If you are unsure at any step, stop and contact a licensed HVAC technician.</p>
     </div>
@@ -444,7 +463,7 @@
 
   <section class="dg-cta" aria-labelledby="h-cta">
     <h2 class="visually-hidden" id="h-cta">Get help</h2>
-    <p>Still not cooling? In Tampa heat, delays turn small problems into full outages. Get help now.</p>
+    <p>Don’t risk a $2,000 mistake. Small issues become big damage in Tampa heat — a professional diagnosis is fast, accurate, and keeps you off the wrong side of a refrigerant or electrical fault.</p>
     <p><a class="dg-btn" href="/request-service">Get HVAC help</a></p>
   </section>
 
@@ -459,41 +478,50 @@
   </details>
 </article>
 
-<script type="module">
-  const chartDef = `flowchart TD
-    A[AC Not Cooling] --> B{Airflow Normal?}
-    B -->|No| C[Check Filter / Vents]
-    B -->|Yes| D{Outdoor Unit Running?}
-    D -->|No| E[Electrical Issue]
-    D -->|Yes| F{Air Cold?}
-    F -->|No| G[Refrigerant Issue]
-    F -->|Yes| H[System Overload]`;
+<!-- UMD build: reliable global mermaid + render (avoids raw flowchart text when ESM import fails) -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  var chartDef =
+    "flowchart TD\n" +
+    "A[AC Not Cooling] --> B{Airflow normal at vents?}\n" +
+    "B -->|No| C[Check filter returns supplies duct]\n" +
+    "B -->|Yes| D{Outdoor unit running?}\n" +
+    "D -->|No| E[Electrical disconnect contactor caps]\n" +
+    "D -->|Yes| F{Supply air cold?}\n" +
+    "F -->|No| G[Refrigerant metering charge restriction]\n" +
+    "F -->|Yes| H[Load sizing zoning damper issue]";
 
-  const el = document.getElementById("mermaid-diagram");
-  if (el) {
+  function run() {
+    var el = document.getElementById("mermaid-diagram");
+    if (!el) return;
+    if (typeof mermaid === "undefined" || !mermaid.initialize) {
+      el.innerHTML = "<p class=\"dg-mermaid-fallback\">Diagram could not load. Check your connection and refresh.</p>";
+      return;
+    }
     try {
-      const mermaid = (await import("https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs")).default;
       mermaid.initialize({
         startOnLoad: false,
-        theme: "base",
-        themeVariables: {
-          primaryColor: "#152a45",
-          primaryTextColor: "#ffffff",
-          primaryBorderColor: "#1e293b",
-          lineColor: "#64748b",
-          secondaryColor: "#fffbeb",
-          tertiaryColor: "#f1f5f9",
-        },
-        flowchart: { htmlLabels: false, curve: "basis" },
+        theme: "neutral",
+        securityLevel: "loose",
+        flowchart: { useMaxWidth: true, htmlLabels: true, curve: "basis" },
       });
-      const id = "dg-flow-" + Math.random().toString(36).slice(2, 10);
-      const { svg } = await mermaid.render(id, chartDef);
-      el.innerHTML = svg;
+      var id = "dg-mmd-" + Math.random().toString(36).slice(2, 11);
+      mermaid.render(id, chartDef).then(function (res) {
+        el.innerHTML = res.svg;
+      }).catch(function () {
+        el.innerHTML = "<p class=\"dg-mermaid-fallback\">Diagram could not render. Refresh the page or try again later.</p>";
+      });
     } catch (e) {
-      console.error(e);
-      el.innerHTML = '<p class="dg-mermaid-fallback">Diagram could not load. Enable JavaScript and refresh, or check your connection.</p>';
+      el.innerHTML = "<p class=\"dg-mermaid-fallback\">Diagram could not render.</p>";
     }
   }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", run);
+  } else {
+    run();
+  }
+})();
 </script>
 
 </body>
