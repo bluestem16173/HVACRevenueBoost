@@ -8,8 +8,6 @@
     :root {
       --dg-navy: #152a45;
       --dg-gold: #c90;
-      --dg-blue: #1d4ed8;
-      --dg-blue-hover: #1e40af;
       --dg-text: #1a1a1a;
       --dg-muted: #5a5a5a;
       --dg-line: #ccc;
@@ -36,10 +34,13 @@
       margin: 0 0 2rem;
     }
     .dg-local strong { color: var(--dg-text); font-weight: 600; }
-    .dg-page a:not(.dg-btn) { color: #2d4a6f; text-underline-offset: 2px; }
-    .dg-page a:not(.dg-btn):hover { color: var(--dg-navy); }
+    .dg-page a:not(.dg-cta-urgent) {
+      color: var(--dg-navy);
+      text-underline-offset: 2px;
+    }
+    .dg-page a:not(.dg-cta-urgent):hover { color: #000; }
 
-    /* Section: ONLY gold bar + title — whitespace separates sections */
+    /* Section: gold | + title only — whitespace separates sections (no boxes) */
     .dg-sec {
       margin-top: 2.75rem;
       padding: 0;
@@ -50,9 +51,8 @@
     .dg-sec--tight-top { margin-top: 0; }
     .dg-sec__h {
       margin: 0 0 1rem;
-      padding: 0 0 0 0.65rem;
+      padding: 0;
       border: none;
-      border-left: 4px solid var(--dg-gold);
       border-radius: 0;
       font-size: 1.05rem;
       font-weight: 800;
@@ -60,6 +60,17 @@
       color: var(--dg-navy);
       line-height: 1.25;
       background: transparent;
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+    }
+    .dg-sec__pipe {
+      color: var(--dg-gold);
+      font-weight: 900;
+      font-size: 1.15rem;
+      line-height: 1;
+      flex-shrink: 0;
+      user-select: none;
     }
     .dg-sec p, .dg-sec li { font-size: 0.9375rem; color: #333; }
     .dg-sec p { margin: 0.5rem 0; max-width: 40rem; }
@@ -140,7 +151,6 @@
       background: var(--dg-insight-bg);
       border: none;
       border-radius: 0;
-      border-left: 3px solid var(--dg-gold);
     }
     .dg-field-insight__label {
       margin: 0 0 0.35rem;
@@ -158,10 +168,7 @@
       border: none;
       border-radius: 0;
     }
-    .dg-sec--tech-yellow .dg-sec__h {
-      border-left-color: var(--dg-gold);
-      background: transparent;
-    }
+    .dg-sec--tech-yellow .dg-sec__h { background: transparent; }
 
     /* Matrix: grid lines only, no outer container */
     table.dg-matrix {
@@ -189,13 +196,6 @@
       border-bottom: 2px solid var(--dg-navy);
     }
     table.dg-matrix tbody tr:last-child td { border-bottom: none; }
-
-    .dg-escalate {
-      font-size: 0.875rem;
-      color: #444;
-      margin-top: 0.65rem;
-      font-weight: 600;
-    }
 
     .dg-safety-final {
       margin-top: 1.75rem;
@@ -225,21 +225,78 @@
       border: none;
       background: transparent;
     }
-    .dg-cta p { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.85rem; max-width: 38rem; }
-    .dg-btn {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      text-decoration: none;
-      color: #fff !important;
-      background: var(--dg-blue);
-      padding: 0.65rem 1.15rem;
+    .dg-cta__h {
+      margin: 0 0 0.65rem;
+      font-size: clamp(1.15rem, 3.5vw, 1.35rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--dg-navy);
+      line-height: 1.2;
+    }
+    .dg-cta__body {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0 0 1rem;
+      max-width: 40rem;
+      line-height: 1.45;
+      color: #222;
+    }
+    /* Urgent action: white on navy — conversion strip (not a “card”; flat bar) */
+    .dg-cta-band {
+      margin: 0 0 1.15rem;
+      padding: 1rem 1.1rem 1.1rem;
+      background: var(--dg-navy);
       border: none;
       border-radius: 0;
     }
-    .dg-btn:hover { background: var(--dg-blue-hover); color: #fff !important; }
+    a.dg-cta-urgent,
+    a.dg-cta-urgent:visited {
+      display: inline-block;
+      font-size: 0.95rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #fff !important;
+      border-bottom: 3px solid var(--dg-gold);
+      padding-bottom: 0.2rem;
+    }
+    a.dg-cta-urgent:hover {
+      color: #fff !important;
+      border-bottom-color: #fde68a;
+    }
+    .dg-cta-band-sub {
+      margin: 0.65rem 0 0;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.88);
+      line-height: 1.4;
+      max-width: 36rem;
+    }
+    .dg-cta-nav {
+      margin: 0;
+      padding: 0;
+      font-size: 0.8125rem;
+      line-height: 1.6;
+    }
+    .dg-cta-nav-label {
+      display: block;
+      font-weight: 800;
+      color: var(--dg-navy);
+      margin-bottom: 0.45rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .dg-cta-nav a {
+      display: inline-block;
+      margin: 0 1rem 0.35rem 0;
+      font-weight: 700;
+      color: var(--dg-navy) !important;
+    }
+    .dg-cta-nav a:hover {
+      color: #000 !important;
+    }
 
     details.dg-seo {
       margin-top: 3rem;
@@ -279,13 +336,8 @@
     </ul>
   </header>
 
-  <section class="dg-sec" aria-labelledby="h-wait">
-    <h2 class="dg-sec__h" id="h-wait">Cost of Waiting</h2>
-    <p>Small comfort loss widens fast here: high latent load keeps the coil wet, run hours stretch, and marginal parts (capacitor, contactor, weak charge) cross from “may need a technician” to high risk of system damage. A delayed correction often means paying for escalation diagnostics, lost refrigerant, and sometimes a failed compressor — think thousands, not hundreds.</p>
-  </section>
-
   <section class="dg-sec" aria-labelledby="h-quick">
-    <h2 class="dg-sec__h" id="h-quick">Quick Checks (2–5 minutes)</h2>
+    <h2 class="dg-sec__h" id="h-quick"><span class="dg-sec__pipe" aria-hidden="true">|</span> Quick Checks (2–5 minutes)</h2>
     <ul class="dg-plain-list">
       <li>Thermostat: <strong>Cool</strong>, realistic setpoint; fresh batteries if any doubt.</li>
       <li>Breaker and outdoor disconnect fully seated — not “almost” latched.</li>
@@ -295,7 +347,7 @@
   </section>
 
   <section class="dg-sec" aria-labelledby="h-tree">
-    <h2 class="dg-sec__h" id="h-tree">Start Here: Find Your Situation</h2>
+    <h2 class="dg-sec__h" id="h-tree"><span class="dg-sec__pipe" aria-hidden="true">|</span> Start Here: Find Your Situation</h2>
     <ul class="dg-plain-list">
       <li>Strong airflow but supply stays warm → capacity / refrigerant / metering branch (do not guess a charge).</li>
       <li>Weak or uneven airflow → restriction, blower, or duct path before any refrigerant work.</li>
@@ -306,13 +358,14 @@
   </section>
 
   <section class="dg-sec" aria-labelledby="h-mermaid">
-    <h2 class="dg-sec__h" id="h-mermaid">Visual Diagnostic Flow</h2>
+    <h2 class="dg-sec__h" id="h-mermaid"><span class="dg-sec__pipe" aria-hidden="true">|</span> Visual Diagnostic Flow</h2>
     <div id="mermaid-diagram" class="dg-mermaid-host" role="img" aria-label="Diagnostic flowchart"></div>
     <noscript><p class="dg-mermaid-fallback">Enable JavaScript to view the diagnostic flow diagram.</p></noscript>
   </section>
 
   <section class="dg-sec" aria-labelledby="h-fail">
-    <h2 class="dg-sec__h" id="h-fail">Why Systems Fail or Stop Working</h2>
+    <h2 class="dg-sec__h" id="h-fail"><span class="dg-sec__pipe" aria-hidden="true">|</span> Why Systems Fail or Stop Working</h2>
+    <p>Small comfort loss widens fast here: high latent load keeps the coil wet, run hours stretch, and marginal parts (capacitor, contactor, weak charge) move from “may need a technician” to high risk of system damage — think thousands, not hundreds, if you wait through August heat.</p>
     <p>Cooling fails in a small set of physical patterns. Tampa makes them show sooner: long run hours, high outdoor dry-bulb, and high indoor dew point keep the refrigerant circuit and blower under continuous stress.</p>
     <ul class="dg-plain-list">
       <li><strong>Heat stress:</strong> Hot condenser compartments age capacitors and insulation; high head pressure raises compressor work.</li>
@@ -324,11 +377,11 @@
   </section>
 
   <section class="dg-sec" aria-labelledby="h-causes">
-    <h2 class="dg-sec__h" id="h-causes">Top Causes</h2>
+    <h2 class="dg-sec__h" id="h-causes"><span class="dg-sec__pipe" aria-hidden="true">|</span> Top Causes</h2>
 
     <div class="dg-cause">
       <h3>Airflow Restriction</h3>
-      <p>Anything that pulls delivered CFM below what the coil and metering device were matched to — filter, coil face matting, blower wheel fuzz, collapsed flex in a hot attic, or ice from a prior fault.</p>
+      <p>Anything that pulls delivered CFM below what the coil and metering device were matched to — filter, coil face matting, blower wheel fuzz, collapsed flex in a hot attic, or ice from a prior fault. These checks are homeowner-safe to observe; if airflow still looks wrong after basics, the next step may require a technician.</p>
       <p class="dg-cause-label">How to confirm</p>
       <ul class="dg-plain-list">
         <li>Visual filter and coil entry; listen for bypass whistling.</li>
@@ -338,7 +391,7 @@
       <p class="dg-cause-label">Typical cost range</p>
       <p>Filter / coil service $150–$450; blower pull-clean $250–$650; duct repairs $400–$2,500+.</p>
       <div class="dg-field-insight">
-        <p class="dg-field-insight__label">Field Insight</p>
+        <p class="dg-field-insight__label">Field Insight:</p>
         <p>Low airflow drops suction first; the coil can look cold while the house stays hot because sensible removal stalled — that is not proof of a correct charge.</p>
       </div>
     </div>
@@ -355,7 +408,7 @@
       <p class="dg-cause-label">Typical cost range</p>
       <p>Leak locate + repair $300–$900; post-repair charge $200–$800+; coil replacement if not repairable $2,200–$5,800.</p>
       <div class="dg-field-insight">
-        <p class="dg-field-insight__label">Field Insight</p>
+        <p class="dg-field-insight__label">Field Insight:</p>
         <p>High superheat with long run times cooks oil return and windings; icing can be downstream of the real fault.</p>
       </div>
     </div>
@@ -371,7 +424,7 @@
       <p class="dg-cause-label">Typical cost range</p>
       <p>Stat / LV repair $120–$450; cap + contactor $180–$450; board-level zoning $300–$900+.</p>
       <div class="dg-field-insight">
-        <p class="dg-field-insight__label">Field Insight</p>
+        <p class="dg-field-insight__label">Field Insight:</p>
         <p>“Works mornings, dies at 4pm” is often heat-soaked electricals, not a random compressor — verify pull-in and voltage before quoting a compressor.</p>
       </div>
     </div>
@@ -387,14 +440,14 @@
       <p class="dg-cause-label">Typical cost range</p>
       <p>Compressor replacement often $2,000–$4,500+ installed; mismatch with indoor coil can push toward full system replacement.</p>
       <div class="dg-field-insight">
-        <p class="dg-field-insight__label">Field Insight</p>
+        <p class="dg-field-insight__label">Field Insight:</p>
         <p>Homeowners often misread “still running” as “still OK.” On a heat-stressed day in Tampa, running is not proof of health.</p>
       </div>
     </div>
   </section>
 
   <section class="dg-sec dg-sec--tech-yellow" aria-labelledby="h-tech">
-    <h2 class="dg-sec__h" id="h-tech">What a Technician Will Check</h2>
+    <h2 class="dg-sec__h" id="h-tech"><span class="dg-sec__pipe" aria-hidden="true">|</span> What a Technician Will Check</h2>
     <p>Readings only interpret when airflow and mode are known:</p>
     <ul class="dg-plain-list">
       <li><strong>Suction / saturation</strong> — low with good airflow points charge, metering, or restriction; low with bad airflow points coil, duct, blower first.</li>
@@ -406,7 +459,7 @@
   </section>
 
   <section class="dg-sec" aria-labelledby="h-matrix">
-    <h2 class="dg-sec__h" id="h-matrix">Repair Cost Matrix (Tampa)</h2>
+    <h2 class="dg-sec__h" id="h-matrix"><span class="dg-sec__pipe" aria-hidden="true">|</span> Repair Cost Matrix (Tampa)</h2>
     <table class="dg-matrix">
       <thead>
         <tr><th scope="col">Issue</th><th scope="col">Fix</th><th scope="col">Typical cost</th></tr>
@@ -423,20 +476,20 @@
   </section>
 
   <section class="dg-sec" aria-labelledby="h-rr">
-    <h2 class="dg-sec__h" id="h-rr">Repair vs Replace</h2>
+    <h2 class="dg-sec__h" id="h-rr"><span class="dg-sec__pipe" aria-hidden="true">|</span> Repair vs Replace</h2>
     <p><strong>Repair</strong> when the defect is isolated (cap, contactor, cleanable coil, reachable leak), major heat exchangers are sound, age is roughly <strong>under ~10–12 years</strong> with rational life left, and repair cost stays <strong>under about half</strong> of a quality replacement installed.</p>
     <p><strong>Replace</strong> when the <strong>compressor</strong> fails with a poor indoor match, after multiple major refrigerant repairs, or when <strong>R-22</strong> legacy economics and efficiency goals make continued investment a bad bet.</p>
     <p><strong>Tampa:</strong> Long run hours and humidity accelerate wear. Stacking August emergency calls on a 12+ year system is usually false economy versus a planned changeout with a load calculation.</p>
   </section>
 
   <section class="dg-sec" aria-labelledby="h-bench">
-    <h2 class="dg-sec__h" id="h-bench">Why Bench Testing Is Not Recommended</h2>
+    <h2 class="dg-sec__h" id="h-bench"><span class="dg-sec__pipe" aria-hidden="true">|</span> Why Bench Testing Is Not Recommended</h2>
     <p>Parts do not run on a bench — they run under inrush, head pressure, return wet-bulb, and line voltage sag. A capacitor that “tests fine” disconnected can still collapse under compressor load at 95°F ambient.</p>
     <p>Bench-only conclusions drive wrong parts swaps, voided warranty goodwill, and can leave a damaged compressor in circuit until it fails hard — that is misdiagnosis risk and cost escalation.</p>
   </section>
 
   <section class="dg-sec" aria-labelledby="h-call">
-    <h2 class="dg-sec__h" id="h-call">When to Call a Technician</h2>
+    <h2 class="dg-sec__h" id="h-call"><span class="dg-sec__pipe" aria-hidden="true">|</span> When to Call a Technician</h2>
     <p>Stop running the system if you see burning smell, repeated breaker trips, spreading water, or a locked rotor — continued operation can cause catastrophic damage.</p>
     <ul class="dg-plain-list">
       <li>Same symptom returns after a recent repair, or trips without a clear cause.</li>
@@ -462,9 +515,23 @@
   </section>
 
   <section class="dg-cta" aria-labelledby="h-cta">
-    <h2 class="visually-hidden" id="h-cta">Get help</h2>
-    <p>Don’t risk a $2,000 mistake. Small issues become big damage in Tampa heat — a professional diagnosis is fast, accurate, and keeps you off the wrong side of a refrigerant or electrical fault.</p>
-    <p><a class="dg-btn" href="/request-service">Get HVAC help</a></p>
+    <h2 class="dg-cta__h" id="h-cta">Don't make a $2,000 mistake</h2>
+    <p class="dg-cta__body">
+      In Tampa, delaying a clear diagnosis turns airflow and charge problems into compressor damage, long outages, and warranty fights. Get ahead of it — one correct call beats two emergency ones.
+    </p>
+    <div class="dg-cta-band">
+      <a class="dg-cta-urgent" href="/request-service">Get Service Now</a>
+      <p class="dg-cta-band-sub">Request service — same-day when available. Mention AC not cooling and Tampa so dispatch can prioritize.</p>
+    </div>
+    <nav class="dg-cta-nav" aria-label="Related HVAC Revenue Boost pages">
+      <span class="dg-cta-nav-label">Keep going (internal)</span>
+      <a href="/hvac/ac-not-cooling/tampa-fl">AC not cooling · Tampa, FL</a>
+      <a href="/hvac/ac-not-cooling">AC not cooling hub</a>
+      <a href="/hvac">HVAC overview</a>
+      <a href="/diagnose">Diagnose problems</a>
+      <a href="/repair">Find local repair</a>
+      <a href="/contact">Contact</a>
+    </nav>
   </section>
 
   <details class="dg-seo">
@@ -479,7 +546,7 @@
 </article>
 
 <!-- UMD build: reliable global mermaid + render (avoids raw flowchart text when ESM import fails) -->
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js"></script>
 <script>
 (function () {
   var chartDef =
