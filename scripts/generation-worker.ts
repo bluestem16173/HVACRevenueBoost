@@ -23,6 +23,10 @@ import { migrateOnePage } from "../lib/content-engine/relational-upsert";
 import { QueueStatus } from "../lib/queue-status";
 import { pagesStatusAfterSuccessfulGeneration } from "../lib/page-status";
 import { describeQueueJobForLogs } from "../lib/content-system/registry";
+import {
+  GENERATED_PAGE_LAYOUT,
+  GENERATED_PAGE_SCHEMA_VERSION,
+} from "../lib/generated-page-json-contract";
 
 console.log("DB URL:", process.env.DATABASE_URL);
 if (process.env.DRY_RUN === "true") {
@@ -41,9 +45,9 @@ function normalizeSlug(input: string) {
 
 export function transformToHVACv3(old: any) {
   return {
-    layout: "hvac_authority_v3",
+    layout: GENERATED_PAGE_LAYOUT,
     page_type: "diagnostic",
-    schema_version: "v3",
+    schema_version: GENERATED_PAGE_SCHEMA_VERSION,
     slug: old?.slug || "",
     title: old?.title || "",
     h1: old?.title || "",
@@ -335,7 +339,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         let finalResult: any = null;
         /** Never `generation_queue.status` — only `pages.status` lifecycle (see lib/page-status.ts). */
         let pagesInsertStatus: ReturnType<typeof pagesStatusAfterSuccessfulGeneration> | null = null;
-        let schemaVersion = pageType === "hvac_authority_v3" ? "hvac_authority_v3" : "v3";
+        let schemaVersion = GENERATED_PAGE_SCHEMA_VERSION;
 
         while (attempts < 3) {
           const rawDgMsg = await generateDiagnosticEngineJson(
@@ -394,7 +398,8 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
           (result as any)._prompt_hash = EXPECTED_PROMPT_HASH;
           (result as any).engineVersion = "v5.0";
           if (pageType === "hvac_authority_v3") {
-            (result as any).layout = "hvac_authority_v3";
+            (result as any).layout = GENERATED_PAGE_LAYOUT;
+            (result as any).schema_version = GENERATED_PAGE_SCHEMA_VERSION;
           }
         }
 

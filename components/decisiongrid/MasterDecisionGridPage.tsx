@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { AlertTriangle, BookOpen, ChevronRight, Shield, Wrench } from "lucide-react";
 import MermaidRenderer from "@/components/MermaidRenderer";
+import { LiveElectricitySafetyNotice } from "@/components/LiveElectricitySafetyNotice";
 import type { BasePageViewModel, DiagnosticFlowPlaceholderData, SystemCardData } from "@/lib/content";
 
 /** Static on every page — Electrical/Chemical/Mechanical → Pro; structural (filter-only) → DIY. @see docs/MASTER-PROMPT-DECISIONGRID.md */
@@ -98,6 +99,10 @@ export default function MasterDecisionGridPage({ pageViewModel: vm, rawContent =
             </div>
             <p className="leading-relaxed text-slate-700">{vm.summary30}</p>
           </section>
+        ) : null}
+
+        {vm.fastAnswer || (vm.summary30 && vm.summary30 !== vm.fastAnswer) ? (
+          <LiveElectricitySafetyNotice />
         ) : null}
 
         {/* DIY vs Pro — static */}

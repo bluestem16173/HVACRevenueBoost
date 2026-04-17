@@ -68,20 +68,16 @@ export async function recordAiUsage(opts: {
   costUsd: number;
   source?: string;
 }): Promise<void> {
-  try {
-    await sql`
-      INSERT INTO ai_usage (cost_usd, model_name, source, prompt_tokens, completion_tokens)
-      VALUES (
-        ${opts.costUsd},
-        ${opts.model},
-        ${opts.source ?? "generator"},
-        ${opts.promptTokens},
-        ${opts.completionTokens}
-      )
-    `;
-  } catch (e) {
-    console.warn("[ai-spend-guard] recordAiUsage failed:", e);
-  }
+  await sql`
+    INSERT INTO ai_usage (cost_usd, model_name, source, prompt_tokens, completion_tokens)
+    VALUES (
+      ${opts.costUsd},
+      ${opts.model},
+      ${opts.source ?? "generator"},
+      ${opts.promptTokens},
+      ${opts.completionTokens}
+    )
+  `;
 }
 
 /** After an OpenAI chat completion, log usage + cost estimate. */
@@ -93,12 +89,19 @@ export async function recordOpenAiChatUsage(
   const pt = usage?.prompt_tokens ?? 0;
   const ct = usage?.completion_tokens ?? 0;
   const costUsd = estimateCostUsd(model, pt, ct);
-  await recordAiUsage({
-    model,
-    promptTokens: pt,
-    completionTokens: ct,
-    costUsd,
-    source,
-  });
+  try {
+    await recordAiUsage({
+      model,
+      promptTokens: pt,
+      completionTokens: ct,
+      costUsd,
+      source,
+    });
+  } catch (err) {
+    console.warn(
+      "[ai-spend-guard] logging skipped:",
+      err instanceof Error ? err.message : String(err)
+    );
+  }
   await checkSpendSpikeAndShutdown();
 }

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import LeadCard from "@/components/LeadCard";
+import { LiveElectricitySafetyNotice } from "@/components/LiveElectricitySafetyNotice";
 import Mermaid from "@/components/Mermaid";
 import { HVACAuthorityPage, HVACAuthorityPageSchema } from "@/types/hvac-authority";
 
@@ -88,6 +89,8 @@ export default function DgAuthorityV2Page({ content }: { content: Record<string,
           </section>
         )}
 
+        {data.summary_30s && quickChecks.length === 0 ? <LiveElectricitySafetyNotice className="mb-12" /> : null}
+
         {/* DIY Tools Grid (Full Width directly below summary) */}
         {diyTools.length > 0 && (
           <section className="mb-12">
@@ -161,6 +164,8 @@ export default function DgAuthorityV2Page({ content }: { content: Record<string,
             </div>
           </section>
         )}
+
+        {quickChecks.length > 0 ? <LiveElectricitySafetyNotice className="mb-16" /> : null}
 
         {/* High Risk Warning + Immediate Emergency CTA */}
         {data.high_risk_warning && (

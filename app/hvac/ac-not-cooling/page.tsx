@@ -23,8 +23,10 @@ export default function AcNotCoolingPage() {
           <p className="text-xl text-slate-600 dark:text-slate-400 mt-4 leading-relaxed">
             <strong>AC running but not cooling</strong> is not a random failure. It points to a predictable breakdown in
             airflow, refrigerant balance, electrical control, or compressor operation. Misread the symptom and a minor
-            airflow or control issue becomes coil damage, compressor overload, and full-system loss. This means you
-            treat the call as a diagnostic sort, not a comfort tweak.
+            airflow or control issue becomes system strain, compressor overload, coil damage, and full-system loss.
+            Refrigerant is not consumed in normal operation—low charge equals a leak—and running in this condition forces
+            the compressor outside its design limits. This means you treat the call as a diagnostic sort, not a comfort
+            tweak.
           </p>
         </section>
 
@@ -41,7 +43,9 @@ export default function AcNotCoolingPage() {
           <h2 id="hero-overview">Problem overview</h2>
           <p>
             Classify the fault before you spend money. Each pattern below is what it is, what it does to operation, and
-            what it costs if the system keeps running under it.
+            what it costs if the system keeps running under it. At this point, you are mapping minor complaints to
+            system strain, compressor stress, system damage, and high-cost failure—because that is the real ladder when
+            cooling collapses under load.
           </p>
           <ul>
             <li>
@@ -53,17 +57,21 @@ export default function AcNotCoolingPage() {
             <li>
               <strong>Refrigerant Issue:</strong> Refrigerant is not consumed in normal operation—low charge equals a
               leak. Wrong charge starves capacity, creates pressure imbalance, and forces the compressor outside its
-              design limits while the stat still demands cooling. If this continues, running low damages the compressor.
+              design limits while the stat still demands cooling. Running in this condition forces the compressor
+              outside those limits under sustained demand. If this continues, running low damages the compressor, then you
+              are pricing compressor replacement, not a top-off.
             </li>
             <li>
               <strong>Mechanical/Electrical Failure:</strong> Failed start components, contactors, motors, or
               compressor lockout stop one stage of the assembly from doing work under load. The symptom is warm supply
-              air with hardware that still looks &quot;on.&quot; If this continues, control circuit stress and
-              repeated start attempts stack into compressor damage and nuisance callbacks.
+              air with hardware that still looks &quot;on.&quot; This means partial operation is on the table until
+              start behavior is proven. If this continues, control circuit stress and repeated start attempts stack into
+              compressor damage and nuisance callbacks.
             </li>
             <li>
               <strong>Thermostat Problem:</strong> Wrong mode, wrong setpoint, bad sensor, or wiring error sends a bad
-              call for cooling. The equipment follows a bad command and looks broken. If this continues, you burn
+              call for cooling. The equipment follows a bad command and looks broken. This is where homeowners burn
+              runtime while a real charge or airflow fault keeps hammering the compressor. If this continues, you burn
               runtime, miss the real fault, and still leave charge or airflow failures unaddressed.
             </li>
           </ul>
@@ -120,6 +128,11 @@ export default function AcNotCoolingPage() {
           </p>
 
           <h2 id="top-causes">Top causes</h2>
+          <p>
+            These are the usual suspects because each one starts small and ends expensive: minor restriction or control
+            error becomes system strain, compressor stress, system damage, and a multi-thousand-dollar failure path when
+            the unit keeps running under fault.
+          </p>
           <ol className="space-y-3 pl-6">
             <li>
               <strong>Dirty Air Filter:</strong> Cause: loaded filter on the return. Effect: choked airflow, weak heat
@@ -162,7 +175,9 @@ export default function AcNotCoolingPage() {
           <p className="text-slate-600 dark:text-slate-400 mt-6 mb-2">
             Delay or continued operation under fault increases final cost. These bands are typical repair paths from
             common symptom patterns—compressor damage risk rises while the system runs faulted, and a leak left unrepaired
-            repeats pressure imbalance and stacks repeat service cost.
+            repeats pressure imbalance and stacks repeat service cost. Low charge equals a leak; refrigerant is not
+            consumed in normal operation; running in this condition forces the compressor outside its design limits. At
+            this point, the invoice stops being about convenience and starts being about equipment survival.
           </p>
           <div className="overflow-x-auto mt-8 mb-4">
             <table className="w-full text-left border-collapse">
@@ -216,7 +231,9 @@ export default function AcNotCoolingPage() {
             and other bounded electrical or airflow work. Replace when the compressor is failing, refrigerant leaks keep
             returning, R-22 economics make recharge irrational, equipment age is high, or a single repair approaches
             roughly half the installed cost of a new system. In high-demand climates, delaying replacement on a failing
-            system increases total lifecycle cost. At that point, you price total ownership, not one ticket.
+            system increases total lifecycle cost. What starts as a minor repair can become a multi-thousand-dollar
+            failure when the system continues running under fault—running in this condition forces the compressor
+            outside its design limits until the math breaks. At that point, you price total ownership, not one ticket.
           </p>
 
           <h3 className="bg-slate-100 dark:bg-slate-800 inline-block px-4 py-2 rounded-lg text-lg border border-slate-200 dark:border-slate-700">
@@ -289,8 +306,7 @@ export default function AcNotCoolingPage() {
             scope. Continuing to run the system or opening sealed refrigeration and high-voltage enclosures drives system
             damage, triggers warranty void where unqualified work is involved, creates electrical hazard and injury
             risk, creates refrigerant exposure risk, and under the wrong conditions can lead to serious injury or death.
-            Professional diagnosis
-            is not optional—it is the safe next step.
+            Professional diagnosis is not optional—it is the safe next step.
           </p>
 
         </div>

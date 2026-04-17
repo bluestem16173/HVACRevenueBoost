@@ -3,6 +3,7 @@ import { getHsdDecisionTreeMermaid } from "@/lib/homeservice/hsdDecisionTreeMerm
 import { getHsdTensionSubhead } from "@/lib/homeservice/hsdTensionSubhead";
 import { getQuickDecisionTreeBranches, sectionLinksForBranch } from "@/lib/homeservice/parseQuickDecisionTree";
 import { getSystemBlocksForPageSlug } from "@/lib/systemBlockResolver";
+import { LiveElectricitySafetyNotice } from "@/components/LiveElectricitySafetyNotice";
 import { HsdDecisionTreeMermaid } from "@/components/homeservice/HsdDecisionTreeMermaid";
 import { HsdInternalSiteLinks } from "@/components/homeservice/HsdInternalSiteLinks";
 import { SystemBlocks } from "@/components/SystemBlocks";
@@ -98,6 +99,8 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
           </div>
         </div>
       </header>
+
+      {!quickChecks.length ? <LiveElectricitySafetyNotice className="mb-8" /> : null}
 
       {showDecisionTree ? (
         <>
@@ -206,6 +209,8 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
           </ul>
         </section>
       ) : null}
+
+      {quickChecks.length ? <LiveElectricitySafetyNotice className="mb-10" /> : null}
 
       {likelyCauses.length ? (
         <section id="section-likely-causes" className="mb-10 scroll-mt-28">

@@ -8,9 +8,9 @@ async function run() {
     
     // Conforming exactly to the v3 schema requirements with upgraded copy
     const payload: HVACAuthorityPage = {
-      layout: "hvac_authority_v3",
+      layout: "dg_authority_v2",
       page_type: "diagnostic",
-      schema_version: "v3",
+      schema_version: "dg_authority_v2",
       slug: slug,
       title: "Furnace Not Turning On: High-Risk Diagnostic & Safe Checks",
       h1: "Furnace Completely Unresponsive: Professional Diagnostic Guide",
@@ -268,7 +268,7 @@ async function run() {
       VALUES (
         ${slug},
         'hvac_authority_v3',
-        'v1',
+        'dg_authority_v2',
         'published',
         ${JSON.stringify(payload)}::jsonb,
         NOW(),
