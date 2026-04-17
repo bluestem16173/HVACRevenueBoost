@@ -21,8 +21,10 @@ export default function AcNotCoolingPage() {
             AC Running But Not Cooling
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400 mt-4 leading-relaxed">
-            Field-style read on why the equipment runs without delivering cooling, how to separate failure paths, and
-            where homeowner checks end.
+            <strong>AC running but not cooling</strong> is not a random failure. It points to a predictable breakdown in
+            airflow, refrigerant balance, electrical control, or compressor operation. Misread the symptom and a minor
+            airflow or control issue becomes coil damage, compressor overload, and full-system loss. This means you
+            treat the call as a diagnostic sort, not a comfort tweak.
           </p>
         </section>
 
@@ -38,59 +40,68 @@ export default function AcNotCoolingPage() {
           
           <h2 id="hero-overview">Problem overview</h2>
           <p>
-            An AC that runs without cooling is not a random failure. It usually points to a predictable breakdown in
-            airflow, refrigerant balance, electrical control, or compressor operation. If misread, a minor performance
-            issue can escalate into coil freeze-up, compressor strain, or major system damage.
+            Classify the fault before you spend money. Each pattern below is what it is, what it does to operation, and
+            what it costs if the system keeps running under it.
           </p>
           <ul>
             <li>
-              <strong>Airflow Restriction:</strong> Reduced heat transfer across the coil, elevated freeze risk, and
-              added compressor load when the system keeps running against a blocked or weak air path.
+              <strong>Airflow Restriction:</strong> The return path is choked—dirty filter, failed blower, collapsed
+              duct, or blocked coil face. That kills heat transfer at the evaporator, drives coil ice, then compressor
+              stress as airflow collapses. If this continues, you convert a maintenance item into flood risk, blower
+              overload, and compressor damage.
             </li>
             <li>
-              <strong>Refrigerant Issue:</strong> Low cooling capacity, unstable pressures, and compressor exposure when
-              charge stays wrong while the unit is commanded to cool.
+              <strong>Refrigerant Issue:</strong> Refrigerant is not consumed in normal operation—low charge equals a
+              leak. Wrong charge starves capacity, creates pressure imbalance, and forces the compressor outside its
+              design limits while the stat still demands cooling. If this continues, running low damages the compressor.
             </li>
             <li>
-              <strong>Mechanical/Electrical Failure:</strong> Startup failure, fan or compressor interruption, and
-              hard-stop conditions where one stage of the outdoor or indoor assembly is no longer doing its job under
-              load.
+              <strong>Mechanical/Electrical Failure:</strong> Failed start components, contactors, motors, or
+              compressor lockout stop one stage of the assembly from doing work under load. The symptom is warm supply
+              air with hardware that still looks &quot;on.&quot; If this continues, control circuit stress and
+              repeated start attempts stack into compressor damage and nuisance callbacks.
             </li>
             <li>
-              <strong>Thermostat Problem:</strong> Incorrect call for cooling, false system behavior, or a control-side
-              fault that makes the equipment look broken when the stat mode, setpoint, or sensor input is wrong for a
-              cooling demand.
+              <strong>Thermostat Problem:</strong> Wrong mode, wrong setpoint, bad sensor, or wiring error sends a bad
+              call for cooling. The equipment follows a bad command and looks broken. If this continues, you burn
+              runtime, miss the real fault, and still leave charge or airflow failures unaddressed.
             </li>
           </ul>
 
           <div className="my-10 bg-slate-50 dark:bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-200 dark:border-slate-800">
             <h2 id="decision-tree" className="!mt-0 !border-0 text-2xl font-bold">Quick decision tree</h2>
             <p className="text-slate-600 dark:text-slate-400">
-              Use vent airflow and outdoor activity to split the problem into airflow versus charge versus
-              compressor-side failure—then verify power and controls before you assume a dead system.
+              Split vent delivery from outdoor assembly behavior: airflow versus charge versus compressor-side. Verify
+              power and controls before you call the system dead. At this point, you are sorting symptom patterns into
+              one failure bucket so the next move is obvious.
             </p>
             <ol className="space-y-4 font-medium" type="A">
               <li><strong>Is there air blowing from the vents?</strong>
                 <ul className="mt-2 font-normal text-slate-600 dark:text-slate-400">
                   <li>
-                    <em>Yes, but it&apos;s warm:</em> This pattern typically points to refrigerant loss, condenser
-                    rejection problems, or compressor-side failure—not a thermostat comfort tweak.
+                    <em>Yes, but it&apos;s warm:</em> This pattern indicates refrigerant loss (refrigerant is not
+                    consumed—low charge equals leak), condenser rejection failure, or compressor-side failure—not a
+                    comfort tweak. This means you move past simple stat checks and treat the pattern as charge,
+                    condenser rejection, or compressor-side until a licensed tech disproves it.
                   </li>
                   <li>
-                    <em>No, or very weakly:</em> This pattern usually indicates airflow restriction, indoor blower
-                    failure, or a frozen evaporator coil starving the duct system.
+                    <em>No, or very weakly:</em> This pattern indicates airflow restriction, indoor blower failure, or a
+                    frozen evaporator coil starving the duct system. This is where coil freeze feeds compressor stress
+                    if the unit keeps running.
                   </li>
                 </ul>
               </li>
               <li className="pt-2"><strong>Is the outside unit (condenser) running?</strong>
                 <ul className="mt-2 font-normal text-slate-600 dark:text-slate-400">
                   <li>
-                    <em>Yes:</em> Fan rotation alone does not prove cooling. Confirm compressor operation and stable
-                    pressures; a running fan with a dead or weak compressor still presents as warm supply air.
+                    <em>Yes:</em> This pattern indicates partial outdoor operation: fan motion without reliable
+                    compressor work still reads as warm supply air. This means you confirm compressor start and
+                    pressures—pressure imbalance from low charge stays on the table until a tech proves otherwise.
                   </li>
                   <li>
-                    <em>No:</em> Start at the breaker, disconnect, and control-side faults before you assume full
-                    equipment failure—the unit is often electrically dead before it is mechanically destroyed.
+                    <em>No:</em> This pattern indicates loss of power or control to the outdoor section before you
+                    assume a destroyed compressor. This means you clear breaker, disconnect, and low-voltage control
+                    faults first, then reassess compressor start behavior.
                   </li>
                 </ul>
               </li>
@@ -101,44 +112,57 @@ export default function AcNotCoolingPage() {
           <p>
             Air conditioners do not create cold air; they move heat. The indoor coil and blower pull heat off the
             return air stream; the compressor and outdoor coil reject that heat outside. When airflow drops, refrigerant
-            charge is wrong, or electrical components fail under load, the system can continue running while cooling
-            performance collapses—often with normal-looking fans and a quiet homeowner assumption that “it’s still on.”
-            That is why &quot;running but not cooling&quot; has to be isolated by failure path, not guesswork.
+            charge is wrong (low charge still equals a leak—refrigerant is not consumed in normal operation), or
+            electrical components fail under load, the system can continue running while cooling performance
+            collapses—often with normal-looking fans and a homeowner reading that as &quot;still on.&quot; Running in
+            this condition forces the compressor outside its design limits. That is why this problem must be isolated by
+            failure path, not guesswork.
           </p>
 
           <h2 id="top-causes">Top causes</h2>
           <ol className="space-y-3 pl-6">
             <li>
-              <strong>Dirty Air Filter:</strong> A loaded filter chokes return air. Ignore it and you starve the coil of
-              heat transfer, invite evaporator freeze, and run the compressor into a low-airflow, high-stress condition.
+              <strong>Dirty Air Filter:</strong> Cause: loaded filter on the return. Effect: choked airflow, weak heat
+              pickup at the coil. If ignored: coil freeze, then compressor stress, then system damage from sustained
+              low-airflow operation.
             </li>
             <li>
-              <strong>Incorrect Thermostat Settings:</strong> Fan-only operation or a heat call when you expect cooling
-              keeps equipment active without real refrigeration work—wasting runtime while the house drifts warm.
+              <strong>Incorrect Thermostat Settings:</strong> Cause: fan-only call, heat mode, or wrong setpoint.
+              Effect: equipment runs without a real cooling demand satisfied. If ignored: wasted runtime, masked charge
+              or airflow faults, and a house that still drifts hot while the bill climbs.
             </li>
             <li>
-              <strong>Blocked Outdoor Condenser:</strong> Packed fins and debris kill heat rejection. The system keeps
-              commanding cooling; head pressure climbs until safeties trip or internal damage accelerates.
+              <strong>Blocked Outdoor Condenser:</strong> Cause: packed fins, debris, or coil blanket. Effect: heat
+              cannot reject, head pressure climbs. If ignored: safeties trip, compressor stress rises, and you risk
+              accelerated compressor wear from chronic high-head operation.
             </li>
             <li>
-              <strong>Failed Capacitor:</strong> A weak start cap leaves the fan spinning while the compressor never
-              reliably comes under load—a partial-operation trap that reads “outside unit is on” with warm supply air.
-              Repeated failed starts add mechanical and electrical stress.
+              <strong>Failed Capacitor:</strong> Cause: weak or open start cap on the outdoor or indoor motor circuit.
+              Effect: fan spins without reliable compressor torque—a partial-operation trap. If ignored: failed starts
+              stack compressor stress and control circuit stress until the compressor is damaged.
             </li>
             <li>
-              <strong>Low Refrigerant (Leak):</strong> Charge does not “disappear” without a breach. Running chronically
-              low reduces capacity, throws off pressures, and invites compressor damage when liquid floodback or
-              overheating follows ignored leaks.
+              <strong>Low Refrigerant (Leak):</strong> Cause: breach in the sealed system—refrigerant is not consumed,
+              so low charge equals leak. Effect: capacity drops, pressures go unstable, running low damages the
+              compressor. If ignored: running in this condition forces the compressor outside its design limits until it
+              fails.
             </li>
             <li>
-              <strong>Frozen Evaporator Coil:</strong> Ice insulates the coil from the airstream. Keep running and you
-              compound flood risk, blower strain, and eventual water damage while cooling stays at zero.
+              <strong>Frozen Evaporator Coil:</strong> Cause: low airflow or wrong charge ices the coil. Effect: ice
+              insulates the coil from the airstream, cooling output goes to zero. If ignored: flood risk, blower
+              overload, compressor stress, and water damage while the stat still calls for cooling.
             </li>
           </ol>
 
+          <p>
+            Most major AC failures do not start as major problems—they become major because the system continues running
+            under fault.
+          </p>
+
           <p className="text-slate-600 dark:text-slate-400 mt-6 mb-2">
-            These are typical repair paths based on common symptom patterns. Delay, misdiagnosis, or continued operation
-            under fault can push the final cost significantly higher than the bands shown.
+            Delay or continued operation under fault increases final cost. These bands are typical repair paths from
+            common symptom patterns—compressor damage risk rises while the system runs faulted, and a leak left unrepaired
+            repeats pressure imbalance and stacks repeat service cost.
           </p>
           <div className="overflow-x-auto mt-8 mb-4">
             <table className="w-full text-left border-collapse">
@@ -158,16 +182,17 @@ export default function AcNotCoolingPage() {
                 <tr>
                   <td>Warm air, outdoor fan running but no compressor hum</td>
                   <td>
-                    Replace dual run capacitor (address soon—repeated failed starts increase compressor and control
-                    damage risk)
+                    Replace dual run capacitor (address soon—repeated failed starts increase compressor stress and
+                    control circuit stress)
                   </td>
                   <td className="font-mono text-sm">$150 - $350</td>
                 </tr>
                 <tr>
                   <td>Warm air, frost on refrigerant lines</td>
                   <td>
-                    Leak search, repair leak source, then recharge (recharging without fixing the leak escalates cost
-                    and repeats the failure)
+                    Leak search, repair leak source, then recharge—refrigerant is not consumed in normal operation, so
+                    low charge still equals leak; recharging without sealing the leak escalates cost, repeats pressure
+                    imbalance, and forces the compressor outside its design limits
                   </td>
                   <td className="font-mono text-sm">$400 - $1,200+</td>
                 </tr>
@@ -186,23 +211,22 @@ export default function AcNotCoolingPage() {
 
           <h3>Replace vs repair</h3>
           <p>
-            Repair usually stays on the table for filter-related airflow fixes, thermostat mistakes, isolated condenser
-            cleaning, contactor or capacitor replacement performed by a licensed tech, and other contained electrical
-            or airflow corrections. Replacement becomes the stronger play when the compressor is failing, major
-            refrigerant leaks keep returning, R-22 economics make recharge irrational, equipment age is high, or a
-            single repair approaches roughly half the installed cost of a new system. In hot, high-demand climates,
-            delaying a replacement decision on a failing system often turns a manageable repair into repeated breakdown
-            expense.
+            Repair stays on the table for minor components and contained faults: filter and airflow corrections,
+            thermostat mistakes, isolated condenser cleaning, contactor or capacitor replacement by a licensed tech,
+            and other bounded electrical or airflow work. Replace when the compressor is failing, refrigerant leaks keep
+            returning, R-22 economics make recharge irrational, equipment age is high, or a single repair approaches
+            roughly half the installed cost of a new system. In high-demand climates, delaying replacement on a failing
+            system increases total lifecycle cost. At that point, you price total ownership, not one ticket.
           </p>
 
           <h3 className="bg-slate-100 dark:bg-slate-800 inline-block px-4 py-2 rounded-lg text-lg border border-slate-200 dark:border-slate-700">
             Capacitor and electrical-start components
           </h3>
           <p>
-            Capacitor and other electrical-start components are not recommended DIY repairs. Even with power
-            disconnected, stored electrical charge and miswiring risk can cause equipment damage, electrical shock, or
-            dangerous misdiagnosis. If the symptom pattern points to capacitor, contactor, or compressor-start failure,
-            this is typically where homeowner troubleshooting stops.
+            Capacitor and other electrical-start components carry stored energy, miswiring risk, and misread symptoms.
+            Opening the wrong enclosure turns a control fault into electrical hazard and equipment damage. If the
+            pattern points to capacitor, contactor, or compressor-start failure, this is where homeowner troubleshooting
+            stops. Call a licensed tech—field misreads here buy compressor damage, not savings.
           </p>
 
           <div className="my-8 p-6 bg-amber-50 dark:bg-amber-900/10 border-l-4 border-amber-500 rounded-r-xl">
@@ -211,11 +235,12 @@ export default function AcNotCoolingPage() {
               <div>
                 <strong className="block text-amber-900 dark:text-amber-500 mb-1">Field Insight</strong>
                 <p className="m-0 text-amber-800 dark:text-amber-200 leading-relaxed text-base">
-                  Homeowners often assume that if the outdoor fan runs, the system is functioning. In reality, partial
-                  operation is common. A unit can spin the fan, circulate air, and still fail to cool because the
-                  compressor is not starting, refrigerant pressure is unstable, or airflow has already pushed the coil
-                  into freeze conditions. In the field, continued operation under low airflow or low charge is how minor
-                  complaints turn into compressor failures.
+                  Fan running does not equal system working—partial operation is a daily field pattern. The outdoor fan
+                  spins, the house still gets warm supply air, and the homeowner reads motion as proof. Underneath,
+                  compressor is not starting, pressure imbalance from low charge (low charge equals leak; refrigerant is
+                  not consumed) is starving the circuit, or airflow already froze the coil. Running in this condition
+                  forces the compressor outside its design limits. This is how minor complaints turn into compressor
+                  failures.
                 </p>
               </div>
             </div>
@@ -223,9 +248,10 @@ export default function AcNotCoolingPage() {
 
           <h3>Preventative maintenance</h3>
           <p>
-            Routine maintenance is less about comfort and more about preventing escalation. Dirty filters, blocked coils,
-            and ignored airflow issues are how small performance losses become frozen coils, high head pressure, and
-            premature component failure.
+            Maintenance is not a comfort perk—it is load and pressure control. Dirty filters and blocked coils raise
+            system load, choke airflow, and push head pressure. This is where small losses become frozen coils,
+            compressor stress, and repeat breakdowns. This means you maintain airflow paths and coil cleanliness so the
+            compressor never fights the house and the weather at the same time.
           </p>
           <ul>
             <li>Change your 1-inch air filters every 30-90 days during cooling season.</li>
@@ -234,14 +260,18 @@ export default function AcNotCoolingPage() {
             <li>Schedule an annual professional tune-up before the heat of summer.</li>
           </ul>
 
+          <p>
+            If airflow, thermostat, and power are confirmed and the system still is not cooling, the fault is no longer
+            superficial. Continuing to run the system is what turns a manageable repair into a major failure.
+          </p>
+
           <div className="not-prose bg-hvac-blue/5 border border-hvac-blue/20 rounded-2xl p-8 my-12 text-center shadow-sm">
             <h3 className="!mt-0 text-2xl font-bold text-hvac-navy dark:text-white mb-2">Avoid a $2000 repair bill</h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6 max-w-lg mx-auto">
-              Running an AC that is no longer cooling properly can turn a small airflow or charge issue into compressor
-              damage. If the system is still running but performance has dropped, early diagnosis is usually the cheapest
-              point of intervention. If cooling performance has dropped and basic checks did not resolve it, continued
-              operation can make the failure more expensive—get the system diagnosed before a minor fault becomes a
-              major repair.
+              What starts as a minor repair can become a multi-thousand-dollar failure when the system continues running
+              under fault. If basic checks did not resolve the issue, continued operation will increase damage. Get the
+              system evaluated before a minor fault becomes a major repair—running with wrong charge or collapsed airflow
+              still forces the compressor outside its design limits, and low charge still equals leak.
             </p>
             <Link
               href="/request-service"
@@ -254,12 +284,13 @@ export default function AcNotCoolingPage() {
           <h2 id="final-cta">When to stop DIY</h2>
           <p>
             If you have already checked the filter, thermostat settings, and breakers, and the system still is not
-            cooling correctly, <strong>Stop.</strong> Refrigerant problems, capacitor and start failures, compressor
-            faults, and repeated freeze-ups are no longer basic DIY checks. Continuing to run the equipment or opening
-            sealed refrigeration and high-voltage enclosures drives system damage, voids manufacturer warranties where
-            unqualified work is involved, creates electrical injury and refrigerant exposure hazards, and under the
-            wrong conditions can lead to serious injury or death. At that point, professional diagnosis is not
-            optional—it is the safe next step.
+            cooling correctly, <strong>Stop.</strong> Do not keep running the equipment to &quot;see if it clears.&quot;
+            Refrigerant work, start components, compressor faults, and repeated freeze-ups are past homeowner DIY
+            scope. Continuing to run the system or opening sealed refrigeration and high-voltage enclosures drives system
+            damage, triggers warranty void where unqualified work is involved, creates electrical hazard and injury
+            risk, creates refrigerant exposure risk, and under the wrong conditions can lead to serious injury or death.
+            Professional diagnosis
+            is not optional—it is the safe next step.
           </p>
 
         </div>
