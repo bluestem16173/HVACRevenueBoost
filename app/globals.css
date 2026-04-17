@@ -606,6 +606,11 @@ html.hvacrb-sticky-lead-visible body > main {
   height: auto;
 }
 
+.dg-mermaid-wrapper {
+  overflow-x: auto;
+  width: 100%;
+}
+
 /* ---- DG Authority v3: interpretation + CTA + checklist ---- */
 .dg-interpret {
   margin-top: 8px;

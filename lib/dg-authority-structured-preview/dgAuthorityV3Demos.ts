@@ -172,6 +172,21 @@ export const HVAC_AC_NOT_COOLING_TAMPA_V3: DgAuthorityV3PageInput = {
   ],
 };
 
+/** Pillar hub `/hvac/why-ac-isnt-cooling` — same DG Authority v3 contract as symptom pages. */
+export const HVAC_PILLAR_WHY_AC_ISNT_COOLING_V3: DgAuthorityV3PageInput = {
+  ...HVAC_AC_NOT_COOLING_TAMPA_V3,
+  title: "Why Your AC Isn't Cooling: Complete Diagnostic Guide",
+  slug: "hvac/why-ac-isnt-cooling",
+  summary_30s:
+    "Use this hub to choose the right symptom path—airflow delivery vs outdoor heat rejection vs refrigerant mass flow vs controls—before you spend on the wrong repair. Each linked guide keeps the same measurement discipline: verify delivery and context before adjusting charge or swapping major components.",
+  diagnostic_flow_issue_label: "Why AC isn't cooling (hub overview)",
+  related_pages: [
+    { title: "AC not cooling", href: "/hvac/ac-not-cooling" },
+    { title: "Weak airflow", href: "/hvac/weak-airflow" },
+    { title: "Frozen evaporator coil", href: "/hvac/frozen-evaporator-coil" },
+  ],
+};
+
 const PLUMB_QUICK = [
   "Dedicated breaker (electric) or pilot/ignition + gas cock position (gas); verify nameplate voltage at the appliance terminal block.",
   "Hot tap at nearest fixture: strong flow that never warms → verify cold inlet to heater is cold and hot outlet warms at dielectric.",
