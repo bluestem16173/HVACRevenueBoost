@@ -10,13 +10,20 @@ export function getHvacSymptomKeyFromSlug(slug: string): string | null {
 
 /**
  * Which curated system blocks to show for this HVAC issue (symptom segment only).
- * 1–2 keys max per product spec; expand the map as new symptom slugs ship.
+ * Most issues: 1–2 blocks. High-intent cooling: homeowner thermostat first, then physics.
  */
 export function getSystemBlocksForIssue(issue: string): SystemBlockKey[] {
   const map: Record<string, SystemBlockKey[]> = {
     "ac-not-turning-on": ["ac_start_sequence", "electrical_control"],
-    "ac-not-cooling": ["refrigerant_cycle", "airflow_dynamics"],
-    "ac-freezing-up": ["airflow_dynamics", "refrigerant_cycle"],
+    "ac-not-cooling": [
+      "cooling_stop_damage_risk",
+      "thermostat_cooling_check",
+      "airflow_dynamics",
+      "refrigerant_levels_test",
+      "refrigerant_cycle",
+      "cooling_repair_cost_bands",
+    ],
+    "ac-freezing-up": ["cooling_stop_damage_risk", "airflow_dynamics", "refrigerant_cycle"],
     "weak-airflow": ["airflow_dynamics"],
     "ac-making-noise": ["ac_start_sequence", "electrical_control"],
   };
@@ -30,5 +37,9 @@ export function getSystemBlocksForIssue(issue: string): SystemBlockKey[] {
 export function getSystemBlocksForPageSlug(slug: string): SystemBlockKey[] {
   const symptom = getHvacSymptomKeyFromSlug(slug);
   if (!symptom) return [];
-  return getSystemBlocksForIssue(symptom);
+  const keys = [...getSystemBlocksForIssue(symptom)];
+  if (symptom === "ac-not-cooling" && /tampa/i.test(slug)) {
+    keys.push("cooling_tampa_technician_cta");
+  }
+  return keys;
 }

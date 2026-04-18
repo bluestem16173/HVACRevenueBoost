@@ -12,18 +12,28 @@ export const HSDV25Schema = z
       .regex(/^(hvac|plumbing|electrical)\/[a-z0-9-]+\/[a-z0-9-]+$/i),
 
     summary_30s: z.object({
-      headline: z.string().min(40),
+      headline: z.string().min(50),
       top_causes: z
         .array(
           z.object({
             label: z.string(),
             probability: z.string(),
+            /** DG-style authority paragraph (mechanism, load, failure chain). */
+            deep_dive: z.string().default(""),
           })
         )
         .min(3),
-      core_truth: z.string().min(20),
-      risk_warning: z.string().min(30),
+      core_truth: z.string().min(70),
+      risk_warning: z.string().min(45),
+      /**
+       * DG scan lines under headline (each string one line; use → for branches).
+       * When 3+ non-empty lines, summary uses compact layout and shows this instead of a long core_truth block.
+       */
+      flow_lines: z.array(z.string()).default([]),
     }),
+
+    /** Expert-voice bridge after the 30s summary: diagnosis → mechanism → wear/failure (plain text). */
+    what_this_means: z.string().default(""),
 
     quick_checks: z
       .array(
@@ -48,6 +58,26 @@ export const HSDV25Schema = z
       )
       .min(3),
 
+    /** Scannable symptom → mechanism → action; rendered as a real HTML table in `renderHsdV25`. */
+    quick_table: z
+      .array(
+        z.object({
+          symptom: z.string(),
+          cause: z.string(),
+          fix: z.string(),
+        })
+      )
+      .min(4),
+
+    /** Branch lines using → or -> (Mermaid optional later). */
+    decision_tree_text: z.array(z.string()).default([]),
+
+    /** 1–2 lines the model must echo in summary, steps, and final_warning (intentional repetition). */
+    canonical_truths: z.array(z.string()).max(2).default([]),
+
+    /** Pro tools — reinforces real technical scope; not all fixes are DIY. */
+    tools: z.array(z.string()).default([]),
+
     diagnostic_flow: z.object({
       nodes: z
         .array(
@@ -67,6 +97,9 @@ export const HSDV25Schema = z
         )
         .min(3),
     }),
+
+    /** Decisive line rendered above the repair matrix table (DIY band vs sealed-system / major). */
+    repair_matrix_intro: z.string().default(""),
 
     repair_matrix: z
       .array(
@@ -91,7 +124,7 @@ export const HSDV25Schema = z
           cost: z.string(),
         })
       )
-      .min(3),
+      .min(4),
 
     decision: z.object({
       safe: z.array(z.string()).min(2),
@@ -99,8 +132,11 @@ export const HSDV25Schema = z
       stop_now: z.array(z.string()).min(2),
     }),
 
-    final_warning: z.string().min(20),
-    cta: z.string().min(20),
+    /** Single authority line after the three decision columns (continued operation / cost). */
+    decision_footer: z.string().default(""),
+
+    final_warning: z.string().min(60),
+    cta: z.string().min(45),
   })
   .superRefine((data, ctx) => {
     const ids = new Set(data.diagnostic_flow.nodes.map((n) => n.id.trim()).filter(Boolean));

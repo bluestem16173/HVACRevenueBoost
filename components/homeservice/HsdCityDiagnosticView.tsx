@@ -1,10 +1,8 @@
 import { linesFromSummary30s } from "@/lib/homeservice/isHsdCityDiagnosticJson";
-import { getHsdDecisionTreeMermaid } from "@/lib/homeservice/hsdDecisionTreeMermaid";
 import { getHsdTensionSubhead } from "@/lib/homeservice/hsdTensionSubhead";
 import { getQuickDecisionTreeBranches, sectionLinksForBranch } from "@/lib/homeservice/parseQuickDecisionTree";
 import { getSystemBlocksForPageSlug } from "@/lib/systemBlockResolver";
 import { LiveElectricitySafetyNotice } from "@/components/LiveElectricitySafetyNotice";
-import { HsdDecisionTreeMermaid } from "@/components/homeservice/HsdDecisionTreeMermaid";
 import { HsdInternalSiteLinks } from "@/components/homeservice/HsdInternalSiteLinks";
 import { SystemBlocks } from "@/components/SystemBlocks";
 
@@ -30,10 +28,15 @@ type Props = {
 export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", deferInternalSiteLinks = false }: Props) {
   const title = (typeof data.title === "string" && data.title.trim()) || pageTitle;
   const problem = String(data.problem || "").trim();
-  const summaryLines = linesFromSummary30s(String(data.summary_30s || ""));
+  const summaryLines = linesFromSummary30s(
+    typeof data.summary_30s === "string"
+      ? data.summary_30s
+      : data.summary_30s != null
+        ? String(data.summary_30s)
+        : ""
+  );
   const slug = storageSlug || String(data.slug || "");
   const tensionSubhead = getHsdTensionSubhead(data, slug);
-  const decisionTreeMermaid = getHsdDecisionTreeMermaid(data, slug);
   const cta = (data.cta && typeof data.cta === "object" ? data.cta : {}) as Record<string, unknown>;
   const primaryCta =
     (typeof cta.primary === "string" && cta.primary.trim()) || "Get Local HVAC Help";
@@ -73,7 +76,7 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
               {summaryLines.length > 1 ? (
                 <ul className="mt-3 list-disc space-y-2 pl-5 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200 sm:text-base">
                   {summaryLines.map((line, i) => (
-                    <li key={i}>{line.replace(/^[•\-\*]\s*/, "")}</li>
+                    <li key={`hsd-sum-${i}`}>{line.replace(/^[•\-\*]\s*/, "")}</li>
                   ))}
                 </ul>
               ) : (
@@ -111,7 +114,7 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
           >
             <div className="overflow-hidden rounded-2xl border-2 border-hvac-navy bg-hvac-navy shadow-2xl ring-1 ring-black/10 dark:ring-white/10">
               <div className="border-b border-white/15 bg-gradient-to-r from-hvac-navy to-slate-900 px-5 py-4 sm:px-6 sm:py-5">
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-hvac-gold">Quick decision tree</p>
+                <div className="text-[11px] font-black uppercase tracking-[0.2em] text-hvac-gold">Quick decision tree</div>
                 <h2
                   id="hsd-qdt-heading"
                   className="mt-1 text-xl font-black tracking-tight text-white sm:text-2xl"
@@ -150,7 +153,6 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
               </ul>
             </div>
 
-            {decisionTreeMermaid ? <HsdDecisionTreeMermaid chart={decisionTreeMermaid} /> : null}
           </section>
 
           {systemBlockKeys.length ? <SystemBlocks keys={systemBlockKeys} /> : null}
@@ -199,7 +201,7 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
           <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">Fast pass — rule out the common tripwires before you dig deeper.</p>
           <ul className="space-y-2.5 text-slate-800 dark:text-slate-200">
             {quickChecks.map((item, i) => (
-              <li key={i} className="flex gap-2.5 text-sm font-semibold leading-snug sm:text-base">
+              <li key={`hsd-qc-${i}`} className="flex gap-2.5 text-sm font-semibold leading-snug sm:text-base">
                 <span className="shrink-0 text-hvac-navy dark:text-hvac-gold" aria-hidden>
                   ✔
                 </span>
@@ -217,7 +219,7 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
           <h2 className="mb-3 text-xl font-black text-hvac-navy dark:text-white">Likely causes</h2>
           <ul className="list-disc space-y-2 pl-5 text-slate-700 dark:text-slate-300">
             {likelyCauses.map((item, i) => (
-              <li key={i}>{item}</li>
+              <li key={`hsd-lc-${i}`}>{item}</li>
             ))}
           </ul>
         </section>
@@ -228,7 +230,7 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
           <h2 className="mb-3 text-xl font-black text-hvac-navy dark:text-white">Diagnostic steps</h2>
           <ol className="list-decimal space-y-3 pl-5 text-slate-700 dark:text-slate-300">
             {diagnosticSteps.map((item, i) => (
-              <li key={i} className="pl-1">
+              <li key={`hsd-ds-${i}`} className="pl-1">
                 {item}
               </li>
             ))}
@@ -242,7 +244,7 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
             <h3 className="mb-2 font-black text-hvac-navy dark:text-white">DIY-appropriate</h3>
             <ul className="list-disc space-y-2 pl-5 text-sm text-slate-700 dark:text-slate-300">
               {diyOk.map((item, i) => (
-                <li key={i}>{item}</li>
+                <li key={`hsd-diy-${i}`}>{item}</li>
               ))}
             </ul>
           </div>
@@ -250,7 +252,7 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
             <h3 className="mb-2 font-black text-red-900 dark:text-red-200">Call a pro</h3>
             <ul className="list-disc space-y-2 pl-5 text-sm text-slate-800 dark:text-slate-200">
               {callPro.map((item, i) => (
-                <li key={i}>{item}</li>
+                <li key={`hsd-pro-${i}`}>{item}</li>
               ))}
             </ul>
           </div>

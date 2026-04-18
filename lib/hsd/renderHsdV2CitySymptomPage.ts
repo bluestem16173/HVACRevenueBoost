@@ -95,8 +95,8 @@ export function renderHsdV2CitySymptomPage(content: Record<string, unknown>): st
       ? `
 <section class="hsd-figure" aria-label="Visual diagnostic flow">
   <h2 class="hsd-section__title">Visual diagnostic flow</h2>
-  <div class="hsd-figure__surface">
-    <div class="mermaid">${chart}</div>
+  <div class="hsd-figure__surface rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-600 dark:border-slate-600 dark:bg-slate-900/40 dark:text-slate-400">
+    Branch chart is not rendered in this build; follow the text branches above.
   </div>
 </section>`.trim()
       : "";
@@ -187,7 +187,7 @@ export function renderHsdV2CitySymptomPage(content: Record<string, unknown>): st
   </section>
   <hr class="hsd-cred__rule" />
   <section class="hsd-cred__quick" id="${hsdSectionDomId("quick_checks")}" aria-labelledby="hsd-quick-label">
-    <h2 id="hsd-quick-label" class="hsd-cred__quick-head">Quick checks</h2>
+    <h2 id="hsd-quick-label" class="hsd-cred__quick-head">Quick checks (Do this first)</h2>
     ${checksHtml || `<p class="hsd-cred__quick-fallback"></p>`}
   </section>
 </header>`.trim();

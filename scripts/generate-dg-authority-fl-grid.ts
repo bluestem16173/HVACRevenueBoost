@@ -130,12 +130,12 @@ async function main() {
         related_links,
       };
 
-      assertHsdV2CitySymptomPublishable(j.slug, contentJson);
+      const publishable = assertHsdV2CitySymptomPublishable(j.slug, contentJson);
 
       await upsertHsdV2CitySymptomPage({
         slug: j.slug,
         title,
-        contentJson,
+        contentJson: publishable,
       });
 
       const path = `/hvac/${issuePhraseToPillar(j.issue)}/${j.citySlug}`;

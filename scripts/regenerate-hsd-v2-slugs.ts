@@ -113,8 +113,7 @@ async function main() {
       };
 
       try {
-        assertHsdV2CitySymptomPublishable(slug, merged);
-        contentJson = merged;
+        contentJson = assertHsdV2CitySymptomPublishable(slug, merged);
         break;
       } catch (e) {
         lastFeedback =
