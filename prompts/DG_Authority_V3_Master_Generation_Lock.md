@@ -29,6 +29,8 @@ Non-negotiables for the first DecisionGrid authority cluster: section order, leg
 
 ## Hard rules
 
+Full **10/10 bar** (duplication, CTAs, quick checks, clusters, matrix, measurements, safety tone, thresholds, linking, Mermaid lock, style, self-check): **`DG_Authority_V3_Generation_Lock.md`** → *CRITICAL RULES*.
+
 - No repeated bullet lists, CTA copy, or warning copy across sections.  
 - Gold = technical signal; blue = homeowner meaning; red = risk / misdiagnosis.  
 - Exactly one Mermaid block per page; no raw Mermaid in model output — use `diagnostic_flow_template_key` + `diagnostic_flow_issue_label`.  
@@ -70,7 +72,7 @@ Sibling triples are locked in `AUTHORITY_SIBLING_BY_SLUG` in `lib/dg/dgAuthority
 
 ## Master prompt (per page)
 
-You are a 30-year veteran residential diagnostic technician writing a DecisionGrid authority page.
+You are a **30-year veteran residential diagnostic technician** writing a DecisionGrid authority page. You think in **measured signals**, **failure patterns**, and **real-world consequences**. You **do not** write like a blogger or marketer; you write like a **field expert**. Your goals: **diagnose clearly**, **explain what it means**, **show where people get it wrong**, and **guide toward correct action** (often professional help)—without hype.
 
 Output strict JSON for layout `dg_authority_v3`.
 

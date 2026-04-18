@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { diagnosticFlowToMermaidSource } from "@/lib/dg/diagnosticFlowToMermaid";
+import Link from "next/link";
+import { resolveDgAuthorityMermaidChart } from "@/lib/dg/resolveDgAuthorityMermaidChart";
 import { asCtaPayload } from "@/lib/dg/dgAuthorityCta";
 import type { Trade } from "@/lib/dg/resolveCTA";
 import { issuePhraseFromPageTitle } from "@/lib/dg/resolveCTA";
@@ -25,6 +26,47 @@ function asStringArray(v: unknown): string[] {
 
 function asRecord(v: unknown): Record<string, unknown> | null {
   return v && typeof v === "object" ? (v as Record<string, unknown>) : null;
+}
+
+function normalizeInternalHref(href: string): string {
+  const t = href.trim();
+  if (!t) return "";
+  if (t.startsWith("http://") || t.startsWith("https://")) return t;
+  return t.startsWith("/") ? t : `/${t}`;
+}
+
+/** Derive a short display title from a registry slug (`trade/symptom-slug` → `Symptom Slug`). */
+function labelFromSlugPath(slugPath: string): string {
+  const last = slugPath.split("/").filter(Boolean).pop() || slugPath;
+  return last
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
+export type RelatedDiagnosticLink = { label: string; href: string };
+
+/** Parse `related_pages`: string slugs and/or `{ title, href }` objects (internal paths only). */
+export function parseRelatedDiagnostics(raw: unknown): RelatedDiagnosticLink[] {
+  if (!Array.isArray(raw) || raw.length === 0) return [];
+  const out: RelatedDiagnosticLink[] = [];
+  for (const item of raw) {
+    if (typeof item === "string") {
+      const s = item.trim();
+      if (!s) continue;
+      out.push({ label: labelFromSlugPath(s), href: normalizeInternalHref(s) });
+      continue;
+    }
+    const o = asRecord(item);
+    if (!o) continue;
+    const title = typeof o.title === "string" ? o.title.trim() : "";
+    const hrefRaw = typeof o.href === "string" ? o.href.trim() : "";
+    if (title && hrefRaw) {
+      out.push({ label: title, href: normalizeInternalHref(hrefRaw) });
+    }
+  }
+  return out;
 }
 
 function pickMidCta(data: Record<string, unknown>): unknown {
@@ -114,7 +156,7 @@ function riskNotesBlockFromRows(rows: RiskNoteRow[]): ReactNode {
 
 /**
  * **dg_authority_v3** — dual-layer sections + **JSON CTAs** (`cta_top`, `cta_mid`, `cta_final`).
- * Quick checks: list = measurable PRO lines; `quick_checks_home` = HOME (optional legacy `quick_checks_pro` overrides joined list).
+ * Quick checks: `quick_checks[]` = measurable PRO lines (renderer joins for the gold block); `quick_checks_home` = HOME.
  * Optional `trade` on the article passes through for lead prefill only.
  */
 export function RenderDgAuthorityV3({
@@ -127,8 +169,7 @@ export function RenderDgAuthorityV3({
   const title = asString(data.title);
   const summary = asString(data.summary_30s);
   const quick = asStringArray(data.quick_checks);
-  const quickProOverride = asString(data.quick_checks_pro);
-  const quickProDerived = quickProOverride || (quick.length ? quick.join("\n\n") : "");
+  const quickProDerived = quick.length ? quick.join("\n\n") : "";
   const quickHome = asString(data.quick_checks_home);
   const logicPro = asString(data.diagnostic_logic_pro);
   const logicHome = asString(data.diagnostic_logic_home);
@@ -172,13 +213,28 @@ export function RenderDgAuthorityV3({
   );
   const riskBody = riskNotesBlockFromRows(riskRowsFiltered);
 
+  const selfSlug = asString(data.slug).replace(/^\/+/, "").split("?")[0].toLowerCase();
+  let relatedLinks = parseRelatedDiagnostics(data.related_pages);
+  if (selfSlug) {
+    relatedLinks = relatedLinks.filter(
+      (l) => l.href.replace(/^\/+/, "").split("?")[0].toLowerCase() !== selfSlug
+    );
+  }
+  const pillarSlug = asString(data.pillar_page).replace(/^\/+/, "");
+  const pillarHref = pillarSlug ? normalizeInternalHref(pillarSlug) : "";
+  const pillarLabel = pillarSlug ? labelFromSlugPath(pillarSlug) : "";
+  const pillarNorm = pillarHref.replace(/^\/+/, "").split("?")[0].toLowerCase();
+  const showPillarLink = Boolean(pillarHref) && (!selfSlug || pillarNorm !== selfSlug);
+  const showRelatedBlock = relatedLinks.length > 0 || showPillarLink;
+
   const matrixRiskDeduped =
     matrixRisk &&
     !warningsDeduped.some((line) => normCopy(line) === normCopy(matrixRisk))
       ? matrixRisk
       : "";
 
-  const hasMermaid = Boolean(diagnosticFlowToMermaidSource(data.diagnostic_flow));
+  const mermaidChart = resolveDgAuthorityMermaidChart(data);
+  const hasMermaid = Boolean(mermaidChart?.trim());
 
   const ctaTop = asCtaPayload(data.cta_top);
   const ctaMid = asCtaPayload(pickMidCta(data));
@@ -238,9 +294,9 @@ export function RenderDgAuthorityV3({
         <DGSection title="Diagnostic Logic">{renderDualLayer(logicPro, logicHome)}</DGSection>
       ) : null}
 
-      {hasMermaid ? (
+      {hasMermaid && mermaidChart ? (
         <DGSection title="Diagnostic flow">
-          <DGMermaid source={data.diagnostic_flow} />
+          <DGMermaid chart={mermaidChart} />
         </DGSection>
       ) : null}
 
@@ -306,6 +362,30 @@ export function RenderDgAuthorityV3({
       ) : null}
 
       {riskBody}
+
+      {showRelatedBlock ? (
+        <DGSection title="Related Diagnostics">
+          {showPillarLink ? (
+            <p className="dg-related-pillar dg-body">
+              <span className="font-semibold text-slate-800 dark:text-slate-200">Hub: </span>
+              <Link href={pillarHref} className="dg-related-diagnostics__link">
+                {pillarLabel}
+              </Link>
+            </p>
+          ) : null}
+          {relatedLinks.length > 0 ? (
+            <ul className="dg-related-diagnostics">
+              {relatedLinks.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className="dg-related-diagnostics__link">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </DGSection>
+      ) : null}
 
       {ctaFinal ? <DGCTA {...ctaFinal} variant="final" conversionLock {...leadProps} /> : null}
 

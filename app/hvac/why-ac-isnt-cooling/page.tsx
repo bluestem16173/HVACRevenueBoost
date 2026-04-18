@@ -28,7 +28,7 @@ export default function HvacWhyAcIsntCoolingPillarPage() {
         </span>
       </nav>
       <div className="mx-auto max-w-4xl px-4 pb-16">
-        <RenderDgAuthorityV3 data={pillarData} trade="hvac" pagePath="hvac/why-ac-isnt-cooling" />
+        <RenderDgAuthorityV3 data={pillarData} trade="hvac" />
       </div>
     </div>
   );

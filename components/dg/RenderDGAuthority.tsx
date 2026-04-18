@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { diagnosticFlowToMermaidSource } from "@/lib/dg/diagnosticFlowToMermaid";
+import { resolveDgAuthorityMermaidChart } from "@/lib/dg/resolveDgAuthorityMermaidChart";
 import { DGHero } from "@/components/dg/DGHero";
 import { DGSection } from "@/components/dg/DGSection";
 import { DGMermaid } from "@/components/dg/DGMermaidDynamic";
@@ -61,7 +61,8 @@ export function RenderDGAuthority({ data }: { data: Record<string, unknown> }) {
   const nextText = asString(data.next_step) || asString(data.cta);
   const warnBody = warningsBlock(data.warnings);
 
-  const hasMermaid = Boolean(diagnosticFlowToMermaidSource(data.diagnostic_flow));
+  const mermaidChart = resolveDgAuthorityMermaidChart(data) || "";
+  const hasMermaid = Boolean(mermaidChart.trim());
 
   return (
     <>
@@ -87,7 +88,7 @@ export function RenderDGAuthority({ data }: { data: Record<string, unknown> }) {
 
       {hasMermaid ? (
         <DGSection title="Diagnostic flow">
-          <DGMermaid source={data.diagnostic_flow} />
+          <DGMermaid chart={mermaidChart} />
         </DGSection>
       ) : null}
 

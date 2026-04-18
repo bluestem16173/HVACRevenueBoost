@@ -20,9 +20,6 @@ export function buildDgAuthorityV3Page(input: DgAuthorityV3PageInput): Record<st
     summary_30s: input.summary_30s,
     cta_top: input.cta_top,
     quick_checks: input.quick_checks,
-    ...(input.quick_checks_pro != null && String(input.quick_checks_pro).trim()
-      ? { quick_checks_pro: String(input.quick_checks_pro).trim() }
-      : {}),
     quick_checks_home: input.quick_checks_home,
     diagnostic_logic_pro: input.diagnostic_logic_pro,
     diagnostic_logic_home: input.diagnostic_logic_home,
