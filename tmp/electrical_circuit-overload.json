@@ -1,0 +1,181 @@
+{
+  "layout": "dg_authority_v3",
+  "schema_version": "dg_authority_v3",
+  "title": "Circuit Overload",
+  "summary_30s": "A breaker that trips on what feels like “normal use” is usually sustained current above the device’s thermal curve—often from too many continuous loads on one branch, a loose termination raising resistance and heat, or a fault that is not a dead short.",
+  "cta_top": {
+    "title": "Repeated resets can weld a fault into a fire-class event",
+    "body": "Thermal trips mean sustained overload or resistance heat; instant trips mean fault current—both need amp logs and de-energized inspection, not a larger breaker.",
+    "button": "Request a load log and termination inspection"
+  },
+  "quick_checks": [
+    "Inventory loads on the branch at trip time; clamp running amps vs breaker handle rating.",
+    "Torque-check accessible terminations at breaker and first outlet on the homerun when de-energized and safe.",
+    "240 VAC appliance circuits: verify both legs share load as designed.",
+    "Classify trip: delayed thermal vs instantaneous magnetic—little load + instant trip is fault-class."
+  ],
+  "quick_checks_home": "If these numbers are off, this is no longer a simple fix—continued resets without mapping load vs curve can mask a high-resistance fault progressing toward fire risk.",
+  "diagnostic_logic_pro": "If measured continuous load exceeds 80% of the breaker rating under normal operation, the installation is misapplied or the breaker is correctly protecting the conductor. If measured amps are below 80% continuous yet tripping persists, evaluate connection resistance and breaker wear.",
+  "diagnostic_logic_home": "At this point, guessing can make the problem worse: upsizing a breaker without a load calculation and conductor verification violates code intent and can destroy the safety margin.",
+  "diagnostic_flow": {
+    "nodes": [
+      {
+        "id": "start",
+        "label": "Breaker trips under use or reset"
+      },
+      {
+        "id": "classify",
+        "label": "Classify: thermal delay vs instantaneous"
+      },
+      {
+        "id": "inventory",
+        "label": "Inventory loads; measure running amps"
+      },
+      {
+        "id": "compare",
+        "label": "Compare to rating + 80% continuous rule"
+      },
+      {
+        "id": "balance",
+        "label": "Check multi-wire / shared neutral balance"
+      },
+      {
+        "id": "terminals",
+        "label": "Inspect terminations; resistance/heat"
+      },
+      {
+        "id": "breaker",
+        "label": "Breaker test/replace if load is compliant"
+      },
+      {
+        "id": "end",
+        "label": "Document amps, photos, corrective action"
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "classify"
+      },
+      {
+        "from": "classify",
+        "to": "inventory",
+        "label": "Thermal pattern"
+      },
+      {
+        "from": "classify",
+        "to": "end",
+        "label": "Instantaneous → fault investigation"
+      },
+      {
+        "from": "inventory",
+        "to": "compare"
+      },
+      {
+        "from": "compare",
+        "to": "balance",
+        "label": "If amps borderline or MWBC"
+      },
+      {
+        "from": "compare",
+        "to": "terminals",
+        "label": "If amps acceptable"
+      },
+      {
+        "from": "balance",
+        "to": "terminals"
+      },
+      {
+        "from": "terminals",
+        "to": "breaker"
+      },
+      {
+        "from": "breaker",
+        "to": "end"
+      }
+    ]
+  },
+  "system_explanation": "Branch overcurrent protection limits conductor temperature rise by opening when current-time exceeds the breaker’s trip curve. Thermal elements integrate sustained overload; magnetic elements respond to high fault currents. The 80% continuous planning rule keeps thermal operation away from nuisance edge.",
+  "failure_clusters": [
+    {
+      "title": "Load Imbalance",
+      "pro": "Too many continuous loads on one 120 VAC leg or one multi-wire branch without balanced phasing can push one conductor toward thermal limit.",
+      "home": "Adding loads without diversity checks pushes one leg into chronic thermal trip behavior that looks like a “bad breaker.”",
+      "risk": "Moving breakers around without re-checking neutral routing on MWBCs can open a shared neutral under load—arc and shock hazard."
+    },
+    {
+      "title": "Wiring Faults",
+      "pro": "Loose stab or lug, damaged insulation, or high-resistance neutral shared paths can generate localized heat and intermittent trips.",
+      "home": "Tightening only the breaker lug while neutral issues remain can leave the customer with recurring trips and hidden heat.",
+      "risk": "High-resistance faults can progress to arcing; do not reset an instantaneous trip repeatedly without de-energized inspection."
+    },
+    {
+      "title": "Breaker Failure",
+      "pro": "Internal mechanism wear or nuisance sensitivity can trip below measured branch load after integrity is proven.",
+      "home": "Replacing AFCI/GFCI devices without proving branch integrity often repeats the same signature—wasting parts and time.",
+      "risk": "Swapping protective devices while ignoring parallel neutral faults or damaged insulation leaves the same fire driver in place."
+    }
+  ],
+  "repair_matrix": [
+    "Breaker replacement → $150–$400",
+    "Wiring repair → $300–$1,200",
+    "Panel upgrade → $1,500–$4,000"
+  ],
+  "repair_matrix_pro": "Pricing depends on finished-wall access, aluminum remediation requirements, and whether the issue is localized versus systemic panel bus damage.",
+  "repair_matrix_home": "Most issues land in the lower ranges—but guessing wrong is how people jump straight to the $5k outcome: unnecessary panel replacement after misreading a connection fault.",
+  "repair_matrix_risk": "Assuming “breaker bad” without amp logs—many trips are thermal reality from load, not device failure.",
+  "cta_mid": {
+    "title": "Upsizing a breaker without a load calc removes your safety margin",
+    "body": "Most spend stays in breaker or lug work—until someone masks a high-resistance joint with a bigger handle and overheats the homerun.",
+    "button": "Have an electrician document amps vs curve before changes"
+  },
+  "field_measurements": [
+    "Continuous load ≤ 80% of breaker rating (e.g., ≤16 A on 20 A).",
+    "120 VAC L-N and 240 VAC L-L under realistic simultaneous load.",
+    "Clamp each ungrounded conductor under the same load window.",
+    "De-energized: insulation resistance / neutral continuity when instant trip suspected."
+  ],
+  "field_measurements_pro": "Treat the list as one snapshot in time: continuous amps against the breaker curve, L-N/L-L under the same simultaneous load, per-leg clamps, then de-energized insulation and neutral continuity when trips are instantaneous—those readings separate overload from fault class before you swap breakers.",
+  "field_measurements_home": "These are not visual checks—clamped amps, line-to-line voltage under load, and de-energized continuity require correct tools and procedure.",
+  "repair_vs_replace_pro": "Replace individual breakers when load and connections are verified compliant yet the same pole trips reproducibly. Upgrade the panel when bus/stab damage is evident or continuous load cannot be brought under planning limits.",
+  "repair_vs_replace_home": "Replacing parts without confirming failure is the most expensive path—especially when the real issue is a loose neutral or aluminum transition.",
+  "professional_threshold": "Stop at burning odor, water in the panel, main lug arcing, unfamiliar multi-wire neutrals, or aluminum remediation without listed connectors. Do not reset an instantaneous trip repeatedly.",
+  "warnings": [
+    "Arc flash and shock hazard are present on energized work.",
+    "Repeated resetting can weld contacts or escalate a high-resistance fault.",
+    "Shared neutrals on MWBCs must not be opened under load."
+  ],
+  "cta_final": {
+    "title": "Arcing in the panel is not a second-chance classroom",
+    "body": "MWBC neutrals, aluminum transitions, and main lug heat need listed connectors and de-energized torque—not repeated resets chasing “nuisance” trips.",
+    "button": "Book licensed electrical for panel and branch evaluation"
+  },
+  "before_you_call": [
+    "List everything that was running when the trip occurred.",
+    "Breaker handle size and any visible wire gauge on panel legend.",
+    "Whether trips are delayed after minutes vs immediate on energize.",
+    "Any burning smell, discoloration at outlets, or recent renovation on that circuit."
+  ],
+  "do_not_attempt": [
+    "Do not upsize breakers to stop tripping without a load calculation.",
+    "Do not work inside the panel energized without training.",
+    "Do not defeat AFCI/GFCI protection devices."
+  ],
+  "risk_notes": [
+    {
+      "label": "Where people get this wrong",
+      "text": "Assuming “breaker bad” without amp logs—many trips are thermal reality from load, not device failure."
+    }
+  ],
+  "trade": "electrical",
+  "slug": "electrical/circuit-overload",
+  "cluster": "load",
+  "diagnostic_mermaid_cluster": "load",
+  "diagnostic_flow_template_key": "electrical_v1",
+  "diagnostic_flow_issue_label": "Circuit overload",
+  "pillar_page": "electrical",
+  "related_pages": [
+    "electrical/breaker-trips-instantly",
+    "electrical/outlet-not-working"
+  ]
+}

@@ -6,7 +6,7 @@ import type { DiagnosticGoldDisplayModel } from "@/lib/normalize-diagnostic-disp
 import FastIsolationPanel from "@/components/FastIsolationPanel";
 import QuickCheckTable from "@/components/QuickCheckTable";
 import DiagnosticTestCard from "@/components/DiagnosticTestCard";
-import MermaidRenderer from "@/components/MermaidRenderer";
+// TEMP: import MermaidRenderer from "@/components/MermaidRenderer";
 import {
   BookOpen,
   ChevronRight,
@@ -171,7 +171,7 @@ export default function DiagnosticGoldPage({ display, routeSlug }: Props) {
               </div>
             </div>
             <div className="relative flex justify-center overflow-x-auto rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <MermaidRenderer chart={display.mermaid} />
+              {/* TEMP: <MermaidRenderer chart={display.mermaid} /> */}
             </div>
           </section>
         ) : null}

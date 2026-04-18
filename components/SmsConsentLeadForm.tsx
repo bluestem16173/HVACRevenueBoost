@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   SMS_CONSENT_FULL_TEXT,
@@ -30,7 +31,12 @@ export default function SmsConsentLeadForm({
   showNameField = variant !== "sticky",
 }: Props) {
   const pathname = usePathname();
-  const sourcePage = (pathname || defaultSourcePage).slice(0, 2048);
+  /** `usePathname()` may be null during SSR; using pathname in the first paint mismatches the client. */
+  const [pathReady, setPathReady] = useState(false);
+  useEffect(() => {
+    setPathReady(true);
+  }, []);
+  const sourcePage = (pathReady ? (pathname || defaultSourcePage) : defaultSourcePage).slice(0, 2048);
   const f = useSmsConsentLeadForm({ defaultSourcePage, serviceType, issueSummary });
 
   const onSubmit = async (e: React.FormEvent) => {

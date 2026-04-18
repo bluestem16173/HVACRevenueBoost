@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { DiagnosticPageView } from "@/components/DiagnosticPageView";
 import { DiagnosticVerticalNav } from "@/components/diagnostic-hub/DiagnosticVerticalNav";
 import { getIndexablePageBySlug } from "@/lib/get-indexable-page";
@@ -9,7 +9,10 @@ export const dynamicParams = true;
 
 export default async function PlumbingSymptomPage({ params }: { params: { symptom: string } }) {
   const segment = params.symptom;
-  const page = await getIndexablePageBySlug(segment);
+  const slug = `plumbing/${segment}`;
+  let page = await getIndexablePageBySlug(slug);
+  if (!page) page = await getIndexablePageBySlug(segment);
+  if (!page) page = await getIndexablePageBySlug(`diagnose/${segment}`);
   if (page) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950">
@@ -40,5 +43,5 @@ export default async function PlumbingSymptomPage({ params }: { params: { sympto
       </div>
     );
   }
-  redirect(`/diagnose/${segment}`);
+  notFound();
 }

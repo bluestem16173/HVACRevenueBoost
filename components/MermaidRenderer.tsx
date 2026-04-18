@@ -10,6 +10,7 @@ export default function MermaidRenderer({ chart }: { chart: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hasError, setHasError] = useState(false);
   const id = useId().replace(/:/g, "");
+  const renderSeqRef = useRef(0);
 
   useEffect(() => {
     let mounted = true;
@@ -39,7 +40,8 @@ export default function MermaidRenderer({ chart }: { chart: string }) {
           },
         });
 
-        const svgId = `mermaid-${id}-${Math.random().toString(36).slice(2, 9)}`;
+        renderSeqRef.current += 1;
+        const svgId = `mermaid-${id}-${renderSeqRef.current}`;
         const { svg } = await mermaid.render(svgId, chart);
 
         if (mounted && containerRef.current) {

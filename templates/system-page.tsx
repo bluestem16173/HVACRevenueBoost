@@ -4,8 +4,8 @@
  */
 import React from "react";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
+// TEMP: import dynamic from "next/dynamic";
+// TEMP: const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
 export default function SystemPageTemplate({ system, contentJson }: any) {
   const {
@@ -48,7 +48,7 @@ export default function SystemPageTemplate({ system, contentJson }: any) {
       {system_diagram_mermaid && (
         <section className="mb-10 bg-white dark:bg-slate-900 p-8 rounded-2xl border border-slate-200 dark:border-slate-800">
           <h2 className="text-2xl font-bold text-hvac-navy dark:text-white mb-4">System Diagram</h2>
-          <MermaidDiagram chart={system_diagram_mermaid} title="System Overview" />
+          {/* TEMP: <MermaidDiagram chart={system_diagram_mermaid} title="System Overview" /> */}
         </section>
       )}
 

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 
 const DecisionTree = dynamic(() => import("@/components/DecisionTree"), { ssr: false });
-const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
+// TEMP: const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
 interface DiagnosticStep {
   step: number;
@@ -146,7 +146,7 @@ export default function AdaptiveDiagnosticPanel({ decisionTree, diagnosticFlow, 
       {/* DECISION TREE 🔥 */}
       {decisionTree && typeof decisionTree === "string" ? (
         <div className="mb-12">
-          <MermaidDiagram chart={decisionTree.replace(/^```mermaid\s*|^```\s*/i, "").replace(/```$/i, "").trim()} title="Diagnostic Triage Flow" />
+          {/* TEMP: MermaidDiagram (decisionTree string) disabled for hydration isolation */}
         </div>
       ) : decisionTree ? (
         <DecisionTree

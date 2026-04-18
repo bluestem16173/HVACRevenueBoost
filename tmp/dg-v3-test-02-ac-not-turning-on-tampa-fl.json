@@ -1,0 +1,88 @@
+{
+  "schema_version": "dg_authority_v3",
+  "layout": "dg_authority_v3",
+  "title": "AC Not Turning On | Tampa, FL",
+  "slug": "hvac/ac-not-turning-on/tampa-fl",
+  "hero": "‘Not turning on’ splits into permission (stats, safeties, float) versus power path (breaker, disconnect, contactor) versus load faults (short, locked rotor). Random resets destroy evidence.",
+  "summary_30s": "Prove 24 V call at the outdoor board, then line voltage at the disconnect, then contactor pull-in and compressor/fan attempt. Indoor blower-only with dead outdoor is not ‘random’—it is a controlled branch map.",
+  "quick_checks": [
+    { "label": "Thermostat and mode", "action": "COOL or FAN ON as intended; setpoint; batteries or blank stat addressed.", "risk_if_ignored": "Chasing outdoor electrical on a stat schedule fault wastes time and parts." },
+    { "label": "Breaker and disconnect", "action": "HVAC breaker set; pull disconnect fully seated; no melted stabs.", "risk_if_ignored": "Repeated resets on a short can arc damage the panel and outdoor whip." },
+    { "label": "Condensate float", "action": "If wired in series with R, open float reads as dead outdoor.", "risk_if_ignored": "Bypassing float without fixing drain invites pan overflow and hidden water damage." },
+    { "label": "Contactor pull", "action": "With safe access, verify 24 V coil and contacts pull when stat calls.", "risk_if_ignored": "Live troubleshooting without training risks shock on wet condenser pads." },
+    { "label": "Audible compressor attempt", "action": "Listen for hum with no spin (cap/fan) versus silent open circuit.", "risk_if_ignored": "Ignoring locked rotor signatures burns contactor and lugs." }
+  ],
+  "decision_fork": {
+    "safe_diy": ["Reset breaker once if no warmth, odor, or buzz at panel.", "Re-seat disconnect after power confirmed off.", "Replace stat batteries; verify mode and schedule.", "Clear visible primary drain blockage if float tripped."],
+    "call_pro_if": ["Burning smell, hot breaker, or buzzing panel.", "Repeated instant breaker trip.", "Melted disconnect or lug discoloration.", "Contactor chatters or welds; uncertain 240 V measurement.", "Compressor hums, draws high amps, or trips internal—needs megohm and start assist diagnosis.", "Any aluminum wiring or insurance-critical panel work."],
+    "urgency_level": "high"
+  },
+  "diagnostic_flow": {
+    "nodes": [
+      { "id": "A", "kind": "start", "label": "No cooling; confirm user symptom indoor vs outdoor" },
+      { "id": "B", "kind": "decision", "label": "Indoor blower runs on call" },
+      { "id": "C", "kind": "decision", "label": "24 V present at outdoor Y/O common path" },
+      { "id": "D", "kind": "decision", "label": "Line voltage at disconnect output" },
+      { "id": "E", "kind": "outcome", "label": "Stat, float, or low-voltage wiring repair" },
+      { "id": "F", "kind": "outcome", "label": "Contactor, cap, or fan motor branch" },
+      { "id": "G", "kind": "outcome", "label": "Compressor or winding/lockout branch" }
+    ],
+    "edges": [
+      { "from": "A", "to": "B", "label": "" },
+      { "from": "B", "to": "E", "label": "No blower" },
+      { "from": "B", "to": "C", "label": "Blower runs" },
+      { "from": "C", "to": "E", "label": "No 24 V call" },
+      { "from": "C", "to": "D", "label": "24 V OK" },
+      { "from": "D", "to": "E", "label": "No line voltage" },
+      { "from": "D", "to": "F", "label": "Line OK; no fan/compressor" },
+      { "from": "F", "to": "G", "label": "Fan OK; compressor dead" }
+    ]
+  },
+  "flow_explanations": {
+    "A": "Split indoor vs outdoor failure before parts.",
+    "B": "No blower often stat, door switch, or air handler control power—not outdoor cap.",
+    "C": "Missing Y is frequently float, wire, or stat installer error.",
+    "D": "Line-side first after low voltage proven—disconnect and breaker discipline.",
+    "E": "Low-voltage and supply permission fixes stay in controls lane.",
+    "F": "Contactor and PSC cap failures are common; verify coil volts under load.",
+    "G": "Compressor electrical is pro-only with proper meters and lockout."
+  },
+  "top_causes": [
+    { "cause": "Tripped breaker or open disconnect", "why_it_happens": "Overcurrent, loose stab, storm, or human error opens line side.", "risk": "Repeated reset without locating fault damages equipment and panel.", "fix_complexity": "easy" },
+    { "cause": "Condensate float / drain interlock", "why_it_happens": "Backed pan opens R path to outdoor call.", "risk": "Bypass without drain fix floods ceilings.", "fix_complexity": "moderate" },
+    { "cause": "Failed contactor or 24 V coil path", "why_it_happens": "Pitted contacts or weak coil drops both fan and compressor.", "risk": "Single-phasing and lug heat if contacts weld intermittently.", "fix_complexity": "pro" },
+    { "cause": "Bad run capacitor or fan motor", "why_it_happens": "PSC fan or compressor assist fails; unit appears dead.", "risk": "Wrong cap MFD rating fries motor windings.", "fix_complexity": "pro" },
+    { "cause": "Compressor short or internal open", "why_it_happens": "Ground or winding fault trips breaker or internal.", "risk": "Fire and shock if forced with resets.", "fix_complexity": "pro" }
+  ],
+  "repair_matrix": [
+    { "symptom": "Nothing runs; breaker tripped", "cause": "Short or overload", "fix": "Locate fault; repair short; breaker correct size", "cost_min": 150, "cost_max": 950 },
+    { "symptom": "Blower OK; outdoor silent", "cause": "Float or stat wiring", "fix": "Clear drain; repair interlock; stat reprogram", "cost_min": 120, "cost_max": 480 },
+    { "symptom": "Outdoor hum; no spin", "cause": "Capacitor / fan motor", "fix": "Test cap; replace motor or cap as spec", "cost_min": 180, "cost_max": 850 },
+    { "symptom": "Contactor chatter; no pull", "cause": "Weak coil or low voltage drop", "fix": "Replace contactor; fix undersized common wire", "cost_min": 220, "cost_max": 620 },
+    { "symptom": "Instant trip on call", "cause": "Grounded compressor or shorted wire", "fix": "Isolation test; compressor or whip repair", "cost_min": 450, "cost_max": 3200 }
+  ],
+  "cost_ladder": [
+    { "stage": "Stat / float / minor wiring", "typical_cost": "$120–$450" },
+    { "stage": "Contactor + cap service", "typical_cost": "$180–$850" },
+    { "stage": "Fan motor replacement", "typical_cost": "$350–$1,200" },
+    { "stage": "Compressor or circuit repair", "typical_cost": "$1,800–$6,500" },
+    { "stage": "Panel or feed repair (electrician scope)", "typical_cost": "$250–$2,500" }
+  ],
+  "how_system_works": "Split AC needs line power at the outdoor unit, a pulled contactor to pass L1/L2, and a working start/run network for PSC motors. The thermostat only requests cooling; safeties and interlocks must permit 24 V to the outdoor board.",
+  "tools_required": {
+    "homeowner": ["Flashlight", "Non-contact voltage tester if trained"],
+    "technician": ["Multimeter", "Clamp meter", "Megohmmeter", "Nitrogen for isolation optional", "Torque driver for lugs"]
+  },
+  "repair_vs_replace": {
+    "repair_if": ["Localized wiring, float, contactor, cap, or fan motor failure with sound compressor", "Breaker issue corrected with verified amp draw"],
+    "replace_if": ["Grounded compressor", "Repeated internal trips", "Aged system with stacked electrical failures"]
+  },
+  "local_context": "Tampa afternoon storms and humidity corrode outdoor connections; ants in contactor are common after wet seasons.",
+  "field_insight": "If indoor runs and outdoor never pulls in, I prove Y before I touch capacitors—half the ‘dead’ units are float or stat.",
+  "maintenance": ["Annual electrical torque check on outdoor lugs in coastal humidity", "Drain flush before peak season", "Surge history note on contactor pitting"],
+  "cost_pressure": "Emergency no-cool calls stack after outages; after-hours and wet attic access add labor.",
+  "decision_moment": "One breaker reset only—if it trips again, stop and call; that is a fault signature not nuisance.",
+  "cta_primary": "Get a same-day electrical and controls diagnosis before repeated resets damage the panel.",
+  "cta_secondary": "Hot breaker, smell, or welded contactor noise—shut off and call immediately.",
+  "stop_diy": "Do not file contactor contacts while energized; do not upsize breakers; do not bypass safeties to get cooling tonight."
+}

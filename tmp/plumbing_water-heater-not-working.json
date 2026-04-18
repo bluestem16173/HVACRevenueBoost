@@ -1,0 +1,176 @@
+{
+  "layout": "dg_authority_v3",
+  "schema_version": "dg_authority_v3",
+  "title": "Water Heater Not Working",
+  "summary_30s": "A water heater that is not working at all usually indicates loss of heat input (electric or gas), failed control logic, or severe sediment interference. The key distinction is whether the tank is truly cold or the problem is in distribution.",
+  "cta_top": {
+    "title": "Scald and gas errors scale faster than a tank swap quote",
+    "body": "No hot water spans electric elements, gas ignition, controls, and sediment—each needs different proof before you open valves or break seals.",
+    "button": "Get Plumbing Diagnosis"
+  },
+  "quick_checks": [
+    "Dedicated breaker (electric) or pilot/ignition + gas cock position (gas); verify nameplate voltage at the appliance terminal block.",
+    "Hot tap at nearest fixture: strong flow that never warms → verify cold inlet to heater is cold and hot outlet warms at dielectric.",
+    "After a large draw, confirm firing or element cycling; check hi-limit/ECO reset and thermostat setpoint.",
+    "Short sample from tank drain (safe discharge only): grit or chunks correlate with bottom sediment insulating elements."
+  ],
+  "quick_checks_home": "If voltage/element behavior and gas pressure/ignition proofs do not line up with what you feel at the tap, you are past “simple reset” territory—misreads here push people toward tank replacement when controls or sediment are the real issue.",
+  "diagnostic_logic_pro": "If hot water never arrives but cold supply is good and there is no backfeed crossover, the fault is energy input or its control path. When electric: if line voltage is correct at inputs but elements do not draw within expected resistance bands and the tank remains cold, prioritize element open/ground fault or stuck relay. When gas: sequence ignition, flame sense, and gas valve integrity before condemning the tank.",
+  "diagnostic_logic_home": "Guessing element vs gas valve vs sediment without measurements can leave scald risk, gas leaks, or energized wet work unaddressed—professional verification is the safe branch when readings disagree.",
+  "diagnostic_flow": {
+    "nodes": [
+      {
+        "id": "start",
+        "label": "No / inadequate hot water reported"
+      },
+      {
+        "id": "power_gas",
+        "label": "Verify power (electric) or gas supply + shutoff position"
+      },
+      {
+        "id": "distribution",
+        "label": "Confirm not plumbing-only: crossover, recirc"
+      },
+      {
+        "id": "control",
+        "label": "Thermostat setpoint, hi-limit/ECO, call for heat"
+      },
+      {
+        "id": "electric_path",
+        "label": "Electric: VAC at block; element resistance"
+      },
+      {
+        "id": "gas_path",
+        "label": "Gas: manifold pressure; ignition; valve"
+      },
+      {
+        "id": "tank_sediment",
+        "label": "Sediment/dip tube: recovery, noise"
+      },
+      {
+        "id": "end_professional",
+        "label": "Document measurements; repair or replace"
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "power_gas"
+      },
+      {
+        "from": "power_gas",
+        "to": "distribution"
+      },
+      {
+        "from": "distribution",
+        "to": "control"
+      },
+      {
+        "from": "control",
+        "to": "electric_path",
+        "label": "Electric heater"
+      },
+      {
+        "from": "control",
+        "to": "gas_path",
+        "label": "Gas heater"
+      },
+      {
+        "from": "electric_path",
+        "to": "tank_sediment"
+      },
+      {
+        "from": "gas_path",
+        "to": "tank_sediment"
+      },
+      {
+        "from": "tank_sediment",
+        "to": "end_professional"
+      }
+    ]
+  },
+  "system_explanation": "A storage water heater stores thermal energy in the water volume by transferring heat through metal interfaces: in electric units, resistance elements dissipate power as heat into water surrounding the sheath; in gas units, combustion transfers heat to the tank bottom and flue passage. Sediment increases thermal resistance and can shorten usable hot capacity.",
+  "failure_clusters": [
+    {
+      "title": "Energy input failure",
+      "pro": "Loss of electrical supply, failed heating elements, or gas ignition failure prevents heat generation entirely.",
+      "home": "If the tank never heats at all, the system isn’t producing heat—not storing or delivering it.",
+      "risk": "Replacing the tank without confirming power or gas input wastes the highest-cost component."
+    },
+    {
+      "title": "Control system failure",
+      "pro": "Thermostats, ECO limits, or relay faults prevent the system from calling for heat.",
+      "home": "The system may have power, but it’s not being told to heat.",
+      "risk": "Misdiagnosing controls as tank failure leads to unnecessary replacement."
+    },
+    {
+      "title": "Sediment interference",
+      "pro": "Heavy sediment insulates heating surfaces and disrupts heat transfer.",
+      "home": "The heater may be working, but heat isn’t reaching the water effectively.",
+      "risk": "Replacing components without addressing sediment leads to repeat failures."
+    }
+  ],
+  "repair_matrix": [
+    "Heating element replacement → $150–$400",
+    "Thermostat failure → $150–$350",
+    "Gas valve issue → $300–$800",
+    "Tank failure → $1,200–$3,500"
+  ],
+  "repair_matrix_pro": "Costs vary with tank access, local code requirements for pans and venting, and whether the failure is control-only versus vessel integrity.",
+  "repair_matrix_home": "Most repairs stay in the mid range—but misdiagnosis is what pushes costs into full replacement.",
+  "repair_matrix_risk": "Draining or flushing without controlling discharge temperature and pressure paths—scalding and property damage are realistic outcomes when T&P behavior is ignored.",
+  "cta_mid": {
+    "title": "Water damage and T&P mistakes follow rushed “flush and hope”",
+    "body": "Mid-range repairs dominate when the fault is control or element—but tank work without discharge planning floods rooms and scalds occupants.",
+    "button": "Verify Tank + T&P Safely"
+  },
+  "field_measurements": [
+    "Tank setpoint / outlet: 120–140°F",
+    "Element resistance: 10–30 Ω typical (power off, verified)",
+    "Supply static: 40–80 PSI"
+  ],
+  "field_measurements_pro": "Log outlet or strap/skin temp, element ohms with power locked out, and static supply pressure before opening the gas train or pulling elements—those three numbers decide whether you stay in controls/sediment scope versus licensed gas or vessel work.",
+  "field_measurements_home": "Tank skin temps, element ohms, and supply pressure are not “optional detail”—they separate safe repair scope from replacement and licensed gas work.",
+  "repair_vs_replace_pro": "Replace when the tank shows chronic leakage at shell welds, internal corrosion with wet insulation odor, or when sediment damage and age stack repeated failures. Repair when the fault is localized and the vessel passes checks.",
+  "repair_vs_replace_home": "Replacing a tank when the failure is control-only—or patching controls on a compromised shell—are both expensive mistakes tied to skipped measurements.",
+  "professional_threshold": "Stop at energized 240 VAC beyond safe verification, gas line pressure or valve adjustment without code-compliant leak check, confined-space or scald hazards during draining, or active T&P discharge without identifying cause.",
+  "warnings": [
+    "Scald risk above ~120°F at fixtures serving children or elderly.",
+    "Shock hazard on wet concrete near energized cabinets.",
+    "Gas accumulation if ignition is repeatedly attempted without proving safe draft."
+  ],
+  "cta_final": {
+    "title": "Gas pressure and energized wet cabinets are not homeowner tooling",
+    "body": "Manifold checks, T&P replacement, and element work need code-aware sequencing; wrong order traps gas or energizes standing water paths.",
+    "button": "Schedule Licensed Plumbing"
+  },
+  "before_you_call": [
+    "Whether the issue is no hot water vs lukewarm-then-cold vs slow recovery after a draw.",
+    "Fuel type (electric vs gas) and location of dedicated shutoff or breaker.",
+    "Nameplate photo: element voltage, tank capacity, and serial age clues.",
+    "Any T&P weeping, popping at startup, or rust streaks on jacket seams."
+  ],
+  "do_not_attempt": [
+    "Do not work inside a live electrical junction box on wet concrete.",
+    "Do not disassemble gas components without leak-check capability.",
+    "Do not cap or plug T&P discharge lines."
+  ],
+  "risk_notes": [
+    {
+      "label": "Where people get this wrong",
+      "text": "Draining or flushing without controlling discharge temperature and pressure paths—scalding and property damage are realistic outcomes when T&P behavior is ignored."
+    }
+  ],
+  "trade": "plumbing",
+  "slug": "plumbing/water-heater-not-working",
+  "cluster": "heater",
+  "diagnostic_mermaid_cluster": "heater",
+  "diagnostic_flow_template_key": "plumbing_v1",
+  "diagnostic_flow_issue_label": "Water heater not working",
+  "pillar_page": "plumbing/why-you-have-no-hot-water",
+  "related_pages": [
+    "plumbing/water-heater-not-working",
+    "plumbing/no-hot-water",
+    "plumbing/water-heater-leaking"
+  ]
+}

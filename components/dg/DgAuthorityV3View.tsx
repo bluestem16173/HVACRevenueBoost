@@ -1,5 +1,5 @@
 import Link from "next/link";
-import MermaidRenderer from "@/components/MermaidRenderer";
+// TEMP: import MermaidRenderer from "@/components/MermaidRenderer";
 import { LiveElectricitySafetyNotice } from "@/components/LiveElectricitySafetyNotice";
 import { DgLeadButton } from "@/components/dg/DgLeadButton";
 
@@ -165,7 +165,7 @@ export function DgAuthorityV3View({
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Start Here: Find Your Situation</h2>
 
             <div className="overflow-x-auto">
-              <MermaidRenderer chart={mermaid} />
+              {/* TEMP: <MermaidRenderer chart={mermaid} /> */}
             </div>
 
             <p className="text-sm text-gray-600 mt-4">

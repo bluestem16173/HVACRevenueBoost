@@ -1,8 +1,7 @@
 import { RelatedTopics } from "@/components/hub/RelatedTopics";
 import { ShieldAlert, AlertTriangle, ShieldCheck, PhoneCall, CheckSquare } from "lucide-react";
-import dynamic from "next/dynamic";
-
-const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
+// TEMP: import dynamic from "next/dynamic";
+// TEMP: const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
 export interface EmergencySchema {
   bannerHeadline: string;
@@ -109,7 +108,7 @@ export default function EmergencyPageTemplate({ data, city }: { data: EmergencyS
           </p>
 
           <div className="overflow-x-auto w-full">
-            <MermaidDiagram chart={data.mermaidFlow} title="" className="border-none shadow-none p-0 my-0 bg-transparent dark:bg-transparent" />
+            {/* TEMP: <MermaidDiagram chart={data.mermaidFlow} title="" className="border-none shadow-none p-0 my-0 bg-transparent dark:bg-transparent" /> */}
           </div>
 
           <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4 mt-6">

@@ -7,7 +7,7 @@
  * @see docs/MASTER-PROMPT-DECISIONGRID.md
  */
 import Link from "next/link";
-import dynamic from "next/dynamic";
+// TEMP: import dynamic from "next/dynamic";
 import SystemOverviewBlock from "@/components/sections/SystemOverviewBlock";
 import { normalizeToString } from "@/lib/utils";
 import ServiceCTA from "@/components/ServiceCTA";
@@ -15,7 +15,7 @@ import { toSafeString } from "@/lib/content";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 import { normalizeItems } from "@/lib/text-format";
 
-const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
+// TEMP: const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
 const DEFAULT_TOOLS = [
   { name: "Multimeter", description: "Test voltage and capacitance" },
@@ -127,7 +127,7 @@ export default function RepairPageTemplate({
 
       {vm.repairFlowMermaid && (
         <section className="mb-10">
-          <MermaidDiagram chart={vm.repairFlowMermaid} title="Repair Flow" />
+          {/* TEMP: <MermaidDiagram chart={vm.repairFlowMermaid} title="Repair Flow" /> */}
         </section>
       )}
 

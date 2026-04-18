@@ -37,10 +37,24 @@ export function isLocalizedPillarPageSlug(slug: string): boolean {
   );
 }
 
+/** National pillar row: `hvac/ac-not-cooling`, `plumbing/no-hot-water` (no city segment). */
+export function isNationalVerticalPillarSlug(slug: string): boolean {
+  return /^(hvac|plumbing|electrical)\/[a-z0-9-]+$/.test(
+    enforceStoredSlug(slug).toLowerCase()
+  );
+}
+
+/** Legacy storage before slug decouple: `diagnose/ac-not-cooling`. */
+export function isLegacyDiagnosePrefixedSlug(slug: string): boolean {
+  return /^diagnose\/[a-z0-9-]+$/.test(enforceStoredSlug(slug).toLowerCase());
+}
+
 export function isValidSlug(slug: string): boolean {
   if (!slug) return false;
 
   if (isLocalizedPillarPageSlug(slug)) return true;
+  if (isNationalVerticalPillarSlug(slug)) return true;
+  if (isLegacyDiagnosePrefixedSlug(slug)) return true;
 
   const badTerms = [
     "canary", "test", "v1", "full", "fixed",
@@ -83,6 +97,8 @@ export function isAllowedType(page: any): boolean {
   if (!type) return false; // Enforce strict type schema presence
   
   if (type === "symptom") return true;
+  /** Primary `pages.page_type` for diagnostic articles in many seeds and queue rows. */
+  if (type === "diagnose") return true;
   if (type === "diagnostic") return true;
   if (type === "hvac_html") return true;
   if (type === "hvac_authority_v3") return true;
@@ -147,6 +163,19 @@ export function calculateQualityScore(page: any): number {
   // +15 content_html length above threshold (Assuming 1500 chars as a robust threshold)
   const htmlStr = (page.content_html || page.content || "").toLowerCase();
   if (htmlStr.length > 1500) score += 15;
+  else if (page.slug && isLocalizedPillarPageSlug(String(page.slug))) {
+    let cj: unknown = page.content_json;
+    if (typeof cj === "string") {
+      try {
+        cj = JSON.parse(cj) as unknown;
+      } catch {
+        cj = null;
+      }
+    }
+    const jsonBlob =
+      cj && typeof cj === "object" ? JSON.stringify(cj).toLowerCase() : "";
+    if (jsonBlob.length >= 600) score += 15;
+  }
 
   // +10 content_json or structured sections present
   if (page.content_json && Object.keys(page.content_json).length > 0) score += 10;

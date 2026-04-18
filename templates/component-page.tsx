@@ -34,6 +34,18 @@ export interface ComponentSchema {
 
 export default function ComponentPageTemplate({ data }: { data: ComponentSchema }) {
   const replaceTitle = data.title.includes("What Is an") ? data.title : `What Is an ${data.slug.replace(/-/g, ' ')}? (And How It Fails)`;
+  const trustExperience = data.trust?.experience ?? "";
+  const trustGuarantee = data.trust?.guarantee ?? "";
+  const ctaHeadline = data.cta?.headline ?? "";
+  const ctaActions = Array.isArray(data.cta?.actions) ? data.cta.actions : [];
+  const symptomsList = Array.isArray(data.symptoms) ? data.symptoms : [];
+  const content = data.content;
+  const commonFailureCauses =
+    content && Array.isArray(content.commonFailureCauses) ? content.commonFailureCauses : [];
+  const howToTestIt = content && Array.isArray(content.howToTestIt) ? content.howToTestIt : [];
+  const relatedProblems =
+    content && Array.isArray(content.relatedProblems) ? content.relatedProblems : [];
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       {/* 🦸‍♂️ HERO SECTION */}
@@ -47,7 +59,7 @@ export default function ComponentPageTemplate({ data }: { data: ComponentSchema 
             {replaceTitle}
           </h1>
           <p className="text-xl md:text-2xl text-blue-200 leading-relaxed font-medium max-w-2xl mx-auto">
-            {data.hook}
+            {data.hook ?? ""}
           </p>
         </div>
       </section>
@@ -77,7 +89,13 @@ export default function ComponentPageTemplate({ data }: { data: ComponentSchema 
               Symptoms of Failure
             </h2>
             <ul className="list-disc pl-16 space-y-2 text-slate-700 dark:text-slate-300 font-medium mb-8">
-              {data.symptoms?.map((s, i) => <li key={i} className="capitalize">{s}</li>) || <li>Intermittent starting and stopping</li>}
+              {symptomsList.length
+                ? symptomsList.map((s, i) => (
+                    <li key={i} className="capitalize">
+                      {s}
+                    </li>
+                  ))
+                : [<li key="fallback">Intermittent starting and stopping</li>]}
             </ul>
 
             <h2 className="text-2xl font-black text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-3">
@@ -85,7 +103,9 @@ export default function ComponentPageTemplate({ data }: { data: ComponentSchema 
               Common Failure Causes
             </h2>
             <ul className="list-disc pl-16 space-y-2 text-slate-700 dark:text-slate-300 font-medium mb-8">
-              {data.content?.commonFailureCauses?.map((c, i) => <li key={i}>{c}</li>) || (
+              {commonFailureCauses.length ? (
+                commonFailureCauses.map((c, i) => <li key={i}>{c}</li>)
+              ) : (
                 <>
                   <li>Age and normal mechanical wear</li>
                   <li>Overheating due to poor airflow or dirty filters</li>
@@ -101,7 +121,9 @@ export default function ComponentPageTemplate({ data }: { data: ComponentSchema 
                   How to Test It
                 </h4>
                 <ul className="list-disc pl-5 space-y-2 text-sm text-slate-600 dark:text-slate-400">
-                  {data.content?.howToTestIt?.map((c, i) => <li key={i}>{c}</li>) || (
+                  {howToTestIt.length ? (
+                    howToTestIt.map((c, i) => <li key={i}>{c}</li>)
+                  ) : (
                     <>
                       <li>Listen for buzzing/clicking when the thermostat calls.</li>
                       <li>Use a multimeter to measure continuity across the terminals.</li>
@@ -134,7 +156,9 @@ export default function ComponentPageTemplate({ data }: { data: ComponentSchema 
               Related Problems
             </h2>
             <ul className="list-disc pl-16 space-y-2 text-slate-700 dark:text-slate-300 font-medium">
-              {data.content?.relatedProblems?.map((r, i) => <li key={i}>{r}</li>) || (
+              {relatedProblems.length ? (
+                relatedProblems.map((r, i) => <li key={i}>{r}</li>)
+              ) : (
                 <>
                   <li>System won&apos;t turn off</li>
                   <li>Constant tripping of the main breaker</li>
@@ -153,21 +177,21 @@ export default function ComponentPageTemplate({ data }: { data: ComponentSchema 
           <div className="flex flex-col md:flex-row justify-center gap-8 mb-12">
             <div className="flex items-center justify-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
               <ShieldCheck className="text-green-500 w-6 h-6" />
-              {data.trust.experience}
+              {trustExperience}
             </div>
             <div className="flex items-center justify-center gap-3 text-slate-600 dark:text-slate-300 font-bold">
               <CheckCircle className="text-hvac-blue w-6 h-6" />
-              {data.trust.guarantee}
+              {trustGuarantee}
             </div>
           </div>
 
           <div className="bg-gradient-to-br from-hvac-navy to-slate-900 border border-slate-800 p-12 rounded-3xl shadow-2xl relative overflow-hidden">
             <div className="relative z-10">
               <h2 className="text-3xl md:text-5xl font-black text-white mb-8 tracking-tight">
-                {data.cta.headline}
+                {ctaHeadline}
               </h2>
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                {data.cta.actions.map((action, idx) => (
+                {ctaActions.map((action, idx) => (
                   <button 
                     key={idx}
                     data-open-lead-modal

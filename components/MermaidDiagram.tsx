@@ -15,6 +15,7 @@ export default function MermaidDiagram({ chart, title = "Diagnostic Flowchart", 
   const containerRef = useRef<HTMLDivElement>(null);
   const [svgCode, setSvgCode] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
+  const renderIdRef = useRef(0);
 
   useEffect(() => {
     if (!chart?.trim()) return;
@@ -37,7 +38,8 @@ export default function MermaidDiagram({ chart, title = "Diagnostic Flowchart", 
       },
     });
 
-    const id = `mermaid-${Math.random().toString(36).slice(2)}`;
+    renderIdRef.current += 1;
+    const id = `mermaid-${renderIdRef.current}`;
     const renderChart = async () => {
       try {
         const formattedChart = chart.trim().replace(/;/g, ';\n');

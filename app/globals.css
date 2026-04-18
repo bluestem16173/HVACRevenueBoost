@@ -328,6 +328,153 @@
   border-color: rgb(51 65 85);
 }
 
+/* ——— HSD v2.5: skimmable → confident → action (typography + homeowner / pro / risk) ——— */
+.hsd-v1-locked-page h2.hsd-section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.25;
+}
+.hsd-v1-locked-page .hsd-cred__summary .hsd-summary {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  font-weight: 500;
+  color: rgb(30 41 59);
+}
+.dark .hsd-v1-locked-page .hsd-cred__summary .hsd-summary {
+  color: rgb(226 232 240);
+}
+.hsd-v1-locked-page .hsd-cause {
+  font-weight: 600;
+  color: rgb(15 23 42);
+}
+.dark .hsd-v1-locked-page .hsd-cause {
+  color: rgb(248 250 252);
+}
+.hsd-v1-locked-page .hsd-probability {
+  color: #666;
+  font-weight: 500;
+}
+.dark .hsd-v1-locked-page .hsd-probability {
+  color: rgb(148 163 184);
+}
+.hsd-v1-locked-page .hsd-check {
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #f8f9fb;
+  margin-bottom: 10px;
+  border: 1px solid rgb(226 232 240 / 0.9);
+}
+.dark .hsd-v1-locked-page .hsd-check {
+  background: rgb(30 41 59 / 0.45);
+  border-color: rgb(51 65 85);
+}
+.hsd-v1-locked-page .hsd-quick-checks-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+.hsd-v1-locked-page .hsd-homeowner {
+  color: #2563eb;
+  font-weight: 500;
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.dark .hsd-v1-locked-page .hsd-homeowner {
+  color: rgb(96 165 250);
+}
+.hsd-v1-locked-page .hsd-meaning {
+  color: rgb(71 85 105);
+  font-weight: 500;
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.dark .hsd-v1-locked-page .hsd-meaning {
+  color: rgb(148 163 184);
+}
+.hsd-v1-locked-page .hsd-pro {
+  color: #b45309;
+  font-weight: 500;
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+.dark .hsd-v1-locked-page .hsd-pro {
+  color: rgb(251 191 36);
+}
+.hsd-v1-locked-page .hsd-risk,
+.hsd-v1-locked-page .hsd-v2__risk.hsd-risk {
+  color: #dc2626;
+  font-weight: 600;
+}
+.dark .hsd-v1-locked-page .hsd-risk,
+.dark .hsd-v1-locked-page .hsd-v2__risk.hsd-risk {
+  color: rgb(248 113 113);
+}
+.hsd-v1-locked-page .hsd-cost {
+  font-weight: 700;
+  color: #111;
+}
+.dark .hsd-v1-locked-page .hsd-cost {
+  color: rgb(248 250 252);
+}
+.hsd-v1-locked-page .hsd-cost-high {
+  color: #dc2626;
+  font-weight: 700;
+}
+.dark .hsd-v1-locked-page .hsd-cost-high {
+  color: rgb(248 113 113);
+}
+.hsd-v1-locked-page .hsd-decision {
+  margin-top: 0.25rem;
+}
+.hsd-v1-locked-page .hsd-decision-safe h3 {
+  color: #2563eb;
+}
+.dark .hsd-v1-locked-page .hsd-decision-safe h3 {
+  color: rgb(96 165 250);
+}
+.hsd-v1-locked-page .hsd-decision-call h3 {
+  color: #b45309;
+}
+.dark .hsd-v1-locked-page .hsd-decision-call h3 {
+  color: rgb(251 191 36);
+}
+.hsd-v1-locked-page .hsd-decision-stop h3 {
+  color: #dc2626;
+  font-weight: 700;
+}
+.dark .hsd-v1-locked-page .hsd-decision-stop h3 {
+  color: rgb(248 113 113);
+}
+.hsd-v1-locked-page .hsd-block {
+  margin-bottom: 1.25rem;
+}
+.hsd-v1-locked-page .hsd-v2__matrix td.hsd-cost-cell {
+  font-weight: 700;
+  color: #111;
+}
+.dark .hsd-v1-locked-page .hsd-v2__matrix td.hsd-cost-cell {
+  color: rgb(248 250 252);
+}
+.hsd-v1-locked-page .hsd-v2__cost-esc .hsd-cost-wrap {
+  font-weight: 600;
+  color: rgb(15 23 42);
+}
+.dark .hsd-v1-locked-page .hsd-v2__cost-esc .hsd-cost-wrap {
+  color: rgb(226 232 240);
+}
+.hsd-v1-locked-page .hsd-v2__cost-esc li.hsd-cost-esc--peak .hsd-cost-wrap {
+  color: #dc2626;
+  font-weight: 700;
+}
+.dark .hsd-v1-locked-page .hsd-v2__cost-esc li.hsd-cost-esc--peak .hsd-cost-wrap {
+  color: rgb(248 113 113);
+}
+
 /* MermaidChart / section jump — default gold wash (non-HSD) */
 .highlight {
   background-color: rgba(250, 204, 21, 0.2);

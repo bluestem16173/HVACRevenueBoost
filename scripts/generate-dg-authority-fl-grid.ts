@@ -1,7 +1,5 @@
 /**
- * Batch: DG_AUTHORITY_V3 JSON for Florida metros × core AC issues.
- *
- * Flow: generate → validate → enforce layout → related_links → render HTML → store → indexing ping → metrics log
+ * Batch: **hsd_v2** city × symptom JSON for Florida metros × core AC issues.
  *
  * Requires: OPENAI_API_KEY, DATABASE_URL, GENERATION_ENABLED=true
  * Optional: SITE_ORIGIN, GOOGLE_INDEXING_ACCESS_TOKEN
@@ -13,20 +11,16 @@
  * npm: `npm run generate:dg-fl-grid` / `npm run generate:dg-fl-grid -- --dry-run`
  */
 import "dotenv/config";
-import sql from "../lib/db";
 import { generateDiagnosticEngineJson } from "../lib/content-engine/generator";
-import { DG_AUTHORITY_V3_SCHEMA_VERSION } from "../lib/prompt-schema-router";
+import { upsertHsdV2CitySymptomPage } from "../lib/db/upsertHsdV2CitySymptomPage";
+import { HSD_V2_SCHEMA_VERSION } from "../lib/generated-page-json-contract";
+import { assertHsdV2CitySymptomPublishable } from "../lib/hsd/assertHsdV2CitySymptomPublishable";
 import {
   DG_FL_GRID_ISSUE_PHRASES,
   DG_FL_SPOKEN_CITY_TO_SLUG,
   buildDgFloridaGridRelatedLinks,
   issuePhraseToPillar,
 } from "../lib/render/dgFloridaGridConfig";
-import {
-  assertDgAuthorityV3Publishable,
-  enforceDgAuthorityV3Layout,
-} from "../lib/render/dgAuthorityV3Publish";
-import { renderDiagnosticEngineJsonToHtml } from "../lib/render/renderDiagnosticEngineJsonToHtml";
 import {
   canonicalUrlForPath,
   notifyGoogleIndexing,
@@ -75,14 +69,14 @@ async function main() {
   const jobs: { issue: string; cityKey: string; citySlug: string; slug: string }[] = [];
   for (const issue of DG_FL_GRID_ISSUE_PHRASES) {
     const pillar = issuePhraseToPillar(issue);
-    for (const [cityKey, citySlug] of Object.entries(DG_FL_SPOKEN_CITY_TO_SLUG)) {
+    for (const [, citySlug] of Object.entries(DG_FL_SPOKEN_CITY_TO_SLUG)) {
       const slug = buildLocalizedStorageSlug("hvac", pillar, citySlug);
-      jobs.push({ issue, cityKey, citySlug, slug: enforceStoredSlug(slug) });
+      jobs.push({ issue, cityKey: citySlug, citySlug, slug: enforceStoredSlug(slug) });
     }
   }
 
   console.log(
-    `DG_AUTHORITY_V3 grid: ${jobs.length} pages (${DG_FL_GRID_ISSUE_PHRASES.length} issues × ${Object.keys(DG_FL_SPOKEN_CITY_TO_SLUG).length} cities).`
+    `HSD_V2 grid: ${jobs.length} pages (${DG_FL_GRID_ISSUE_PHRASES.length} issues × ${Object.keys(DG_FL_SPOKEN_CITY_TO_SLUG).length} cities).`
   );
   if (dryRun) {
     for (const j of jobs) {
@@ -114,7 +108,7 @@ async function main() {
         },
         "",
         {
-          schemaVersion: DG_AUTHORITY_V3_SCHEMA_VERSION,
+          schemaVersion: HSD_V2_SCHEMA_VERSION,
           verticalId: "hvac",
           primaryIssue,
         }
@@ -125,60 +119,31 @@ async function main() {
       }
 
       let contentJson = { ...(raw as Record<string, unknown>) };
-      contentJson = enforceDgAuthorityV3Layout(contentJson);
-
-      assertDgAuthorityV3Publishable(j.slug, contentJson);
-
       const related_links = buildDgFloridaGridRelatedLinks(j.slug);
       contentJson = {
         ...contentJson,
         title,
         slug: j.slug,
+        city: displayCity,
+        symptom: primaryIssue,
+        vertical: "hvac",
         related_links,
       };
 
-      const content_html = renderDiagnosticEngineJsonToHtml(contentJson);
+      assertHsdV2CitySymptomPublishable(j.slug, contentJson);
 
-      await sql`
-        INSERT INTO pages (
-          slug,
-          content_json,
-          content_html,
-          status,
-          page_type,
-          title,
-          city,
-          schema_version,
-          updated_at
-        )
-        VALUES (
-          ${j.slug},
-          ${JSON.stringify(contentJson)}::jsonb,
-          ${content_html},
-          'published',
-          'city_symptom',
-          ${title},
-          ${displayCity},
-          ${DG_AUTHORITY_V3_SCHEMA_VERSION},
-          NOW()
-        )
-        ON CONFLICT (slug) DO UPDATE SET
-          content_json = EXCLUDED.content_json,
-          content_html = EXCLUDED.content_html,
-          title = EXCLUDED.title,
-          page_type = EXCLUDED.page_type,
-          status = EXCLUDED.status,
-          city = EXCLUDED.city,
-          schema_version = EXCLUDED.schema_version,
-          updated_at = NOW()
-      `;
+      await upsertHsdV2CitySymptomPage({
+        slug: j.slug,
+        title,
+        contentJson,
+      });
 
       const path = `/hvac/${issuePhraseToPillar(j.issue)}/${j.citySlug}`;
       const url = canonicalUrlForPath(path);
       const idx = url ? await notifyGoogleIndexing(url) : { ok: true as const, skipped: true as const };
       console.log(
         JSON.stringify({
-          metric: "dg_fl_grid_page",
+          metric: "hsd_v2_fl_grid_page",
           slug: j.slug,
           path,
           canonicalUrl: url || null,

@@ -1,0 +1,161 @@
+{
+  "layout": "dg_authority_v3",
+  "schema_version": "dg_authority_v3",
+  "title": "Breaker Trips Instantly",
+  "summary_30s": "A breaker that trips **the moment** you reset or energize is behaving like a **magnetic trip**: high fault current, dead short behavior, or a **misapplied protective device** on motor/transformer inrush. This is a different branch than “**too many things plugged in**.” The priority is to **stop repeated resets**, classify **line vs neutral vs ground-fault** signatures with safe isolation—not to upsize the handle.",
+  "cta_top": {
+    "title": "Repeated resets can weld a fault into a fire-class event",
+    "body": "Thermal trips mean sustained overload or resistance heat; instant trips mean fault current—both need amp logs and de-energized inspection, not a larger breaker.",
+    "button": "Request a load log and termination inspection"
+  },
+  "quick_checks": [
+    "Confirm **instant vs a few seconds**: magnetic vs thermal changes the entire fault tree.",
+    "With everything on that branch unplugged, does the breaker **still** refuse to hold? If yes, suspect **wiring fault** or **miswired device** before “bad breaker.”",
+    "AFCI/GFCI: note whether **test button** behaves normally; chronic trip on energize may be **parallel arc / neutral fault** versus nuisance.",
+    "De-energized: visual for **damaged cord ends**, **nail/screw penetration**, or **blackened neutrals** in first accessible box on the homerun.",
+    "MWBC / shared neutral work history: instant trips after DIY changes often trace to **neutral mishandling**."
+  ],
+  "quick_checks_home": "If the trip is **immediate**, repeated resets are not a workaround—they can **weld fault energy** into the next event. This is when you stop at the panel edge and call for **documented branch isolation**.",
+  "diagnostic_logic_pro": "Instantaneous trip implies current above the magnetic pickup threshold or AFCI detection of hazardous arcing. If load is disconnected and the breaker still trips on close, the fault is on the **branch wiring** or **panel-side connection**, not an end-load appliance. If it only trips under a specific appliance plug-in, isolate **L–N vs ground fault** in that appliance cord or internal fault.",
+  "diagnostic_logic_home": "People often confuse **instant** trips with overload trips—**overload fixes** (unplugging half the room) may do nothing when the real issue is a **short or ground fault path**.",
+  "diagnostic_flow": {
+    "nodes": [
+      {
+        "id": "start",
+        "label": "Breaker trips instantly on reset/energize"
+      },
+      {
+        "id": "class",
+        "label": "Confirm magnetic/instant signature"
+      },
+      {
+        "id": "isolate",
+        "label": "Isolate loads: unplug / disconnect corded loads"
+      },
+      {
+        "id": "branch",
+        "label": "If still trips: branch wiring / first box"
+      },
+      {
+        "id": "device",
+        "label": "If only with one device: device cord / internal fault"
+      },
+      {
+        "id": "end",
+        "label": "Document; de-energized repair scope"
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "class"
+      },
+      {
+        "from": "class",
+        "to": "isolate"
+      },
+      {
+        "from": "isolate",
+        "to": "branch",
+        "label": "Trips with loads removed"
+      },
+      {
+        "from": "isolate",
+        "to": "device",
+        "label": "Trips only with one item"
+      },
+      {
+        "from": "branch",
+        "to": "end"
+      },
+      {
+        "from": "device",
+        "to": "end"
+      }
+    ]
+  },
+  "system_explanation": "Thermal trip curves integrate **sustained overload**. Magnetic elements respond to **high peak current** in milliseconds. AFCI/GFCI devices add **ground-fault** and **arc signature** discrimination. **Instant trips** mean you are closer to a **fault impedance** problem than a **diversity-of-load** problem.",
+  "failure_clusters": [
+    {
+      "title": "Line-to-neutral / shorted branch",
+      "pro": "Damaged Romex, pinched conductors, or reversed hot/neutral in devices can present dead short on energize.",
+      "home": "This is not solved by a bigger breaker—it is solved by finding **where the copper is touching wrong**.",
+      "risk": "Repeated closing-in energizes the fault until arcing damages the panel bus or starts a fire path."
+    },
+    {
+      "title": "Ground fault and protective devices",
+      "pro": "GFCI/AFCI trips can be legitimate ground fault or parallel arc; they can also be misapplied device type on wrong load class.",
+      "home": "Swapping AFCI for standard breaker to “stop nuisance” can remove the protection that was catching a real fault.",
+      "risk": "Defeating protection masks **leakage current** that does not trip a standard breaker until someone is the path."
+    },
+    {
+      "title": "Misapplied breaker / severe inrush mismatch",
+      "pro": "Wrong curve, wrong AIC context for available fault current, or incorrect pairing with motor loads can trip instantly without a classic short.",
+      "home": "This looks like “bad breaker” but is often **application engineering**—not a homeowner parts swap.",
+      "risk": "Installing the wrong device class can leave conductors unprotected for the actual fault mode."
+    }
+  ],
+  "repair_matrix": [
+    "Fault locate + repair damaged homerun → $250–$1,200",
+    "GFCI/AFCI correct application + replace → $200–$650",
+    "Breaker correct type/rating (when verified) → $150–$400",
+    "Panel/bus remediation when arcing damaged stabs → $1,500–$4,500+"
+  ],
+  "repair_matrix_pro": "Instant-trip jobs often need **time to isolate**, not a cart of parts—pricing follows access, finish repair, and whether damage migrated to the panel.",
+  "repair_matrix_home": "The lower band is common when the fault is **one bad box** or **one bad cord**—the upper band shows up when resets were repeated until the **panel** took damage.",
+  "repair_matrix_risk": "Upsizing or removing AFCI/GFCI to silence an instant trip can trade a **nuisance** for a **life-safety** failure mode.",
+  "cta_mid": {
+    "title": "Instant trips need isolation—not a larger breaker shopping list",
+    "body": "Mid-band work is often branch locate and correct device class; panel escalation happens when resets weld arcing into stab damage.",
+    "button": "Have an electrician prove fault class before swapping breakers"
+  },
+  "field_measurements": [
+    "Trip timing classification (instant vs delayed)",
+    "De-energized: continuity / insulation checks where qualified",
+    "Inrush context: identify motor/transformer loads on the branch",
+    "Panel-side: visual heat marks on breaker stab (qualified)"
+  ],
+  "field_measurements_pro": "Separate **load-removed still trips** from **load-specific trips** before spending on breakers—those two branches have different labor profiles.",
+  "field_measurements_home": "If you are not trained to **isolate dead fronts** and interpret **insulation tests**, this is electrician scope—not a reset exercise.",
+  "repair_vs_replace_pro": "Repair branch wiring and devices when damage is localized and bus is sound. Replace breakers when type/curve is wrong after engineering verification. Replace or rebuild panel when stabs/bus show arcing damage.",
+  "repair_vs_replace_home": "Instant trips are not the same budget conversation as **too many hair dryers**—don’t use overload math here.",
+  "professional_threshold": "Stop at repeated reclosing on instant trip, main lug heat, unfamiliar MWBC routing, or any burning odor from the panel.",
+  "warnings": [
+    "Arc flash and shock hazard are present on energized work.",
+    "Repeated resetting can weld contacts or escalate a high-resistance fault.",
+    "Shared neutrals on MWBCs must not be opened under load."
+  ],
+  "cta_final": {
+    "title": "Arcing in the panel is not a second-chance classroom",
+    "body": "MWBC neutrals, aluminum transitions, and main lug heat need listed connectors and de-energized torque—not repeated resets chasing “nuisance” trips.",
+    "button": "Book licensed electrical for panel and branch evaluation"
+  },
+  "before_you_call": [
+    "Whether the trip happens **with nothing plugged in** on that circuit.",
+    "Any **one appliance** that always triggers it vs random.",
+    "AFCI/GFCI presence and whether **TEST** behaves normally.",
+    "Any recent staple/nail, rodent, renovation, or outlet replacement on that circuit."
+  ],
+  "do_not_attempt": [
+    "Do not reset an instant trip repeatedly to “see if it holds.”",
+    "Do not swap breaker types without verifying listing, curve, and conductor protection.",
+    "Do not defeat AFCI/GFCI protection devices."
+  ],
+  "risk_notes": [
+    {
+      "label": "Where people get this wrong",
+      "text": "Treating instant trips like overload: unplugging random devices while ignoring **dead short on the homerun** or **neutral faults**—then swapping breakers until something melts."
+    }
+  ],
+  "trade": "electrical",
+  "slug": "electrical/breaker-trips-instantly",
+  "cluster": "fault",
+  "diagnostic_mermaid_cluster": "fault",
+  "diagnostic_flow_template_key": "electrical_v1",
+  "diagnostic_flow_issue_label": "Breaker trips instantly",
+  "pillar_page": "electrical",
+  "related_pages": [
+    "electrical/circuit-overload",
+    "electrical/outlet-not-working"
+  ]
+}

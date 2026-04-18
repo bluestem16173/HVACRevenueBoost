@@ -1,0 +1,87 @@
+{
+  "schema_version": "dg_authority_v3",
+  "layout": "dg_authority_v3",
+  "title": "Outside Unit Not Running | Tampa, FL",
+  "slug": "hvac/outside-unit-not-running/tampa-fl",
+  "hero": "Outdoor dead while indoor runs is almost always permission: 24 V call, high-voltage through disconnect/contactor, or motor/compressor electrical—not ‘low refrigerant’ first.",
+  "summary_30s": "Prove Y/O at the outdoor low-voltage, then line voltage out of the disconnect, then contactor pull and capacitor-assisted fan start. Tampa heat and ants in contactors make the electrical branch statistically dominant.",
+  "quick_checks": [
+    { "label": "Audible and visual", "action": "Outdoor fan blade stationary; contactor pulled or not; any hum.", "risk_if_ignored": "Assuming compressor failure without electrical map wastes replacements." },
+    { "label": "Disconnect", "action": "Fully seated; no melted holder; correct orientation.", "risk_if_ignored": "Partial insert can read as random outdoor death." },
+    { "label": "Breaker", "action": "HVAC breaker position; one reset only if no odor/heat.", "risk_if_ignored": "Repeated resets on ground fault arc-damages equipment." },
+    { "label": "Contactor manually", "action": "If trained: verify coil ohms dead; never force contacts live.", "risk_if_ignored": "Live tests on wet pad are shock hazards." },
+    { "label": "Capacitor label", "action": "Note MFD and voltage class for replacement spec—not guess.", "risk_if_ignored": "Wrong cap cooks fan and compressor start windings." }
+  ],
+  "decision_fork": {
+    "safe_diy": ["Re-seat disconnect after confirmed OFF.", "Clear ants/debris from contactor bay if visible with power locked out.", "Note exact breaker behavior for the tech."],
+    "call_pro_if": ["Breaker trips on call.", "Melted disconnect, hot whip, or lug discoloration.", "Contactor welded or buzzes.", "Compressor hums, high amps, then trips.", "Any uncertainty measuring 240 V.", "After-hours no-cool with children or elderly heat-vulnerable occupants."],
+    "urgency_level": "high"
+  },
+  "diagnostic_flow": {
+    "nodes": [
+      { "id": "A", "kind": "start", "label": "Indoor calls; outdoor stationary" },
+      { "id": "B", "kind": "decision", "label": "24 V call present at outdoor" },
+      { "id": "C", "kind": "decision", "label": "Line voltage at load side of disconnect" },
+      { "id": "D", "kind": "decision", "label": "Contactor pulls; contacts pass voltage" },
+      { "id": "E", "kind": "outcome", "label": "Stat, float, or low-voltage wiring repair" },
+      { "id": "F", "kind": "outcome", "label": "Disconnect / whip / breaker repair" },
+      { "id": "G", "kind": "outcome", "label": "Capacitor, fan motor, or compressor electrical" }
+    ],
+    "edges": [
+      { "from": "A", "to": "B", "label": "" },
+      { "from": "B", "to": "E", "label": "No 24 V" },
+      { "from": "B", "to": "C", "label": "24 V OK" },
+      { "from": "C", "to": "F", "label": "No line voltage" },
+      { "from": "C", "to": "D", "label": "Line OK" },
+      { "from": "D", "to": "E", "label": "No pull" },
+      { "from": "D", "to": "G", "label": "Pulls; fan/compressor still dead" }
+    ]
+  },
+  "flow_explanations": {
+    "A": "Confirm stat actually calling outdoor branch.",
+    "B": "Missing Y is often float, wire, or board lockout.",
+    "C": "Line-side permission before motor theory.",
+    "D": "Pitted contacts pass voltage test under load only—tech measurement.",
+    "E": "Low voltage and interlocks are homeowner-adjacent only with limits.",
+    "F": "Corrosion and storm damage concentrate here in coastal humidity.",
+    "G": "Start components and motors are measurable; compressor is pro-grade."
+  },
+  "top_causes": [
+    { "cause": "Open disconnect or breaker", "why_it_happens": "Human error, storm, or trip on fault.", "risk": "Repeated reset without locating fault.", "fix_complexity": "easy" },
+    { "cause": "Failed contactor", "why_it_happens": "Coil weak or contacts pitted; ants common.", "risk": "Single-phasing damages compressor.", "fix_complexity": "pro" },
+    { "cause": "Bad run capacitor", "why_it_happens": "Fan or compressor cannot start.", "risk": "Wrong replacement part overheats windings.", "fix_complexity": "pro" },
+    { "cause": "Condensate float lockout", "why_it_happens": "Pan switch opens R to outdoor.", "risk": "Bypass floods ceiling.", "fix_complexity": "moderate" },
+    { "cause": "Compressor electrical fault", "why_it_happens": "Ground, open, or start winding issue.", "risk": "Fire/shock if forced.", "fix_complexity": "pro" }
+  ],
+  "repair_matrix": [
+    { "symptom": "Outdoor dead; disconnect out", "cause": "User or storm", "fix": "Re-seat; verify lugs", "cost_min": 0, "cost_max": 180 },
+    { "symptom": "Contactor not pulling", "cause": "Coil or 24 V path", "fix": "Replace contactor; repair low voltage", "cost_min": 220, "cost_max": 650 },
+    { "symptom": "Hum; fan not spinning", "cause": "Cap or fan motor", "fix": "Test cap; replace motor", "cost_min": 180, "cost_max": 950 },
+    { "symptom": "Trips on compressor start", "cause": "Hard start / compressor", "fix": "Start kit or compressor replacement", "cost_min": 350, "cost_max": 4200 },
+    { "symptom": "Melted whip", "cause": "Loose lug / corrosion", "fix": "Replace whip; torque lugs", "cost_min": 200, "cost_max": 650 }
+  ],
+  "cost_ladder": [
+    { "stage": "Re-seat / minor wiring", "typical_cost": "$0–$220" },
+    { "stage": "Contactor + cap", "typical_cost": "$220–$850" },
+    { "stage": "Fan motor", "typical_cost": "$350–$1,200" },
+    { "stage": "Compressor or major electrical", "typical_cost": "$1,800–$6,500" },
+    { "stage": "Feed / panel remediation with electrician", "typical_cost": "$250–$2,500" }
+  ],
+  "how_system_works": "The outdoor unit needs line voltage switched by the contactor to the fan and compressor. The thermostat request closes a low-voltage path; safeties can interrupt it. Start capacitors provide phase shift torque for PSC motors.",
+  "tools_required": {
+    "homeowner": ["Flashlight", "Phone camera for part labels"],
+    "technician": ["Multimeter", "Clamp meter", "Megohmmeter", "Insulated tools", "Ant-safe contactor practices"]
+  },
+  "repair_vs_replace": {
+    "repair_if": ["Localized contactor, cap, float, whip, or fan motor failure", "Compressor starts reliably after documented electrical repair"],
+    "replace_if": ["Grounded compressor", "Repeated weld chatter destroying lugs", "Storm-damaged outdoor beyond economical repair"]
+  },
+  "local_context": "Humidity and insects accelerate contactor pitting; afternoon thunderstorms cause nuisance trips.",
+  "field_insight": "Outdoor silent with indoor running: I check Y before I touch the cap bucket—half are float or stat.",
+  "maintenance": ["Annual outdoor electrical visual", "Gentle contactor area cleanout with power locked out by pro", "Surge awareness after outages"],
+  "cost_pressure": "Heat-index emergency pricing stacks when many homes lose outdoor after storms.",
+  "decision_moment": "If breaker trips twice, stop—third is not charm; it is damage.",
+  "cta_primary": "Same-day outdoor electrical diagnosis: 24 V, line voltage, contactor, and start network.",
+  "cta_secondary": "Hot parts, smoke, or single loud hum—shut disconnect and call now.",
+  "stop_diy": "Do not energize unit with cover off; do not pry welded contactor while live; do not sub wrong capacitor."
+}

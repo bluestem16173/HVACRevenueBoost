@@ -1,0 +1,167 @@
+{
+  "layout": "dg_authority_v3",
+  "schema_version": "dg_authority_v3",
+  "title": "Water Heater Leaking",
+  "summary_30s": "A leaking water heater indicates either pressure relief activation, connection failure, or tank integrity breakdown. The key is identifying whether the leak is external or structural.",
+  "cta_top": {
+    "title": "A T&P drip is not always a bad valve—and a shell weep is not a fitting job",
+    "body": "Expansion control, discharge routing, and vessel integrity sit in different repair bands; tightening the wrong joint masks drivers while water keeps finding the floor.",
+    "button": "Get Plumbing Diagnosis"
+  },
+  "quick_checks": [
+    "Identify **exact source**: T&P threads vs shell seam vs nipple union vs drain valve—photo and dry-towel trace before wiping threads blindly.",
+    "T&P: **intermittent drip** after hot use on a closed system often tracks to **thermal expansion**; constant high-volume flow suggests overpressure/overtemp or failed seat.",
+    "Closed hot system: verify **expansion tank** presence/charge/isolation where applicable—bladder failure can present as chronic T&P weep.",
+    "Supply static pressure note; compare to **thermal expansion** pressure rise during heating (qualified measurement only).",
+    "Jacket: **rust streaks originating at lower seam** with wet insulation odor is a different class than a weeping dielectric gasket."
+  ],
+  "quick_checks_home": "If water is coming from the **relief path**, tightening fittings randomly can mask whether the valve is **doing its job** for pressure/temperature—or failing open. If it is **shell-side wetting**, “small seep” can still mean **replace vessel** soon.",
+  "diagnostic_logic_pro": "Differentiate **normal thermal expansion discharge** (cyclic, tied to heat-up, resolves with expansion control) from **relief valve failure** (continuous dribble at idle) from **shell leak** (progressive seam wetting, insulation saturation). Connection leaks localize to threads, unions, and dielectrics; they rarely self-resolve and need torque/rebuild scope with discharge control.",
+  "diagnostic_logic_home": "A puddle under the heater is not one diagnosis—**T&P behavior**, **bad threads**, and **tank metal failure** are different price bands and different safety timelines.",
+  "diagnostic_flow": {
+    "nodes": [
+      {
+        "id": "start",
+        "label": "Visible water at heater or nearby"
+      },
+      {
+        "id": "class",
+        "label": "Classify: T&P vs fitting vs shell vs drain"
+      },
+      {
+        "id": "tp",
+        "label": "T&P: cycling vs constant; expansion path"
+      },
+      {
+        "id": "fit",
+        "label": "Fittings/dielectric: torque/rebuild scope"
+      },
+      {
+        "id": "shell",
+        "label": "Shell/insulation wetting → vessel integrity"
+      },
+      {
+        "id": "end",
+        "label": "Document source; stop-loss plan"
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "class"
+      },
+      {
+        "from": "class",
+        "to": "tp",
+        "label": "Relief path wet"
+      },
+      {
+        "from": "class",
+        "to": "fit",
+        "label": "Threaded joint wet"
+      },
+      {
+        "from": "class",
+        "to": "shell",
+        "label": "Seam/jacket wet"
+      },
+      {
+        "from": "tp",
+        "to": "end"
+      },
+      {
+        "from": "fit",
+        "to": "end"
+      },
+      {
+        "from": "shell",
+        "to": "end"
+      }
+    ]
+  },
+  "system_explanation": "Storage tanks operate as a **pressure boundary**. **T&P valves** protect against excessive temperature and pressure; on **closed systems**, heated water raises pressure unless an **expansion control** path exists. **Metal fatigue and corrosion** migrate to seam leaks. **Threaded connections** leak from vibration, galvanic corrosion, or improper sealing—distinct from vessel failure.",
+  "failure_clusters": [
+    {
+      "title": "Connection or fitting leak",
+      "pro": "Loose or degraded fittings at inlet, outlet, or valves allow water escape under pressure.",
+      "home": "Water is leaking from connections, not the tank itself.",
+      "risk": "Ignoring small leaks leads to pressure-related failure and water damage."
+    },
+    {
+      "title": "T&P relief activation",
+      "pro": "Temperature and pressure relief valves discharge when limits are exceeded.",
+      "home": "The system is releasing water to prevent dangerous pressure or overheating.",
+      "risk": "Blocking or ignoring T&P discharge can lead to catastrophic failure."
+    },
+    {
+      "title": "Tank failure",
+      "pro": "Corrosion or structural breakdown of the tank shell allows water to escape permanently.",
+      "home": "The tank itself is failing and cannot be repaired.",
+      "risk": "Delaying replacement can lead to flooding and property damage."
+    }
+  ],
+  "repair_matrix": [
+    "Expansion tank service / install → $150–$550",
+    "T&P replacement + discharge correction → $150–$450",
+    "Nipple/dielectric/drain valve repair → $100–$400",
+    "Tank replacement (vessel integrity) → $1,200–$3,500"
+  ],
+  "repair_matrix_pro": "Access, pan/drain compliance, and whether work stays on **relief/expansion** versus **vessel** drives the band more than brand.",
+  "repair_matrix_home": "Most chronic **T&P weeps** are mid-band until they become **floor damage**—address the driver, not only the symptom drip.",
+  "repair_matrix_risk": "Ignoring shell-side wetting until rupture risk is how **slow seep** becomes **large-loss water damage**.",
+  "cta_mid": {
+    "title": "Misclassified leaks stack cost: expansion ignored, shell patched",
+    "body": "Mid-range spend covers relief and expansion paths; vessel integrity jumps bands—know which class you are in before opening discharge or ordering demolition access.",
+    "button": "Verify Tank + T&P Safely"
+  },
+  "field_measurements": [
+    "Relief discharge: intermittent vs continuous (observe across heat cycle)",
+    "Supply static pressure (context)",
+    "Expansion tank bladder/charge check when in scope",
+    "Tank setpoint vs measured outlet band (relief driver context)"
+  ],
+  "field_measurements_pro": "Pair **relief behavior classification** with **expansion path verification** before swapping T&P—otherwise the new valve weeps the same week.",
+  "field_measurements_home": "If you see **rust streak shell patterns** or **saturated insulation odor**, treat it as vessel-class and stop DIY escalation.",
+  "repair_vs_replace_pro": "Repair for relief/expansion misapplication and connection-class leaks with sound shell. Replace when vessel integrity fails or repeated seam weep returns after proper fitting work.",
+  "repair_vs_replace_home": "A leaking heater is not always a **new tank**—unless the **metal** is telling you it is.",
+  "professional_threshold": "Stop at altering relief setpoints, capping discharge, opening gas lines for leak search without tools, or lifting a heavy tank without drain/scald control.",
+  "warnings": [
+    "Scald risk above ~120°F at fixtures serving children or elderly.",
+    "Shock hazard on wet concrete near energized cabinets.",
+    "Gas accumulation if ignition is repeatedly attempted without proving safe draft."
+  ],
+  "cta_final": {
+    "title": "Gas pressure and energized wet cabinets are not homeowner tooling",
+    "body": "Manifold checks, T&P replacement, and element work need code-aware sequencing; wrong order traps gas or energizes standing water paths.",
+    "button": "Schedule Licensed Plumbing"
+  },
+  "before_you_call": [
+    "Photos of **where** water originates (T&P tail, union, lower seam).",
+    "Whether drip is **constant** or **after hot use**; any recent PRV/T&P work.",
+    "Closed system context: expansion tank present and age if known.",
+    "Any rust streaks, insulation smell, or sudden volume increase."
+  ],
+  "do_not_attempt": [
+    "Do not cap or plug T&P or its discharge piping.",
+    "Do not drain a hot tank into living space without scald/flood control.",
+    "Do not use shell patch products as a long-term fix on pressurized storage."
+  ],
+  "risk_notes": [
+    {
+      "label": "Where people get this wrong",
+      "text": "Swapping T&P on repeat while closed-system expansion is unchecked—or calling a tank replacement for a weeping dielectric—both waste money and miss the real driver."
+    }
+  ],
+  "trade": "plumbing",
+  "slug": "plumbing/water-heater-leaking",
+  "cluster": "tank",
+  "diagnostic_mermaid_cluster": "tank",
+  "diagnostic_flow_template_key": "plumbing_v1",
+  "diagnostic_flow_issue_label": "Water heater leak",
+  "pillar_page": "plumbing/why-you-have-no-hot-water",
+  "related_pages": [
+    "plumbing/water-heater-not-working",
+    "plumbing/no-hot-water",
+    "plumbing/water-heater-leaking"
+  ]
+}

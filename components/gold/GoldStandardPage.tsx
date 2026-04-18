@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useId, useMemo, useRef } from "react";
+import React, { useMemo } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -200,54 +200,6 @@ function ProbabilityPill({ value }: { value: Probability }) {
   );
 }
 
-function MermaidDiagram({ code }: { code?: string }) {
-  const id = useId().replace(/:/g, "");
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const safeCode = typeof code === "string" ? code : "";
-
-    async function renderChart() {
-      if (!ref.current || !safeCode.trim()) return;
-
-      try {
-        const mermaid = (await import("mermaid")).default;
-        mermaid.initialize({
-          startOnLoad: false,
-          theme: "default",
-          securityLevel: "loose",
-          flowchart: {
-            useMaxWidth: true,
-            htmlLabels: true,
-          },
-        });
-        const { svg } = await mermaid.render(`mermaid-${id}`, safeCode);
-        if (mounted && ref.current) {
-          ref.current.innerHTML = svg;
-        }
-      } catch {
-        if (mounted && ref.current) {
-          ref.current.innerHTML = `
-            <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-              Unable to render flowchart. Check Mermaid syntax.
-            </div>
-          `;
-        }
-      }
-    }
-
-    void renderChart();
-
-    return () => {
-      mounted = false;
-    };
-  }, [code, id]);
-
-  return <div ref={ref} className="mermaid-diagram overflow-x-auto" />;
-}
-
 function DecisionPrompt({ prompts }: { prompts?: { condition: string; action: string }[] }) {
   if (!prompts?.length) return null;
   return (
@@ -435,7 +387,10 @@ function DiagnosticFlow({
         {caption ? <p className="mb-4 text-sm text-slate-600">{caption}</p> : null}
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 md:p-6">
           {mermaidCode ? (
-            <MermaidDiagram code={mermaidCode} />
+            <>
+              {/* TEMP: <MermaidDiagram code={mermaidCode} /> */}
+              <p className="text-sm text-slate-500">Flowchart temporarily disabled.</p>
+            </>
           ) : (
             <div className="text-sm text-slate-500">No flowchart available.</div>
           )}

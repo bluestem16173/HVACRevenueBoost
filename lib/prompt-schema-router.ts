@@ -1,3 +1,9 @@
+import { HSD_V2_SCHEMA_VERSION } from "@/lib/generated-page-json-contract";
+import { buildHsdV2VeteranTechnicianPrompt } from "@/src/lib/ai/prompts/diagnostic-engine-json";
+import {
+  formatCityPathSegmentForDisplay,
+  parseLocalizedStorageSlug,
+} from "@/lib/localized-city-path";
 import { buildVerticalPromptPreamble, normalizeVerticalId } from "@/lib/verticals";
 import { getDgAuthorityV3SceneRequirementsBlock } from "@/lib/dg-authority-v3-scenario-prompts";
 import { enforceStoredSlug } from "@/lib/slug-utils";
@@ -889,15 +895,30 @@ function withVerticalAndTopicContext(
 
 export function composePromptForPageType(pageType: string, slug: string, opts?: ComposePromptOptions): string {
   let core: string;
+  if (opts?.schemaVersion === HSD_V2_SCHEMA_VERSION) {
+    const storageSlug = enforceStoredSlug(slug);
+    const localized = parseLocalizedStorageSlug(storageSlug);
+    const cityLine =
+      (opts?.city && String(opts.city).trim()) ||
+      (localized ? formatCityPathSegmentForDisplay(localized.citySlug) : "");
+    const { city, state } = parseCityStateForPrompt(cityLine, opts?.state ?? null);
+    const symptom =
+      (opts?.primaryIssue && String(opts.primaryIssue).trim()) ||
+      (localized
+        ? humanizeSlugAsPrimaryIssue(`${localized.vertical}/${localized.pillarCore}`)
+        : humanizeSlugAsPrimaryIssue(storageSlug));
+    const cityOut = city.trim() || cityLine.replace(/,\s*[A-Z]{2}\s*$/i, "").trim() || cityLine;
+    const stateOut =
+      state.trim() ||
+      (() => {
+        const m = localized?.citySlug.match(/-([a-z]{2})$/i);
+        return m ? m[1].toUpperCase() : "";
+      })();
+    core = buildHsdV2VeteranTechnicianPrompt(symptom, cityOut, stateOut);
+    return withVerticalAndTopicContext(core, storageSlug, opts);
+  }
   if (opts?.schemaVersion === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION) {
     core = buildHsdCityDiagnosticJsonPrompt(slug, opts?.city);
-    return withVerticalAndTopicContext(core, slug, opts);
-  }
-  if (
-    opts?.schemaVersion === DG_AUTHORITY_V3_SCHEMA_VERSION ||
-    pageType === "dg_authority_v3"
-  ) {
-    core = buildDgAuthorityV3PerPageUserPrompt(slug, opts);
     return withVerticalAndTopicContext(core, slug, opts);
   }
   if (opts?.schemaVersion === "v2_goldstandard") {

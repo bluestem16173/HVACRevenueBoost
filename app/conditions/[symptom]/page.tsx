@@ -12,7 +12,7 @@ import { getClusterForSymptom } from "@/lib/clusters";
 import { SYMPTOMS } from "@/data/knowledge-graph";
 import { getPageBySlug, getAllPagesByType } from "@/lib/db";
 import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
-import MermaidInit from "@/components/MermaidInit";
+// TEMP: import MermaidInit from "@/components/MermaidInit";
 import ConditionPageTemplate from "@/templates/ConditionPageTemplate";
 
 /** Detect if content_json uses the locked condition schema (fastAnswer.headline, thirtySecondSummary, etc.) */
@@ -81,10 +81,8 @@ export default async function ConditionPage({ params }: { params: { symptom: str
       );
     }
 
-    const hasMermaid = page.html?.includes('class="mermaid"');
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-        {hasMermaid && <MermaidInit />}
         <nav className="max-w-4xl mx-auto px-4 py-4 text-sm text-gray-500">
           <Link href="/" className="hover:text-hvac-blue">Home</Link>
           <span className="mx-2">/</span>

@@ -11,8 +11,11 @@ const HTML_STICKY_CLASS = "hvacrb-sticky-lead-visible";
 export default function StickySmsLeadCta() {
   const pathname = usePathname();
   const [dismissed, setDismissed] = useState<boolean | null>(null);
+  /** Avoid SSR vs client mismatch: `usePathname()` + `localStorage` differ until the client mounts. */
+  const [shellReady, setShellReady] = useState(false);
 
   useEffect(() => {
+    setShellReady(true);
     try {
       setDismissed(localStorage.getItem(STICKY_CTA_DISMISS_STORAGE_KEY) === "1");
     } catch {
@@ -20,7 +23,8 @@ export default function StickySmsLeadCta() {
     }
   }, []);
 
-  const hideChrome = dismissed === true || !shouldShowHvacStickyCta(pathname);
+  const hideChrome =
+    !shellReady || dismissed === true || !shouldShowHvacStickyCta(pathname);
 
   useLayoutEffect(() => {
     if (hideChrome) {

@@ -1,0 +1,88 @@
+{
+  "schema_version": "dg_authority_v3",
+  "layout": "dg_authority_v3",
+  "title": "Weak Airflow | Tampa, FL",
+  "slug": "hvac/weak-airflow/tampa-fl",
+  "hero": "Weak airflow is a capacity killer before it is a comfort complaint—static pressure and mass flow at the coil beat guessing with charge gauges.",
+  "summary_30s": "Treat weak supply as duct, filter, blower, and coil loading in that order of cheap signal. High static with clean filter points to return or flex; wet coil loading spikes pressure and kills latent handling in Tampa humidity.",
+  "quick_checks": [
+    { "label": "Filter and cabinet", "action": "Correct filter size and direction; door sealed; no collapsed media in bypass.", "risk_if_ignored": "High static mimics every downstream fault including freeze-ups." },
+    { "label": "Register and return balance", "action": "Closed registers, blocked beds, or choked secondary returns—open and retest.", "risk_if_ignored": "Bypassed returns pull hot attic air and overload blower." },
+    { "label": "Flex runs", "action": "Inspect for kinks, sharp bends, and disconnected collars.", "risk_if_ignored": "Collapsed flex can drop whole-home CFM with a clean filter." },
+    { "label": "Blower speed tap / ECM signal", "action": "Verify speed call matches cooling profile; wrong tap murders airflow.", "risk_if_ignored": "Low speed drives coil freeze and liquid floodback." },
+    { "label": "Wet coil face", "action": "Visual loading; note drain behavior under long runtimes.", "risk_if_ignored": "Biofilm matting raises pressure and destroys sensible capacity." }
+  ],
+  "decision_fork": {
+    "safe_diy": ["Replace loaded filter with correct MERV for grille size.", "Open all registers; move furniture blocking returns.", "Clear obvious flex kink if accessible without tearing liner."],
+    "call_pro_if": ["Static above manufacturer window after filter fix.", "Blower wheel heavy buildup requiring pull and clean.", "Duct redesign needed for undersized return.", "Ice on indoor coil with weak airflow—do not keep running.", "ECM module faults or rewiring beyond homeowner scope."],
+    "urgency_level": "medium"
+  },
+  "diagnostic_flow": {
+    "nodes": [
+      { "id": "A", "kind": "start", "label": "Complaint: weak supply or poor throw" },
+      { "id": "B", "kind": "decision", "label": "Filter and cabinet path clean and sealed" },
+      { "id": "C", "kind": "decision", "label": "Registers/returns unobstructed" },
+      { "id": "D", "kind": "decision", "label": "Duct integrity: flex and trunks" },
+      { "id": "E", "kind": "outcome", "label": "Blower wheel / speed / motor service" },
+      { "id": "F", "kind": "outcome", "label": "Coil deep clean or pan/secondary issues" },
+      { "id": "G", "kind": "outcome", "label": "Duct modification or zoning rebalance" }
+    ],
+    "edges": [
+      { "from": "A", "to": "B", "label": "" },
+      { "from": "B", "to": "C", "label": "OK" },
+      { "from": "B", "to": "D", "label": "Still high static / weak" },
+      { "from": "C", "to": "D", "label": "OK" },
+      { "from": "C", "to": "B", "label": "Blocked; fix and retest" },
+      { "from": "D", "to": "E", "label": "Duct OK; blower issue" },
+      { "from": "D", "to": "F", "label": "Wet coil loading" },
+      { "from": "D", "to": "G", "label": "Undersized return path" }
+    ]
+  },
+  "flow_explanations": {
+    "A": "Quantify weak—room to room or measured static if available.",
+    "B": "Wrong MERV on small return is the silent static bomb.",
+    "C": "One closed return in a starved system dominates pressure.",
+    "D": "Flex is the first mechanical failure mode in attics.",
+    "E": "PSC wrong tap or ECM signal fault looks like duct issue.",
+    "F": "Wet coil raises pressure and humidity complaints together.",
+    "G": "Some homes need return addition—not more refrigerant."
+  },
+  "top_causes": [
+    { "cause": "High-MERV or wrong filter", "why_it_happens": "Face area too small for chosen MERV raises static.", "risk": "Coil freeze and compressor slugging follow.", "fix_complexity": "easy" },
+    { "cause": "Collapsed or leaky flex", "why_it_happens": "Attic heat and foot traffic kink flex runs.", "risk": "Pulls attic air and loses delivered CFM to rooms.", "fix_complexity": "moderate" },
+    { "cause": "Dirty blower wheel or coil", "why_it_happens": "Dust matting and biofilm add pressure drop.", "risk": "Misdiagnosed as low charge; adding gas worsens floodback.", "fix_complexity": "moderate" },
+    { "cause": "Undersized or blocked return", "why_it_happens": "Return grille area cannot match supply.", "risk": "Chronic high static burns blower motors.", "fix_complexity": "pro" },
+    { "cause": "Incorrect blower speed", "why_it_happens": "Wrong tap or degraded ECM performance.", "risk": "Low airflow across cooling coil in humid load.", "fix_complexity": "pro" }
+  ],
+  "repair_matrix": [
+    { "symptom": "High static, clean filter", "cause": "Return undersized / flex kink", "fix": "Return enlargement or flex repair", "cost_min": 350, "cost_max": 2800 },
+    { "symptom": "Weak throw, dark wheel", "cause": "Blower wheel clean", "fix": "Pull and clean wheel; verify balance", "cost_min": 220, "cost_max": 650 },
+    { "symptom": "High ΔP across coil", "cause": "Evap clean", "fix": "Chemical or mechanical clean per condition", "cost_min": 180, "cost_max": 520 },
+    { "symptom": "ECM no ramp", "cause": "Module or motor", "fix": "Diagnose signal; replace module/motor", "cost_min": 450, "cost_max": 1600 },
+    { "symptom": "Zoning damper stuck", "cause": "Damper motor or control", "fix": "Repair/replace damper assembly", "cost_min": 280, "cost_max": 900 }
+  ],
+  "cost_ladder": [
+    { "stage": "Filter correction", "typical_cost": "$15–$80" },
+    { "stage": "Flex repair / minor duct seal", "typical_cost": "$200–$900" },
+    { "stage": "Coil and blower clean", "typical_cost": "$180–$650" },
+    { "stage": "Return addition / trunk mod", "typical_cost": "$800–$4,500" },
+    { "stage": "ECM motor or module", "typical_cost": "$450–$1,600" }
+  ],
+  "how_system_works": "The blower moves a fixed volume relationship against system pressure. Filters, coils, ducts, and grilles are resistors in series—any choke drops delivered air and raises fan power and noise.",
+  "tools_required": {
+    "homeowner": ["Flashlight", "Tape for temporary flex support only if safe"],
+    "technician": ["Manometer or magnehelic", "Anemometer optional", "Smoke pencil for leakage", "Torque driver for duct screws"]
+  },
+  "repair_vs_replace": {
+    "repair_if": ["Localized kink, dirty wheel, coil clean, or damper fault", "Filter strategy corrected with measured improvement"],
+    "replace_if": ["Motor repeatedly failing on chronic high static until duct fixed", "Rusted collapsing trunk beyond economical repair"]
+  },
+  "local_context": "Attic ducts in Tampa bake; liner delamination and kinks spike after one season of storage stacking.",
+  "field_insight": "If noise went up when ‘air got weak,’ think static before leak—homeowners confuse blower struggle with low refrigerant.",
+  "maintenance": ["MERV discipline", "Annual blower visual", "Keep attic walk paths off flex"],
+  "cost_pressure": "Return mods finished-wall cost more than open-bay attic work.",
+  "decision_moment": "If TESP is unknown, do not authorize coil clean alone as ‘the fix’—measure before and after.",
+  "cta_primary": "Book static mapping and a written CFM plan—not guesswork with parts.",
+  "cta_secondary": "Ice on indoor coil with weak air—shut cooling and call; liquid floodback damages compressor.",
+  "stop_diy": "Do not keep running with ice on the coil; do not remove filters long-term as a ‘solution.’"
+}

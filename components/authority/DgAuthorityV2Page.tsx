@@ -3,8 +3,14 @@
 import React, { useState } from "react";
 import LeadCard from "@/components/LeadCard";
 import { LiveElectricitySafetyNotice } from "@/components/LiveElectricitySafetyNotice";
-import Mermaid from "@/components/Mermaid";
+// TEMP: import Mermaid from "@/components/Mermaid";
 import { HVACAuthorityPage, HVACAuthorityPageSchema } from "@/types/hvac-authority";
+
+/** Non-array JSON object only — avoids treating strings/arrays as `summary_30s`-shaped records. */
+function jsonObject(v: unknown): Record<string, unknown> | null {
+  if (v == null || typeof v !== "object" || Array.isArray(v)) return null;
+  return v as Record<string, unknown>;
+}
 
 export default function DgAuthorityV2Page({ content }: { content: Record<string, unknown> }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,6 +32,37 @@ export default function DgAuthorityV2Page({ content }: { content: Record<string,
   const repairMatrix = Array.isArray(data.repair_matrix) ? data.repair_matrix : [];
   const preventionTips = Array.isArray(data.prevention_tips) ? data.prevention_tips : [];
   const faqs = Array.isArray(data.faqs) ? data.faqs : [];
+
+  const summary30s = jsonObject(data.summary_30s);
+  const summary30sBullets = summary30s && Array.isArray(summary30s.bullets) ? summary30s.bullets : [];
+
+  const highRisk = jsonObject(data.high_risk_warning);
+  const riskPoints = highRisk && Array.isArray(highRisk.risk_points) ? highRisk.risk_points : [];
+
+  const whenStopDiy = jsonObject(data.when_to_stop_diy);
+  const dangerPoints =
+    whenStopDiy && Array.isArray(whenStopDiy.danger_points) ? whenStopDiy.danger_points : [];
+
+  const bottomCta = jsonObject(data.bottom_cta);
+  const urgencyBullets =
+    bottomCta && Array.isArray(bottomCta.urgency_bullets) ? bottomCta.urgency_bullets : [];
+
+  const emergencyCta = jsonObject(data.emergency_cta);
+
+  const howSystem = jsonObject(data.how_the_system_works);
+  const howComponents = howSystem && Array.isArray(howSystem.components) ? howSystem.components : [];
+
+  const repairVsReplace = jsonObject(data.repair_vs_replace);
+
+  const internalLinksJson = jsonObject(data.internal_links);
+  const relatedSymptoms =
+    internalLinksJson && Array.isArray(internalLinksJson.related_symptoms)
+      ? internalLinksJson.related_symptoms
+      : [];
+  const relatedSystemPages =
+    internalLinksJson && Array.isArray(internalLinksJson.related_system_pages)
+      ? internalLinksJson.related_system_pages
+      : [];
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20">
@@ -53,43 +90,43 @@ export default function DgAuthorityV2Page({ content }: { content: Record<string,
       <header className="bg-white border-b border-slate-200 pt-16 pb-12 shadow-sm">
         <div className="container mx-auto max-w-5xl px-4">
           <h1 className="text-3xl md:text-5xl font-black text-slate-900 leading-tight mb-6">
-            {data.h1 || data.title}
+            {String(data.h1 ?? data.title ?? "") || ""}
           </h1>
-          {data.intro && (
+          {String(data.intro ?? "").trim() ? (
             <p className="text-lg md:text-xl text-slate-600 leading-relaxed max-w-4xl">
-              {data.intro}
+              {String(data.intro ?? "")}
             </p>
-          )}
+          ) : null}
         </div>
       </header>
 
       <main className="container mx-auto max-w-4xl px-4 pt-10">
         
         {/* 30-Second Summary */}
-        {data.summary_30s && (
+        {summary30s ? (
           <section className="mb-12 bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
             <h2 className="text-xs font-black tracking-widest uppercase text-blue-800 mb-4 flex items-center bg-blue-50/50 p-2 rounded max-w-fit border border-blue-100">
               <span className="w-2 h-2 rounded-full bg-blue-600 mr-2"></span>
-              {data.summary_30s.label || "30-Second Summary"}
+              {String(summary30s.label ?? "").trim() || "30-Second Summary"}
             </h2>
-            
-            {data.summary_30s.overview && (
+
+            {String(summary30s.overview ?? "").trim() ? (
               <p className="text-slate-700 font-medium leading-relaxed mb-6 bg-slate-50 p-4 rounded-lg border border-slate-100">
-                {data.summary_30s.overview}
+                {String(summary30s.overview ?? "")}
               </p>
-            )}
+            ) : null}
 
             <ul className="grid md:grid-cols-2 gap-4">
-              {data.summary_30s.bullets?.map((b: any, i: number) => (
+              {summary30sBullets.map((b: unknown, i: number) => (
                 <li key={i} className="flex items-start text-slate-700 leading-relaxed font-medium">
-                  <span className="text-blue-500 font-black mr-3 mt-0.5">·</span> {b}
+                  <span className="text-blue-500 font-black mr-3 mt-0.5">·</span> {String(b ?? "")}
                 </li>
               ))}
             </ul>
           </section>
-        )}
+        ) : null}
 
-        {data.summary_30s && quickChecks.length === 0 ? <LiveElectricitySafetyNotice className="mb-12" /> : null}
+        {summary30s && quickChecks.length === 0 ? <LiveElectricitySafetyNotice className="mb-12" /> : null}
 
         {/* DIY Tools Grid (Full Width directly below summary) */}
         {diyTools.length > 0 && (
@@ -168,46 +205,58 @@ export default function DgAuthorityV2Page({ content }: { content: Record<string,
         {quickChecks.length > 0 ? <LiveElectricitySafetyNotice className="mb-16" /> : null}
 
         {/* High Risk Warning + Immediate Emergency CTA */}
-        {data.high_risk_warning && (
+        {highRisk ? (
           <div className="mb-16 bg-white border border-slate-200 rounded-2xl shadow-md overflow-hidden relative">
-            <div className={`absolute top-0 left-0 w-full h-2 ${data.high_risk_warning.severity === 'critical' ? 'bg-red-700' : 'bg-red-500'}`}></div>
-            
+            <div
+              className={`absolute top-0 left-0 w-full h-2 ${
+                String(highRisk.severity ?? "") === "critical" ? "bg-red-700" : "bg-red-500"
+              }`}
+            ></div>
+
             <section className="bg-red-50 border-b border-red-100 p-8 md:p-10">
               <div className="flex items-start">
                 <span className="text-red-600 text-4xl mr-4 leading-none">⚠️</span>
                 <div>
                   <h3 className="text-2xl font-black text-red-900 mb-3 uppercase tracking-wider">
-                    {data.high_risk_warning.title}
+                    {String(highRisk.title ?? "")}
                   </h3>
                   <p className="text-red-800 font-medium text-base md:text-lg leading-relaxed mb-4">
-                    {data.high_risk_warning.body}
+                    {String(highRisk.body ?? "")}
                   </p>
-                  {data.high_risk_warning.risk_points?.length > 0 && (
+                  {riskPoints.length > 0 ? (
                     <ul className="list-disc pl-5 text-base text-red-800 opacity-90 space-y-2 font-medium">
-                      {data.high_risk_warning.risk_points.map((t: any, i: number) => <li key={i}>{t}</li>)}
+                      {riskPoints.map((t: unknown, i: number) => (
+                        <li key={i}>{String(t ?? "")}</li>
+                      ))}
                     </ul>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </section>
 
-            {data.emergency_cta && data.high_risk_warning.show_emergency_cta && (data.high_risk_warning.severity === "high" || data.high_risk_warning.severity === "critical") && (
+            {emergencyCta &&
+            highRisk.show_emergency_cta &&
+            (String(highRisk.severity ?? "") === "high" || String(highRisk.severity ?? "") === "critical") ? (
               <section className="p-8 md:p-10 text-center bg-white flex flex-col items-center justify-center">
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 mb-4">{data.emergency_cta.title}</h3>
-                <p className="text-slate-700 mb-6 leading-relaxed text-lg max-w-2xl">{data.emergency_cta.body}</p>
+                <h3 className="text-2xl md:text-3xl font-black text-slate-900 mb-4">
+                  {String(emergencyCta.title ?? "")}
+                </h3>
+                <p className="text-slate-700 mb-6 leading-relaxed text-lg max-w-2xl">
+                  {String(emergencyCta.body ?? "")}
+                </p>
                 <div className="bg-red-50 text-red-800 text-xs font-black uppercase tracking-widest inline-block px-4 py-2 rounded-md mb-6 border border-red-200 animate-pulse outline outline-2 outline-white shadow-sm">
-                  {data.emergency_cta.urgency_note}
+                  {String(emergencyCta.urgency_note ?? "")}
                 </div>
-                <button 
+                <button
                   onClick={() => setIsModalOpen(true)}
                   className="w-full md:w-auto rounded-xl bg-yellow-400 text-slate-900 px-10 py-5 font-black transition-transform hover:scale-105 shadow-md uppercase tracking-widest text-lg border border-yellow-500"
                 >
-                  {data.emergency_cta.button_text}
+                  {String(emergencyCta.button_text ?? "")}
                 </button>
               </section>
-            )}
+            ) : null}
           </div>
-        )}
+        ) : null}
 
         {/* Most Common Causes (Forced 2x2 Grid) */}
         {causes.length > 0 && (
@@ -229,7 +278,9 @@ export default function DgAuthorityV2Page({ content }: { content: Record<string,
                   <div className="bg-slate-50 border border-slate-200 rounded-lg p-5">
                     <strong className="block text-xs uppercase tracking-widest text-slate-500 mb-3">Common Signs:</strong>
                     <ul className="text-sm text-slate-700 space-y-2 pl-4 list-disc marker:text-slate-400 font-medium">
-                      {cause.signs?.map((s: any, j: number) => <li key={j}>{s}</li>)}
+                      {(cause.signs || []).map((s: any, j: number) => (
+                        <li key={j}>{s}</li>
+                      ))}
                     </ul>
                   </div>
                 </div>
@@ -239,24 +290,27 @@ export default function DgAuthorityV2Page({ content }: { content: Record<string,
         )}
 
         {/* How The System Works (Sequence mapping) */}
-        {data.how_the_system_works && (
+        {howSystem ? (
           <section className="mb-16 bg-white border border-slate-200 rounded-2xl p-8 md:p-12 shadow-sm">
             <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-4">How This System Actually Works</h2>
             <p className="text-slate-700 mb-8 text-base md:text-lg leading-relaxed max-w-3xl border-l-4 border-blue-200 pl-4 bg-slate-50 py-3 rounded-r-lg">
-              {data.how_the_system_works.overview}
+              {String(howSystem.overview ?? "")}
             </p>
             <div className="grid md:grid-cols-2 gap-4 relative">
-              {data.how_the_system_works.components?.map((c: any, i: number) => (
-                <div key={i} className="bg-slate-50 p-4 rounded-lg border border-slate-200 flex items-center shadow-sm hover:border-blue-300 transition-colors">
+              {howComponents.map((c: unknown, i: number) => (
+                <div
+                  key={i}
+                  className="bg-slate-50 p-4 rounded-lg border border-slate-200 flex items-center shadow-sm hover:border-blue-300 transition-colors"
+                >
                   <div className="w-8 h-8 rounded-md bg-blue-100 text-blue-800 font-black flex items-center justify-center mr-4 flex-shrink-0 text-sm border border-blue-200">
                     {i + 1}
                   </div>
-                  <span className="text-base text-slate-800 font-bold leading-relaxed">{c}</span>
+                  <span className="text-base text-slate-800 font-bold leading-relaxed">{String(c ?? "")}</span>
                 </div>
               ))}
             </div>
           </section>
-        )}
+        ) : null}
 
         {/* Advanced Diagnostic Flow */}
         {diagnosticFlow.length > 0 && (
@@ -309,7 +363,7 @@ export default function DgAuthorityV2Page({ content }: { content: Record<string,
               <div className="bg-white p-8 md:p-12 rounded-2xl border border-slate-300 shadow-md overflow-x-auto text-center w-full max-w-5xl mx-auto">
                 <h4 className="font-black text-slate-800 uppercase tracking-widest text-lg mb-8 border-b-2 border-slate-100 pb-4">{data.mermaid_diagram.title}</h4>
                 <div className="flex justify-center scale-100 md:scale-110 transform origin-top my-4">
-                  <Mermaid chart={data.mermaid_diagram.code} />
+                  {/* TEMP: <Mermaid chart={data.mermaid_diagram.code} /> */}
                 </div>
               </div>
             )}
@@ -369,64 +423,78 @@ export default function DgAuthorityV2Page({ content }: { content: Record<string,
         )}
 
         {/* Repair Vs Replace Card */}
-        {data.repair_vs_replace && (
+        {repairVsReplace ? (
           <section className="mb-16">
             <div className="bg-white rounded-2xl p-8 md:p-10 flex flex-col md:flex-row gap-8 items-center border border-slate-200 shadow-md relative overflow-hidden">
               <div className="absolute top-0 left-0 w-3 h-full bg-slate-900"></div>
               <div className="flex-1 pl-4">
-                <h2 className="text-2xl font-black text-slate-900 mb-8 border-b border-slate-100 pb-3">Repair vs. Replace Guidelines</h2>
+                <h2 className="text-2xl font-black text-slate-900 mb-8 border-b border-slate-100 pb-3">
+                  Repair vs. Replace Guidelines
+                </h2>
                 <div className="grid sm:grid-cols-2 gap-8 text-base mb-8">
                   <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
                     <h4 className="text-slate-900 font-black uppercase tracking-widest text-[11px] mb-4 border-b border-slate-200 pb-2 flex items-center">
-                       <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span> When to Repair
+                      <span className="w-2 h-2 rounded-full bg-blue-500 mr-2"></span> When to Repair
                     </h4>
-                    <p className="text-slate-600 leading-relaxed font-medium">{data.repair_vs_replace.repair_when}</p>
+                    <p className="text-slate-600 leading-relaxed font-medium">
+                      {String(repairVsReplace.repair_when ?? "")}
+                    </p>
                   </div>
                   <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
                     <h4 className="text-slate-900 font-black uppercase tracking-widest text-[11px] mb-4 border-b border-slate-200 pb-2 flex items-center">
-                        <span className="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span> When to Replace
+                      <span className="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span> When to Replace
                     </h4>
-                    <p className="text-slate-600 leading-relaxed font-medium">{data.repair_vs_replace.replace_when}</p>
+                    <p className="text-slate-600 leading-relaxed font-medium">
+                      {String(repairVsReplace.replace_when ?? "")}
+                    </p>
                   </div>
                 </div>
                 <div className="bg-white p-5 rounded-lg border border-slate-200 text-slate-700 text-sm italic font-medium flex items-start shadow-sm leading-relaxed">
-                  <span className="text-slate-400 mr-3 font-normal whitespace-nowrap uppercase text-[10px] tracking-widest not-italic mt-1 border-r border-slate-200 pr-3">Authority Note</span> 
-                  {data.repair_vs_replace.decision_note}
+                  <span className="text-slate-400 mr-3 font-normal whitespace-nowrap uppercase text-[10px] tracking-widest not-italic mt-1 border-r border-slate-200 pr-3">
+                    Authority Note
+                  </span>
+                  {String(repairVsReplace.decision_note ?? "")}
                 </div>
               </div>
             </div>
           </section>
-        )}
+        ) : null}
 
         {/* When To Stop & Call a Pro (MAJOR CONVERSION) */}
-        {data.when_to_stop_diy && (
+        {whenStopDiy ? (
           <section className="mb-20 bg-white border border-slate-200 rounded-3xl shadow-xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-3 bg-red-600"></div>
             <div className="p-8 md:p-14 text-center">
-              <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">{data.when_to_stop_diy.title}</h2>
-              <p className="text-slate-600 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">{data.when_to_stop_diy.intro}</p>
-              
+              <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">
+                {String(whenStopDiy.title ?? "")}
+              </h2>
+              <p className="text-slate-600 text-xl mb-10 max-w-3xl mx-auto leading-relaxed">
+                {String(whenStopDiy.intro ?? "")}
+              </p>
+
               <div className="bg-red-50 border-2 border-red-100 rounded-2xl p-8 text-left max-w-3xl mx-auto mb-10 shadow-inner">
                 <ul className="space-y-5">
-                  {data.when_to_stop_diy.danger_points.map((p: any, i: number) => (
+                  {dangerPoints.map((p: unknown, i: number) => (
                     <li key={i} className="flex items-start text-red-900 font-bold text-lg">
-                      <span className="text-red-500 mr-4 text-2xl leading-none">🛑</span> {p}
+                      <span className="text-red-500 mr-4 text-2xl leading-none">🛑</span> {String(p ?? "")}
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <p className="text-slate-800 font-black mb-10 max-w-2xl mx-auto leading-relaxed text-xl">{data.when_to_stop_diy.conversion_body}</p>
-              
-              <button 
+              <p className="text-slate-800 font-black mb-10 max-w-2xl mx-auto leading-relaxed text-xl">
+                {String(whenStopDiy.conversion_body ?? "")}
+              </p>
+
+              <button
                 onClick={() => setIsModalOpen(true)}
                 className="rounded-2xl bg-red-600 text-white px-10 py-6 font-black transition-transform hover:scale-105 shadow-xl uppercase tracking-widest text-xl w-full md:w-auto"
               >
-                {data.when_to_stop_diy.cta_text}
+                {String(whenStopDiy.cta_text ?? "")}
               </button>
             </div>
           </section>
-        )}
+        ) : null}
 
         {/* Prevention Tips */}
         {preventionTips.length > 0 && (
@@ -465,76 +533,106 @@ export default function DgAuthorityV2Page({ content }: { content: Record<string,
         )}
 
         {/* Internal Footer Links Block */}
-        {data.internal_links && (
+        {internalLinksJson ? (
           <section className="mb-20 pt-10 border-t border-slate-200">
             <h3 className="font-black text-slate-900 mb-6 text-xl">Related Technical Resources</h3>
             <div className="grid sm:grid-cols-3 gap-6 text-sm">
-              {data.internal_links.pillar_page && (
+              {String(internalLinksJson.pillar_page ?? "").trim() ? (
                 <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 hover:shadow-md transition-shadow">
-                  <strong className="block text-[10px] uppercase tracking-widest text-slate-500 mb-3 border-b border-slate-200 pb-1">Main Category</strong>
-                  <a href={`/${data.internal_links.pillar_page.toLowerCase().replace(/\s+/g, '-')}`} className="text-blue-700 hover:text-blue-900 font-bold block text-base">
-                    {data.internal_links.pillar_page}
+                  <strong className="block text-[10px] uppercase tracking-widest text-slate-500 mb-3 border-b border-slate-200 pb-1">
+                    Main Category
+                  </strong>
+                  <a
+                    href={`/${String(internalLinksJson.pillar_page).toLowerCase().replace(/\s+/g, "-")}`}
+                    className="text-blue-700 hover:text-blue-900 font-bold block text-base"
+                  >
+                    {String(internalLinksJson.pillar_page ?? "")}
                   </a>
                 </div>
-              )}
-              {Array.isArray(data.internal_links.related_symptoms) && data.internal_links.related_symptoms.length > 0 && (
+              ) : null}
+              {relatedSymptoms.length > 0 ? (
                 <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 hover:shadow-md transition-shadow">
-                  <strong className="block text-[10px] uppercase tracking-widest text-slate-500 mb-3 border-b border-slate-200 pb-1">Similar Symptoms</strong>
+                  <strong className="block text-[10px] uppercase tracking-widest text-slate-500 mb-3 border-b border-slate-200 pb-1">
+                    Similar Symptoms
+                  </strong>
                   <ul className="space-y-3">
-                    {data.internal_links.related_symptoms.map((link: any, i: number) => (
-                      <li key={i}><a href={`/diagnose/${link.toLowerCase().replace(/\s+/g, '-')}`} className="text-blue-600 hover:text-blue-800 font-medium block">{link}</a></li>
+                    {relatedSymptoms.map((link: unknown, i: number) => (
+                      <li key={i}>
+                        <a
+                          href={`/diagnose/${String(link).toLowerCase().replace(/\s+/g, "-")}`}
+                          className="text-blue-600 hover:text-blue-800 font-medium block"
+                        >
+                          {String(link ?? "")}
+                        </a>
+                      </li>
                     ))}
                   </ul>
                 </div>
-              )}
-               {Array.isArray(data.internal_links.related_system_pages) && data.internal_links.related_system_pages.length > 0 && (
+              ) : null}
+              {relatedSystemPages.length > 0 ? (
                 <div className="bg-slate-50 p-5 rounded-xl border border-slate-200 hover:shadow-md transition-shadow">
-                  <strong className="block text-[10px] uppercase tracking-widest text-slate-500 mb-3 border-b border-slate-200 pb-1">Related Systems</strong>
+                  <strong className="block text-[10px] uppercase tracking-widest text-slate-500 mb-3 border-b border-slate-200 pb-1">
+                    Related Systems
+                  </strong>
                   <ul className="space-y-3">
-                    {data.internal_links.related_system_pages.map((link: any, i: number) => (
-                      <li key={i}><a href={`/${link.toLowerCase().replace(/\s+/g, '-')}`} className="text-blue-600 hover:text-blue-800 font-medium block">{link}</a></li>
+                    {relatedSystemPages.map((link: unknown, i: number) => (
+                      <li key={i}>
+                        <a
+                          href={`/${String(link).toLowerCase().replace(/\s+/g, "-")}`}
+                          className="text-blue-600 hover:text-blue-800 font-medium block"
+                        >
+                          {String(link ?? "")}
+                        </a>
+                      </li>
                     ))}
                   </ul>
                 </div>
-              )}
+              ) : null}
             </div>
           </section>
-        )}
+        ) : null}
 
         {/* Final Bottom CTA */}
-        {data.bottom_cta && (
+        {bottomCta ? (
           <section className="mb-12 bg-white border-2 border-slate-200 rounded-3xl p-10 md:p-16 text-center shadow-2xl relative overflow-hidden">
-            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">{data.bottom_cta.title}</h2>
-            <p className="text-slate-600 text-xl md:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed">{data.bottom_cta.body}</p>
-            
-            {data.bottom_cta.urgency_bullets?.length > 0 && (
+            <h2 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">
+              {String(bottomCta.title ?? "")}
+            </h2>
+            <p className="text-slate-600 text-xl md:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed">
+              {String(bottomCta.body ?? "")}
+            </p>
+
+            {urgencyBullets.length > 0 ? (
               <ul className="mb-12 flex flex-col md:flex-row justify-center items-center gap-4 md:gap-10">
-                {data.bottom_cta.urgency_bullets.map((bull: any, i: number) => (
-                  <li key={i} className="text-base md:text-lg font-black text-slate-800 uppercase tracking-widest flex items-center justify-center bg-red-50 py-2 px-4 rounded-md border border-red-100 w-full md:w-auto">
-                     <span className="text-red-600 mr-3 text-2xl leading-none">⚠️</span> {bull}
+                {urgencyBullets.map((bull: unknown, i: number) => (
+                  <li
+                    key={i}
+                    className="text-base md:text-lg font-black text-slate-800 uppercase tracking-widest flex items-center justify-center bg-red-50 py-2 px-4 rounded-md border border-red-100 w-full md:w-auto"
+                  >
+                    <span className="text-red-600 mr-3 text-2xl leading-none">⚠️</span> {String(bull ?? "")}
                   </li>
                 ))}
               </ul>
-            )}
+            ) : null}
 
-            <button 
+            <button
               onClick={() => setIsModalOpen(true)}
               className="rounded-2xl bg-yellow-400 text-slate-900 px-10 py-6 font-black transition-transform hover:scale-[1.03] shadow-2xl uppercase tracking-widest text-xl border-b-4 border-yellow-600 w-full md:w-auto active:scale-95"
             >
-              {data.bottom_cta.button_text}
+              {String(bottomCta.button_text ?? "")}
             </button>
           </section>
-        )}
+        ) : null}
 
         {/* Author Note */}
-        {data.author_note && (
+        {String(data.author_note ?? "").trim() ? (
           <div className="text-center pt-8 border-t border-slate-200 mt-8 mb-4 flex flex-col md:flex-row items-center justify-center text-sm text-slate-500 font-medium">
             <span className="bg-slate-200 text-slate-700 px-3 py-1.5 rounded text-[10px] uppercase font-black tracking-widest md:mr-4 mb-3 md:mb-0 shadow-sm border border-slate-300">
               Technical Accuracy Verified
             </span>
-            {data.author_note}
+            {String(data.author_note ?? "")}
           </div>
-        )}
+        ) : null}
 
       </main>
     </div>
