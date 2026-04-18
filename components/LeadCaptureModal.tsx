@@ -3,6 +3,14 @@
 import { useEffect, useState } from "react";
 import { SMS_CONSENT_FULL_TEXT } from "@/lib/lead-consent";
 
+/** Parses labels like `Tampa, FL` for city/state form fields. */
+function parseCityStateFromLabel(raw: string): { city: string; state: string } | null {
+  const s = raw.trim();
+  const m = s.match(/^([^,]+),\s*([A-Za-z]{2})\s*$/);
+  if (!m) return null;
+  return { city: m[1].trim(), state: m[2].trim().toUpperCase() };
+}
+
 export default function LeadCaptureModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,9 +39,32 @@ export default function LeadCaptureModal() {
 
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      // If the clicked element or any of its parents have the data attribute
-      if (target.closest('[data-open-lead-modal]')) {
+      const trigger = target.closest("[data-open-lead-modal]") as HTMLElement | null;
+      if (trigger) {
         e.preventDefault();
+        const leadIssue = trigger.getAttribute("data-lead-issue")?.trim();
+        const leadLocation = trigger.getAttribute("data-lead-location")?.trim();
+        const leadTrade = trigger.getAttribute("data-lead-trade")?.trim();
+        if (leadIssue || leadLocation || leadTrade) {
+          setFormData((prev) => {
+            const next = { ...prev };
+            const tradeTag = leadTrade ? `[${leadTrade.toUpperCase()}]` : "";
+            const issue = leadIssue ?? "";
+            const loc = leadLocation ?? "";
+            const parts = [tradeTag, issue, loc ? `Service area: ${loc}` : ""].filter(Boolean);
+            if (parts.length) next.service = parts.join(" · ");
+            if (loc) {
+              const parsed = parseCityStateFromLabel(loc);
+              if (parsed) {
+                next.city = parsed.city;
+                next.state = parsed.state;
+              } else {
+                next.city = loc;
+              }
+            }
+            return next;
+          });
+        }
         setIsOpen(true);
       }
     };

@@ -41,6 +41,9 @@ function isDgLayout(content: Record<string, unknown>): boolean {
   return content.layout === "dg_authority_v3" || content.schemaVersion === "dg_authority_v3";
 }
 
+/** Same copy as `LiveElectricitySafetyNotice` — static HTML for crawler renders. */
+const ELECTRIC_SAFETY_ASIDE_HTML = `<aside class="hsd-electric-safety-notice" role="note" aria-label="Electrical safety"><span class="hsd-electric-safety-notice__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span><p class="hsd-electric-safety-notice__text">Working with live electricity carries significant risk for injury and possibly death. If you are not experienced, do NOT attempt any DIY. Call a professional today.</p></aside>`;
+
 /**
  * Server-side HTML for crawlers and no-JS clients. Mirrors `DgAuthorityV3View` Tailwind blocks.
  * Root: `<article data-dg-authority-v3="1" …>` so `DiagnosticPageView` prefers this over React.
@@ -61,7 +64,6 @@ export function renderDiagnosticEngineJsonToHtml(content: Record<string, unknown
   const diyVsPro = summary ? asString(summary.diy_vs_pro) : "";
 
   const quickChecks = asStringArray(content.quick_checks);
-  const heroPreview = quickChecks.slice(0, 3);
 
   const mermaidRaw = asString(content.decision_tree_mermaid);
   const mermaid = mermaidRaw ? sanitizeMermaid(mermaidRaw) : "";
@@ -106,13 +108,6 @@ export function renderDiagnosticEngineJsonToHtml(content: Record<string, unknown
   const costHeadingPlace = localLabel || "Your area";
 
   const related = relatedLinksFromJson(content);
-
-  const heroBullets =
-    heroPreview.length > 0
-      ? `<ul class="list-disc pl-5 text-gray-700 space-y-1">${heroPreview
-          .map((line) => `<li>${esc(line)}</li>`)
-          .join("")}</ul>`
-      : "";
 
   const mermaidBlock = mermaid
     ? `<div class="bg-white border border-gray-200 rounded-xl p-6">
@@ -269,10 +264,10 @@ export function renderDiagnosticEngineJsonToHtml(content: Record<string, unknown
       ? `<p class="text-gray-700 mb-3 text-sm leading-relaxed"><span class="font-semibold">DIY vs pro:</span> ${esc(diyVsPro)}</p>`
       : ""
   }
-  ${heroBullets}
 </div>
 ${mermaidBlock}
 ${quickBlock}
+${ELECTRIC_SAFETY_ASIDE_HTML}
 ${pathBlocks}
 ${techBlock}
 ${costBlock}

@@ -405,7 +405,11 @@ Generate JSON matching this exact schema:
     const hasCauses = activePayload.causes || activePayload.commonCauses || activePayload.authoritySection || activePayload.most_common_causes;
     const hasFaq = activePayload.faq || activePayload.faqs || activePayload.deep_causes;
 
-    if (activePayload.layout !== "hvac_authority_v3" && (!hasFixes || !hasCauses || !hasFaq)) {
+    if (
+      activePayload.layout !== "hvac_authority_v3" &&
+      activePayload.layout !== "dg_authority_v2" &&
+      (!hasFixes || !hasCauses || !hasFaq)
+    ) {
       throw new Error("NOT_GOLD_STANDARD");
     }
 

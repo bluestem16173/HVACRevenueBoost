@@ -1,5 +1,6 @@
 import Link from "next/link";
 import MermaidRenderer from "@/components/MermaidRenderer";
+import { LiveElectricitySafetyNotice } from "@/components/LiveElectricitySafetyNotice";
 import { DgLeadButton } from "@/components/dg/DgLeadButton";
 
 type Summary30s = {
@@ -74,7 +75,6 @@ export function DgAuthorityV3View({
   const diyVsPro = asString(summary?.diy_vs_pro);
 
   const quickChecks = asStringArray(data.quick_checks);
-  const heroPreview = quickChecks.slice(0, 3);
 
   const mermaidRaw = asString(data.decision_tree_mermaid);
   const mermaid = mermaidRaw ? sanitizeMermaid(mermaidRaw) : "";
@@ -155,15 +155,9 @@ export function DgAuthorityV3View({
               <span className="font-semibold">DIY vs pro:</span> {diyVsPro}
             </p>
           ) : null}
-
-          {heroPreview.length > 0 ? (
-            <ul className="list-disc pl-5 text-gray-700 space-y-1">
-              {heroPreview.map((line, i) => (
-                <li key={i}>{line}</li>
-              ))}
-            </ul>
-          ) : null}
         </div>
+
+        {quickChecks.length === 0 ? <LiveElectricitySafetyNotice /> : null}
 
         {/* Decision tree */}
         {mermaid ? (
@@ -195,6 +189,8 @@ export function DgAuthorityV3View({
             </ul>
           </div>
         ) : null}
+
+        {quickChecks.length > 0 ? <LiveElectricitySafetyNotice /> : null}
 
         {/* Path sections */}
         {paths.map((path, idx) => {

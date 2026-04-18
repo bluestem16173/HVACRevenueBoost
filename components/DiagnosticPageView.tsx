@@ -9,14 +9,20 @@ import { LocalizedDiagnosticFooterDetails } from "@/components/diagnostic-hub/Lo
 import type { ServiceVertical } from "@/lib/localized-city-path";
 import { getDefaultRelatedSlugs } from "@/lib/default-related-slugs";
 import { isHsdCityDiagnosticJson } from "@/lib/homeservice/isHsdCityDiagnosticJson";
+import { isHsdV1LockedJson } from "@/lib/hsd/isHsdV1LockedJson";
+import { renderHSDPage } from "@/lib/hsd/renderHSDPage";
+import { HsdLockedPageWithMermaid } from "@/components/homeservice/HsdLockedPageWithMermaid";
 import { HsdCityDiagnosticView } from "@/components/homeservice/HsdCityDiagnosticView";
 import { HsdInternalSiteLinks } from "@/components/homeservice/HsdInternalSiteLinks";
+import { renderDiagnosticEngineJsonToHtml } from "@/lib/render/renderDiagnosticEngineJsonToHtml";
 
 type PageRow = {
   slug: string;
   content_html?: string | null;
   content_json?: unknown;
   title?: string | null;
+  /** DB column — drives render precedence for DG contract rows. */
+  schema_version?: string | null;
 };
 
 /**
@@ -61,10 +67,111 @@ export function DiagnosticPageView({
     }
   }
 
+  const rowSchema =
+    typeof page.schema_version === "string" ? page.schema_version.trim() : "";
+  const jsonSchema =
+    parsedContentJson != null && typeof parsedContentJson === "object"
+      ? String((parsedContentJson as Record<string, unknown>).schema_version ?? "").trim()
+      : "";
+  const isDgAuthorityV2Contract =
+    (rowSchema === "dg_authority_v2" || jsonSchema === "dg_authority_v2") &&
+    parsedContentJson != null &&
+    typeof parsedContentJson === "object";
+
+  const rowDgV2WithJson =
+    rowSchema === "dg_authority_v2" &&
+    parsedContentJson != null &&
+    typeof parsedContentJson === "object";
+
+  /**
+   * DB row `schema_version` is authoritative: never serve stale `content_html` for v2 JSON rows.
+   * (JSON-only v2 without the column still flows through `isDgAuthorityV2Contract` below.)
+   */
+  let suppressContentHtmlForDgV2 = rowDgV2WithJson;
+
+  /** Row-tagged dg_authority_v2 + HSD locked JSON → always live `renderHSDPage` (not stored HTML). */
+  if (rowDgV2WithJson && isHsdV1LockedJson(parsedContentJson)) {
+    const lockedHtml = renderHSDPage(parsedContentJson as Record<string, unknown>);
+    return (
+      <>
+        <StickyCTA />
+        {localLabel ? (
+          <div className="max-w-4xl mx-auto px-4 pt-4 text-sm text-slate-600 dark:text-slate-400">
+            Local guide: <span className="font-semibold text-slate-900 dark:text-white">{localLabel}</span>
+          </div>
+        ) : null}
+        <main className="pb-16">
+          <DiagnosticModal />
+          <HsdLockedPageWithMermaid html={lockedHtml} />
+        </main>
+        <div className="max-w-4xl mx-auto px-4">
+          <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
+        </div>
+      </>
+    );
+  }
+
+  if (isDgAuthorityV2Contract) {
+    const obj = parsedContentJson as Record<string, unknown>;
+    /** Locked HSD from JSON-only v2 rows (column unset); row-tagged v2 handled above. */
+    if (isHsdV1LockedJson(obj) && !rowDgV2WithJson) {
+      const lockedHtml = renderHSDPage(obj);
+      return (
+        <>
+          <StickyCTA />
+          {localLabel ? (
+            <div className="max-w-4xl mx-auto px-4 pt-4 text-sm text-slate-600 dark:text-slate-400">
+              Local guide: <span className="font-semibold text-slate-900 dark:text-white">{localLabel}</span>
+            </div>
+          ) : null}
+          <main className="pb-16">
+            <DiagnosticModal />
+            <HsdLockedPageWithMermaid html={lockedHtml} />
+          </main>
+          <div className="max-w-4xl mx-auto px-4">
+            <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
+          </div>
+        </>
+      );
+    }
+
+    const engineHtml = renderDiagnosticEngineJsonToHtml(obj);
+    const engineUnsupported =
+      engineHtml.includes("data-diagnostic-fallback") ||
+      engineHtml.includes("Unsupported diagnostic JSON");
+    if (!engineUnsupported) {
+      const cleanHtml = engineHtml.replace(
+        /<div[^>]*position:\s*sticky[^>]*>[\s\S]*?<\/div>/i,
+        ""
+      );
+      return (
+        <>
+          <StickyCTA />
+          {localLabel ? (
+            <div className="max-w-4xl mx-auto px-4 pt-4 text-sm text-slate-600 dark:text-slate-400">
+              Local guide: <span className="font-semibold text-slate-900 dark:text-white">{localLabel}</span>
+            </div>
+          ) : null}
+          <main className="pb-16">
+            <DiagnosticModal />
+            <article dangerouslySetInnerHTML={{ __html: cleanHtml || "" }} />
+            <div className="max-w-4xl mx-auto px-4">
+              <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
+            </div>
+          </main>
+        </>
+      );
+    }
+    suppressContentHtmlForDgV2 = true;
+  }
+
   const htmlTrimmed = (page.content_html || "").trim();
-  const isDgFullStaticHtml = htmlTrimmed.includes('data-dg-authority-v3="1"');
+  const isDgFullStaticHtml =
+    !suppressContentHtmlForDgV2 && htmlTrimmed.includes('data-dg-authority-v3="1"');
   const isDgLegacyStubHtml =
-    htmlTrimmed.includes("dg-authority-v3") && !isDgFullStaticHtml;
+    !suppressContentHtmlForDgV2 &&
+    htmlTrimmed.includes("dg-authority-v3") &&
+    !isDgFullStaticHtml;
   const preferDgReactView =
     parsedContentJson != null &&
     isDgAuthorityV3Payload(parsedContentJson) &&
@@ -120,7 +227,17 @@ export function DiagnosticPageView({
     );
   }
 
-  if (page.content_html && page.content_html.trim()) {
+  const skipLegacyHtmlForLockedHsd =
+    parsedContentJson != null &&
+    typeof parsedContentJson === "object" &&
+    isHsdV1LockedJson(parsedContentJson);
+
+  if (
+    page.content_html &&
+    page.content_html.trim() &&
+    !skipLegacyHtmlForLockedHsd &&
+    !suppressContentHtmlForDgV2
+  ) {
     const cleanHtml = page.content_html.replace(
       /<div[^>]*position:\s*sticky[^>]*>[\s\S]*?<\/div>/i,
       ""
@@ -146,6 +263,28 @@ export function DiagnosticPageView({
   if (page.content_json && parsedContentJson != null && typeof parsedContentJson === "object") {
     const pageTitle =
       (typeof page.title === "string" && page.title.trim()) || fallbackTitle;
+
+    if (isHsdV1LockedJson(parsedContentJson)) {
+      const lockedHtml = renderHSDPage(parsedContentJson as Record<string, unknown>);
+      return (
+        <>
+          {!localizedChrome && localLabel ? (
+            <div className="mx-auto max-w-4xl px-4 pt-4 text-sm text-slate-600 dark:text-slate-400">
+              Local guide: <span className="font-semibold text-slate-900 dark:text-white">{localLabel}</span>
+            </div>
+          ) : null}
+          <main className="pb-16">
+            <DiagnosticModal />
+            <HsdLockedPageWithMermaid html={lockedHtml} />
+          </main>
+          {!localizedChrome ? (
+            <div className="mx-auto max-w-4xl px-4 pb-16">
+              <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
+            </div>
+          ) : null}
+        </>
+      );
+    }
 
     if (isHsdCityDiagnosticJson(parsedContentJson)) {
       return (

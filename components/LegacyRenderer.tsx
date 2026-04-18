@@ -42,6 +42,13 @@ export function LegacyRenderer({ title, data }: { title: string, data?: any }) {
       <li><strong>Look for ice on coils:</strong> If you see ice on the refrigerant lines, turn it off immediately.</li>
     </ul>
 
+    <div style="display:flex;align-items:flex-start;gap:12px;margin:20px 0;padding:16px 18px;border-radius:12px;border:2px solid #f59e0b;background:#fffbeb;box-shadow:0 1px 2px rgba(0,0,0,0.06);">
+      <span style="flex-shrink:0;font-size:28px;line-height:1;" aria-hidden="true">⚡</span>
+      <p style="margin:0;font-size:15px;font-weight:600;line-height:1.45;color:#451a03;">
+        Working with live electricity carries significant risk for injury and possibly death. If you are not experienced, do NOT attempt any DIY. Call a professional today.
+      </p>
+    </div>
+
     <h2>How This Issue Affects Your Home</h2>
     <p>
       If your AC is not working properly, your home can quickly become uncomfortable, especially in Florida heat. 

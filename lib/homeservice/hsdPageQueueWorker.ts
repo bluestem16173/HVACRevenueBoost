@@ -7,11 +7,10 @@
 
 import sql from "@/lib/db";
 import { ensurePageQueueSchema } from "@/lib/homeservice/ensurePageQueueSchema";
-import { generateDiagnosticEngineJson } from "@/lib/content-engine/generator";
-import {
-  HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION,
-} from "@/lib/prompt-schema-router";
-import { validateHsdCityPublishGate } from "./validateHsdCityPublishGate";
+import { HSD_Page_Build } from "@/lib/hsd/HSD_Page_Build";
+import { parseSlugToHsdRow } from "@/lib/hsd/parseSlugToHsdRow";
+import { HSD_V1_LOCKED_LAYOUT, HSD_V1_LOCKED_SCHEMA_VERSION } from "@/lib/hsd/constants";
+import { assertPersistableDgAuthorityV2ContentJson } from "@/lib/hsd/assertPersistableDgAuthorityV2ContentJson";
 import { enforceStoredSlug } from "@/lib/slug-utils";
 import { canonicalLocalizedStorageSlug } from "@/lib/localized-city-path";
 
@@ -25,12 +24,6 @@ export type PageQueueRow = {
   /** Incremented each time the row is claimed (`status` → `generating`). */
   attempts: number;
 };
-
-function inferVerticalId(slug: string): string {
-  const s = enforceStoredSlug(slug).toLowerCase();
-  if (s.startsWith("plumbing/")) return "plumbing";
-  return "hvac";
-}
 
 function inferCityColumn(slug: string): string | null {
   const parts = enforceStoredSlug(slug).split("/").filter(Boolean);
@@ -92,14 +85,18 @@ export async function markPageQueueFailed(id: number, message: string): Promise<
 
 export async function upsertPageFromHsdCityJson(
   job: Pick<PageQueueRow, "slug" | "page_type">,
-  result: Record<string, unknown>
+  result: Record<string, unknown>,
+  schemaVersion: string = HSD_V1_LOCKED_SCHEMA_VERSION
 ): Promise<void> {
   const cleanSlug = canonicalLocalizedStorageSlug(job.slug);
   const title = String(result.title || "Untitled");
   const pageType = job.page_type || "city_symptom";
   const city = inferCityColumn(job.slug);
-  const html = `<h1>${title}</h1><p>HSD city diagnostic (page_queue).</p>`;
   (result as Record<string, unknown>).slug = cleanSlug;
+
+  if (schemaVersion === HSD_V1_LOCKED_SCHEMA_VERSION) {
+    assertPersistableDgAuthorityV2ContentJson(result);
+  }
 
   await sql`
     INSERT INTO pages (
@@ -117,13 +114,13 @@ export async function upsertPageFromHsdCityJson(
     VALUES (
       ${cleanSlug},
       ${JSON.stringify(result)}::jsonb,
-      ${html},
+      ${null},
       'published',
       'approved',
       ${pageType},
       ${title},
       ${city},
-      ${HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION},
+      ${schemaVersion},
       NOW()
     )
     ON CONFLICT (slug) DO UPDATE SET
@@ -139,41 +136,35 @@ export async function upsertPageFromHsdCityJson(
   `;
 }
 
-export async function generateJsonForHsdPageQueueSlug(
-  slug: string,
-  pageType: string
-): Promise<Record<string, unknown>> {
+/**
+ * queue → **HSD_Page_Build** → validate (inside build) → payload for `pages.content_json`.
+ */
+export async function generateJsonForHsdPageQueueSlug(slug: string): Promise<Record<string, unknown>> {
   const path = enforceStoredSlug(slug);
-  const verticalId = inferVerticalId(path);
-  const raw = await generateDiagnosticEngineJson(
-    {
-      symptom: path,
-      city: "Tampa, FL",
-      pageType,
-    },
-    "",
-    { schemaVersion: HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION, verticalId }
-  );
-  if (!raw || typeof raw !== "object") {
-    throw new Error("generateDiagnosticEngineJson returned empty or non-object");
+  const row = parseSlugToHsdRow(path);
+  const built = await HSD_Page_Build(row);
+  const body = { ...(built.content_json as Record<string, unknown>) };
+  const po = body.problem_overview;
+  if (typeof body.summary_30s !== "string" || !body.summary_30s.trim()) {
+    body.summary_30s = typeof po === "string" && po.trim() ? po : "";
   }
-  return raw as Record<string, unknown>;
+  return {
+    layout: HSD_V1_LOCKED_LAYOUT,
+    schema_version: built.schema_version,
+    title: built.title,
+    slug: canonicalLocalizedStorageSlug(built.slug),
+    page_type_contract: built.page_type,
+    ...body,
+  };
 }
 
 /**
- * One job: generate → gate → upsert pages → done. On any error, mark failed (no publish).
+ * One job: **HSD_Page_Build** (includes hard validate) → upsert `pages` → done. On any error, mark failed (no publish).
  */
 export async function processOnePageQueueJob(job: PageQueueRow): Promise<void> {
   try {
-    const result = await generateJsonForHsdPageQueueSlug(
-      canonicalLocalizedStorageSlug(job.slug),
-      job.page_type
-    );
-    const gate = validateHsdCityPublishGate(result);
-    if (!gate.ok) {
-      throw new Error(`publish gate: ${gate.errors.join("; ")}`);
-    }
-    await upsertPageFromHsdCityJson(job, result);
+    const result = await generateJsonForHsdPageQueueSlug(canonicalLocalizedStorageSlug(job.slug));
+    await upsertPageFromHsdCityJson(job, result, HSD_V1_LOCKED_SCHEMA_VERSION);
     await markPageQueueDone(job.id);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);

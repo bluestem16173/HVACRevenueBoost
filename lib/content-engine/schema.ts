@@ -287,9 +287,9 @@ export const HVACAuthorityPageJsonSchema = {
     "faqs", "internal_links", "bottom_cta", "author_note"
   ],
   properties: {
-    layout: { type: "string", enum: ["hvac_authority_v3"] },
+    layout: { type: "string", enum: ["dg_authority_v2"] },
     page_type: { type: "string", enum: ["diagnostic"] },
-    schema_version: { type: "string", enum: ["v3"] },
+    schema_version: { type: "string", enum: ["dg_authority_v2"] },
     slug: { type: "string" },
     title: { type: "string" },
     h1: { type: "string" },

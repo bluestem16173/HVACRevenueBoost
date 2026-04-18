@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { GENERATED_PAGE_LAYOUT } from "@/lib/generated-page-json-contract";
 
 export const HVACAuthorityPageSchema = z.object({
-  layout: z.literal("hvac_authority_v3"),
+  layout: z.literal(GENERATED_PAGE_LAYOUT),
   page_type: z.literal("diagnostic"),
   schema_version: z.string(),
   slug: z.string(),

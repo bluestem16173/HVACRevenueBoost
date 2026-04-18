@@ -8,7 +8,20 @@ export function inferDiagnosticSchemaVersion(content: unknown): string | null {
   if (content == null || typeof content !== "object") return null;
   const o = content as Record<string, unknown>;
 
-  if (o.layout === "hvac_authority_v3" || o.schemaVersion === "hvac_authority_v3") {
+  if (
+    o.layout === "hvac_authority_v3" ||
+    o.schemaVersion === "hvac_authority_v3" ||
+    o.schema_version === "hvac_authority_v3"
+  ) {
+    return "hvac_authority_v3";
+  }
+
+  const snakeSchema = o.schema_version;
+  if (
+    (o.layout === "dg_authority_v2" || snakeSchema === "dg_authority_v2") &&
+    o.mermaid_diagram != null &&
+    typeof o.mermaid_diagram === "object"
+  ) {
     return "hvac_authority_v3";
   }
 

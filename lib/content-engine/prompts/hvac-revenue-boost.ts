@@ -11,10 +11,10 @@ export const HRB_BRAND = "hvac_revenue_boost" as const;
 
 /** Required top-level fields for lead pages (plus existing v5 diagnostic fields). */
 export const HRB_OUTPUT_CONTRACT = `
-REQUIRED TOP-LEVEL JSON FIELDS (MANDATORY STRICT MATCH TO V3 AUTHORITY SCHEMA):
-- "layout": "hvac_authority_v3"
+REQUIRED TOP-LEVEL JSON FIELDS (MANDATORY STRICT MATCH TO PUBLISHED JSON CONTRACT):
+- "layout": "dg_authority_v2"
 - "page_type": "diagnostic"
-- "schema_version": "v3"
+- "schema_version": "dg_authority_v2"
 - "meta_title" — ≤60 chars, local + benefit + brand intent
 - "meta_description" — ≤155 chars, CTA-oriented
 `;

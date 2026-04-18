@@ -62,7 +62,7 @@ function assertGoldTechnicalDepth(payload: any) {
 export function validateV2(payload: any) {
   if (!payload) throw new Error("Empty payload");
 
-  if (payload.layout === "hvac_authority_v3") {
+  if (payload.layout === "hvac_authority_v3" || payload.layout === "dg_authority_v2") {
      // Trust the upstream Zod or generator for v3 layouts
      return true;
   }
