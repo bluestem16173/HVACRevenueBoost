@@ -43,6 +43,20 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/** Strip low-value scan meta the model sometimes appends to the summary H2 or flow lines. */
+function stripThirtySecondReadMeta(s: string): string {
+  return String(s ?? "")
+    .replace(/\s*[\u2014\u2013\-]\s*30[-\s]?second\s+read\b/gi, "")
+    .replace(/\(\s*30[-\s]?second\s+read\s*\)/gi, "")
+    .replace(/\b30[-\s]?second\s+read\b[.:;\s]*/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+function hasCanonicalTruthLines(truths: HsdV25Payload["canonical_truths"] | undefined): boolean {
+  return (truths ?? []).some((t) => String(t).trim().length > 0);
+}
+
 /** Multi-paragraph body fields (blank-line separated). */
 function summaryCoreTruthParagraphsHtml(coreTruth: string, pClass: string): string {
   return String(coreTruth ?? "")
@@ -126,8 +140,15 @@ export function sectionWhatThisMeans(text: string | undefined): string {
 </section>`.trim();
 }
 
-export function sectionSummary(summary_30s: HsdV25Payload["summary_30s"]): string {
-  const flow = (summary_30s.flow_lines ?? []).map((s) => String(s).trim()).filter(Boolean);
+export function sectionSummary(
+  summary_30s: HsdV25Payload["summary_30s"],
+  canonicalTruths?: HsdV25Payload["canonical_truths"]
+): string {
+  const omitSummaryCoreTruth = hasCanonicalTruthLines(canonicalTruths);
+  const flow = (summary_30s.flow_lines ?? [])
+    .map((s) => stripThirtySecondReadMeta(String(s).trim()))
+    .filter(Boolean)
+    .filter((s) => !/^30[-\s]?second\s+read$/i.test(s));
   const useDgFlow = flow.length >= 4;
 
   const causesFull = summary_30s.top_causes
@@ -152,10 +173,23 @@ export function sectionSummary(summary_30s: HsdV25Payload["summary_30s"]): strin
     .join("");
 
   const coreTruthClass = "m-0 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200";
-  const flowBlock = useDgFlow
-    ? `<div class="hsd-dg-flow mt-3 rounded-md border border-slate-200 bg-white/80 px-3 py-3 font-mono text-[13px] leading-relaxed text-slate-900 dark:border-slate-600 dark:bg-slate-950/40 dark:text-slate-100" role="group" aria-label="Scan branches">${flow.map((line) => `<div class="hsd-dg-flow-line">${escapeHtml(line)}</div>`).join("")}</div>
-  <div class="hsd-cred__summary-core mt-3 space-y-2">${summaryCoreTruthParagraphsHtml(summary_30s.core_truth, coreTruthClass)}</div>`
-    : `<div class="hsd-cred__summary-body hsd-summary space-y-2 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">${summaryCoreTruthParagraphsHtml(summary_30s.core_truth, coreTruthClass)}</div>`;
+  const coreTruthBody = omitSummaryCoreTruth
+    ? ""
+    : summaryCoreTruthParagraphsHtml(summary_30s.core_truth, coreTruthClass);
+  const dgFlowShell = `<div class="hsd-dg-flow mt-3 rounded-md border border-slate-200 bg-white/80 px-3 py-3 font-mono text-[13px] leading-relaxed text-slate-900 dark:border-slate-600 dark:bg-slate-950/40 dark:text-slate-100" role="group" aria-label="Scan branches">${flow.map((line) => `<div class="hsd-dg-flow-line">${escapeHtml(line)}</div>`).join("")}</div>`;
+  const coreTruthShell = coreTruthBody
+    ? useDgFlow
+      ? `<div class="hsd-cred__summary-core mt-3 space-y-2">${coreTruthBody}</div>`
+      : `<div class="hsd-cred__summary-body hsd-summary space-y-2 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">${coreTruthBody}</div>`
+    : "";
+  const flowBlock =
+    useDgFlow && coreTruthShell
+      ? `${dgFlowShell}
+  ${coreTruthShell}`
+      : useDgFlow
+        ? dgFlowShell + coreTruthShell
+        : coreTruthShell;
+  const headlineDisplay = stripThirtySecondReadMeta(String(summary_30s.headline ?? ""));
 
   const causesBlock = useDgFlow
     ? `<ul class="hsd-v2__causes mt-3 list-none space-y-1 p-0">${causesCompact}</ul>`
@@ -163,7 +197,7 @@ export function sectionSummary(summary_30s: HsdV25Payload["summary_30s"]): strin
 
   return `
 <section class="hsd-cred__summary hsd-block" id="${hsdSectionDomId("summary_30s")}" aria-labelledby="hsd-30s-label">
-  <h2 id="hsd-30s-label" class="hsd-cred__summary-head text-xl font-black leading-tight text-slate-900 dark:text-white">${escapeHtml(summary_30s.headline)}</h2>
+  <h2 id="hsd-30s-label" class="hsd-cred__summary-head text-xl font-black leading-tight text-slate-900 dark:text-white">${escapeHtml(headlineDisplay)}</h2>
   ${flowBlock}
   ${causesBlock}
   <p class="hsd-v2__risk hsd-risk mt-4 text-sm font-semibold leading-relaxed text-slate-900 dark:text-slate-100" role="alert">${escapeHtml(summary_30s.risk_warning)}</p>
@@ -527,7 +561,7 @@ function buildHsdV25HeaderHtml(data: HsdV25RenderInput): string {
 <header class="hsd-cred" data-hsd-zone="credibility">
   <h1 class="hsd-cred__title">${escapeHtml(data.title)}</h1>
   ${sub ? `<p class="hsd-cred__sub">${escapeHtml(sub)}</p>` : ""}
-  ${sectionSummary(data.summary_30s)}
+  ${sectionSummary(data.summary_30s, data.canonical_truths)}
   ${quickDx}
   ${sectionWhatThisMeans(data.what_this_means)}
   <hr class="hsd-cred__rule" />

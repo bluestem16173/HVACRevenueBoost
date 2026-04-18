@@ -278,9 +278,9 @@ CONTENT REQUIREMENTS
 ### summary_30s — 30-SECOND SCAN (NO FLUFF)
 This block must read like a **field cheat sheet**: immediate clarity, fast scanning, arrow branches — not "Understanding your…" consumer copy.
 
-**headline (H2 on site):** When **slug** is **hvac/ac-not-cooling/{city}**, use **exactly** \`AC Not Cooling? Start Here\` — no variation, no extra words. For **all other** pages: open decisive; minimum **50 characters** with **{{CITY}}** or **{{STATE}}** load context. **Forbidden:** "Understanding…", "In this guide…", "Learn about…", "We will explore…", weak hedging.
+**headline (H2 on site):** When **slug** is **hvac/ac-not-cooling/{city}**, use **exactly** \`AC Not Cooling? Start Here\` — no variation, no extra words. For **all other** pages: open decisive; minimum **50 characters** with **{{CITY}}** or **{{STATE}}** load context. **Forbidden:** "Understanding…", "In this guide…", "Learn about…", "We will explore…", "30-second read" (or variants) as headline suffix or standalone line, weak hedging.
 
-**flow_lines (REQUIRED — at least 4 strings):** Fast scan under the headline. Line 1 is usually a **symptom gate** ending with a colon; following lines are **→** branches mapping signal → class (HVAC cooling example shape — adapt to symptom):
+**flow_lines (REQUIRED — at least 4 strings):** Fast scan under the headline. Do **not** use a line that is only meta like "30-second read". Line 1 is usually a **symptom gate** ending with a colon; following lines are **→** branches mapping signal → class (HVAC cooling example shape — adapt to symptom):
 - "Fan runs but no cooling:"
 - "→ Filter → airflow restriction"
 - "→ Ice → frozen coil"

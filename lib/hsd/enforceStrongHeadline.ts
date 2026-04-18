@@ -12,6 +12,7 @@ export function enforceStrongHeadline(headline: string, slug?: string): string {
     return LOCKED_AC_NOT_COOLING_HEADLINE;
   }
   let h = String(headline ?? "").trim();
+  h = h.replace(/\b30[-\s]?second\s+read\b/gi, "").replace(/\s{2,}/g, " ").trim();
   h = h.replace(
     /\b(understanding|guide|learn\s+about|in\s+this\s+article|in\s+this\s+guide|we\s+will\s+explore|we'll\s+explore)\b/gi,
     ""
