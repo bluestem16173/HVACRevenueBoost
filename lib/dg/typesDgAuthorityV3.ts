@@ -27,8 +27,6 @@ export type DgAuthorityV3PageInput = {
 
   /** 1–5 short measurable lines (technical / PRO layer); no paragraphs. */
   quick_checks: string[];
-  /** Optional legacy: if omitted, renderer joins `quick_checks` for the gold PRO block. */
-  quick_checks_pro?: string;
   quick_checks_home: string;
 
   diagnostic_logic_pro: string;

@@ -11,6 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "docs:diagnose-md": "node scripts/build-diagnose-docs-md.mjs",
+    "dg:authority-batch": "npx tsx scripts/generateAuthorityBatch.ts --from-demos",
+    "dg:authority-batch:llm": "npx tsx scripts/generateAuthorityBatch.ts --llm",
     "db:seed-diagnostic-tests": "tsx scripts/seed-diagnostic-tests.ts",
     "db:seed-hvac-graph": "tsx scripts/seed-hvac-graph.ts",
     "db:seed-core": "npx tsx scripts/seed-hvac-core.ts",

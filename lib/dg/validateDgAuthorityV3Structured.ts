@@ -3,6 +3,7 @@ import {
   DG_AUTHORITY_V3_SCHEMA_VERSION,
 } from "@/lib/generated-page-json-contract";
 import { asCtaPayload, type DgAuthorityCtaPayload } from "@/lib/dg/dgAuthorityCta";
+import { isDiagnosticFlowTemplateKey } from "@/lib/dg/dgMermaidTemplates";
 
 function nonEmptyString(v: unknown): v is string {
   return typeof v === "string" && v.trim().length > 0;
@@ -88,19 +89,16 @@ export function assertDgAuthorityV3StructuredPayload(o: Record<string, unknown>)
   if (!quickChecksOk(o.quick_checks)) {
     throw new Error("quick_checks must be 1–5 non-empty strings");
   }
-  if (o.quick_checks_pro != null && typeof o.quick_checks_pro !== "string") {
-    throw new Error("Invalid quick_checks_pro");
-  }
-  if (o.quick_checks_pro != null && !nonEmptyString(o.quick_checks_pro)) {
-    throw new Error("quick_checks_pro must be non-empty when provided");
-  }
   if (!nonEmptyString(o.quick_checks_home)) throw new Error("Missing quick_checks_home");
 
   if (!nonEmptyString(o.diagnostic_logic_pro)) throw new Error("Missing diagnostic_logic_pro");
   if (!nonEmptyString(o.diagnostic_logic_home)) throw new Error("Missing diagnostic_logic_home");
 
-  if (!hasDiagnosticFlow(o.diagnostic_flow)) {
-    throw new Error("Missing diagnostic_flow (Mermaid string or structured nodes/edges)");
+  const hasTemplateKey = isDiagnosticFlowTemplateKey(o.diagnostic_flow_template_key);
+  if (!hasDiagnosticFlow(o.diagnostic_flow) && !hasTemplateKey) {
+    throw new Error(
+      "Missing diagnostic_flow (Mermaid string or structured nodes/edges) or valid diagnostic_flow_template_key"
+    );
   }
   if (!nonEmptyString(o.system_explanation)) throw new Error("Missing system_explanation");
   if (!failureClustersOk(o.failure_clusters)) {
