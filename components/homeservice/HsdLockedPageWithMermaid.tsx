@@ -26,7 +26,7 @@ export function HsdLockedPageWithMermaid({ html }: { html: string }) {
       beforeHtml={before}
       afterHtml={after}
       diagram={
-        <div className="not-prose my-8 text-center text-xs text-slate-400" aria-hidden>
+        <div className="text-center text-xs text-slate-400" aria-hidden>
           {/* TEMP: <MermaidClient chart={chart} /> */}
         </div>
       }

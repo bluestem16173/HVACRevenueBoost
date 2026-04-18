@@ -124,13 +124,16 @@ export function renderHSDPage(content: Record<string, unknown>): string {
 
   const electricSafetyAside = `<aside class="hsd-electric-safety-notice" role="note" aria-label="Electrical safety"><span class="hsd-electric-safety-notice__icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span><p class="hsd-electric-safety-notice__text">Working with live electricity carries significant risk for injury and possibly death. If you are not experienced, do NOT attempt any DIY. Call a professional today.</p></aside>`;
 
-  const mermaidBlock = `
+  const mermaidBlock =
+    String(chart).trim().length > 0
+      ? `
 <section class="hsd-figure" aria-label="Visual diagnostic flow">
   <h2 id="${hsdSectionDomId("mermaid_flow")}" class="hsd-section__title">Visual Diagnostic Flow</h2>
-  <div class="hsd-figure__surface">
-    <div class="mermaid">${String(chart).trim()}</div>
+  <div class="hsd-figure__surface rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-600 dark:border-slate-600 dark:bg-slate-900/40 dark:text-slate-400">
+    Branch chart is not rendered in this build; follow the text branches above.
   </div>
-</section>`.trim();
+</section>`.trim()
+      : "";
 
   const body = `
 <section class="hsd-section">

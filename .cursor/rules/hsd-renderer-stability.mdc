@@ -1,0 +1,15 @@
+---
+description: HSD / city diagnostic React render rules (hydration-safe, before Mermaid)
+globs: components/homeservice/**/*.tsx,components/SystemBlocks.tsx,components/DiagnosticPageView.tsx
+alwaysApply: false
+---
+
+# Renderer stability (do these before Mermaid)
+
+1. **No `<p>` wrapping blocks** — Use `<div>` for layout containers and grouped UI. Reserve `<p>` for a single run of text (no nested blocks, no lists inside `<p>`).
+
+2. **Guard all CMS/JSON fields** — Prefer `typeof x === "string" ? x : x != null ? String(x) : ""`, `(arr || []).map`, and fallbacks for nested objects so missing keys never throw during render.
+
+3. **Stable list keys** — Avoid bare `key={i}` where items are anonymous strings; use prefixed keys (e.g. `key={\`hsd-qc-${i}\`}`) so reorder/dedupe stays predictable alongside sibling lists.
+
+4. **Tables are real `<table>`** — Use `<table>`, `<thead>`, `<tbody>`, `<tr>`, `<th>` / `<td>`. Do not fake tables with div grids or preformatted text columns for tabular repair matrices or cost breakdowns.

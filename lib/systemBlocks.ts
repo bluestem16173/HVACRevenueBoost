@@ -6,8 +6,13 @@
 export const SYSTEM_BLOCK_KEYS = [
   "ac_start_sequence",
   "cooling_cycle",
+  "cooling_stop_damage_risk",
+  "thermostat_cooling_check",
   "airflow_dynamics",
+  "refrigerant_levels_test",
   "refrigerant_cycle",
+  "cooling_repair_cost_bands",
+  "cooling_tampa_technician_cta",
   "electrical_control",
 ] as const;
 
@@ -50,9 +55,35 @@ export const SYSTEM_BLOCKS: Record<SystemBlockKey, SystemBlock> = {
 `,
   },
 
+  cooling_stop_damage_risk: {
+    title: "🟥 Stop — risk of damage",
+    content: `
+<ul>
+  <li>System runs continuously without cooling</li>
+  <li>Ice forms on coils or lines</li>
+  <li>Burning smell or loud electrical buzzing</li>
+</ul>
+<p>At this point, continued operation risks compressor failure.</p>
+`,
+  },
+
+  thermostat_cooling_check: {
+    title: "Check thermostat settings",
+    content: `
+<p><strong>Homeowner:</strong> Ensure <strong>Cool</strong> and setpoint <strong>below room temperature</strong>.</p>
+<p><strong>What it means:</strong> If wrong, the system won&rsquo;t call for cooling.</p>
+<p><strong>Next step:</strong> If correct and still no cooling → the issue is deeper.</p>
+<p><strong>If ignored:</strong> System keeps running incorrectly → unnecessary wear → <strong>$200–$500</strong> fixes escalate.</p>
+`,
+  },
+
   airflow_dynamics: {
     title: "Why Airflow Is Critical to AC Performance",
     content: `
+<p>Most homeowners catch this at the <strong>thermostat</strong> or <strong>filter</strong> stage. Once it reaches <strong>refrigerant</strong> or <strong>compressor</strong> issues, costs increase quickly.</p>
+<p><strong>Most &ldquo;not cooling&rdquo; issues in Tampa are not minor.</strong> High heat forces longer run cycles. When cooling drops, it&rsquo;s usually: airflow restriction → low refrigerant (leak) → compressor under load.</p>
+<p>This means the system is running outside its design limits.</p>
+<p><strong>If ignored:</strong> airflow restriction → coil freeze → compressor strain → <strong>$1,500–$3,500</strong> failure.</p>
 <p>Your system depends on design airflow to exchange BTUs at the evaporator and condenser.</p>
 <ul>
   <li>Return air passes over the coil to absorb heat; restricted airflow drops suction pressure and coil temperature.</li>
@@ -66,6 +97,15 @@ export const SYSTEM_BLOCKS: Record<SystemBlockKey, SystemBlock> = {
   <li>Uneven room temperatures</li>
   <li>Ice on lines or indoor coil</li>
 </ul>
+`,
+  },
+
+  refrigerant_levels_test: {
+    title: "Test system refrigerant levels",
+    content: `
+<p><strong>Homeowner:</strong> Note reduced cooling.</p>
+<p><strong>Pro:</strong> Use gauges to measure charge and superheat.</p>
+<p><strong>Risk:</strong> Low refrigerant reduces heat exchange at the evaporator coil, forcing longer cycles and increasing compressor load → <strong>$1,500+</strong> failure.</p>
 `,
   },
 
@@ -85,6 +125,29 @@ export const SYSTEM_BLOCKS: Record<SystemBlockKey, SystemBlock> = {
   <li>Compressor stress if run for long periods out of spec</li>
 </ul>
 <p><strong>Rule:</strong> Never add charge without verifying airflow and following manufacturer charging method.</p>
+`,
+  },
+
+  cooling_repair_cost_bands: {
+    title: "Typical repair cost ranges (ballpark)",
+    content: `
+<ul>
+  <li><strong>Basic fix — $20–$100:</strong> Filter or settings</li>
+  <li><strong>Moderate repair — $300–$800:</strong> Thermostat, airflow, minor components</li>
+  <li><strong>Major repair — $500–$1,500:</strong> Refrigerant leak + recharge</li>
+  <li><strong>Failure — $1,500–$3,500+:</strong> Compressor damage or replacement</li>
+</ul>
+`,
+  },
+
+  cooling_tampa_technician_cta: {
+    title: "When to call a technician (Tampa heat + cost)",
+    content: `
+<div class="hsd-cta-tampa-cost">
+<p>If your AC isn&rsquo;t cooling after basic checks, don&rsquo;t keep running it.</p>
+<p>In Tampa heat, extended runtime under fault conditions is what turns small issues into compressor failure.</p>
+<p><span aria-hidden="true">👉</span> <strong>Get a technician out today before this becomes a $3,000 problem.</strong></p>
+</div>
 `,
   },
 

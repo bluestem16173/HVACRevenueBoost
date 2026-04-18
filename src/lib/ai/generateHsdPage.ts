@@ -18,13 +18,13 @@ import {
   parseCityStateForPrompt,
 } from "@/lib/prompt-schema-router";
 import { buildHsdV2VeteranTechnicianPrompt } from "@/src/lib/ai/prompts/diagnostic-engine-json";
-import { assertHsdV25ContentRules } from "@/lib/hsd/assertHsdV25ContentRules";
+import { finalizeHsdV25Page } from "@/lib/hsd/finalizeHsdPage";
 import { HSDV25Schema, type HsdV25Payload } from "@/lib/validation/hsdV25Schema";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const HSD_V2_SYSTEM =
-  "You are a senior field service diagnostic technician (HVAC, plumbing, electrical). Generate structured JSON for React UI — plain text fields only, no HTML tags, no line breaks inside single strings. Diagnose like a tech on site: mechanical cause chains, escalation, and costs; avoid hedging and shallow filler. Output one complete JSON object only. No markdown fences. No commentary outside JSON. Include diagnostic_flow (at least 4 nodes and 3 edges), repair_matrix (4+ rows with numeric cost_min/cost_max), and every array must meet the contract minimums — undersized or invalid graphs cause hard rejection.";
+  "You are a senior field service diagnostic technician (HVAC, plumbing, electrical). Build scan-decide-act diagnostic JSON for React — plain text only, no HTML, no line breaks inside any single string (exception: summary_30s.flow_lines = one short line per array item). No hedging (avoid may/might/could). Limit verbatim repetition across the whole JSON. Output one JSON object only; no markdown fences; no commentary. Required fields include flow_lines (4+), what_this_means (100+), repair_matrix_intro, decision_footer, canonical_truths (2), diagnostic_flow, tools, cost_escalation (4), quick_table (3+ rows, 4 for AC cooling), repair_matrix (4+ rows, one cost_max ≥ 1500), final_warning (60+ with $), cta (45+ with city load). Undersized or invalid payloads are rejected.";
 
 export type GenerateHsdPageInput = {
   symptom: string;
@@ -143,8 +143,8 @@ export async function callLLM(userPrompt: string, retryFeedback: string = ""): P
 }
 
 /**
- * One LLM round-trip + Zod parse (no {@link assertHsdV25ContentRules}).
- * Prefer {@link generateHsdPageWithRetry} or {@link generateHsdPage} for production.
+ * One LLM round-trip + Zod safeParse + {@link finalizeHsdV25Page} (assert inside finalize).
+ * Prefer {@link generateHsdPageWithRetry} or {@link generateHsdPage} for production — flow: **generate → finalize → save**.
  */
 export async function generateHsdPageAttempt(
   input: GenerateHsdPageInput
@@ -170,8 +170,10 @@ export async function generateHsdPageAttempt(
     throw new Error("Invalid HSD page");
   }
 
+  const finalized = finalizeHsdV25Page(parsed.data);
+
   return {
-    ...parsed.data,
+    ...finalized,
     city: displayCity,
     symptom: primaryIssueLabel(input.symptom),
     vertical,
@@ -179,8 +181,8 @@ export async function generateHsdPageAttempt(
 }
 
 /**
- * Generate with up to `retries + 1` attempts. Each successful Zod parse is checked with
- * {@link assertHsdV25ContentRules}; failures feed back into the next prompt.
+ * Generate with up to `retries + 1` attempts. Each successful parse runs {@link finalizeHsdV25Page}
+ * (headline cleanup, scaffolding strip, truth budget, content assert); failures feed back into the next prompt.
  *
  * @param retries Number of *extra* tries after the first (default 2 → 3 attempts total).
  */
@@ -192,7 +194,6 @@ export async function generateHsdPageWithRetry(
   for (let i = 0; i <= retries; i++) {
     try {
       const page = await generateHsdPageAttempt({ ...input, retryFeedback: feedback });
-      assertHsdV25ContentRules(page);
       return page;
     } catch (err) {
       if (i === retries) throw err;

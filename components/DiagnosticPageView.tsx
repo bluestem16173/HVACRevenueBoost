@@ -12,6 +12,7 @@ import { renderHSDPage } from "@/lib/hsd/renderHSDPage";
 import { renderHsdV2CitySymptomPage } from "@/lib/hsd/renderHsdV2CitySymptomPage";
 import { renderHsdV25, type HsdV25RenderInput } from "@/lib/hsd/renderHsdV25";
 import { HSD_V2_SCHEMA_VERSION } from "@/lib/generated-page-json-contract";
+import { coerceHsdJsonForV25View } from "@/lib/hsd/coerceHsdJsonForV25View";
 import { HSDV25Schema, type HsdV25Payload } from "@/lib/validation/hsdV25Schema";
 import { HsdLockedPageWithMermaid } from "@/components/homeservice/HsdLockedPageWithMermaid";
 import { HsdCityDiagnosticView } from "@/components/homeservice/HsdCityDiagnosticView";
@@ -103,9 +104,10 @@ export function DiagnosticPageView({
     const obj = parsedContentJson as Record<string, unknown>;
 
     if (isHsdV2Row) {
-      const v25 = HSDV25Schema.safeParse(obj);
-      const html = v25.success
-        ? renderHsdV25(hsdV25RenderInputFromStoredRow(v25.data, obj, localizedChrome))
+      const strict = HSDV25Schema.safeParse(obj);
+      const coerced = strict.success ? strict.data : coerceHsdJsonForV25View(obj);
+      const html = coerced
+        ? renderHsdV25(hsdV25RenderInputFromStoredRow(coerced, obj, localizedChrome))
         : renderHsdV2CitySymptomPage(obj);
       return (
         <>
@@ -229,7 +231,9 @@ export function DiagnosticPageView({
         ) : null}
         <main style={{ padding: 24, paddingBottom: 60 }}>
           <DiagnosticModal />
-          <article dangerouslySetInnerHTML={{ __html: cleanHtml || "" }} />
+          <div className="prose prose-slate mx-auto max-w-4xl dark:prose-invert">
+            <div dangerouslySetInnerHTML={{ __html: cleanHtml || "" }} />
+          </div>
           <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
         </main>
       </>

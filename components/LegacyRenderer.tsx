@@ -79,5 +79,9 @@ export function LegacyRenderer({ title, data }: { title: string, data?: any }) {
     </div>
   `;
 
-  return <div dangerouslySetInnerHTML={{ __html: html }} />;
+  return (
+    <div className="prose prose-slate mx-auto max-w-4xl dark:prose-invert">
+      <div dangerouslySetInnerHTML={{ __html: html }} />
+    </div>
+  );
 }
