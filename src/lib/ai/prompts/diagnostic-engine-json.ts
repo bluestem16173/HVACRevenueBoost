@@ -27,7 +27,7 @@ STYLE RULES (CRITICAL)
 - No filler phrases: NO "understanding", "in this guide", "we will explore", "learn about", consumer-blog openers.
 - No meta commentary: NO "this section", "expert layer", "as you read", "this guide".
 - No HTML tags in any string.
-- **No multi-paragraph strings** — each scalar field is **one continuous block** (no line breaks / no \\n\\n inside one field). **Exception:** summary_30s.flow_lines — each **array item** is exactly **one** short scan line (often starting with →); use 4+ array items, never one giant multiline string.
+- **Line breaks:** most scalar fields stay **one continuous block** (no internal \\n). **Exceptions:** (1) **summary_30s.flow_lines** — each **array item** is one scan line; use **4+** items. (2) **summary_30s.core_truth**, **what_this_means**, **final_warning**, **cta** may use **one** blank line (\\n\\n) to split **at most two** short paragraphs when density demands it — no deeper nesting, no other fields.
 - **Limit repetition:** the same verbatim sentence must **not** appear more than **twice** anywhere in the JSON. **canonical_truths** holds two iron laws; echo those **ideas** elsewhere with **new wording**, not copy-paste.
 
 -----------------------------------
@@ -213,9 +213,9 @@ All keys below are **required** for the live validator. Do not omit optional-loo
   ],
 
   "decision_tree_text": [
-    "Is airflow present? → No → Check filter or blower",
-    "Is air cold? → No → Refrigerant or compressor path",
-    "Is system cycling? → Yes → Capacity or load issue"
+    "Is airflow strong at registers? → No → filter, blower, coil face, or ducts",
+    "Is the thermostat calling for cooling? → No → mode, setpoint, wiring, or control fault",
+    "Does cooling return after basics? → No → licensed refrigerant and compressor diagnosis"
   ],
 
   "tools": [
@@ -278,7 +278,7 @@ CONTENT REQUIREMENTS
 ### summary_30s — 30-SECOND SCAN (NO FLUFF)
 This block must read like a **field cheat sheet**: immediate clarity, fast scanning, arrow branches — not "Understanding your…" consumer copy.
 
-**headline (H2 on site):** Open decisive — e.g. **"AC Not Cooling? Start Here"** or **"AC Not Cooling in {{CITY}}? Start here"** when the symptom fits. Minimum **50 characters** — include **{{CITY}}** or **{{STATE}}** load context. **Forbidden:** "Understanding…", "In this guide…", "Learn about…", "We will explore…", weak hedging.
+**headline (H2 on site):** When **slug** is **hvac/ac-not-cooling/{city}**, use **exactly** \`AC Not Cooling? Start Here\` — no variation, no extra words. For **all other** pages: open decisive; minimum **50 characters** with **{{CITY}}** or **{{STATE}}** load context. **Forbidden:** "Understanding…", "In this guide…", "Learn about…", "We will explore…", weak hedging.
 
 **flow_lines (REQUIRED — at least 4 strings):** Fast scan under the headline. Line 1 is usually a **symptom gate** ending with a colon; following lines are **→** branches mapping signal → class (HVAC cooling example shape — adapt to symptom):
 - "Fan runs but no cooling:"
@@ -287,7 +287,7 @@ This block must read like a **field cheat sheet**: immediate clarity, fast scann
 - "→ Warm air → refrigerant or compressor"
 Use **real → tokens** in the strings. These lines render in a **monospace scan box** on the site.
 
-**core_truth:** One paragraph (70+ chars) that explains **mechanism + load** after the scan — why the branches matter in **{{CITY}}** conditions. Keep **This means** / **At this point** language where natural.
+**core_truth:** After the scan, **mechanism + load** in **{{CITY}}** conditions (70+ chars). Prefer **up to two short paragraphs** separated by \\n\\n when the arc is: (1) failing to remove heat, (2) what local load does to runtime stress, (3) cost of ignoring — without repeating the scan lines verbatim.
 
 **risk_warning:** One **standalone** closing line under the scan (the UI prints it **without** an "If ignored:" label). Write the full sentence, e.g. **If airflow is blocked, the system runs longer → coil freezes → compressor damage ($1,500–$3,500).** — adapt mechanism and dollars to the symptom. Must include **$** and digits.
 
@@ -295,11 +295,11 @@ Also: top_causes **3–4** entries with label + probability each (mechanism + li
 - **deep_dive (REQUIRED per top_cause):** 2–4 sentences each — DG authority: what fails mechanically, how load/ice/charge interact, failure chain (not a one-liner). Example: clogged filter restricts airflow across the coil → reduced heat exchange → longer runtimes → compressor strain → coil freeze risk.
 
 ### what_this_means (REQUIRED — bridge after summary)
-- **One string, minimum 100 characters** — diagnosis → dominant physical branches → wear/failure pressure. **No meta** ("this section", "expert layer", "in this article").
-- Name what the system is actually doing (e.g. still running but **not removing heat** at the design rate — adapt to plumbing/electrical physics).
-- Use **This means** to bucket the 2–3 dominant physical branches for this symptom (HVAC cooling: airflow restriction, refrigerant path wrong, compressor under load — swap for correct vertical).
-- End on **wear**: longer runtimes under local load stack stress until something fails; systems **do not** self-correct out of sustained wrong operation.
-- REFERENCE DENSITY for AC not cooling (adapt all wording — do not copy verbatim): "When an AC is not cooling, the system is still running but failing to remove heat. This means either airflow is restricted, refrigerant is not circulating correctly, or the compressor is under load. All three conditions force the system to run longer, which increases wear and leads to failure."
+- **Minimum 100 characters** — diagnosis → dominant physical branches → wear/failure pressure. **No meta** ("this section", "expert layer", "in this article").
+- Name what the system is actually doing (e.g. still moving air but **failing to remove heat** — adapt to plumbing/electrical physics).
+- Bucket the dominant physical branches (HVAC cooling: airflow, refrigerant charge, control logic, compressor load — swap for correct vertical).
+- End on **wear**: operating outside normal range accelerates wear until a major component fails.
+- **HVAC cooling gold shape** (adapt wording — do not copy verbatim): paragraph 1: equipment runs but comfort drifts — still moving air, not shedding heat. paragraph 2: branches outside normal range + wear to major failure.
 
 ### canonical_truths (REQUIRED — exactly 2 strings)
 - Line 1 **signature** for the symptom class (HVAC airflow example shape — adapt words for non-airflow): **small restriction → strain → failure** cadence (e.g. airflow restriction forces the coil and compressor outside design intent).
@@ -308,29 +308,29 @@ Also: top_causes **3–4** entries with label + probability each (mechanism + li
 - The site surfaces these two strings again in layout — write them so they stand alone without relying on duplicate copy in other fields.
 
 ### quick_checks (compressed DG — section title on site: **Quick checks (Do this first)**)
-- Each item must be **safe for homeowner**, state **what the result means**, include **cost consequence**, and carry one **"this is no longer simple"** beat (word it once across the three checks — not the same clause three times).
-- The UI **does not** print "Homeowner:" / "What it means:" — it renders **only** your copy as **→** lines under a bold **check** title (renderer prefixes **→** when a line does not already start with → or ->).
-- For **primary HVAC cooling-loss**, use **exactly these three checks in this order** (adapt wording to symptom/city — keep the same **logic + $ bands**):
-  1) **Check thermostat** — homeowner: Set to "cool" and below room temp — result_meaning: If still no cooling → not a control issue — next_step: Confirm the stat is actually calling cool (or one tight resident action) — risk: If ignored → system runs incorrectly → $200–$500 issues escalate
-  2) **Check air filter** — homeowner: Dirty filter = restricted airflow — result_meaning: Replace immediately — next_step: If airflow doesn't improve → deeper system issue — risk: If ignored → coil freeze → compressor strain ($1,500+)
-  3) **Check for ice or hissing** — homeowner: Ice = airflow or refrigerant issue — result_meaning: Hissing = refrigerant leak — next_step: If present → STOP using system — risk: If ignored → compressor damage ($1,500–$3,500)
-- **risk** must include **$** on every quick check when physically plausible. Do **not** paste the auto-appended site line **"→ If not fixed, this is no longer a simple issue"** into JSON.
+- Each item must be **safe for homeowner**, state **what the result means**, include **cost consequence**, and escalate in **clear → lines** (renderer adds **→** only when your line does not already start with → or ->).
+- The UI **does not** print "Homeowner:" / "What it means:" — only your strings under the bold **check** title.
+- For **primary HVAC cooling-loss**, use **exactly three checks in this order** (adapt city/symptom — keep **logic + $ bands**):
+  1) **Check thermostat settings.** — lines that cover setpoint/mode → wrong settings never call for real cooling → if still no cooling, move past controls → ignored control faults land roughly **$200–$500**.
+  2) **Check air filter and return path.** — restriction at coil → replace filter / confirm registers → if airflow stays weak, stop at DIY ceiling → ignored path often exceeds **$1,500** once the coil and compressor load.
+  3) **Check for refrigerant leaks.** — ice or hissing → loss means a leak (not consumption) → schedule licensed service → low charge drives long cycles and compressor strain toward **$1,500+** repairs.
+- **risk** must include **$** on every quick check when physically plausible. Do **not** paste the site's static quick-checks lead ("If cooling does not return after these checks…") into JSON — the renderer owns that line.
 
 ### diagnostic_steps (site title: **Diagnostic Flow (What’s actually happening)** — no Homeowner/Pro/Risk labels on screen)
-- Must follow **real technician order** — each step advances the diagnosis; homeowner branch vs pro branch must differ physically, not cosmetically.
-- **step:** A **gate question** ending with **?** when it fits (e.g. "Thermostat calling for cooling?").
-- **homeowner:** First **→** branch line (often **No → …**).
-- **pro:** Second **→** branch line (often **Yes → …**).
-- **risk:** Third beat: consequence, design limits, and a **$** anchor (compressor / misapplied work band) — still required non-empty even on early gates.
-- For **primary HVAC cooling-loss**, use **exactly these three blocks in this order** (adapt wording — keep the same **No/Yes split and physics**):
-  1) step: "Thermostat calling for cooling?" — homeowner: "No → fix control issue" — pro: "Yes → airflow or mechanical problem" — risk: "Mis-branching here wastes calls before airflow is proven — typical mis-call waste $150–$400 in parts and labor."
-  2) step: "Airflow normal?" — homeowner: "No → filter or duct restriction" — pro: "Yes → refrigerant or compressor issue" — risk: "Opening the refrigerant path before airflow is ruled in risks slugging and compressor damage ($1,500+)."
-  3) step: "Cooling still weak?" — homeowner: "System is running outside design limits" — pro: "This leads to longer cycles, heat buildup, and component failure" — risk: "At this point sealed-system or compressor work without verification escalates past $1,500 fast — book a licensed technician."
-- Weave **canonical_truths** into risk lines where natural (varied wording).
+- Must follow **real technician order** — each step advances the diagnosis; **homeowner** vs **pro** are sequential **→** beats in the same physical branch (not generic labels).
+- **step:** A **physical gate** (often phrased as a verification title, e.g. "Verify thermostat operation.").
+- **homeowner:** First **→** line(s) a resident can execute (display, mode, setpoint, obvious signs).
+- **pro:** Next **→** line(s) a licensed tech verifies (wiring, calibration, measurements, coil condition).
+- **risk:** Consequence + **$** anchor — still required non-empty on every step.
+- For **primary HVAC cooling-loss**, use **exactly these three blocks in this order** (adapt wording — keep **verification order: controls → coils/face → charge**):
+  1) Verify thermostat operation → confirm display/mode/setpoint → wiring/calibration → defective stats often land **$200–$400**.
+  2) Inspect evaporator and condenser coils → ice/dirt/blocked airflow → clean/service as needed → ignored restriction becomes strain then failure.
+  3) Test refrigerant levels → compare cooling to demand → gauge pressures → low charge means **leak repair**, not "top-off" — sealed-system work commonly starts **$500–$1,500** before major damage.
+- Weave **canonical_truths** ideas into risk lines with **fresh wording** (no verbatim repeats).
 
 ### decision_tree_text (REQUIRED — at least 3 strings)
 - Plain-text branches only (no Mermaid). Each string: question → branch → outcome, using ASCII -> or Unicode → as separators.
-- Example shape: "Is airflow present? → No → Check filter or blower" — reader must be able to follow the tree without a diagram.
+- **HVAC cooling-loss reference shape** (adapt): airflow at registers? → thermostat calling for cooling? → cooling returns after basics? — outcomes must stay **physical** (filter/blower/ducts; mode/setpoint/wiring; licensed refrigerant/compressor diagnosis).
 
 ### tools (REQUIRED — at least 3 strings)
 - Short tool identifiers (e.g. multimeter, coil cleaner, pressure gauges, manifold set, megohmmeter) — what pros actually use. Reinforces that diagnosis/repair is real technical work and **not all fixes are DIY-friendly**.
@@ -372,21 +372,21 @@ Also: top_causes **3–4** entries with label + probability each (mechanism + li
 ### decision (renders as **What you should do now** + three column subtitles)
 - **safe:** at least 2 **short** commands (e.g. "Replace filter", "Check thermostat") — column on site: **Safe — try first**.
 - **call_pro:** at least 2 **hard stops for DIY** — column: **Call a pro — no longer DIY** (e.g. "Cooling does not return after basic checks", "System runs continuously").
-- **stop_now:** at least 2 damage modes — column: **STOP — risk of damage** (e.g. "Ice on coils or lines", "System running without cooling", "Burning smell or electrical noise"). At least one line must use **critical urgency** language (grinding, burning, smoke, shut off, immediately) — server-enforced.
+- **stop_now:** at least 2 damage modes — column: **STOP — risk of damage**. **HVAC cooling reference shape** (adapt): shut off if **ice**, **grinding compressor**, or **burning insulation smell**; if the system **runs continuously without cooling**, stop forcing runtime — that is how **compressor failures** start. At least one line must use **critical urgency** language (grinding, burning, smoke, shut off, immediately) — server-enforced.
 - Write **decision_footer** as the single hard boundary (e.g. "At this point, continuing to run the system risks compressor failure." — adapt the prime failure for plumbing/electrical). When **decision_footer** is present, the site **does not** print the extra red hook line.
 
 ### decision_footer (REQUIRED — single hard boundary after decision columns)
 - **Minimum 35 characters**, one sentence or two short ones — forces the reader past hesitation (e.g. "At this point, continuing to run the system risks compressor failure." — adapt "compressor" to the correct prime failure for plumbing/electrical).
 
-### final_warning (blunt — **single paragraph**, no line breaks)
-- **Minimum 60 characters** — short, blunt, one block. Systems **do not recover from strain—they fail**; small issues become expensive failures; include a **$** anchor (e.g. $3,000 class damage).
-- Echo both **canonical_truths** ideas in **fresh wording** inside this one paragraph (no duplicate sentences elsewhere).
+### final_warning (blunt — **one or two short paragraphs**)
+- **Minimum 60 characters** total — systems **do not recover from strain — they fail**; small cooling problems become expensive repairs under forced runtime; include a **$** anchor (e.g. **$1,500–$3,500** class damage). Optional **\\n\\n** between two tight paragraphs — no extra blank lines.
+- Echo both **canonical_truths** ideas in **fresh wording** (no duplicate sentences elsewhere in JSON).
 
-### cta (urgency — **single paragraph**, no line breaks)
-- **Minimum 45 characters** — MUST reference **runtime or environmental stress** (e.g. {{CITY}} heat, humidity, load, fault runtime) — publish validator checks this.
-- MUST include a **$1,500+** cost consequence (digits with **$**) and a **direct professional action** (e.g. get a licensed technician, book a service call) — validator-enforced.
-- If it is not cooling after basic checks, **do not keep running it**; tie urgency to **cost escalation** and compressor (or prime failure) risk.
-- REFERENCE DENSITY for Tampa AC (adapt — do not copy verbatim): "If it's not cooling after these checks, don't keep running it." + {{CITY}} heat + extended runtime under fault + get a technician before a **$3,000** class problem.
+### cta (urgency — **one or two short paragraphs**)
+- **Minimum 45 characters** total — MUST reference **runtime or environmental stress** (e.g. {{CITY}} heat, humidity, load, fault runtime) — publish validator checks this.
+- MUST include a **$1,500+** cost consequence (digits with **$**) and a **direct professional action** (e.g. get a technician, book a service call) — validator-enforced.
+- If cooling does not return after checks, **do not keep running it**; tie **{{CITY}} heat** to faster failure under load and **compressor damage** before a **$3,000** class bill.
+- Optional **\\n\\n** between two tight paragraphs — no extra blank lines.
 
 ### slug
 - Format: hvac/{{kebab-case symptom}}/{{city-slug}}-{{state-slug}} (example: hvac/ac-not-turning-on/tampa-fl). Must match PRIMARY PAGE SLUG in context when provided.
@@ -401,9 +401,9 @@ PUBLISHER MINIMUMS (MANDATORY — incomplete JSON is rejected)
 Before you output, verify (matches server Zod schema):
 - title: at least 10 characters
 - slug: regex ^(hvac|plumbing|electrical)/[a-z0-9-]+/[a-z0-9-]+$
-- summary_30s: headline at least 50 characters (DG "…? Start here" style with city/symptom load); **flow_lines** at least **4** non-empty strings (arrow scan); core_truth at least 70 characters; risk_warning at least 45 characters with "$"; top_causes at least 3; every top_cause has **deep_dive** at least 120 characters
+- summary_30s: headline **≥ 50 characters** for most pages; **exact** \`AC Not Cooling? Start Here\` when \`slug\` matches \`hvac/ac-not-cooling/{city}\`; **flow_lines** at least **4** non-empty strings (arrow scan); core_truth at least 70 characters; risk_warning at least 45 characters with "$"; top_causes at least 3; every top_cause has **deep_dive** at least 120 characters
 - what_this_means: at least **100** characters (expert bridge: diagnosis → buckets → wear)
-- canonical_truths: exactly **2** non-empty strings; their substance must appear in final_warning and at least one diagnostic_steps.risk in **fresh wording** (no more than **two** identical verbatim sentences anywhere in the full JSON)
+- canonical_truths: exactly **2** non-empty strings; their substance must appear in final_warning and at least one diagnostic_steps.risk in **fresh wording** (no more than **two** identical verbatim sentences anywhere in the full JSON); the site surfaces the two lines **twice** in layout — do not paste the same verbatim line into four different sections
 - decision_tree_text: at least 3 non-empty strings using → or -> between segments
 - tools: at least 3 non-empty strings
 - quick_checks: at least 3 objects; all five string fields non-empty each
@@ -415,8 +415,8 @@ Before you output, verify (matches server Zod schema):
 - cost_escalation: at least **4** objects; stage, description, cost non-empty strings; include **$1,500+** somewhere across those fields
 - decision.safe, decision.call_pro, decision.stop_now: each at least 2 non-empty strings; stop_now must include critical urgency language (grinding / burning / smoke / shut off / immediately) on at least one line
 - decision_footer: at least **35** characters
-- final_warning: at least **60** characters with blunt consequence + "$"
-- cta: at least **45** characters; must name **{{CITY}}** stress and technician urgency
+- final_warning: at least **60** characters with blunt consequence + "$" (one field; optional single \\n\\n)
+- cta: at least **45** characters; must name **{{CITY}}** stress and technician urgency (one field; optional single \\n\\n)
 
 ---
 FINAL RULE
@@ -431,7 +431,7 @@ No filler.
 No shallow statements — every populated string should carry mechanical reasoning, escalation, or decision pressure where that field allows it.
 No extra fields beyond the schema (only the keys shown in OUTPUT SCHEMA).
 No missing fields.
-No line breaks inside any single string field (including **final_warning** and **cta**). The only multi-line pattern is **summary_30s.flow_lines** as separate array items.
+No line breaks inside string fields **except** optional **\\n\\n** in **summary_30s.core_truth**, **what_this_means**, **final_warning**, and **cta** (at most one blank line each). **summary_30s.flow_lines** stays one line per array item (4+ items).
 `.trim();
 
 /** Inject INPUT lines; escape backslashes and flatten newlines inside values. */

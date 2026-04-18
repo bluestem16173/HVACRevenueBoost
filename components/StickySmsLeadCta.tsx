@@ -2,7 +2,6 @@
 
 import { useEffect, useLayoutEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import SmsConsentLeadForm from "@/components/SmsConsentLeadForm";
 import { STICKY_CTA_DISMISS_STORAGE_KEY } from "@/hooks/useSmsConsentLeadForm";
 import { shouldShowHvacStickyCta } from "@/lib/should-show-hvac-sticky-cta";
 
@@ -33,7 +32,10 @@ export default function StickySmsLeadCta() {
       return;
     }
     document.documentElement.classList.add(HTML_STICKY_CLASS);
-    document.documentElement.style.setProperty("--hvacrb-sticky-call-offset", "min(28vh,11rem)");
+    document.documentElement.style.setProperty(
+      "--hvacrb-sticky-call-offset",
+      "calc(4.25rem + env(safe-area-inset-bottom, 0px))"
+    );
     return () => {
       document.documentElement.classList.remove(HTML_STICKY_CLASS);
       document.documentElement.style.setProperty("--hvacrb-sticky-call-offset", "0px");
@@ -55,37 +57,37 @@ export default function StickySmsLeadCta() {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-0 z-[55] max-h-[min(30vh,20rem)] overflow-y-auto border-t border-slate-700 bg-slate-950 shadow-[0_-8px_30px_rgba(0,0,0,0.35)] md:max-h-[min(30vh,18rem)]"
+      className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white p-3 shadow-lg"
       role="region"
-      aria-label="Find local HVAC service — SMS request"
+      aria-label="HVAC help — open request form"
     >
-      <div className="relative mx-auto max-w-5xl px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-3 sm:px-4">
+      <div className="relative mx-auto flex max-w-4xl flex-col items-stretch gap-2 pr-10 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:pr-12">
         <button
           type="button"
           onClick={dismiss}
-          className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white focus:outline-none focus:ring-2 focus:ring-hvac-gold"
-          aria-label="Dismiss quick request form"
+          className="absolute right-0 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md border border-slate-300 text-slate-600 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-red-600"
+          aria-label="Dismiss HVAC help bar"
         >
           <span className="text-lg leading-none" aria-hidden>
             ×
           </span>
         </button>
 
-        <div className="mb-2 max-w-[calc(100%-2.5rem)] space-y-0.5">
-          <p className="text-sm font-black uppercase tracking-wide text-white">Find local HVAC service</p>
-          <p className="text-[11px] font-medium leading-snug text-slate-400">
-            Request SMS follow-up about your inquiry, scheduling, and service updates (consent required below).
-          </p>
-        </div>
-
-        <SmsConsentLeadForm
-          variant="sticky"
-          defaultSourcePage="/"
-          phoneFieldId="sticky-sms-lead-phone"
-          showNameField={false}
-          serviceType="hvac"
-          issueSummary="HVAC service request (sticky CTA)"
-        />
+        <p className="min-w-0 text-sm font-semibold leading-snug text-red-600">
+          <span aria-hidden>⚠️ </span>
+          AC not cooling? Don&apos;t risk a $3,000 repair.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("open-leadcard"));
+            }
+          }}
+          className="shrink-0 rounded bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-600 focus:ring-offset-2"
+        >
+          Get HVAC Help Now
+        </button>
       </div>
     </div>
   );

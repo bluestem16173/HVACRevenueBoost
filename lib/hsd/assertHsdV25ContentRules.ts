@@ -1,6 +1,10 @@
 import type { HsdV25Payload } from "@/lib/validation/hsdV25Schema";
 import { assertNoForbiddenScaffoldingInPayload } from "@/lib/hsd/assertHsdScaffolding";
 import { collectAllStringLeaves } from "@/lib/hsd/hsdJsonStringLeaves";
+import {
+  LOCKED_AC_NOT_COOLING_HEADLINE,
+  isAcNotCoolingCitySlug,
+} from "@/lib/hsd/lockedAcNotCoolingHeadline";
 
 /** Largest dollar amount parsed from strings like "$1,500", "$3k+", "$2200–$9500". */
 function maxParsedUsdInText(s: string): number {
@@ -44,13 +48,23 @@ function assertCanonicalTruthRepetitionBudget(page: HsdV25Payload): void {
 }
 
 const QUICK_CHECK_BOUNDARY_SNIPPET = "If not fixed, this is no longer a simple issue";
+/** Renderer prints this lead — forbid duplicating it inside JSON quick_checks. */
+const QUICK_CHECK_RENDERER_LEAD_SNIPPET = "If cooling does not return after these checks";
 
 function verticalFromSlug(slug: string): string {
   return String(slug ?? "").split("/")[0]?.trim().toLowerCase() || "hvac";
 }
 
-function assertSummaryHeadlineTone(headline: string): void {
+function assertSummaryHeadlineTone(slug: string, headline: string): void {
   const h = String(headline ?? "").trim();
+  if (isAcNotCoolingCitySlug(slug)) {
+    if (h !== LOCKED_AC_NOT_COOLING_HEADLINE) {
+      throw new Error(
+        `summary_30s.headline must be exactly "${LOCKED_AC_NOT_COOLING_HEADLINE}" for hvac/ac-not-cooling/* pages`
+      );
+    }
+    return;
+  }
   if (h.length < 50) {
     throw new Error("summary_30s.headline must be at least 50 characters (direct diagnosis gate + load context)");
   }
@@ -92,7 +106,7 @@ export function assertHsdV25ContentRules(page: HsdV25Payload): void {
 
   assertCanonicalTruthRepetitionBudget(page);
 
-  assertSummaryHeadlineTone(page.summary_30s.headline);
+  assertSummaryHeadlineTone(page.slug, page.summary_30s.headline);
 
   if (!page.quick_table || page.quick_table.length < 4) {
     throw new Error("quick_table must have at least 4 rows (Quick Diagnosis scan table)");
@@ -101,7 +115,12 @@ export function assertHsdV25ContentRules(page: HsdV25Payload): void {
   const qcBlob = JSON.stringify(page.quick_checks ?? []);
   if (qcBlob.includes(QUICK_CHECK_BOUNDARY_SNIPPET)) {
     throw new Error(
-      "quick_checks must not embed the site boundary line — the renderer appends it once after the list"
+      "quick_checks must not embed the legacy site boundary line — the renderer owns decisive framing"
+    );
+  }
+  if (qcBlob.includes(QUICK_CHECK_RENDERER_LEAD_SNIPPET)) {
+    throw new Error(
+      "quick_checks must not duplicate the site quick-checks lead — keep decisive framing in the renderer only"
     );
   }
 

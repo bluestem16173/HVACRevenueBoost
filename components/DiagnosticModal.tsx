@@ -1,7 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import LeadCard from "./LeadCard";
+
+/** Auto-open (scroll/timer) only on multi-segment trade diagnostic URLs — not hub pages like `/hvac`. */
+function shouldAutoOpenLeadModal(pathname: string | null | undefined): boolean {
+  if (!pathname) return false;
+  const p = pathname.split("?")[0] ?? "";
+  const parts = p.split("/").filter(Boolean);
+  if (parts[0] === "hvac" && parts.length >= 2) return true;
+  if (parts[0] === "plumbing" && parts.length >= 2) return true;
+  if (parts[0] === "electrical" && parts.length >= 2) return true;
+  return false;
+}
 
 /** Map URL path to LeadCard `issue` for pages that never dispatch explicit detail. */
 function inferLeadIssueFromPathname(pathname: string): string {
@@ -15,6 +27,9 @@ function inferLeadIssueFromPathname(pathname: string): string {
 }
 
 export default function DiagnosticModal() {
+  const pathname = usePathname();
+  const enableAutoOpen = useMemo(() => shouldAutoOpenLeadModal(pathname), [pathname]);
+
   const [isOpen, setIsOpen] = useState(false);
   const [leadIssue, setLeadIssue] = useState("wont_turn_on");
   const [formMountKey, setFormMountKey] = useState(0);
@@ -62,6 +77,8 @@ export default function DiagnosticModal() {
   }, [openFromEvent]);
 
   useEffect(() => {
+    if (!enableAutoOpen) return;
+
     let shown = false;
 
     const open = () => {
@@ -82,7 +99,7 @@ export default function DiagnosticModal() {
       clearTimeout(timer);
       window.removeEventListener("scroll", scrollHandler);
     };
-  }, []);
+  }, [enableAutoOpen]);
 
   if (!isOpen) return null;
 

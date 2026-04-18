@@ -7,6 +7,7 @@ import {
   SMS_CONSENT_ORIGINATION_DISCLOSURE,
   SMS_CONSENT_REQUIRED_ERROR,
   SMS_CONSENT_TEXT_VERSION,
+  getSmsLeadSubmitButtonLabel,
 } from "@/lib/lead-consent";
 
 export default function LeadCard({
@@ -201,9 +202,15 @@ export default function LeadCard({
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent pointer-events-none"></div>
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-600 via-orange-500 to-yellow-400"></div>
 
-          <h2 className="relative z-10 text-3xl sm:text-[32px] font-black text-white mb-4 tracking-tight drop-shadow-md leading-[1.1]">
-            {isAC ? "AC Unresponsive? Get a Technician Out Today" : "Furnace Unresponsive? Get a Technician Out Today"}
+          <h2 className="relative z-10 text-3xl sm:text-[32px] font-black text-white mb-3 tracking-tight drop-shadow-md leading-[1.1]">
+            {isAC ? "Get HVAC Help Now" : "Furnace Unresponsive? Get a Technician Out Today"}
           </h2>
+
+          {isAC ? (
+            <p className="relative z-10 mx-auto mb-4 max-w-md text-sm font-medium leading-relaxed text-slate-200">
+              A technician will contact you about your issue and next steps.
+            </p>
+          ) : null}
 
           <div className="relative z-10 flex justify-center">
             <div className="inline-flex items-center gap-2.5 bg-red-600/30 backdrop-blur-sm border border-red-500/50 px-4 py-2 rounded-lg shadow-inner">
@@ -227,6 +234,12 @@ export default function LeadCard({
 
       <form onSubmit={handleSubmit} className="p-6 sm:p-7 space-y-6 bg-white relative z-20" noValidate>
         <input type="hidden" name="source_page" value={sourcePage || "/request-service"} readOnly />
+
+        {isAC ? (
+          <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-snug text-amber-950">
+            This issue can escalate quickly if the system keeps running.
+          </p>
+        ) : null}
 
         <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl shadow-inner">
           <div className="mb-4">
@@ -532,7 +545,7 @@ export default function LeadCard({
               </span>
             ) : (
               <span className="flex items-center gap-2 uppercase tracking-wide">
-                {dynamicContent.cta}
+                {isAC ? getSmsLeadSubmitButtonLabel() : dynamicContent.cta}
                 <svg className="w-6 h-6 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>

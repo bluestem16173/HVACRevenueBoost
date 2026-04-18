@@ -1,3 +1,8 @@
+import { formatCityPathSegmentForDisplay } from "@/lib/localized-city-path";
+import {
+  LOCKED_AC_NOT_COOLING_HEADLINE,
+  isAcNotCoolingCitySlug,
+} from "@/lib/hsd/lockedAcNotCoolingHeadline";
 import { HSDV25Schema, type HsdV25Payload } from "@/src/lib/validation/hsdV25Schema";
 
 function asRecord(v: unknown): Record<string, unknown> {
@@ -5,13 +10,19 @@ function asRecord(v: unknown): Record<string, unknown> {
 }
 
 const DEFAULT_FINAL_WARNING =
-  "AC systems do not recover from strain—they fail. Running a system that is not cooling properly forces it outside its design limits, which is how small issues become major failures. Act before this becomes a $3,000 repair.";
+  "AC systems do not recover from strain — they fail.\n\nSmall cooling problems become expensive repairs when the equipment is forced to keep running under load. Past that point you are buying compressor and coil failures that commonly run $1,500–$3,500.";
 
-const DEFAULT_CTA =
-  "If your AC isn't cooling after basic checks, don't keep running it. In Tampa heat, extended runtime under fault conditions is what turns small issues into compressor failure. Get a technician out today before this becomes a $3,000 problem.";
+const DEFAULT_CTA_FALLBACK =
+  "If the system still misbehaves after basic checks, do not keep forcing runtime under fault conditions — secondary damage stacks fast. Book a licensed technician before repairs cross $1,500 and climb toward $3,000-class failures.";
+
+function defaultCtaAcNotCooling(slug: string): string {
+  const seg = slug.split("/").filter(Boolean)[2] ?? "";
+  const city = seg ? formatCityPathSegmentForDisplay(seg) : "Tampa";
+  return `If your AC is still not cooling, stop running it.\n\nIn ${city} heat, systems fail faster under continuous load. What starts as a small issue quickly becomes compressor damage.\n\n→ Request service now before this becomes a $3,000 repair.`;
+}
 
 const DEFAULT_WHAT_THIS_MEANS =
-  "When comfort drifts while the equipment still runs, the system is fighting load instead of shedding heat efficiently. This means airflow, control logic, refrigerant charge, or the compressor path is operating outside design intent. At this point, wear accelerates until a major component fails—this is no longer a thermostat tweak problem.";
+  "When the equipment runs but comfort drifts, the system is still moving air but failing to remove heat.\n\nThat means airflow, refrigerant charge, control logic, or compressor load is outside normal operating range. At that point, wear accelerates until a major component fails.";
 
 const DEFAULT_REPAIR_MATRIX_INTRO =
   "Most AC failures start as airflow or control issues. Once refrigerant or compressor problems appear, costs increase quickly.";
@@ -32,9 +43,9 @@ const DEFAULT_FLOW_LINES = [
 ];
 
 const DEFAULT_DECISION_TREE = [
-  "Is airflow strong at registers? → No → Filter, coil face, blower, ducts",
-  "Is the thermostat calling cool with a real split demand? → No → Mode, setpoint, wiring",
-  "Does cooling return after basics? → No → Licensed refrigerant and compressor assessment",
+  "Is airflow strong at registers? → No → filter, blower, coil face, or ducts",
+  "Is the thermostat calling for cooling? → No → mode, setpoint, wiring, or control fault",
+  "Does cooling return after basics? → No → licensed refrigerant and compressor diagnosis",
 ];
 
 const DEFAULT_TOOLS = ["multimeter", "manifold gauges", "coil cleaner"];
@@ -55,25 +66,25 @@ const DEFAULT_QUICK_CHECKS: {
   risk: string;
 }[] = [
   {
-    check: "Check thermostat",
-    homeowner: 'Set to "cool" and below room temp',
-    result_meaning: "If still no cooling → not a control issue",
-    next_step: "Confirm the stat is calling cool with the fan engaged",
-    risk: "If ignored → system runs incorrectly → $200–$500 issues escalate",
+    check: "Check thermostat settings.",
+    homeowner: '→ Set to "cool" and below room temperature.',
+    result_meaning: "→ If settings are wrong, the system never receives a real cooling call.",
+    next_step: "→ If settings are correct and cooling still does not return, move past controls.",
+    risk: "→ If ignored: thermostat or control faults usually turn into $200–$500 repairs.",
   },
   {
-    check: "Check air filter",
-    homeowner: "Dirty filter = restricted airflow",
-    result_meaning: "Replace immediately",
-    next_step: "If airflow doesn't improve → deeper system issue",
-    risk: "If ignored → coil freeze → compressor strain ($1,500+)",
+    check: "Check air filter and return path.",
+    homeowner: "→ Dirty filter or blocked return chokes airflow at the coil.",
+    result_meaning: "→ Replace filter, confirm registers open, then recheck supply temperature.",
+    next_step: "→ If airflow stays weak after filter service, stop guessing past occupancy-side fixes.",
+    risk: "→ If ignored: coil freeze and compressor strain — repairs often exceed $1,500.",
   },
   {
-    check: "Check for ice or hissing",
-    homeowner: "Ice = airflow or refrigerant issue",
-    result_meaning: "Hissing = refrigerant leak",
-    next_step: "If present → STOP using system",
-    risk: "If ignored → compressor damage ($1,500–$3,500)",
+    check: "Check for refrigerant leaks.",
+    homeowner: "→ Look for ice on the evaporator coil or hissing at the indoor or outdoor section.",
+    result_meaning: "→ Refrigerant is not consumed — loss means a leak.",
+    next_step: "→ If suspected, stop guessing and schedule licensed service.",
+    risk: "→ If ignored: low charge forces longer run cycles and compressor strain, often leading to $1,500+ repairs.",
   },
 ];
 
@@ -84,22 +95,22 @@ const DEFAULT_DIAGNOSTIC_STEPS: {
   risk: string;
 }[] = [
   {
-    step: "Thermostat calling for cooling?",
-    homeowner: "No → fix control issue",
-    pro: "Yes → airflow or mechanical problem",
-    risk: "Mis-branching here wastes calls before airflow is proven — typical mis-call waste $150–$400 in parts and labor.",
+    step: "Verify thermostat operation.",
+    homeowner: "→ Confirm display, mode, and setpoint.",
+    pro: "→ Check wiring and calibration.",
+    risk: "→ If defective: thermostat failure usually runs $200–$400.",
   },
   {
-    step: "Airflow normal?",
-    homeowner: "No → filter or duct restriction",
-    pro: "Yes → refrigerant or compressor issue",
-    risk: "Opening the refrigerant path before airflow is ruled in risks slugging and compressor damage ($1,500+).",
+    step: "Inspect evaporator and condenser coils.",
+    homeowner: "→ Look for ice, dirt loading, or blocked airflow.",
+    pro: "→ Clean or service coils as needed.",
+    risk: "→ If ignored: airflow restriction leads to strain, and strain leads to failure.",
   },
   {
-    step: "Cooling still weak?",
-    homeowner: "System is running outside design limits",
-    pro: "This leads to longer cycles, heat buildup, and component failure",
-    risk: "At this point sealed-system or compressor work without verification escalates past $1,500 fast — book a licensed technician.",
+    step: "Test refrigerant levels.",
+    homeowner: "→ Compare actual cooling against demand.",
+    pro: "→ Measure pressures and operating conditions with gauges.",
+    risk: '→ Low refrigerant means leak repair, not "topping off," and usually starts at $500–$1,500.',
   },
 ];
 
@@ -131,19 +142,18 @@ const DEFAULT_REPAIR_MATRIX: {
   cost_max: number;
   difficulty: "easy" | "moderate" | "pro";
 }[] = [
-  { issue: "Thermostat — no signal", fix: "replace", cost_min: 100, cost_max: 300, difficulty: "moderate" },
+  { issue: "Thermostat — no signal", fix: "replace", cost_min: 200, cost_max: 400, difficulty: "moderate" },
   { issue: "Filter — airflow restriction", fix: "replace", cost_min: 20, cost_max: 50, difficulty: "easy" },
   { issue: "Refrigerant — leak", fix: "repair", cost_min: 500, cost_max: 1500, difficulty: "pro" },
-  { issue: "Compressor — failure", fix: "replace", cost_min: 1500, cost_max: 3500, difficulty: "pro" },
+  { issue: "Compressor — failure", fix: "replace", cost_min: 1200, cost_max: 2500, difficulty: "pro" },
 ];
 
 const DEFAULT_DECISION: { safe: string[]; call_pro: string[]; stop_now: string[] } = {
   safe: ["Replace filter", "Check thermostat"],
   call_pro: ["Cooling does not return after basic checks", "System runs continuously"],
   stop_now: [
-    "Ice on coils or lines",
-    "System running without cooling",
-    "Burning smell or electrical noise",
+    "Shut the system off if ice is forming, the compressor is grinding, or you smell burning insulation.",
+    "If the system runs continuously without cooling, stop forcing runtime — that is how compressor failures happen.",
   ],
 };
 
@@ -194,20 +204,32 @@ export function coerceHsdJsonForV25View(raw: Record<string, unknown>): HsdV25Pay
     return null;
   }
 
+  const slugStr = String(o.slug ?? "").trim();
+
   const s30 = asRecord(o.summary_30s);
   if (!s30 || !Array.isArray(s30.top_causes)) return null;
 
-  let headline = String(s30.headline ?? "").trim();
-  if (headline.length < 50) {
-    headline = padStringMin(
-      headline,
-      "Start with filter, thermostat, and airflow before sealed-system work—call a licensed technician if symptoms persist.",
-      50
-    );
+  if (isAcNotCoolingCitySlug(slugStr)) {
+    s30.headline = LOCKED_AC_NOT_COOLING_HEADLINE;
+  } else {
+    let headline = String(s30.headline ?? "").trim();
+    if (headline.length < 50) {
+      headline = padStringMin(
+        headline,
+        "Start with filter, thermostat, and airflow before sealed-system work—call a licensed technician if symptoms persist.",
+        50
+      );
+    }
+    s30.headline = headline;
   }
-  s30.headline = headline;
 
   let coreTruth = String(s30.core_truth ?? "").trim();
+  if (isAcNotCoolingCitySlug(slugStr)) {
+    const seg = slugStr.split("/").filter(Boolean)[2] ?? "";
+    const cityPretty = seg ? formatCityPathSegmentForDisplay(seg) : "Local";
+    const goldOpening = `If the system is running but not cooling, it is failing to remove heat.\n\nIn ${cityPretty} heat, that usually means airflow restriction, refrigerant loss, or compressor trouble. Once the system keeps running under load, component stress builds quickly.\n\nIgnoring it is how a small cooling problem turns into a $1,500–$3,500 repair.`;
+    if (coreTruth.length < 120) coreTruth = goldOpening;
+  }
   if (coreTruth.length < 70) {
     coreTruth = padStringMin(
       coreTruth,
@@ -293,7 +315,9 @@ export function coerceHsdJsonForV25View(raw: Record<string, unknown>): HsdV25Pay
   o.final_warning = fw;
 
   let cta = String(o.cta ?? "").trim();
-  if (cta.length < 45) cta = DEFAULT_CTA;
+  if (cta.length < 45) {
+    cta = isAcNotCoolingCitySlug(slugStr) ? defaultCtaAcNotCooling(slugStr) : DEFAULT_CTA_FALLBACK;
+  }
   o.cta = cta;
 
   let dtree = Array.isArray(o.decision_tree_text)

@@ -1,4 +1,3 @@
-import DiagnosticModal from "@/components/DiagnosticModal";
 import { RelatedLinks } from "@/components/RelatedLinks";
 import { StickyCTA } from "@/components/StickyCTA";
 import { LegacyRenderer } from "@/components/LegacyRenderer";
@@ -10,7 +9,9 @@ import { isHsdCityDiagnosticJson } from "@/lib/homeservice/isHsdCityDiagnosticJs
 import { isHsdV1LockedJson } from "@/lib/hsd/isHsdV1LockedJson";
 import { renderHSDPage } from "@/lib/hsd/renderHSDPage";
 import { renderHsdV2CitySymptomPage } from "@/lib/hsd/renderHsdV2CitySymptomPage";
-import { renderHsdV25, type HsdV25RenderInput } from "@/lib/hsd/renderHsdV25";
+import { renderHsdV25LeadSegments } from "@/src/lib/hsd/renderHsdV25";
+import type { HsdV25RenderInput } from "@/lib/hsd/renderHsdV25";
+import { HsdV25LeadAnchoredBody } from "@/components/homeservice/HsdV25LeadAnchoredBody";
 import { HSD_V2_SCHEMA_VERSION } from "@/lib/generated-page-json-contract";
 import { coerceHsdJsonForV25View } from "@/lib/hsd/coerceHsdJsonForV25View";
 import { HSDV25Schema, type HsdV25Payload } from "@/lib/validation/hsdV25Schema";
@@ -106,9 +107,14 @@ export function DiagnosticPageView({
     if (isHsdV2Row) {
       const strict = HSDV25Schema.safeParse(obj);
       const coerced = strict.success ? strict.data : coerceHsdJsonForV25View(obj);
-      const html = coerced
-        ? renderHsdV25(hsdV25RenderInputFromStoredRow(coerced, obj, localizedChrome))
-        : renderHsdV2CitySymptomPage(obj);
+      let segments: ReturnType<typeof renderHsdV25LeadSegments> | null = null;
+      let legacyV2Html: string | null = null;
+      if (coerced) {
+        const v25Input = hsdV25RenderInputFromStoredRow(coerced, obj, localizedChrome);
+        segments = renderHsdV25LeadSegments(v25Input);
+      } else {
+        legacyV2Html = renderHsdV2CitySymptomPage(obj);
+      }
       return (
         <>
           <StickyCTA />
@@ -118,8 +124,15 @@ export function DiagnosticPageView({
             </div>
           ) : null}
           <main className="pb-16">
-            <DiagnosticModal />
-            <HsdLockedPageWithMermaid html={html} />
+            {segments ? (
+              <HsdV25LeadAnchoredBody
+                headerHtml={segments.headerHtml}
+                midThroughDecisionHtml={segments.midThroughDecisionHtml}
+                closingHtml={segments.closingHtml}
+              />
+            ) : (
+              <HsdLockedPageWithMermaid html={legacyV2Html ?? ""} />
+            )}
           </main>
           {!localizedChrome ? (
             <div className="mx-auto max-w-4xl px-4 pb-16">
@@ -140,7 +153,6 @@ export function DiagnosticPageView({
             </div>
           ) : null}
           <main className="pb-16">
-            <DiagnosticModal />
             <HsdLockedPageWithMermaid html={lockedHtml} />
           </main>
           {!localizedChrome ? (
@@ -161,7 +173,6 @@ export function DiagnosticPageView({
             </div>
           ) : null}
           <main className="pb-16">
-            <DiagnosticModal />
             <HsdCityDiagnosticView
               data={parsedContentJson}
               pageTitle={pageTitle}
@@ -196,7 +207,6 @@ export function DiagnosticPageView({
           </div>
         ) : null}
         <main style={{ padding: 24, paddingBottom: localizedChrome ? 24 : 60 }}>
-          <DiagnosticModal />
           <LegacyRenderer title={fallbackTitle} data={parsedContentJson} />
           {!localizedChrome ? (
             <RelatedLinks slugs={related} hrefPrefix={relatedPrefix} heading={relatedHeading} />
@@ -230,7 +240,6 @@ export function DiagnosticPageView({
           </div>
         ) : null}
         <main style={{ padding: 24, paddingBottom: 60 }}>
-          <DiagnosticModal />
           <div className="prose prose-slate mx-auto max-w-4xl dark:prose-invert">
             <div dangerouslySetInnerHTML={{ __html: cleanHtml || "" }} />
           </div>

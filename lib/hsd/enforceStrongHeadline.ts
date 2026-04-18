@@ -1,8 +1,16 @@
+import {
+  LOCKED_AC_NOT_COOLING_HEADLINE,
+  isAcNotCoolingCitySlug,
+} from "@/lib/hsd/lockedAcNotCoolingHeadline";
+
 /**
  * Strip article-style scaffolding from the 30s headline (technician gate, not blog intro).
- * Caller must still meet min length (validator / Zod).
+ * For `hvac/ac-not-cooling/*` slugs the headline is locked to one exact string.
  */
-export function enforceStrongHeadline(headline: string): string {
+export function enforceStrongHeadline(headline: string, slug?: string): string {
+  if (slug && isAcNotCoolingCitySlug(slug)) {
+    return LOCKED_AC_NOT_COOLING_HEADLINE;
+  }
   let h = String(headline ?? "").trim();
   h = h.replace(
     /\b(understanding|guide|learn\s+about|in\s+this\s+article|in\s+this\s+guide|we\s+will\s+explore|we'll\s+explore)\b/gi,

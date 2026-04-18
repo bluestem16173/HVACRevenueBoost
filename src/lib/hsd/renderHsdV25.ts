@@ -43,6 +43,16 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/** Multi-paragraph body fields (blank-line separated). */
+function summaryCoreTruthParagraphsHtml(coreTruth: string, pClass: string): string {
+  return String(coreTruth ?? "")
+    .split(/\n\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p class="${pClass}">${escapeHtml(p)}</p>`)
+    .join("");
+}
+
 /** Split on blank lines for `final_warning` / `cta` (JSON may use \\n\\n between paragraphs). */
 function bodyParagraphsHtml(s: string, pClass: string): string {
   return String(s ?? "")
@@ -69,20 +79,18 @@ function decisionFailureHook(vertical: string | undefined): string {
   return "→ This is how minor issues become major failures.";
 }
 
-/** Intentional repetition: same 1–2 lines echoed in summary, steps, and final warning (plus model prose). */
+/** Canonical truths: **max 2** on page — after Quick Diagnosis / scan table, then before Decision. */
 function canonicalTruthsEchoHtml(
   truths: HsdV25Payload["canonical_truths"] | undefined,
-  variant: "summary" | "steps" | "final"
+  variant: "quick_diagnosis" | "pre_decision"
 ): string {
   const lines = (truths ?? []).map((t) => String(t).trim()).filter(Boolean).slice(0, 2);
   if (!lines.length) return "";
   const lis = lines.map((t) => `<li>${escapeHtml(t)}</li>`).join("");
   const mod =
-    variant === "summary"
+    variant === "quick_diagnosis"
       ? "mt-4 border-t border-slate-200 pt-4 dark:border-slate-600"
-      : variant === "steps"
-        ? "mt-6 border-t border-slate-200 pt-4 dark:border-slate-600"
-        : "mt-4 border-t border-red-200/60 pt-4 dark:border-red-900/40";
+      : "mb-2 border-t border-slate-200 pt-4 dark:border-slate-600";
   return `<div class="hsd-canonical-echo ${mod}" role="note" aria-label="Core truths">
   <div class="text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Core truths</div>
   <ul class="mt-1.5 list-none space-y-1.5 p-0 text-sm font-semibold leading-snug text-slate-800 dark:text-slate-200">${lis}</ul>
@@ -102,17 +110,23 @@ function subhead(data: HsdV25RenderInput): string {
 export function sectionWhatThisMeans(text: string | undefined): string {
   const body = String(text ?? "").trim();
   if (!body) return "";
+  const paras = body
+    .split(/\n\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map(
+      (p) =>
+        `<p class="hsd-what-means__body m-0 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(p)}</p>`
+    )
+    .join("");
   return `
 <section class="hsd-block hsd-what-means my-6 rounded-xl border border-slate-200 bg-slate-50/90 px-4 py-5 dark:border-slate-600 dark:bg-slate-900/40" aria-labelledby="hsd-what-means-label">
   <h2 id="hsd-what-means-label" class="text-base font-black uppercase tracking-wide text-slate-800 dark:text-slate-100">What this means</h2>
-  <p class="hsd-what-means__body mt-2 m-0 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(body)}</p>
+  <div class="mt-2 space-y-2">${paras}</div>
 </section>`.trim();
 }
 
-export function sectionSummary(
-  summary_30s: HsdV25Payload["summary_30s"],
-  canonicalTruths?: HsdV25Payload["canonical_truths"]
-): string {
+export function sectionSummary(summary_30s: HsdV25Payload["summary_30s"]): string {
   const flow = (summary_30s.flow_lines ?? []).map((s) => String(s).trim()).filter(Boolean);
   const useDgFlow = flow.length >= 4;
 
@@ -137,10 +151,11 @@ export function sectionSummary(
     )
     .join("");
 
+  const coreTruthClass = "m-0 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200";
   const flowBlock = useDgFlow
     ? `<div class="hsd-dg-flow mt-3 rounded-md border border-slate-200 bg-white/80 px-3 py-3 font-mono text-[13px] leading-relaxed text-slate-900 dark:border-slate-600 dark:bg-slate-950/40 dark:text-slate-100" role="group" aria-label="Scan branches">${flow.map((line) => `<div class="hsd-dg-flow-line">${escapeHtml(line)}</div>`).join("")}</div>
-  <p class="hsd-cred__summary-body mt-3 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(summary_30s.core_truth)}</p>`
-    : `<div class="hsd-cred__summary-body hsd-summary text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(summary_30s.core_truth)}</div>`;
+  <div class="hsd-cred__summary-core mt-3 space-y-2">${summaryCoreTruthParagraphsHtml(summary_30s.core_truth, coreTruthClass)}</div>`
+    : `<div class="hsd-cred__summary-body hsd-summary space-y-2 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">${summaryCoreTruthParagraphsHtml(summary_30s.core_truth, coreTruthClass)}</div>`;
 
   const causesBlock = useDgFlow
     ? `<ul class="hsd-v2__causes mt-3 list-none space-y-1 p-0">${causesCompact}</ul>`
@@ -148,12 +163,10 @@ export function sectionSummary(
 
   return `
 <section class="hsd-cred__summary hsd-block" id="${hsdSectionDomId("summary_30s")}" aria-labelledby="hsd-30s-label">
-  <p class="mb-1 text-[11px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">30-second read</p>
   <h2 id="hsd-30s-label" class="hsd-cred__summary-head text-xl font-black leading-tight text-slate-900 dark:text-white">${escapeHtml(summary_30s.headline)}</h2>
   ${flowBlock}
   ${causesBlock}
   <p class="hsd-v2__risk hsd-risk mt-4 text-sm font-semibold leading-relaxed text-slate-900 dark:text-slate-100" role="alert">${escapeHtml(summary_30s.risk_warning)}</p>
-  ${canonicalTruthsEchoHtml(canonicalTruths, "summary")}
 </section>`.trim();
 }
 
@@ -168,17 +181,10 @@ export function sectionCanonicalTruths(truths: HsdV25Payload["canonical_truths"]
 </div>`.trim();
 }
 
-/** Fixed DIY boundary — appended once after the full quick-check list (not stored in JSON). */
-const QUICK_CHECK_BOUNDARY_LINE = "→ If not fixed, this is no longer a simple issue";
-
 export function sectionQuickChecks(
   quick_checks: HsdV25Payload["quick_checks"],
-  canonicalTruths?: HsdV25Payload["canonical_truths"]
+  _canonicalTruths?: HsdV25Payload["canonical_truths"]
 ): string {
-  const truth0 = String(canonicalTruths?.[0] ?? "").trim();
-  const truthEcho = truth0
-    ? `<p class="mb-4 border-l-4 border-amber-400 pl-3 text-sm font-semibold leading-snug text-amber-950 dark:border-amber-600 dark:text-amber-100">${escapeHtml(truth0)}</p>`
-    : "";
   const items = quick_checks
     .map((q) => {
       const lines = [q.homeowner, q.result_meaning, q.next_step, q.risk]
@@ -192,20 +198,17 @@ export function sectionQuickChecks(
 </li>`;
     })
     .join("");
-  const boundary = `<p class="hsd-check-boundary mt-6 border-t border-slate-200 pt-4 text-sm font-semibold text-amber-950 dark:border-slate-600 dark:text-amber-100">${escapeHtml(QUICK_CHECK_BOUNDARY_LINE)}</p>`;
   return `
 <section class="hsd-cred__quick hsd-block" id="${hsdSectionDomId("quick_checks")}" aria-labelledby="hsd-quick-label">
   <h2 id="hsd-quick-label" class="hsd-cred__quick-head">Quick checks <span class="text-base font-semibold normal-case text-slate-600 dark:text-slate-400">(Do this first)</span></h2>
-  ${truthEcho}
-  <p class="mb-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300">Run these in order: each block is a short branch. If the last line points at dollars or damage, you are past guessing.</p>
+  <p class="mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">Run these in order. If cooling does not return after these checks, the issue is no longer simple.</p>
   <ol class="hsd-cred__quick-list hsd-v2__checks hsd-quick-checks-list">${items}</ol>
-  ${boundary}
 </section>`.trim();
 }
 
 export function sectionDiagnosticSteps(
   diagnostic_steps: HsdV25Payload["diagnostic_steps"],
-  canonicalTruths?: HsdV25Payload["canonical_truths"]
+  _canonicalTruths?: HsdV25Payload["canonical_truths"]
 ): string {
   const items = diagnostic_steps
     .map((s) => {
@@ -224,8 +227,8 @@ export function sectionDiagnosticSteps(
 <section class="hsd-section hsd-block">
   <h2 id="${hsdSectionDomId("diagnostic_steps")}" class="hsd-section__title hsd-section-title">Diagnostic Flow <span class="text-sm font-semibold normal-case text-slate-600 dark:text-slate-400">(What&rsquo;s actually happening)</span></h2>
   <div class="hsd-section__body">
-    <p class="mb-4 text-sm leading-relaxed text-slate-700 dark:text-slate-300">Each block names the physical branch first, then forces a decision. Follow the arrows in order so you do not treat a control problem as a charge problem—or vice versa.</p>
-    <ol class="hsd-v2__logic space-y-6">${items}</ol>${canonicalTruthsEchoHtml(canonicalTruths, "steps")}
+    <p class="mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">Follow the physical branch in order. Do not treat a control problem like a refrigerant problem, and do not treat a refrigerant problem like an airflow problem.</p>
+    <ol class="hsd-v2__logic space-y-6">${items}</ol>
   </div>
 </section>`.trim();
 }
@@ -306,10 +309,6 @@ export function sectionQuickDiagnosisTable(
 </tr>`
     )
     .join("\n");
-  const truth0 = String(canonicalTruths?.[0] ?? "").trim();
-  const signatureRepeat = truth0
-    ? `<p class="hsd-signature-repeat mt-4 border-l-4 border-amber-500 pl-3 text-sm font-bold leading-snug text-slate-900 dark:border-amber-400 dark:text-slate-100" role="note">${escapeHtml(truth0)}</p>`
-    : "";
   return `
 <section class="hsd-section hsd-block hsd-quick-diagnosis" id="${hsdSectionDomId("quick_diagnosis")}" aria-labelledby="hsd-quick-dx-label">
   <h2 id="hsd-quick-dx-label" class="hsd-section__title hsd-section-title">Quick Diagnosis</h2>
@@ -325,12 +324,15 @@ export function sectionQuickDiagnosisTable(
       <tbody>${body}</tbody>
     </table>
   </div>
-  ${signatureRepeat}
+  ${canonicalTruthsEchoHtml(canonicalTruths, "quick_diagnosis")}
 </section>`.trim();
 }
 
 /** Real `<table>`: Symptom | Likely cause | Fix — skips rows where all three cells are empty. */
-export function sectionQuickTable(quick_table: HsdV25Payload["quick_table"]): string {
+export function sectionQuickTable(
+  quick_table: HsdV25Payload["quick_table"],
+  canonicalTruths?: HsdV25Payload["canonical_truths"]
+): string {
   const rows = (quick_table ?? [])
     .map((r) => ({
       symptom: String(r.symptom ?? "").trim(),
@@ -363,6 +365,7 @@ export function sectionQuickTable(quick_table: HsdV25Payload["quick_table"]): st
       <tbody>${body}</tbody>
     </table>
   </div>
+  ${canonicalTruthsEchoHtml(canonicalTruths, "quick_diagnosis")}
 </section>`.trim();
 }
 
@@ -376,8 +379,8 @@ export function renderMermaid(flow: HsdV25Payload["diagnostic_flow"]): string {
   return `
 <section class="hsd-figure hsd-block" aria-label="Visual diagnostic flow">
   <h2 class="hsd-section__title hsd-section-title">Visual diagnostic flow</h2>
-  <div class="hsd-figure__surface rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-600 dark:border-slate-600 dark:bg-slate-900/40 dark:text-slate-400">
-    Branch chart is not rendered in this build; follow the text branches above.
+  <div class="hsd-figure__surface rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-sm font-medium text-slate-700 dark:border-slate-600 dark:bg-slate-900/40 dark:text-slate-300">
+    Use the text branches above to narrow the fault path before moving into refrigerant or compressor diagnosis.
   </div>
 </section>`.trim();
 }
@@ -385,6 +388,11 @@ export function renderMermaid(flow: HsdV25Payload["diagnostic_flow"]): string {
 /** Shown above the repair table when `repair_matrix_intro` is empty (HVAC legacy rows only). */
 const HVAC_REPAIR_MATRIX_INTRO_FALLBACK =
   "Most AC failures start as airflow or control issues. Once refrigerant or compressor problems appear, costs increase quickly.";
+
+function formatRepairUsd(n: number): string {
+  if (!Number.isFinite(n)) return "";
+  return Math.round(n).toLocaleString("en-US");
+}
 
 export function sectionRepairMatrix(
   repair_matrix: HsdV25Payload["repair_matrix"],
@@ -398,15 +406,17 @@ export function sectionRepairMatrix(
   const introBlock = introHtml
     ? `<p class="hsd-repair-matrix-intro mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(introHtml)}</p>`
     : "";
+  const nd = "\u2013";
   const rows = repair_matrix
     .map((r) => {
-      const lo = Number.isFinite(r.cost_min) ? String(r.cost_min) : "";
-      const hi = Number.isFinite(r.cost_max) ? String(r.cost_max) : "";
+      const loNum = Number(r.cost_min);
       const hiNum = Number(r.cost_max);
+      const lo = Number.isFinite(loNum) ? formatRepairUsd(loNum) : "";
+      const hi = Number.isFinite(hiNum) ? formatRepairUsd(hiNum) : "";
       const costCell =
         Number.isFinite(hiNum) && hiNum >= 1500
-          ? `<span class="hsd-cost">$${escapeHtml(lo)}–<span class="hsd-cost-high">$${escapeHtml(hi)}</span></span>`
-          : `<span class="hsd-cost">$${escapeHtml(lo)}–$${escapeHtml(hi)}</span>`;
+          ? `<span class="hsd-cost">$${escapeHtml(lo)}${nd}<span class="hsd-cost-high">$${escapeHtml(hi)}</span></span>`
+          : `<span class="hsd-cost">$${escapeHtml(lo)}${nd}$${escapeHtml(hi)}</span>`;
       const issue = String(r.issue ?? "").trim();
       const fix = String(r.fix ?? "").trim();
       const path =
@@ -443,7 +453,7 @@ export function sectionCostEscalation(cost_escalation: HsdV25Payload["cost_escal
 <section class="hsd-section hsd-block">
   <h2 id="${hsdSectionDomId("cost_escalation")}" class="hsd-section__title hsd-section-title"><span aria-hidden="true">⚡</span> Cost escalation</h2>
   <div class="hsd-section__body">
-    <p class="hsd-cost-esc-lead mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">There is no idle recovery while the equipment runs wrong under load. Each tier burns the cheap exit—delay stacks runtime stress until the next tier is the only one left, and the bill jumps.</p>
+    <p class="hsd-cost-esc-lead mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">There is no idle recovery once the system runs wrong under load. Delay burns the cheap exit first, then leaves only expensive repairs.</p>
     <ol class="hsd-v2__cost-esc">${items}</ol>
   </div>
 </section>`.trim();
@@ -462,7 +472,7 @@ export function sectionDecision(
     ? `<p class="hsd-decision-hook mt-4 text-sm font-bold text-red-900 dark:text-red-200">${hookLine}</p>`
     : "";
   const footBlock = foot
-    ? `<p class="hsd-decision-footer mt-4 border-t border-slate-200 pt-4 text-sm font-semibold leading-relaxed text-slate-900 dark:border-slate-600 dark:text-white">${escapeHtml(foot)}</p>`
+    ? `<div class="hsd-decision-footer mt-4 border-t border-slate-200 pt-4 space-y-2 dark:border-slate-600">${summaryCoreTruthParagraphsHtml(foot, "m-0 text-sm font-semibold leading-relaxed text-slate-900 dark:text-white")}</div>`
     : "";
   return `
 <section class="hsd-section hsd-decision hsd-block" id="${hsdSectionDomId("decision")}">
@@ -479,7 +489,7 @@ export function sectionDecision(
 
 export function sectionFinalWarning(
   final_warning: string,
-  canonicalTruths?: HsdV25Payload["canonical_truths"]
+  _canonicalTruths?: HsdV25Payload["canonical_truths"]
 ): string {
   const paras = bodyParagraphsHtml(
     final_warning,
@@ -488,7 +498,7 @@ export function sectionFinalWarning(
   return `
 <section class="hsd-section hsd-section--stop hsd-block">
   <h2 id="${hsdSectionDomId("final_warning")}" class="hsd-section__title hsd-section-title"><span aria-hidden="true">🔥</span> Final warning</h2>
-  <div class="hsd-section__body space-y-3">${paras}${canonicalTruthsEchoHtml(canonicalTruths, "final")}</div>
+  <div class="hsd-section__body space-y-3">${paras}</div>
 </section>`.trim();
 }
 
@@ -510,25 +520,31 @@ export function sectionFinal(final_warning: string, cta: string): string {
  * Full static HTML for a validated **HSD v2.5** (`HsdV25Payload`) page.
  * Use with {@link HsdLockedPageWithMermaid} (same Mermaid split contract as `renderHSDPage`).
  */
-export function renderHsdV25(data: HsdV25RenderInput): string {
+function buildHsdV25HeaderHtml(data: HsdV25RenderInput): string {
   const sub = subhead(data);
   const quickDx = sectionQuickDiagnosisTable(data.quick_table, data.canonical_truths);
-  const header = `
+  return `
 <header class="hsd-cred" data-hsd-zone="credibility">
   <h1 class="hsd-cred__title">${escapeHtml(data.title)}</h1>
   ${sub ? `<p class="hsd-cred__sub">${escapeHtml(sub)}</p>` : ""}
-  ${sectionSummary(data.summary_30s, data.canonical_truths)}
+  ${sectionSummary(data.summary_30s)}
   ${quickDx}
   ${sectionWhatThisMeans(data.what_this_means)}
   <hr class="hsd-cred__rule" />
   ${sectionQuickChecks(data.quick_checks, data.canonical_truths)}
 </header>`.trim();
+}
 
+function buildHsdV25MidBlocks(data: HsdV25RenderInput): HsdV25HtmlBlock[] {
+  const quickDx = sectionQuickDiagnosisTable(data.quick_table, data.canonical_truths);
   const P = HSD_V25_BLOCK_PRIORITY;
-  const blocks: HsdV25HtmlBlock[] = [
+  return [
     { priority: P.diagnostic_steps, html: sectionDiagnosticSteps(data.diagnostic_steps, data.canonical_truths) },
     { priority: P.decision_tree_text, html: sectionDecisionTreeText(data.decision_tree_text) },
-    { priority: P.quick_table, html: quickDx.trim() ? "" : sectionQuickTable(data.quick_table) },
+    {
+      priority: P.quick_table,
+      html: quickDx.trim() ? "" : sectionQuickTable(data.quick_table, data.canonical_truths),
+    },
     { priority: P.tools, html: sectionTools(data.tools) },
     { priority: P.visual_diagnostic_flow, html: renderMermaid(data.diagnostic_flow) },
     {
@@ -536,9 +552,52 @@ export function renderHsdV25(data: HsdV25RenderInput): string {
       html: sectionRepairMatrix(data.repair_matrix, data.repair_matrix_intro, data.vertical),
     },
     { priority: P.cost_escalation, html: sectionCostEscalation(data.cost_escalation) },
+    { priority: 99, html: canonicalTruthsEchoHtml(data.canonical_truths, "pre_decision") },
     { priority: P.decision, html: sectionDecision(data.decision, data.decision_footer, data.vertical) },
+  ];
+}
+
+function buildHsdV25ClosingBlocks(data: HsdV25RenderInput): HsdV25HtmlBlock[] {
+  const P = HSD_V25_BLOCK_PRIORITY;
+  return [
     { priority: P.cta, html: sectionCta(data.cta) },
     { priority: P.final_warning, html: sectionFinalWarning(data.final_warning, data.canonical_truths) },
+  ];
+}
+
+/** Header through Quick checks — for {@link renderHsdV25LeadSegments}. */
+export function renderHsdV25HeaderOnly(data: HsdV25RenderInput): string {
+  return buildHsdV25HeaderHtml(data);
+}
+
+/** Body after Quick checks through Decision (inclusive) — for lead-gen slot before hard CTA. */
+export function renderHsdV25MidThroughDecision(data: HsdV25RenderInput): string {
+  return joinSortedHsdV25Blocks(buildHsdV25MidBlocks(data));
+}
+
+/** Next step + Final warning — for lead-gen slot after hard CTA. */
+export function renderHsdV25Closing(data: HsdV25RenderInput): string {
+  return joinSortedHsdV25Blocks(buildHsdV25ClosingBlocks(data));
+}
+
+/** Three HTML segments so the app shell can place lead CTA blocks between them. */
+export function renderHsdV25LeadSegments(data: HsdV25RenderInput): {
+  headerHtml: string;
+  midThroughDecisionHtml: string;
+  closingHtml: string;
+} {
+  return {
+    headerHtml: renderHsdV25HeaderOnly(data),
+    midThroughDecisionHtml: renderHsdV25MidThroughDecision(data),
+    closingHtml: renderHsdV25Closing(data),
+  };
+}
+
+export function renderHsdV25(data: HsdV25RenderInput): string {
+  const header = buildHsdV25HeaderHtml(data);
+  const blocks: HsdV25HtmlBlock[] = [
+    ...buildHsdV25MidBlocks(data),
+    ...buildHsdV25ClosingBlocks(data),
   ];
 
   return `${header}\n${joinSortedHsdV25Blocks(blocks)}`.trim();

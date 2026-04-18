@@ -23,7 +23,7 @@ export { limitCanonicalTruthOccurrences as limitCoreTruthsInPage } from "@/lib/h
  */
 export function finalizeHsdV25Page(page: unknown): HsdV25Payload {
   let p = assertSchema(page);
-  p.summary_30s.headline = enforceStrongHeadline(p.summary_30s.headline);
+  p.summary_30s.headline = enforceStrongHeadline(p.summary_30s.headline, p.slug);
   p = removeScaffoldingFromPayload(p);
   p = limitCanonicalTruthOccurrences(p);
   assertContentRules(p);

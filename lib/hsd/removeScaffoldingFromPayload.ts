@@ -21,7 +21,12 @@ function stripScaffoldingFromString(s: string): string {
     t = t.split(sub).join("");
   }
   t = t.replace(/\bCTA\b/g, "");
-  return t.replace(/\s{2,}/g, " ").trim();
+  return t
+    .split(/\n\n+/)
+    .map((block) => block.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .join("\n\n")
+    .trim();
 }
 
 /** Removes known UI scaffolding phrases from every string leaf (clone). */

@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  LOCKED_AC_NOT_COOLING_HEADLINE,
+  isAcNotCoolingCitySlug,
+} from "@/lib/hsd/lockedAcNotCoolingHeadline";
 
 export const HSDV25Schema = z
   .object({
@@ -12,7 +16,7 @@ export const HSDV25Schema = z
       .regex(/^(hvac|plumbing|electrical)\/[a-z0-9-]+\/[a-z0-9-]+$/i),
 
     summary_30s: z.object({
-      headline: z.string().min(50),
+      headline: z.string().min(1),
       top_causes: z
         .array(
           z.object({
@@ -139,6 +143,24 @@ export const HSDV25Schema = z
     cta: z.string().min(45),
   })
   .superRefine((data, ctx) => {
+    const slug = String(data.slug ?? "").trim();
+    const headline = String(data.summary_30s.headline ?? "").trim();
+    if (isAcNotCoolingCitySlug(slug)) {
+      if (headline !== LOCKED_AC_NOT_COOLING_HEADLINE) {
+        ctx.addIssue({
+          code: "custom",
+          message: `summary_30s.headline must be exactly "${LOCKED_AC_NOT_COOLING_HEADLINE}" for hvac/ac-not-cooling/* pages`,
+          path: ["summary_30s", "headline"],
+        });
+      }
+    } else if (headline.length < 50) {
+      ctx.addIssue({
+        code: "custom",
+        message: "summary_30s.headline must be at least 50 characters (direct diagnosis gate + load context)",
+        path: ["summary_30s", "headline"],
+      });
+    }
+
     const ids = new Set(data.diagnostic_flow.nodes.map((n) => n.id.trim()).filter(Boolean));
     for (let i = 0; i < data.diagnostic_flow.edges.length; i++) {
       const e = data.diagnostic_flow.edges[i];

@@ -96,7 +96,7 @@ export function renderHsdV2CitySymptomPage(content: Record<string, unknown>): st
 <section class="hsd-figure" aria-label="Visual diagnostic flow">
   <h2 class="hsd-section__title">Visual diagnostic flow</h2>
   <div class="hsd-figure__surface rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-600 dark:border-slate-600 dark:bg-slate-900/40 dark:text-slate-400">
-    Branch chart is not rendered in this build; follow the text branches above.
+    Use the text branches above to narrow the fault path before moving into refrigerant or compressor diagnosis.
   </div>
 </section>`.trim()
       : "";
