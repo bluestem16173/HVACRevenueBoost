@@ -29,6 +29,7 @@ function attachClick(node: Element, sectionKey: string, cleanups: (() => void)[]
  */
 export default function MermaidChart({ chart }: { chart: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const renderIdRef = useRef(0);
 
   useEffect(() => {
     const cleanups: (() => void)[] = [];
@@ -45,7 +46,8 @@ export default function MermaidChart({ chart }: { chart: string }) {
       };
     }
 
-    const id = "m-" + Math.random().toString(36).slice(2);
+    renderIdRef.current += 1;
+    const id = `m-${renderIdRef.current}`;
 
     void mermaid
       .render(id, chart.trim())

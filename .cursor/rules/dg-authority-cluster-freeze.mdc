@@ -1,0 +1,21 @@
+---
+description: First-cluster freeze — do not change DG Authority layout, Mermaid, legend, links, or CTAs without explicit unfreeze.
+globs: components/dg/**/*,lib/dg/**/*,lib/dg-authority-structured-preview/**/*,prompts/DG_Authority*.md,prompts/DG_Authority*.json
+alwaysApply: false
+---
+
+# DG Authority — first cluster build (FROZEN)
+
+Until this cluster is shipped and someone explicitly **unfreezes** design, **do not** change:
+
+1. **Page layout** — `RenderDgAuthorityV3` / `DiagnosticPageView` structure for `dg_authority_v3`.
+2. **Section order** — locked sequence (legend → hero → top CTA → quick checks → before you call → safety → diagnostic logic → Mermaid → system → failure clusters → mid safety → repair matrix + mid CTA → field measurements → repair vs replace → professional threshold → warnings → where people get this wrong → final CTA → related → do not attempt). **Pillar-only sub-blocks** are allowed *inside* existing “System explanation” (`simplified_path_*`, `start_here_groups`) and “Professional threshold” (`when_to_stop_diy_*`) without adding new top-level sections — see `prompts/DG_Authority_Pillar_Page_Briefs.md`.
+3. **Legend** — `DGLegend` copy and trade pill behavior tied to DG Authority pages.
+4. **Blue / gold / red hierarchy** — PRO = technical (gold), HOME = homeowner (blue), RISK = consequence (red); dual-layer components stay as-is.
+5. **Mermaid template system** — only `hvac_v1` / `plumbing_v1` / `electrical_v1` via `diagnostic_flow_template_key` + `diagnostic_flow_issue_label` in `dgMermaidTemplates.ts`; no new template keys or skeleton edits for this cluster.
+6. **Interlinking rules** — `dgAuthorityGraph.ts` pillar slugs, nine supporting slugs per trade, sibling triples, hub links (pillar + cost + repair-vs-replace); do not swap URLs or inference rules mid-cluster.
+7. **CTA placement** — JSON CTAs only in top / mid (inside repair matrix) / final + sticky final; no new CTA slots or variants.
+
+**Allowed without breaking freeze:** copy fixes inside existing JSON fields, new **content** pages using the same layout, bugfixes that preserve behavior, and SEO text that does not alter structure or components above.
+
+Canonical specs: `prompts/DG_Authority_V3_Master_Generation_Lock.md`, `prompts/DG_Authority_Pillar_Page_Briefs.md`.

@@ -8,3 +8,6 @@ export const GENERATED_PAGE_SCHEMA_VERSION = "dg_authority_v2" as const;
 /** Structured diagnostic pages with dual-layer pro/home/risk + dual CTA (see `RenderDgAuthorityV3`). */
 export const DG_AUTHORITY_V3_LAYOUT = "dg_authority_v3" as const;
 export const DG_AUTHORITY_V3_SCHEMA_VERSION = "dg_authority_v3" as const;
+
+/** City × symptom pages generated with the HSD v2 diagnostic JSON prompt. */
+export const HSD_V2_SCHEMA_VERSION = "hsd_v2" as const;

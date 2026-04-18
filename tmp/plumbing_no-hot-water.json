@@ -1,0 +1,162 @@
+{
+  "layout": "dg_authority_v3",
+  "schema_version": "dg_authority_v3",
+  "title": "No Hot Water",
+  "summary_30s": "No hot water at all indicates a complete loss of heat production or delivery. The system is either not generating heat or the hot water is not reaching fixtures.",
+  "cta_top": {
+    "title": "Complete loss at the tap is not automatically a dead tank",
+    "body": "Crossover, stuck limits, and one-leg electric faults can read as ‘no hot water everywhere’—tank replacement before branch proof wastes money and leaves gas and scald risks unmapped.",
+    "button": "Get Plumbing Diagnosis"
+  },
+  "quick_checks": [
+    "At the tank hot outlet (or within ~12\" downstream): strap/skin vs cold inlet after several minutes of demand—dead parallel temps with no firing/element draw points away from “empty tank” alone.",
+    "Open a cold-only fixture: if hot migrates to the cold line, treat **crossover/recirc check valve** before condemning the water heater.",
+    "Electric: 240 VAC L–L at the appliance block with load locked out; loss of one leg can present as **no heat** while controls look “alive.”",
+    "Gas: verify **call for heat** vs **proof-of-flame** sequence; manifold pressure only with training and leak-check discipline.",
+    "Control string: thermostat satisfied vs calling, **hi-limit/ECO** not latched open, and relays actually pulling in under demand."
+  ],
+  "quick_checks_home": "If the tank never gets a real call for heat—or hot water is back-feeding the cold side—you can replace elements twice and still have **no hot water** at the tap. These checks separate **permission to heat** from **ability to heat** from **delivery path**.",
+  "diagnostic_logic_pro": "Sequence: (1) Confirm **distribution integrity** (crossover, failed recirc check, piped backwards) because it can mimic total loss with a nominally healthy tank. (2) If outlet path stays cold while controls call, map **permission**: thermostat, limits, and safeties must close the heating path. (3) If permission is proven and input is dead, isolate **electric element/leg integrity** vs **gas ignition/valve** with measured proofs—not continuity guesses alone.",
+  "diagnostic_logic_home": "“No hot water” feels like one problem, but it splits into **three different jobs**: plumbing path, control/safety, or burner/element work. Skipping the split is how people buy tanks when a **$30 check valve** or **stuck limit** was the fault.",
+  "diagnostic_flow": {
+    "nodes": [
+      {
+        "id": "start",
+        "label": "Hot taps: complete loss (not slow recovery)"
+      },
+      {
+        "id": "dist",
+        "label": "Rule out crossover / recirc / piping path"
+      },
+      {
+        "id": "call",
+        "label": "Prove call-for-heat + limits not latched"
+      },
+      {
+        "id": "elec",
+        "label": "Electric: legs, relay, element draw signature"
+      },
+      {
+        "id": "gas",
+        "label": "Gas: ignition proof + valve open under flame"
+      },
+      {
+        "id": "end",
+        "label": "Document branch; repair vs replace decision"
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "dist"
+      },
+      {
+        "from": "dist",
+        "to": "call"
+      },
+      {
+        "from": "call",
+        "to": "elec",
+        "label": "Electric water heater"
+      },
+      {
+        "from": "call",
+        "to": "gas",
+        "label": "Gas water heater"
+      },
+      {
+        "from": "elec",
+        "to": "end"
+      },
+      {
+        "from": "gas",
+        "to": "end"
+      }
+    ]
+  },
+  "system_explanation": "A storage heater only helps if **heated water can reach the tap** and the appliance is **allowed** to add BTU or kW into the tank. **Complete loss** means either the **delivery path is wrong**, the **control stack is not permitting heat**, or the **conversion hardware** (elements/burner/valve) is not transferring energy into water despite a call.",
+  "failure_clusters": [
+    {
+      "title": "No heat generation",
+      "pro": "Electrical or gas systems are not producing heat due to supply or ignition failure.",
+      "home": "The tank never gets hot in the first place.",
+      "risk": "Assuming tank failure instead of checking power or gas supply leads to unnecessary replacement."
+    },
+    {
+      "title": "Distribution failure",
+      "pro": "Hot water may exist in the tank but is not reaching fixtures due to crossover or plumbing faults.",
+      "home": "The heater may be working, but water isn’t getting to you.",
+      "risk": "Replacing the heater when the issue is plumbing wastes time and cost."
+    },
+    {
+      "title": "Control lockout",
+      "pro": "Safety limits or thermostat faults prevent heating cycles from starting.",
+      "home": "The system is shutting itself down for safety.",
+      "risk": "Bypassing safety controls can create scalding or equipment damage."
+    }
+  ],
+  "repair_matrix": [
+    "Crossover / check valve / recirc fix → $100–$450",
+    "Thermostat / hi-limit / control repair → $150–$400",
+    "Element or ignition service → $150–$500",
+    "Tank replacement (when vessel/input rules demand) → $1,200–$3,500"
+  ],
+  "repair_matrix_pro": "Pricing depends on whether the job stays in **controls/plumbing path** versus **gas train** or **tank replacement**—those are different permits, materials, and liability profiles.",
+  "repair_matrix_home": "Most “no hot water” stops are **not** the tank itself—ordering the most expensive branch first is how invoices balloon.",
+  "repair_matrix_risk": "Replacing a tank while a crossover or limit fault remains guarantees **no improvement** at the tap and wastes the full replacement band.",
+  "cta_mid": {
+    "title": "The expensive mistake is ordering changeout before branch proof",
+    "body": "When the vessel is sound, spend should stay in controls, crossover/recirc path, or element/gas-train scope—tank quotes belong to proven metal or chronic sediment damage.",
+    "button": "Verify Tank + T&P Safely"
+  },
+  "field_measurements": [
+    "Outlet vs inlet temperature trend under demand (safe strap points)",
+    "Electric: L–L and leg presence at block (lockout verified)",
+    "Gas: manifold pressure per spec when qualified + leak-check discipline",
+    "Static supply pressure (context for T&P/thermal expansion later)"
+  ],
+  "field_measurements_pro": "Treat **distribution proof** and **call-for-heat proof** as gates: without them, element ohms and gas pressure readings are easy to misinterpret.",
+  "field_measurements_home": "If you cannot verify **hot leaves the tank** and **controls are calling**, stop and get a plumber-led diagnosis before hardware swaps.",
+  "repair_vs_replace_pro": "Repair when the vessel is sound and the fault is control, element, gas valve train, or plumbing-path. Replace when repeated tank faults, chronic leakage, or sediment/vessel damage make repair uneconomical.",
+  "repair_vs_replace_home": "Complete loss is not automatically “new tank”—it is often **path or permission** work with a lower price band.",
+  "professional_threshold": "Stop at gas valve disassembly, live 240 VAC troubleshooting beyond safe verification, or opening relief paths without controlled discharge planning.",
+  "warnings": [
+    "Scald risk above ~120°F at fixtures serving children or elderly.",
+    "Shock hazard on wet concrete near energized cabinets.",
+    "Gas accumulation if ignition is repeatedly attempted without proving safe draft."
+  ],
+  "cta_final": {
+    "title": "Gas pressure and energized wet cabinets are not homeowner tooling",
+    "body": "Manifold checks, T&P replacement, and element work need code-aware sequencing; wrong order traps gas or energizes standing water paths.",
+    "button": "Schedule Licensed Plumbing"
+  },
+  "before_you_call": [
+    "Whether **every** hot tap is dead vs only one branch or one bathroom.",
+    "Any recent single-handle fixture work, recirc pump service, or irrigation/backfeed oddities on plumbing.",
+    "Electric vs gas, and whether the breaker/pilot behavior changed suddenly vs gradually.",
+    "Photos of the control access and any error/lockout indicators visible on the appliance."
+  ],
+  "do_not_attempt": [
+    "Do not defeat hi-limit/ECO or T&P devices to “get hot water tonight.”",
+    "Do not disassemble gas components without leak-check capability.",
+    "Do not work energized on wet concrete without training."
+  ],
+  "risk_notes": [
+    {
+      "label": "Where people get this wrong",
+      "text": "Assuming “no hot water” equals “dead tank” without ruling crossover and control permission—then paying for a replacement that never addressed the tap symptom."
+    }
+  ],
+  "trade": "plumbing",
+  "slug": "plumbing/no-hot-water",
+  "cluster": "heater",
+  "diagnostic_mermaid_cluster": "heater",
+  "diagnostic_flow_template_key": "plumbing_v1",
+  "diagnostic_flow_issue_label": "No hot water (complete loss)",
+  "pillar_page": "plumbing/why-you-have-no-hot-water",
+  "related_pages": [
+    "plumbing/water-heater-not-working",
+    "plumbing/no-hot-water",
+    "plumbing/water-heater-leaking"
+  ]
+}

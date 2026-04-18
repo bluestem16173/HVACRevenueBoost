@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { DiagnosticPageView } from "@/components/DiagnosticPageView";
 import { DiagnosticVerticalNav } from "@/components/diagnostic-hub/DiagnosticVerticalNav";
 import { getIndexablePageBySlug } from "@/lib/get-indexable-page";
@@ -92,7 +92,9 @@ export default async function HvacSymptomOrHubPage({ params }: { params: { sympt
     );
   }
 
-  const page = await getIndexablePageBySlug(segment);
+  let page = await getIndexablePageBySlug(`hvac/${segment}`);
+  if (!page) page = await getIndexablePageBySlug(segment);
+  if (!page) page = await getIndexablePageBySlug(`diagnose/${segment}`);
   if (page) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-950">
@@ -124,5 +126,5 @@ export default async function HvacSymptomOrHubPage({ params }: { params: { sympt
     );
   }
 
-  redirect(`/diagnose/${segment}`);
+  notFound();
 }

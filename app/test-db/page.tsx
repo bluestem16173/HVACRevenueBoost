@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-
-const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
+// TEMP: import dynamic from "next/dynamic";
+// TEMP: const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
 const SAMPLE_MERMAID = `flowchart TD
   A[AC Not Cooling] --> B{Thermostat set correctly?}
@@ -224,7 +223,7 @@ export default function TestDbPage() {
         <p className="text-slate-600 dark:text-slate-400 mb-4 text-xs">
           Knowledge graph, page targets, generation_queue, diagnostics, cities, tools, components, internal_links, related_nodes.
         </p>
-        <MermaidDiagram chart={SCHEMA_MERMAID} title="Database Schema" downloadFilename="hvac-schema-008-010.svg" />
+        {/* TEMP: <MermaidDiagram chart={SCHEMA_MERMAID} title="Database Schema" downloadFilename="hvac-schema-008-010.svg" /> */}
       </section>
 
       {/* DB Status */}
@@ -265,7 +264,7 @@ export default function TestDbPage() {
         <p className="text-slate-600 dark:text-slate-400 mb-4 text-xs">
           If this renders without freezing, ssr:false is working.
         </p>
-        <MermaidDiagram chart={SAMPLE_MERMAID} title="Sample Diagnostic Flowchart" />
+        {/* TEMP: <MermaidDiagram chart={SAMPLE_MERMAID} title="Sample Diagnostic Flowchart" /> */}
       </section>
 
       {/* SQL Queries Reference */}

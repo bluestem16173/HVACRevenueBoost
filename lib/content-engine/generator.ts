@@ -26,9 +26,9 @@ import {
 } from "./prompts/hvac-revenue-boost";
 import {
   composePromptForPageType,
-  DG_AUTHORITY_V3_SCHEMA_VERSION,
   HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION,
 } from "@/lib/prompt-schema-router";
+import { HSD_V2_SCHEMA_VERSION } from "@/lib/generated-page-json-contract";
 import { applyHsdTampaPresetInternalLinks } from "@/lib/homeservice/hsdCityInternalLinksRegistry";
 import { enforceStoredSlug } from "@/lib/slug-utils";
 
@@ -618,9 +618,8 @@ export async function generateDiagnosticEngineJson(input: { symptom: string, cit
     schemaV === "diagnostic_engine" ||
     schemaV === "rv_diagnostic" ||
     schemaV === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION ||
-    schemaV === DG_AUTHORITY_V3_SCHEMA_VERSION ||
-    input.pageType === "diagnostic_engine" ||
-    input.pageType === "dg_authority_v3"
+    schemaV === HSD_V2_SCHEMA_VERSION ||
+    input.pageType === "diagnostic_engine"
   ) {
     finalPrompt = composePromptForPageType(input.pageType || "diagnostic_engine", input.symptom, {
       ...orch,
@@ -671,13 +670,13 @@ Important Context: Each page should subtly reference the local city (${input.cit
   }
 
   const systemMessage =
-    schemaV === DG_AUTHORITY_V3_SCHEMA_VERSION || input.pageType === "dg_authority_v3"
-      ? "You are a 30-year HVAC diagnostic technician. Output one JSON object only. No markdown fences. No commentary outside JSON."
+    schemaV === HSD_V2_SCHEMA_VERSION
+      ? "You are a senior field service diagnostic technician (HVAC, plumbing, electrical). Output one complete JSON object only. No markdown fences. No commentary outside JSON. Include diagnostic_flow (at least 4 nodes and 3 edges, ids must match), repair_matrix (4+ rows with numeric cost_min/cost_max), and every array must meet the contract minimums — undersized or invalid graphs cause hard rejection."
       : "You are the HVAC Revenue Boost expert JSON generator. Output strict JSON only.";
 
   const maxCompletionTokens =
-    schemaV === DG_AUTHORITY_V3_SCHEMA_VERSION || input.pageType === "dg_authority_v3"
-      ? 5500
+    schemaV === HSD_V2_SCHEMA_VERSION
+      ? 8192
       : schemaV === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION
         ? 3200
         : 2800;
@@ -704,6 +703,11 @@ Important Context: Each page should subtly reference the local city (${input.cit
       const parsed = JSON.parse(
         contentStr.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim()
       ) as Record<string, unknown>;
+      if (schemaV === HSD_V2_SCHEMA_VERSION) {
+        parsed.schema_version = HSD_V2_SCHEMA_VERSION;
+        parsed.page_type = "city_symptom";
+        return parsed;
+      }
       if (schemaV === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION) {
         const jobSlug = enforceStoredSlug(input.symptom);
         let merged = applyHsdTampaPresetInternalLinks(parsed, jobSlug);

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { repairMatrixToDisplayStrings } from "@/lib/dg/repairMatrixToDisplayStrings";
 import { resolveDgAuthorityMermaidChart } from "@/lib/dg/resolveDgAuthorityMermaidChart";
 import { asCtaPayload } from "@/lib/dg/dgAuthorityCta";
 import type { Trade } from "@/lib/dg/resolveCTA";
@@ -9,7 +10,7 @@ import { renderDualLayer } from "@/components/dg/DgDualLayer";
 import { DGLegend } from "@/components/dg/DGLegend";
 import { DGHero } from "@/components/dg/DGHero";
 import { DGSection } from "@/components/dg/DGSection";
-import { DGMermaid } from "@/components/dg/DGMermaidDynamic";
+// TEMP: import { DGMermaid } from "@/components/dg/DGMermaidDynamic";
 import { DGTechBlock } from "@/components/dg/DGTechBlock";
 import { DGCTA } from "@/components/dg/DGCTA";
 import { DGBeforeCallChecklist } from "@/components/dg/DGBeforeCallChecklist";
@@ -187,7 +188,7 @@ export function RenderDgAuthorityV3({
     }))
     .filter((c) => c.title && c.pro && c.home && c.risk);
 
-  const matrix = asStringArray(data.repair_matrix);
+  const matrix = repairMatrixToDisplayStrings(data.repair_matrix);
   const matrixPro = asString(data.repair_matrix_pro);
   const matrixHome = asString(data.repair_matrix_home);
   const matrixRisk = asString(data.repair_matrix_risk);
@@ -296,7 +297,8 @@ export function RenderDgAuthorityV3({
 
       {hasMermaid && mermaidChart ? (
         <DGSection title="Diagnostic flow">
-          <DGMermaid chart={mermaidChart} />
+          <p className="dg-body text-sm text-slate-500">Flowchart temporarily disabled.</p>
+          {/* TEMP: <DGMermaid chart={mermaidChart} /> */}
         </DGSection>
       ) : null}
 

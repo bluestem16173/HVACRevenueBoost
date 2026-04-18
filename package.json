@@ -40,6 +40,7 @@
     "db:seed-hsd-pilot-3-hvac": "npx tsx scripts/seed-hsd-pilot-hvac-queue.ts",
     "worker:hsd-page-queue": "npx tsx scripts/hsd-page-queue-worker.ts",
     "worker:hsd-pilot-3": "npx tsx scripts/hsd-page-queue-worker.ts --limit 3",
+    "worker:hsd": "npx tsx scripts/worker.ts",
     "test:hsd-publish-gate": "npx tsx scripts/test-hsd-publish-gate.ts",
     "db:11": "npx tsx scripts/run-migration-011.ts",
     "db:seed-010": "npx tsx scripts/run-seed-010.ts",

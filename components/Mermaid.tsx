@@ -5,6 +5,7 @@ import mermaid from "mermaid";
 
 export default function Mermaid({ chart }: { chart: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  const renderIdRef = useRef(0);
 
   useEffect(() => {
     if (!ref.current) return;
@@ -13,7 +14,8 @@ export default function Mermaid({ chart }: { chart: string }) {
 
     const renderChart = async () => {
       try {
-        const id = `mermaid-${Math.random().toString(36).substring(7)}`;
+        renderIdRef.current += 1;
+        const id = `mermaid-${renderIdRef.current}`;
         const { svg } = await mermaid.render(id, chart);
         if (ref.current) ref.current.innerHTML = svg;
       } catch (e) {

@@ -1,8 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
-const MermaidRenderer = dynamic(() => import("@/components/MermaidRenderer"), { ssr: false });
+// TEMP: Mermaid disabled — re-enable when hydration stable.
+// import dynamic from "next/dynamic";
+// const MermaidRenderer = dynamic(() => import("@/components/MermaidRenderer"), { ssr: false });
 
 type Props = { chart: string };
 
@@ -17,7 +17,7 @@ export function HsdDecisionTreeMermaid({ chart }: Props) {
       <p className="mb-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
         Follow the path that matches your symptoms, then use the sections below.
       </p>
-      <MermaidRenderer chart={chart} />
+      {/* TEMP: <MermaidRenderer chart={chart} /> */}
     </div>
   );
 }

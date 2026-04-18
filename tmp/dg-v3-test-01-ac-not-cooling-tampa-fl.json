@@ -1,0 +1,86 @@
+{
+  "schema_version": "dg_authority_v3",
+  "layout": "dg_authority_v3",
+  "title": "AC Not Cooling | Tampa, FL",
+  "slug": "hvac/ac-not-cooling/tampa-fl",
+  "hero": "Tampa latent load hides weak airflow: prove register mass flow and outdoor rejection before any charge work—wrong order buys compressors for dirty coils.",
+  "summary_30s": "Not cooling means delivered BTU fell below load. Sequence: thermostat permission, indoor CFM, outdoor fan and coil rejection, refrigerant mass and metering, then pumping integrity. Humidity makes borderline airflow and charge failures look identical at the thermostat.",
+  "quick_checks": [
+    { "label": "Thermostat permission", "action": "Confirm COOL, setpoint below room, blower runs, outdoor contactor pulls in on call.", "risk_if_ignored": "Refrigerant work on a controls fault wastes money and hard-starts equipment." },
+    { "label": "Return and filter", "action": "Inspect filter; verify returns open; listen for return whistle.", "risk_if_ignored": "Low evaporator pressure mimics undercharge; overcharge risks slugging." },
+    { "label": "Outdoor coil and fan", "action": "Disconnect power; inspect fins; restore and confirm strong condenser airflow.", "risk_if_ignored": "High head trips cause repeated hard starts in afternoon heat." },
+    { "label": "Indoor coil and drain", "action": "Sight coil loading and blower wheel; confirm condensate moves.", "risk_if_ignored": "Wet coil kills sensible capacity and masks charge symptoms." },
+    { "label": "Electrical sanity", "action": "Note hot disconnect or lug discoloration; do not reset breakers repeatedly.", "risk_if_ignored": "Electrical faults escalate to winding damage and fire risk." }
+  ],
+  "decision_fork": {
+    "safe_diy": ["Replace clearly loaded filter when confirmed.", "Rinse condenser gently after verified disconnect.", "Clear vegetation blocking condenser intake."],
+    "call_pro_if": ["Hissing, oil stain, or top-off history—leak locate and weigh-in.", "Ice returns after melt.", "Breaker trips or burning odor.", "High-pressure trips after cleaning—needs measured proof.", "TXV hunting—needs gauges and safe recovery."],
+    "urgency_level": "high"
+  },
+  "diagnostic_flow": {
+    "nodes": [
+      { "id": "A", "kind": "start", "label": "Call for cooling; blower runs" },
+      { "id": "B", "kind": "decision", "label": "Supply airflow adequate" },
+      { "id": "C", "kind": "decision", "label": "Outdoor unit runs under load" },
+      { "id": "D", "kind": "outcome", "label": "Airflow / duct path" },
+      { "id": "E", "kind": "outcome", "label": "Condenser rejection / fan electrical" },
+      { "id": "F", "kind": "outcome", "label": "Refrigerant: leak, charge, metering" },
+      { "id": "G", "kind": "outcome", "label": "Compressor capacity / replace economics" }
+    ],
+    "edges": [
+      { "from": "A", "to": "B", "label": "" },
+      { "from": "B", "to": "D", "label": "Weak airflow" },
+      { "from": "B", "to": "C", "label": "Airflow OK" },
+      { "from": "C", "to": "E", "label": "No outdoor" },
+      { "from": "C", "to": "F", "label": "Outdoor runs; still warm" },
+      { "from": "E", "to": "B", "label": "Fixed rejection" },
+      { "from": "F", "to": "G", "label": "Charge stable; flat capacity" },
+      { "from": "F", "to": "D", "label": "Flooding; recheck airflow" }
+    ]
+  },
+  "flow_explanations": {
+    "A": "No charge diagnosis without design mass flow at the coil.",
+    "B": "Low CFM drops evaporating pressure first; muggy supply follows in Tampa.",
+    "C": "No condenser activity is low-voltage, safety, or contactor territory.",
+    "D": "Returns, flex, MERV mismatch, dirty wheel—common mis-triage as low charge.",
+    "E": "High head from weak fan or plugged coil collapses net capacity.",
+    "F": "Weigh-in after leak repair is the ethical charge outcome.",
+    "G": "Weak pumping after verified airflow and charge is replace-or-major-repair."
+  },
+  "top_causes": [
+    { "cause": "Restricted indoor airflow", "why_it_happens": "Filter, duct, or dirty blower/coils reduce CFM.", "risk": "Mimics undercharge; overcharge damages compressor.", "fix_complexity": "moderate" },
+    { "cause": "Low refrigerant / leak", "why_it_happens": "Mass loss from rub points, schraders, coil, or line set.", "risk": "Long-run low charge overheats compressor; oil return fails.", "fix_complexity": "pro" },
+    { "cause": "Weak condenser rejection", "why_it_happens": "Debris, weak fan, bad cap, high ambient stack head.", "risk": "Trips and hard starts damage contactors and windings.", "fix_complexity": "easy" },
+    { "cause": "Metering / restriction", "why_it_happens": "TXV, distributor, or drier changes superheat profile.", "risk": "Misread as dead compressor when unstable.", "fix_complexity": "pro" },
+    { "cause": "Compressor degradation", "why_it_happens": "Valve or electrical loss after airflow and charge proven.", "risk": "Hot shell and breakers are shock/fire hazards.", "fix_complexity": "pro" }
+  ],
+  "repair_matrix": [
+    { "symptom": "Muggy supply, long runtime", "cause": "Low airflow", "fix": "Coil/wheel clean; return/duct restore; filter correction", "cost_min": 120, "cost_max": 720 },
+    { "symptom": "Warm supply, leak signs", "cause": "Refrigerant leak", "fix": "Leak locate; repair; evacuate; weigh-in", "cost_min": 380, "cost_max": 2400 },
+    { "symptom": "Hot head, trips", "cause": "Condenser fan/coil", "fix": "Coil service; motor/cap as tested", "cost_min": 160, "cost_max": 980 },
+    { "symptom": "Hunting superheat", "cause": "TXV/restriction", "fix": "TXV or drier service with targets", "cost_min": 520, "cost_max": 1950 }
+  ],
+  "cost_ladder": [
+    { "stage": "Filter / return fix", "typical_cost": "$15–$140" },
+    { "stage": "Condenser clean + minor electrical", "typical_cost": "$160–$750" },
+    { "stage": "Leak repair + weigh-in", "typical_cost": "$400–$2,400" },
+    { "stage": "Compressor or system replace", "typical_cost": "$4,800–$15,500" }
+  ],
+  "how_system_works": "Split AC moves heat via refrigerant between indoor absorption and outdoor rejection. Capacity needs mass flow, correct evaporating/condensing temps, and air across both coils.",
+  "tools_required": {
+    "homeowner": ["Thermometer", "Flashlight"],
+    "technician": ["Manifold set", "Recovery + micron gauge", "Clamp meter", "Leak detector", "Static pressure kit"]
+  },
+  "repair_vs_replace": {
+    "repair_if": ["Leak accessible; airflow window met; repair under economic threshold"],
+    "replace_if": ["Compressor mechanical loss proven", "Chronic R-22 top-offs", "Duct cannot deliver CFM"]
+  },
+  "local_context": "High dew points and long runtimes raise condensing pressure; debris and weak fans hurt more here than dry climates.",
+  "field_insight": "Tight dry-bulb split with muggy house: check static and wheel before gauges.",
+  "maintenance": ["MERV matched to return size", "Pre-season condenser wash", "Drain primary+overflow discipline"],
+  "cost_pressure": "Attic August hours and recovery compliance stack labor.",
+  "decision_moment": "High head with unknown indoor static—stop; prove airflow before adjusting charge.",
+  "cta_primary": "Book measured diagnosis: static, coil proof, charge decision with targets.",
+  "cta_secondary": "Trips, burn smell, or returning ice—shut off and call same day.",
+  "stop_diy": "Do not vent refrigerant, defeat high-pressure controls, or throttle lines to tweak charge."
+}

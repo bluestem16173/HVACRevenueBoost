@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { resolveDgAuthorityMermaidChart } from "@/lib/dg/resolveDgAuthorityMermaidChart";
 import { DGHero } from "@/components/dg/DGHero";
 import { DGSection } from "@/components/dg/DGSection";
-import { DGMermaid } from "@/components/dg/DGMermaidDynamic";
+// TEMP: import { DGMermaid } from "@/components/dg/DGMermaidDynamic";
 import { DGFailureCluster } from "@/components/dg/DGFailureCluster";
 import { DGRepairMatrix } from "@/components/dg/DGRepairMatrix";
 import { DGTechBlock } from "@/components/dg/DGTechBlock";
@@ -88,7 +88,8 @@ export function RenderDGAuthority({ data }: { data: Record<string, unknown> }) {
 
       {hasMermaid ? (
         <DGSection title="Diagnostic flow">
-          <DGMermaid chart={mermaidChart} />
+          <p className="dg-body text-sm text-slate-500">Flowchart temporarily disabled.</p>
+          {/* TEMP: <DGMermaid chart={mermaidChart} /> */}
         </DGSection>
       ) : null}
 

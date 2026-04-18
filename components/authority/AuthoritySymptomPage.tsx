@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import MermaidRenderer from "@/components/MermaidRenderer";
+// TEMP: import MermaidRenderer from "@/components/MermaidRenderer";
 
 type ContentRecord = Record<string, unknown>;
 
@@ -129,7 +129,7 @@ export default function AuthoritySymptomPage({ content }: { content: ContentReco
             <section className="mb-12">
               <h2 className="mb-3 text-lg font-black">Diagnostic Flow</h2>
               <div className="rounded-xl border bg-slate-50 p-4">
-                <MermaidRenderer chart={merm} />
+                {/* TEMP: <MermaidRenderer chart={merm} /> */}
               </div>
             </section>
           ) : null}

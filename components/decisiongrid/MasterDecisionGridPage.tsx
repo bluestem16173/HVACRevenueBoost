@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { AlertTriangle, BookOpen, ChevronRight, Shield, Wrench } from "lucide-react";
-import MermaidRenderer from "@/components/MermaidRenderer";
+// TEMP: import MermaidRenderer from "@/components/MermaidRenderer";
 import { LiveElectricitySafetyNotice } from "@/components/LiveElectricitySafetyNotice";
 import type { BasePageViewModel, DiagnosticFlowPlaceholderData, SystemCardData } from "@/lib/content";
 
@@ -116,7 +116,7 @@ export default function MasterDecisionGridPage({ pageViewModel: vm, rawContent =
             simple airflow maintenance may be DIY.
           </p>
           <div className="overflow-x-auto rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <MermaidRenderer chart={DIY_VS_PRO_MERMAID} />
+            {/* TEMP: <MermaidRenderer chart={DIY_VS_PRO_MERMAID} /> */}
           </div>
         </section>
 
@@ -128,7 +128,7 @@ export default function MasterDecisionGridPage({ pageViewModel: vm, rawContent =
               Broad pillars only (ducting, electrical, refrigeration, structural, controls). Narrow before naming a specific part.
             </p>
             <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <MermaidRenderer chart={vm.diagnosticFlowMermaid} />
+              {/* TEMP: <MermaidRenderer chart={vm.diagnosticFlowMermaid} /> */}
             </div>
           </section>
         ) : null}
@@ -139,7 +139,7 @@ export default function MasterDecisionGridPage({ pageViewModel: vm, rawContent =
             <h2 className="mb-3 text-xl font-black text-slate-900">Cause confirmation</h2>
             <p className="mb-4 text-sm text-slate-600">Pillar breakdown into specific causes and repair paths.</p>
             <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <MermaidRenderer chart={vm.causeConfirmationMermaid} />
+              {/* TEMP: <MermaidRenderer chart={vm.causeConfirmationMermaid} /> */}
             </div>
           </section>
         ) : null}

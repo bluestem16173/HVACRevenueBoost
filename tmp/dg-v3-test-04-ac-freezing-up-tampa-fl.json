@@ -1,0 +1,87 @@
+{
+  "schema_version": "dg_authority_v3",
+  "layout": "dg_authority_v3",
+  "title": "AC Freezing Up | Tampa, FL",
+  "slug": "hvac/ac-freezing-up/tampa-fl",
+  "hero": "Ice is a pressure-and-temperature signature: low airflow, low load, metering/ charge behavior, or defrost/control logic. Melt first, then measure—charging into ice lies to every gauge.",
+  "summary_30s": "Indoor ice with Tampa humidity usually pairs low evaporator pressure with insufficient mass flow or wrong blower profile. Outdoor freeze on heat-pump coils belongs to defrost and charge discipline—do not confuse branches.",
+  "quick_checks": [
+    { "label": "Stop and melt", "action": "Turn cooling off; fan ON; allow ice to clear before tests.", "risk_if_ignored": "Running iced blocks airflow further and risks slugging liquid to compressor." },
+    { "label": "Filter and return", "action": "Loaded filter or choked return is the fastest win.", "risk_if_ignored": "Low airflow is the #1 mimic of low charge." },
+    { "label": "Supply temperature after melt", "action": "Feel supply after stable run; note sweat patterns on line set.", "risk_if_ignored": "Interpreting split during ice gives false charge conclusions." },
+    { "label": "Blower speed", "action": "Verify cooling speed tap or ECM ramp for sensible/latent target.", "risk_if_ignored": "Low speed drives coil below freezing with normal charge." },
+    { "label": "Drain and pan", "action": "Backed pan can trip float and stall blower—ice follows.", "risk_if_ignored": "Water damage masked as ‘freeze-up’ repair." }
+  ],
+  "decision_fork": {
+    "safe_diy": ["Melt ice with fan-only as safe.", "Replace loaded filter.", "Clear primary drain if visibly blocked at trap."],
+    "call_pro_if": ["Ice returns same day after melt.", "Hissing or oil at line set.", "TXV hunting or floodback sound.", "Heat pump outdoor ice with failed defrost.", "Breaker trips when ice clears and compressor loads.", "Any refrigerant add without leak locate and weigh-in plan."],
+    "urgency_level": "high"
+  },
+  "diagnostic_flow": {
+    "nodes": [
+      { "id": "A", "kind": "start", "label": "Ice present; melt safely" },
+      { "id": "B", "kind": "decision", "label": "Airflow path passes (filter, returns, blower)" },
+      { "id": "C", "kind": "decision", "label": "Indoor wet coil loading controlled" },
+      { "id": "D", "kind": "outcome", "label": "Charge low / leak branch" },
+      { "id": "E", "kind": "outcome", "label": "Metering / restriction branch" },
+      { "id": "F", "kind": "outcome", "label": "Heat pump defrost / outdoor coil branch" },
+      { "id": "G", "kind": "outcome", "label": "Controls / sensor / stuck relay branch" }
+    ],
+    "edges": [
+      { "from": "A", "to": "B", "label": "" },
+      { "from": "B", "to": "C", "label": "Airflow OK" },
+      { "from": "B", "to": "D", "label": "Airflow fixed; still ices" },
+      { "from": "C", "to": "D", "label": "Coil clean; still low pressure" },
+      { "from": "C", "to": "E", "label": "Stable mass flow; superheat abnormal" },
+      { "from": "B", "to": "F", "label": "Outdoor HP ice pattern" },
+      { "from": "C", "to": "G", "label": "Short cycle or sensor anomaly" }
+    ]
+  },
+  "flow_explanations": {
+    "A": "Ice hides true suction condition—melt is not optional.",
+    "B": "Airflow first in cooling freeze-ups.",
+    "C": "Biofilm matting is common in humid markets.",
+    "D": "Low charge lowers saturation and freezes coil with marginal airflow.",
+    "E": "Restriction drives low evaporator pressure independent of ‘low gas’ feel.",
+    "F": "Defrost sensor, board, or reversing valve timing shows as outdoor ice.",
+    "G": "Stuck blower relay or bad sensor can stop airflow intermittently."
+  },
+  "top_causes": [
+    { "cause": "Low indoor airflow", "why_it_happens": "Filter, duct, blower wheel, or wrong speed.", "risk": "Liquid floodback to compressor after melt if charge is adjusted wrong.", "fix_complexity": "moderate" },
+    { "cause": "Low refrigerant charge", "why_it_happens": "Leak lowers mass; coil runs below freezing.", "risk": "Compressor overheats on return gas when overcorrected.", "fix_complexity": "pro" },
+    { "cause": "Metering / restriction", "why_it_happens": "TXV, drier, or distributor issue.", "risk": "Mis-triage as ‘needs gas’.", "fix_complexity": "pro" },
+    { "cause": "Heat pump defrost failure", "why_it_happens": "Sensor, board, or valve not clearing outdoor ice.", "risk": "Long ice pack bends fan and ruins coil.", "fix_complexity": "pro" },
+    { "cause": "Running cool with marginal load", "why_it_happens": "Oversized equipment + tight duct + low sensible load.", "risk": "Short cycles and coil wetness without obvious ‘break’.", "fix_complexity": "pro" }
+  ],
+  "repair_matrix": [
+    { "symptom": "Ice after long run; dirty filter", "cause": "Airflow restriction", "fix": "Filter/return/blower path restore", "cost_min": 80, "cost_max": 620 },
+    { "symptom": "Ice with oil trace", "cause": "Leak / low charge", "fix": "Leak locate; repair; weigh-in", "cost_min": 380, "cost_max": 2400 },
+    { "symptom": "Ice; low superheat hunting", "cause": "TXV / restriction", "fix": "TXV or drier service with targets", "cost_min": 520, "cost_max": 1950 },
+    { "symptom": "HP outdoor ice pack", "cause": "Defrost fault", "fix": "Sensor, board, valve timing repair", "cost_min": 280, "cost_max": 1200 },
+    { "symptom": "Ice on lineset only", "cause": "Liquid line restriction or valve", "fix": "Line temperature map; component replace", "cost_min": 400, "cost_max": 1800 }
+  ],
+  "cost_ladder": [
+    { "stage": "Filter / drain / minor airflow", "typical_cost": "$80–$350" },
+    { "stage": "Coil and blower clean", "typical_cost": "$180–$650" },
+    { "stage": "Leak repair + weigh-in", "typical_cost": "$400–$2,400" },
+    { "stage": "TXV / defrost repair", "typical_cost": "$280–$1,950" },
+    { "stage": "Coil replacement if damaged", "typical_cost": "$2,200–$6,500" }
+  ],
+  "how_system_works": "The indoor coil removes heat by boiling refrigerant at low pressure. If mass flow or saturation temperature is wrong, coil surface stays below 32°F and water freezes to ice, further choking airflow in a positive feedback loop.",
+  "tools_required": {
+    "homeowner": ["Towels for condensate", "Thermometer"],
+    "technician": ["Manifold set", "Clamp thermometers", "Micron gauge for leak work", "Wet-bulb / psych chart access"]
+  },
+  "repair_vs_replace": {
+    "repair_if": ["Airflow corrected and charge stable after leak repair", "Defrost parts failed independently", "TXV replace fixes superheat profile"],
+    "replace_if": ["Coil damaged from long ice", "Compressor damage from repeated floodback", "Chronic low charge with coil porosity"]
+  },
+  "local_context": "High indoor dew points keep coils wet; marginal airflow ices faster than dry-climate textbooks suggest.",
+  "field_insight": "If ice returns in under 30 minutes after melt with a new filter, I stop ‘parts roulette’ and map pressures with airflow proof.",
+  "maintenance": ["Do not run cooling below sensible load for hours with vents closed", "Drain maintenance before peak", "Correct blower profile after duct changes"],
+  "cost_pressure": "Attic coil access in August adds hours; ice jobs are seldom one-part fixes.",
+  "decision_moment": "No refrigerant adjustment until coil is dry and blower speed verified—non-negotiable.",
+  "cta_primary": "Book melt-safe diagnosis with static and charge method—not guess charging.",
+  "cta_secondary": "Oil stain or hissing—shut off and call; do not keep cycling compressor.",
+  "stop_diy": "Do not chip ice off coil fins; do not pour hot water on electronics; do not bypass freeze stat."
+}

@@ -1,4 +1,4 @@
-import Mermaid from "../Mermaid";
+// TEMP: import Mermaid from "../Mermaid";
 
 export default function SystemFlow({ chart }: { chart: string }) {
   return (
@@ -12,7 +12,7 @@ export default function SystemFlow({ chart }: { chart: string }) {
         </div>
 
         <div className="p-6 bg-white overflow-x-auto w-full">
-          <Mermaid chart={chart} />
+          {/* TEMP: <Mermaid chart={chart} /> */}
         </div>
       </div>
     </section>

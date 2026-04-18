@@ -1,9 +1,9 @@
 import "dotenv/config";
 import React from 'react';
-import SymptomPage from '../app/diagnose/[symptom]/page';
+import HvacSymptomOrHubPage from '../app/hvac/[symptom]/page';
 
 async function main() {
-  const result = await SymptomPage({ params: { symptom: 'ac-not-cooling' } });
+  const result = await HvacSymptomOrHubPage({ params: { symptom: 'ac-not-cooling' } });
   
   // Inspect the top-level element type and props returned by the server component
   console.log("COMPONENT RENDER RESULT:");

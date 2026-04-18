@@ -4,6 +4,7 @@ import {
 } from "@/lib/generated-page-json-contract";
 import { asCtaPayload, type DgAuthorityCtaPayload } from "@/lib/dg/dgAuthorityCta";
 import { isDiagnosticFlowTemplateKey } from "@/lib/dg/dgMermaidTemplates";
+import { repairMatrixToDisplayStrings } from "@/lib/dg/repairMatrixToDisplayStrings";
 
 function nonEmptyString(v: unknown): v is string {
   return typeof v === "string" && v.trim().length > 0;
@@ -104,7 +105,9 @@ export function assertDgAuthorityV3StructuredPayload(o: Record<string, unknown>)
   if (!failureClustersOk(o.failure_clusters)) {
     throw new Error("Missing or invalid failure_clusters (each row needs title, pro, home, risk)");
   }
-  if (!stringArray(o.repair_matrix)) throw new Error("Missing or invalid repair_matrix");
+  if (repairMatrixToDisplayStrings(o.repair_matrix).length === 0) {
+    throw new Error("Missing or invalid repair_matrix (use non-empty strings or symptom/cause/fix/cost rows)");
+  }
   if (!nonEmptyString(o.repair_matrix_pro)) throw new Error("Missing repair_matrix_pro");
   if (!nonEmptyString(o.repair_matrix_home)) throw new Error("Missing repair_matrix_home");
   if (o.repair_matrix_risk != null && typeof o.repair_matrix_risk !== "string") {

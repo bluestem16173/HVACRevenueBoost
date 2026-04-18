@@ -1,0 +1,502 @@
+[
+  {
+    "page_type": "city_symptom",
+    "schema_version": "hsd_v2",
+    "title": "AC Not Cooling in Tampa, FL — Field Diagnostic & Decision Guide",
+    "slug": "hvac/ac-not-cooling/tampa-fl",
+    "summary_30s": {
+      "headline": "When the outdoor unit runs but comfort falls behind in Tampa humidity, the fastest split is airflow versus refrigerant performance — guessing wastes money.",
+      "top_causes": [
+        { "label": "Restricted airflow (filter, coil, blower)", "probability": "High in coastal humidity" },
+        { "label": "Low refrigerant charge / leak", "probability": "Common after seasons of micro-leaks" },
+        { "label": "Compressor or metering device underperforming", "probability": "Lower until charge and airflow are proven" }
+      ],
+      "core_truth": "No amount of thermostat lowering fixes a system that cannot move enough air or cannot absorb/reject heat at design rates.",
+      "risk_warning": "Running a low-charge system hard can cook the compressor; full changeouts in Tampa often land $6,000–$12,000 when a $1,500–$3,500 leak repair plus proper charge would have saved the unit."
+    },
+    "quick_checks": [
+      {
+        "check": "Feel supply vs return: strong temperature split?",
+        "homeowner": "Hold a thermometer strip near a supply register with the fan on.",
+        "result_meaning": "Weak split with warm supply usually means airflow or charge, not thermostat.",
+        "next_step": "If split is poor, change filter and verify all registers open before calling.",
+        "risk": "Ignoring a frozen coil can flood the drain pan and damage ceilings."
+      },
+      {
+        "check": "Inspect indoor coil through access for icing or dirt matting",
+        "homeowner": "Look for frost lines or black matting on coil face.",
+        "result_meaning": "Icing with low airflow mimics low charge; both raise head pressure.",
+        "next_step": "Turn cooling off, fan on, and stop DIY if ice is heavy.",
+        "risk": "Chipping ice off fins destroys the coil — replacement commonly $2,500–$6,000."
+      },
+      {
+        "check": "Outdoor condenser: clean fins and verify fan spins at full speed",
+        "homeowner": "Power off at disconnect, rinse fins gently from inside out.",
+        "result_meaning": "Dead head pressure from blocked condenser reads like refrigerant fault.",
+        "next_step": "If fan is slow or loud after cleaning, book a pro same-week.",
+        "risk": "Overheated compressor valves fail; compressor-only jobs often exceed $2,000 parts plus labor."
+      }
+    ],
+    "diagnostic_steps": [
+      {
+        "step": "Confirm mechanical cooling is actually being requested",
+        "homeowner": "Mode cool, setpoint several degrees below room, fan auto or on.",
+        "pro": "Verify Y call, contactor pull-in, and liquid/suction line behavior under load.",
+        "risk": "Chasing refrigerant on a stat mis-wire burns time and refrigerant."
+      },
+      {
+        "step": "Measure static pressure and airflow sanity before gauges",
+        "homeowner": "Note weak rooms, crushed flex, or closed dampers.",
+        "pro": "Static test and blower amps tell if duct or blower is the ceiling on performance.",
+        "risk": "Adding charge on restricted airflow drives superheat chaos and slugging risk."
+      },
+      {
+        "step": "Refrigerant circuit only after airflow is ruled in",
+        "homeowner": "Do not buy DIY cans — illegal mishandling and wrong charge.",
+        "pro": "Weigh-in, leak search with bubble/micro leak protocol, subcooling/superheat targets.",
+        "risk": "Overcharge destroys compressor; neglected leaks can mean $1,800–$4,500 compressor changeout."
+      }
+    ],
+    "diagnostic_flow": {
+      "nodes": [
+        { "id": "n1", "label": "AC not cooling — Tampa heat load" },
+        { "id": "n2", "label": "Airflow path: filter, coil, blower, ducts" },
+        { "id": "n3", "label": "Condenser rejection: clean, fan, charge signs" },
+        { "id": "n4", "label": "Refrigerant circuit / metering / compressor" }
+      ],
+      "edges": [
+        { "from": "n1", "to": "n2", "label": "Always first" },
+        { "from": "n2", "to": "n3", "label": "If airflow acceptable" },
+        { "from": "n3", "to": "n4", "label": "If temps still flat" }
+      ]
+    },
+    "repair_matrix": [
+      { "issue": "Clogged filter / minor coil surface dirt", "fix": "Filter swap + coil face clean", "cost_min": 45, "cost_max": 180, "difficulty": "easy" },
+      { "issue": "Blower wheel heavy with debris", "fix": "Pull clean blower, balance wheel", "cost_min": 220, "cost_max": 520, "difficulty": "moderate" },
+      { "issue": "Refrigerant leak on indoor coil or flare", "fix": "Leak repair + evacuation + weighed charge", "cost_min": 450, "cost_max": 1400, "difficulty": "pro" },
+      { "issue": "TXV stuck / metering imbalance", "fix": "Replace TXV, verify subcooling", "cost_min": 650, "cost_max": 1650, "difficulty": "pro" },
+      { "issue": "Compressor mechanical failure", "fix": "Compressor or full system replacement", "cost_min": 2800, "cost_max": 12500, "difficulty": "pro" }
+    ],
+    "cost_escalation": [
+      { "stage": "Comfort drift", "description": "Running longer cycles, higher humidity indoors.", "cost": "$0–$120 filters and cleaning" },
+      { "stage": "Hard part stress", "description": "Compressor overheats daily; coil freezes intermittently.", "cost": "$400–$1,800 targeted repairs" },
+      { "stage": "Failure cascade", "description": "Compressor damage or coil replacement plus full charge.", "cost": "$2,500–$12,000+" }
+    ],
+    "decision": {
+      "safe": [
+        "Swap pleated filter if dirty and rerun with dry coil.",
+        "Rinse condenser fins after disconnect verified off."
+      ],
+      "call_pro": [
+        "No temperature split after filter and clean attempts.",
+        "Hissing, oil stains, or icing returns within hours."
+      ],
+      "stop_now": [
+        "Burning electrical smell from air handler or outdoor unit.",
+        "Breaker trips immediately when cooling engages."
+      ]
+    },
+    "final_warning": "Do not keep resetting breakers or forcing a frozen system to run; you risk fire, water damage, and compressor destruction.",
+    "cta": "If two quick checks fail or any STOP sign appears, shut the system off and schedule a licensed Tampa HVAC tech for same-week leak and airflow verification."
+  },
+  {
+    "page_type": "city_symptom",
+    "schema_version": "hsd_v2",
+    "title": "AC Not Turning On in Tampa, FL — Power, Control, and Start Components",
+    "slug": "hvac/ac-not-turning-on/tampa-fl",
+    "summary_30s": {
+      "headline": "A dead air conditioner is usually power delivery, thermostat logic, or a failed start component — sequence matters so you do not replace the wrong part.",
+      "top_causes": [
+        { "label": "Tripped breaker, blown fuse, or float switch lockout", "probability": "Very common after storms or drain clogs" },
+        { "label": "Thermostat batteries, scheduling, or wiring fault", "probability": "Common on retrofits and smart stat swaps" },
+        { "label": "Failed capacitor or contactor (outdoor start)", "probability": "High on heat-stressed Florida equipment" }
+      ],
+      "core_truth": "If the indoor fan runs on cool but the outdoor unit never pulls in, the problem is almost always the high-voltage path or the outdoor control stack.",
+      "risk_warning": "Repeatedly resetting a shorted circuit can arc damage the panel; neglected compressor lockout can escalate to a $1,600–$5,500 outdoor section replacement versus a $180–$450 start kit repair if caught early."
+    },
+    "quick_checks": [
+      {
+        "check": "Main panel and HVAC disconnect: any tripped breaker or pulled disconnect?",
+        "homeowner": "Flip fully off then on; verify outdoor disconnect seated.",
+        "result_meaning": "If breaker trips instantly, you have a hard fault.",
+        "next_step": "Leave off and call if instant trip repeats.",
+        "risk": "Forcing a shorted compressor to energize can weld contacts."
+      },
+      {
+        "check": "Condensate pan float switch: lifted arm or wet switch?",
+        "homeowner": "Look for water in secondary pan or blinking stat message.",
+        "result_meaning": "Many installs cut Y when float opens — looks like dead AC.",
+        "next_step": "Clear primary drain if safe; otherwise stop and call.",
+        "risk": "Bypassing a float masks active flooding and rots cabinets."
+      },
+      {
+        "check": "Outdoor contactor pulled in? Humming with no fan spin?",
+        "homeowner": "Listen across the fence line; do not touch live parts.",
+        "result_meaning": "Pull-in without fan often capacitor; no pull-in often low voltage or bad stat.",
+        "next_step": "Photo model plate for tech; do not poke terminals.",
+        "risk": "240V exposure kills — stay outside the electrical compartment."
+      }
+    ],
+    "diagnostic_steps": [
+      {
+        "step": "Verify 24VAC control at stat and at outdoor board",
+        "homeowner": "Confirm mode cool and fan behavior per manual.",
+        "pro": "Measure R–C, Y call presence, fuse on board, transformer load.",
+        "risk": "Jumping wires randomly fries boards $400–$1,200."
+      },
+      {
+        "step": "Inspect contactor pits and ants across coil",
+        "homeowner": "Visual only through grille if cover allows.",
+        "pro": "Replace pitted contactor; verify coil resistance.",
+        "risk": "Chattering contactor welds shut and runs unit unsupervised."
+      },
+      {
+        "step": "Capacitor and hard start kit evaluation",
+        "homeowner": "Never discharge caps DIY without training.",
+        "pro": "ESR test, microfarad within tolerance, start assist sizing.",
+        "risk": "Wrong dual cap size cooks the new cap and motor windings."
+      }
+    ],
+    "diagnostic_flow": {
+      "nodes": [
+        { "id": "a1", "label": "No cooling call — nothing runs" },
+        { "id": "a2", "label": "Power path: panel, disconnect, door switch" },
+        { "id": "a3", "label": "Control path: stat, float, low voltage fuse" },
+        { "id": "a4", "label": "Outdoor start: contactor, cap, short tests" }
+      ],
+      "edges": [
+        { "from": "a1", "to": "a2", "label": "First" },
+        { "from": "a2", "to": "a3", "label": "If power present" },
+        { "from": "a3", "to": "a4", "label": "If 24V OK" }
+      ]
+    },
+    "repair_matrix": [
+      { "issue": "Clogged drain trip / float", "fix": "Clear trap, blow line, add safety pan treatment", "cost_min": 120, "cost_max": 380, "difficulty": "moderate" },
+      { "issue": "Dual run capacitor weak", "fix": "Replace matched dual capacitor", "cost_min": 160, "cost_max": 420, "difficulty": "pro" },
+      { "issue": "Contactor failed", "fix": "Replace contactor, verify coil volts", "cost_min": 180, "cost_max": 450, "difficulty": "pro" },
+      { "issue": "Low-voltage short on stat cable", "fix": "Rewire or replace cable run", "cost_min": 220, "cost_max": 650, "difficulty": "pro" },
+      { "issue": "Compressor short to ground", "fix": "Outdoor unit or compressor replacement", "cost_min": 2200, "cost_max": 9500, "difficulty": "pro" }
+    ],
+    "cost_escalation": [
+      { "stage": "Quick lockouts", "description": "Float, breaker, disconnect — zero cooling.", "cost": "$0–$200 homeowner-safe items" },
+      { "stage": "Start components", "description": "Cap, contactor, fuse, minor board.", "cost": "$180–$850" },
+      { "stage": "Major electrical / compressor", "description": "Shorted windings, full outdoor swap.", "cost": "$2,200–$9,500+" }
+    ],
+    "decision": {
+      "safe": [
+        "Reset float after verified dry pan and cleared visible clog.",
+        "Replace thermostat batteries and re-seat stat on base."
+      ],
+      "call_pro": [
+        "Breaker trips twice in a row when AC tries to start.",
+        "Outdoor hums, clicks, but never spins fan or compressor."
+      ],
+      "stop_now": [
+        "Smoke, scorch marks, or melted wire insulation at disconnect.",
+        "Oily residue at compressor terminals with acrid smell."
+      ]
+    },
+    "final_warning": "High voltage kills trained techs who get careless — never open energized outdoor compartments as a homeowner.",
+    "cta": "If power checks out but the outdoor never starts, shut the disconnect and book a Tampa tech for low-voltage tracing and safe capacitor testing."
+  },
+  {
+    "page_type": "city_symptom",
+    "schema_version": "hsd_v2",
+    "title": "Weak Airflow in Tampa, FL — Duct, Filter, and Blower Diagnostics",
+    "slug": "hvac/weak-airflow/tampa-fl",
+    "summary_30s": {
+      "headline": "Weak airflow is a capacity killer in Florida humidity: the coil cannot exchange latent load, so rooms feel clammy even if refrigerant charge is technically fine.",
+      "top_causes": [
+        { "label": "Oversized pleated filter or collapsed return duct", "probability": "Very common after DIY upgrades" },
+        { "label": "Dirty blower wheel or clogged evaporator", "probability": "High in pet and pollen homes" },
+        { "label": "Undersized or leaking duct system", "probability": "Common in older ranch retrofits" }
+      ],
+      "core_truth": "CFM is the ceiling on BTU delivery; starving the blower raises coil temperature and humidity complaints faster than a one-degree setpoint change.",
+      "risk_warning": "Low airflow over seasons overheats heat strips in winter package units and strains blower motors; full duct redesigns can exceed $1,500–$6,000 when ignored until multiple rooms fail."
+    },
+    "quick_checks": [
+      {
+        "check": "Return grille pull: does filter pull out hard against suction?",
+        "homeowner": "With fan on, feel if a cheap filter caves inward.",
+        "result_meaning": "High negative static often means filter too dense or return too small.",
+        "next_step": "Temporarily test with MERV 8 panel if manufacturer allows.",
+        "risk": "Running MERV 13 on marginal ductwork silently kills compressors."
+      },
+      {
+        "check": "Room-to-room balance: one weak branch only?",
+        "homeowner": "Open dampers fully; listen for whistling in one bay.",
+        "result_meaning": "Localized restriction points to crushed flex or stuck damper.",
+        "next_step": "Photo attic flex runs for the tech before moving insulation.",
+        "risk": "Walking attic joists unprotected risks falls — not worth a filter swap."
+      },
+      {
+        "check": "Blower door panel sealed and correct speed tap?",
+        "homeowner": "Verify panel clips latched; note rattling wheel noise.",
+        "result_meaning": "Unsealed panels bypass return and skew airflow readings.",
+        "next_step": "If wheel roar is constant, stop and schedule cleaning.",
+        "risk": "Loose blower set screws can throw wheels — $900–$2,800 motor/wheel jobs."
+      }
+    ],
+    "diagnostic_steps": [
+      {
+        "step": "Static pressure budget versus design ESP",
+        "homeowner": "Report which floors cool last after sundown.",
+        "pro": "Manometer across coil, compare to OEM max external static.",
+        "risk": "Ignoring static caps voids sensible capacity math."
+      },
+      {
+        "step": "Coil face inspection and wet bulb approach",
+        "homeowner": "Note musty smell or standing water in pan.",
+        "pro": "Delta-WB across coil, photograph fin damage, plan pull-clean.",
+        "risk": "Aggressive fin combing causes leaks — coil change $2,200–$5,500."
+      },
+      {
+        "step": "Duct leakage smoke or pressure pan test",
+        "homeowner": "List obvious disconnected boots in attic.",
+        "pro": "Seal major leaks first, then rebalance dampers.",
+        "risk": "Pulling return from attic without sealing pulls fiberglass into lungs."
+      }
+    ],
+    "diagnostic_flow": {
+      "nodes": [
+        { "id": "w1", "label": "Weak airflow complaint" },
+        { "id": "w2", "label": "Filter & return static" },
+        { "id": "w3", "label": "Coil & blower wheel loading" },
+        { "id": "w4", "label": "Duct integrity / redesign" }
+      ],
+      "edges": [
+        { "from": "w1", "to": "w2", "label": "Cheapest first" },
+        { "from": "w2", "to": "w3", "label": "If still weak" },
+        { "from": "w3", "to": "w4", "label": "If wheel/coil clean" }
+      ]
+    },
+    "repair_matrix": [
+      { "issue": "Filter too restrictive", "fix": "Right-size MERV + media cabinet if needed", "cost_min": 35, "cost_max": 220, "difficulty": "easy" },
+      { "issue": "Blower wheel clean", "fix": "Pull wheel, clean, re-balance", "cost_min": 240, "cost_max": 580, "difficulty": "moderate" },
+      { "issue": "Evaporator deep clean", "fix": "Chemical clean or pull coil", "cost_min": 280, "cost_max": 720, "difficulty": "pro" },
+      { "issue": "Collapsed flex replacement", "fix": "Reroute hard pipe + insulated flex", "cost_min": 450, "cost_max": 1400, "difficulty": "pro" },
+      { "issue": "Duct redesign + larger return", "fix": "Manual J refresh + duct upsizing", "cost_min": 1800, "cost_max": 7500, "difficulty": "pro" }
+    ],
+    "cost_escalation": [
+      { "stage": "Filter and grille fixes", "description": "Cheap static wins before invasive work.", "cost": "$35–$220" },
+      { "stage": "Coil and blower service", "description": "Cleaning that restores design CFM.", "cost": "$240–$720" },
+      { "stage": "Structural duct failure", "description": "Redesign when returns are undersized.", "cost": "$1,800–$7,500+" }
+    ],
+    "decision": {
+      "safe": [
+        "Swap to manufacturer-allowed lower MERV if suction collapses filter.",
+        "Open all registers and dampers for a fair test."
+      ],
+      "call_pro": [
+        "Weak airflow persists after new filter and obvious duct fixes.",
+        "Grinding blower noise or hot motor smell from cabinet."
+      ],
+      "stop_now": [
+        "Electrical burning smell from air handler cabinet.",
+        "Visible arcing when blower door is seated."
+      ]
+    },
+    "final_warning": "Never run a blower with a frozen coil — you will flood the home and destroy the motor.",
+    "cta": "If humidity stays high in Tampa despite cool setpoint, book static and CFM verification before any refrigerant work."
+  },
+  {
+    "page_type": "city_symptom",
+    "schema_version": "hsd_v2",
+    "title": "AC Freezing Up in Tampa, FL — Airflow, Coil, and Charge Logic",
+    "slug": "hvac/ac-freezing-up/tampa-fl",
+    "summary_30s": {
+      "headline": "Ice on the indoor coil is a symptom, not a diagnosis: you must separate low airflow from low pressure conditions before adding or removing refrigerant.",
+      "top_causes": [
+        { "label": "Low indoor airflow freezing the coil", "probability": "Highest first check in Florida dust/pollen" },
+        { "label": "Low refrigerant lowering evap pressure", "probability": "Common when ice forms on line set too" },
+        { "label": "Metering device or filter-drier restriction", "probability": "Lower but shows uniform ice line" }
+      ],
+      "core_truth": "Ice insulates the coil from air; the longer you run it frozen, the more liquid can slug back toward the compressor.",
+      "risk_warning": "Slugged compressors fail mechanically; compressor and coil replacements together often exceed $1,500–$8,500 when homeowners chip ice or keep running frozen."
+    },
+    "quick_checks": [
+      {
+        "check": "Turn cooling off, fan ON — does ice melt in under 45 minutes?",
+        "homeowner": "Leave fan only to thaw safely with pan intact.",
+        "result_meaning": "Fast melt with strong fan suggests airflow return after thaw.",
+        "next_step": "Replace filter before restart; watch for immediate re-ice.",
+        "risk": "Chiseling the coil converts a service call into a coil replacement."
+      },
+      {
+        "check": "Liquid line sweating or warm when coil is frozen?",
+        "homeowner": "Visual only; do not touch lines without gloves.",
+        "result_meaning": "Warm liquid with frozen coil hints metering or charge issues.",
+        "next_step": "Photo ice pattern for the tech — top versus bottom matters.",
+        "risk": "Opening gauges DIY vents refrigerant illegally and skews readings."
+      },
+      {
+        "check": "Drain pan overflow or float tripped?",
+        "homeowner": "Look for water in secondary pan or stat lockout code.",
+        "result_meaning": "Ice blocked drain can trip float and mimic dead system.",
+        "next_step": "Wet vac primary outlet if accessible; stop if black mold smell.",
+        "risk": "Masking drain issues lets sheetrock flood overnight."
+      }
+    ],
+    "diagnostic_steps": [
+      {
+        "step": "Thaw protocol and pan protection",
+        "homeowner": "Towels on floor, shop vac ready, no cooling until dry.",
+        "pro": "Verify blower amps and wheel cleanliness post-thaw.",
+        "risk": "Restarting cool on still-wet coil re-ices in minutes."
+      },
+      {
+        "step": "Airflow verification before attaching gauges",
+        "homeowner": "Confirm all supplies open and damper positions normal.",
+        "pro": "External static test and design CFM target check.",
+        "risk": "Charging on a frozen coil always lies to your head pressures."
+      },
+      {
+        "step": "Refrigerant diagnosis after stable airflow",
+        "homeowner": "No DIY top-off — EPA and accuracy matter.",
+        "pro": "Weigh-in, superheat/subcooling, search micro-leaks on indoor coil.",
+        "risk": "Overcharge after thaw spikes head and blows the cap."
+      }
+    ],
+    "diagnostic_flow": {
+      "nodes": [
+        { "id": "f1", "label": "Ice present on indoor coil" },
+        { "id": "f2", "label": "Thaw + verify blower airflow" },
+        { "id": "f3", "label": "Re-ice test after filter path clear" },
+        { "id": "f4", "label": "Refrigerant / metering / restriction hunt" }
+      ],
+      "edges": [
+        { "from": "f1", "to": "f2", "label": "Safety first" },
+        { "from": "f2", "to": "f3", "label": "Dry coil restart" },
+        { "from": "f3", "to": "f4", "label": "If ice returns" }
+      ]
+    },
+    "repair_matrix": [
+      { "issue": "Dirty filter only", "fix": "Replace filter + monitor", "cost_min": 25, "cost_max": 90, "difficulty": "easy" },
+      { "issue": "Primary drain clog from ice slush", "fix": "Clear trap, treat algae", "cost_min": 95, "cost_max": 320, "difficulty": "moderate" },
+      { "issue": "Indoor coil leak after corrosion", "fix": "Coil replacement + charge", "cost_min": 1800, "cost_max": 5200, "difficulty": "pro" },
+      { "issue": "Low charge with verified leak", "fix": "Repair flare, braze, vacuum, weigh charge", "cost_min": 420, "cost_max": 1650, "difficulty": "pro" },
+      { "issue": "TXV / piston restriction", "fix": "Replace metering + drier", "cost_min": 650, "cost_max": 2100, "difficulty": "pro" }
+    ],
+    "cost_escalation": [
+      { "stage": "Ice event", "description": "Comfort crash, water risk, compressor stress.", "cost": "$0–$320 clearing airflow/drain" },
+      { "stage": "Repeat ice", "description": "Charge or metering fault emerging.", "cost": "$420–$2,100" },
+      { "stage": "Compressor damage", "description": "Slugged valve plate or grounded compressor.", "cost": "$1,500–$8,500+" }
+    ],
+    "decision": {
+      "safe": [
+        "Thaw with fan-only and dry towels once power to cool is off.",
+        "Replace visibly loaded filter after thaw."
+      ],
+      "call_pro": [
+        "Ice returns same day after clean filter and thaw.",
+        "Oil stain on line set or audible hiss when frost melts."
+      ],
+      "stop_now": [
+        "Grinding compressor noise after ice event.",
+        "Breaker trips when blower or cool engages post-thaw."
+      ]
+    },
+    "final_warning": "Never use sharp tools or pressure washers on a frozen evaporator coil.",
+    "cta": "After one controlled thaw cycle, if ice rebuilds, shut cooling and call a Tampa tech for airflow numbers before any refrigerant adjustment."
+  },
+  {
+    "page_type": "city_symptom",
+    "schema_version": "hsd_v2",
+    "title": "AC Making Noise in Tampa, FL — Classify the Sound Before Replacing Parts",
+    "slug": "hvac/ac-making-noise/tampa-fl",
+    "summary_30s": {
+      "headline": "HVAC noise complaints separate into airflow whistles, bearing squeals, refrigerant hiss, and hard mechanical knocks — each path drives different cost and urgency.",
+      "top_causes": [
+        { "label": "Outdoor fan motor bearing or blade imbalance", "probability": "High on salt-air coastal exposure" },
+        { "label": "Compressor mounting or internal valve noise", "probability": "Medium; often misread as fan issue" },
+        { "label": "Refrigerant velocity or leak-related hiss", "probability": "Lower but highest urgency when sharp" }
+      ],
+      "core_truth": "Intermittent clicks at contactor pull-in differ from continuous screech; recording ten seconds of audio saves mis-ordered parts.",
+      "risk_warning": "Ignoring a repetitive metallic knock on a scroll compressor can end in seized rotor; full outdoor replacements in Tampa frequently run $1,500–$9,000 versus timely $350–$900 fan motor service."
+    },
+    "quick_checks": [
+      {
+        "check": "Indoor vs outdoor: where is the sound loudest?",
+        "homeowner": "Stand at supply grille, then at condenser fence.",
+        "result_meaning": "Indoor whistles point to duct or blower; outdoor screech points to fan or compressor.",
+        "next_step": "Note if pitch changes when stat fan-only runs.",
+        "risk": "Opening outdoor grille without training risks fan blade cuts."
+      },
+      {
+        "check": "Fan blade wobble or contact scrape mark on shroud?",
+        "homeowner": "Power off at disconnect, look through top grate only.",
+        "result_meaning": "Tip rub means loose blade or failing motor bearing.",
+        "next_step": "Do not bend blades by hand — balance is measured.",
+        "risk": "Running a rubbing blade cuts shroud and throws metal into coil."
+      },
+      {
+        "check": "Hiss that changes with indoor coil icing?",
+        "homeowner": "Look for frost while sound is present.",
+        "result_meaning": "Velocity noise climbs as coil ices; also consider leak ultrasonic.",
+        "next_step": "Shut system if hiss is sharp like escaping pressure.",
+        "risk": "High-side refrigerant spray causes frostbite and blindness."
+      }
+    ],
+    "diagnostic_steps": [
+      {
+        "step": "Classify frequency: constant vs once per minute",
+        "homeowner": "Use phone voice memo at both units.",
+        "pro": "Stethoscope on compressor dome vs discharge line.",
+        "risk": "Mislabeling valve flutter as loose screw delays compressor swap."
+      },
+      {
+        "step": "Outdoor fan amp draw and spin-down test",
+        "homeowner": "Observe coast-down after disconnect pulled.",
+        "pro": "Compare FLA to nameplate; check bearing play vertically.",
+        "risk": "Seized fan motor overheats windings and trips breaker."
+      },
+      {
+        "step": "Compressor internal mechanical knock isolation",
+        "homeowner": "Do not load unit with cool if knock is metallic.",
+        "pro": "Megohm, amp signature, suction/discharge vibration pads.",
+        "risk": "Continued operation throws rods through shell — catastrophic leak."
+      }
+    ],
+    "diagnostic_flow": {
+      "nodes": [
+        { "id": "s1", "label": "Noise reported — classify location" },
+        { "id": "s2", "label": "Outdoor fan / blade / shroud path" },
+        { "id": "s3", "label": "Compressor mechanical / mounting path" },
+        { "id": "s4", "label": "Refrigerant hiss / velocity path" }
+      ],
+      "edges": [
+        { "from": "s1", "to": "s2", "label": "If outdoor dominant" },
+        { "from": "s2", "to": "s3", "label": "If not fan-only" },
+        { "from": "s1", "to": "s4", "label": "If hiss dominant" }
+      ]
+    },
+    "repair_matrix": [
+      { "issue": "Loose compressor isolation feet", "fix": "Retorque mounts, replace grommets", "cost_min": 120, "cost_max": 380, "difficulty": "moderate" },
+      { "issue": "Outdoor fan motor bearing failure", "fix": "Replace motor + blade if scored", "cost_min": 350, "cost_max": 920, "difficulty": "pro" },
+      { "issue": "Contactor chatter noise", "fix": "Replace contactor, verify coil voltage", "cost_min": 180, "cost_max": 450, "difficulty": "pro" },
+      { "issue": "Compressor internal failure noise", "fix": "Compressor change or outdoor unit", "cost_min": 2200, "cost_max": 9800, "difficulty": "pro" },
+      { "issue": "Refrigerant leak at flare / schrader", "fix": "Repair, pressure test, charge", "cost_min": 280, "cost_max": 1200, "difficulty": "pro" }
+    ],
+    "cost_escalation": [
+      { "stage": "Annoyance / minor alignment", "description": "Rattle panels, loose screws, minor rub.", "cost": "$80–$380" },
+      { "stage": "Rotating assembly failure", "description": "Motor, blade, bearing work.", "cost": "$350–$920" },
+      { "stage": "Compressor or full changeout", "description": "Knock, high amps, poor pumping.", "cost": "$2,200–$9,800+" }
+    ],
+    "decision": {
+      "safe": [
+        "Tighten accessible panel screws after power is verified off.",
+        "Record audio clip for the dispatcher to route correct tech."
+      ],
+      "call_pro": [
+        "Continuous screech or grinding from outdoor unit.",
+        "Knock that tracks with compressor ramp speed."
+      ],
+      "stop_now": [
+        "Sharp hiss with oil mist visible at line set.",
+        "Smoke from outdoor fan motor or winding smell."
+      ]
+    },
+    "final_warning": "Never stick tools or hands through the condenser guard with power applied.",
+    "cta": "If noise is metallic, worsening nightly, or paired with warm supply air, shut the system off and schedule a Tampa HVAC noise diagnostic the same week."
+  }
+]

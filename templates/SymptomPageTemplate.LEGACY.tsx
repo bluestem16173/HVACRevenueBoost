@@ -16,7 +16,7 @@ import { RepairItem } from "@/lib/monetization/repairs";
 import dynamic from "next/dynamic";
 import DiyDifficultyMeter, { DiyLegalDisclaimer } from "@/components/DiyDifficultyMeter";
 
-const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
+// TEMP: const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 const DecisionTree = dynamic(() => import("@/components/DecisionTree"), { ssr: false });
 const AdaptiveDiagnosticPanel = dynamic(() => import("@/components/AdaptiveDiagnosticPanel"), { ssr: false });
 import AdaptiveRepairMatrix from "@/components/AdaptiveRepairMatrix";

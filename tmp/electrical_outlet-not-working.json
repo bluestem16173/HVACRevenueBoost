@@ -1,0 +1,155 @@
+{
+  "layout": "dg_authority_v3",
+  "schema_version": "dg_authority_v3",
+  "title": "Outlet Not Working",
+  "summary_30s": "A dead outlet is usually **not** “the outlet died” first—it is **upstream protection opened**, a **switch controlling half the duplex**, a **loose stab** on the homerun chain, or **lost neutral** on a multi-wire branch. The job is to map **which side of the device has voltage**, whether **LINE/LOAD** is correct on GFCI-protected chains, and whether the **breaker is actually holding**—before changing receptacles for cosmetic reasons.",
+  "cta_top": {
+    "title": "Dead outlets are often upstream of the plate you are staring at",
+    "body": "GFCI chains, switch legs, and lost neutrals mimic ‘bad receptacles’—three outlet swaps later, the real fault can still be in another room.",
+    "button": "Request branch mapping before rewiring on assumptions"
+  },
+  "quick_checks": [
+    "Check **upstream GFCI** (bathroom/garage/exterior) and **reset**; many “dead kitchen” calls are **LINE/LOAD miswired** downstream.",
+    "Identify **switched half-hot**: one side tied to a wall switch—test with switch positions before condemning the receptacle.",
+    "At the dead outlet (qualified): **hot-to-neutral vs hot-to-ground** voltage pattern helps separate **open neutral** from **open hot**.",
+    "If **whole circuit** is dead: verify **breaker position** and stab heat at the panel edge—do not work inside live.",
+    "If only **one outlet** in a chain fails mid-run: suspect **stab/backwire** failure or broken conductor in the box."
+  ],
+  "quick_checks_home": "If half the kitchen pops when you press **TEST** somewhere else, you do not have two separate problems—you have **one protection device** doing its job upstream.",
+  "diagnostic_logic_pro": "Work from **panel → first outlet → downstream** logically: a dead tail outlet with hot present at LINE but no downstream voltage implicates **device internal** or **LOAD terminal continuity**. If neutral is lost mid-chain, symptoms can jump devices and confuse homeowners with “random dead plugs.”",
+  "diagnostic_logic_home": "Replacing the visible outlet rarely fixes **upstream GFCI trips** or **lost neutral**—those feel like “bad outlets” but are **branch topology** problems.",
+  "diagnostic_flow": {
+    "nodes": [
+      {
+        "id": "start",
+        "label": "Outlet dead / partial dead"
+      },
+      {
+        "id": "up",
+        "label": "Upstream GFCI / breaker status"
+      },
+      {
+        "id": "switch",
+        "label": "Half-hot / switch leg behavior"
+      },
+      {
+        "id": "pattern",
+        "label": "Voltage pattern: hot, neutral, ground"
+      },
+      {
+        "id": "chain",
+        "label": "First box vs mid-chain stab/continuity"
+      },
+      {
+        "id": "end",
+        "label": "Repair scope; device vs branch"
+      }
+    ],
+    "edges": [
+      {
+        "from": "start",
+        "to": "up"
+      },
+      {
+        "from": "up",
+        "to": "switch"
+      },
+      {
+        "from": "switch",
+        "to": "pattern"
+      },
+      {
+        "from": "pattern",
+        "to": "chain"
+      },
+      {
+        "from": "chain",
+        "to": "end"
+      }
+    ]
+  },
+  "system_explanation": "120 VAC receptacles sit on a **branch circuit**: overcurrent device at the panel, conductors in series through boxes, and bonding paths. **GFCI** devices protect downstream loads by comparing current imbalance. **Switched receptacles** split function across brass tabs. Failures are often **continuity** and **termination** problems—not “bad plastic” alone.",
+  "failure_clusters": [
+    {
+      "title": "Upstream GFCI / protection opened",
+      "pro": "Downstream devices lose power when GFCI trips or when breaker opens; miswired LOAD terminals can make downstream behave like random outages after unrelated work.",
+      "home": "The dead outlet in the kitchen might be controlled from the **garage**—chasing the wrong box wastes time.",
+      "risk": "Moving wires between LINE and LOAD without understanding downstream protection removes safety function while leaving symptoms “intermittent.”"
+    },
+    {
+      "title": "Neutral integrity / MWBC issues",
+      "pro": "Open neutral mid-chain can present as low voltage, dead half-circuit, or equipment damage on 240/120 mixed appliances.",
+      "home": "Lights brightening elsewhere when you plug something in is a classic **neutral fault** clue—not a new lamp problem.",
+      "risk": "Shared neutrals opened under load can arc; DIY neutral “fixes” without re-identifying conductors are shock and fire drivers."
+    },
+    {
+      "title": "Device / stab failure",
+      "pro": "Worn stab connections, burned backwire slots, or cracked duplex bodies can fail under modest loads while the panel breaker stays closed.",
+      "home": "Sometimes it really is the outlet—but only **after** upstream mapping proves the branch is healthy.",
+      "risk": "Replacing devices without torque discipline repeats the same failure mode in months."
+    }
+  ],
+  "repair_matrix": [
+    "GFCI correct wiring + reset path fix → $150–$450",
+    "Receptacle replacement + pigtail repair → $125–$350",
+    "Branch neutral/homerun repair → $300–$1,200",
+    "Panel stab remediation when heat damage found → $1,500–$4,000+"
+  ],
+  "repair_matrix_pro": "Most dead outlets resolve in the **lower bands** when the issue is **device or first-box termination**; costs climb when **fish rewires** or **panel stabs** are involved.",
+  "repair_matrix_home": "If the fix is “find the upstream GFCI,” the invoice should not look like a **rewire the house** quote.",
+  "repair_matrix_risk": "Ignoring **warm devices** or **discoloration** while swapping outlets can leave a **high-resistance joint** in the wall.",
+  "cta_mid": {
+    "title": "Three receptacle swaps will not fix a neutral fault upstream",
+    "body": "Most mid-band spend is first-box termination or GFCI LINE/LOAD discipline—panel stab damage is the escalation when heat and discoloration were ignored.",
+    "button": "Have an electrician map the branch before more devices"
+  },
+  "field_measurements": [
+    "Line-to-neutral and line-to-ground voltage at dead outlet (qualified)",
+    "Upstream GFCI line presence vs downstream load terminals",
+    "Breaker holds: verify at panel listing only—no live interior work untrained",
+    "Continuity checks on neutrals when de-energized and safe"
+  ],
+  "field_measurements_pro": "Pattern voltage plus **first-box inspection** separates **protection** issues from **device** issues faster than random receptacle swaps.",
+  "field_measurements_home": "If you do not know how to interpret **LINE/LOAD** or **open neutral patterns**, stop before you create a cross-connected safety hazard.",
+  "repair_vs_replace_pro": "Replace receptacles when physical damage, heat discoloration, or failed internal contacts are verified. Repair conductors when insulation damage or neutral continuity fails. Escalate panel when stabs show arcing or overheating.",
+  "repair_vs_replace_home": "A dead outlet is often **cheap when mapped**, expensive when guessed.",
+  "professional_threshold": "Stop at opening the panel interior, MWBC re-identification, aluminum remediation, or any burning odor/heat at devices.",
+  "warnings": [
+    "Arc flash and shock hazard are present on energized work.",
+    "Repeated resetting can weld contacts or escalate a high-resistance fault.",
+    "Shared neutrals on MWBCs must not be opened under load."
+  ],
+  "cta_final": {
+    "title": "Arcing in the panel is not a second-chance classroom",
+    "body": "MWBC neutrals, aluminum transitions, and main lug heat need listed connectors and de-energized torque—not repeated resets chasing “nuisance” trips.",
+    "button": "Book licensed electrical for panel and branch evaluation"
+  },
+  "before_you_call": [
+    "Which outlets are dead vs **half-dead**; any wall switch positions that change behavior.",
+    "Whether **TEST** on any GFCI restores power when pressed/reset.",
+    "Any recent **painting**, outlet replacement, or appliance install on that circuit.",
+    "Photos of discoloration, sparks, or warm cover plates."
+  ],
+  "do_not_attempt": [
+    "Do not swap LINE/LOAD on GFCI without verifying downstream labeling.",
+    "Do not use cheater adapters to defeat grounding.",
+    "Do not work inside energized panels without training."
+  ],
+  "risk_notes": [
+    {
+      "label": "Where people get this wrong",
+      "text": "Replacing the dead outlet three times while the real fault is **an upstream GFCI** or **open neutral** in another box."
+    }
+  ],
+  "trade": "electrical",
+  "slug": "electrical/outlet-not-working",
+  "cluster": "wiring",
+  "diagnostic_mermaid_cluster": "wiring",
+  "diagnostic_flow_template_key": "electrical_v1",
+  "diagnostic_flow_issue_label": "Outlet not working",
+  "pillar_page": "electrical",
+  "related_pages": [
+    "electrical/circuit-overload",
+    "electrical/breaker-trips-instantly"
+  ]
+}

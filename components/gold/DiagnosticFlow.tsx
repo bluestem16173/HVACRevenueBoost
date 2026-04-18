@@ -1,4 +1,4 @@
-import Mermaid from "../Mermaid";
+// TEMP: import Mermaid from "../Mermaid";
 
 export default function DiagnosticFlow({ data }: { data: string | { chart: string, steps?: { step: string, detail: string }[] } }) {
   const chart = typeof data === "string" ? data : data?.chart;
@@ -8,7 +8,7 @@ export default function DiagnosticFlow({ data }: { data: string | { chart: strin
     <section className="mb-12">
       <h2 className="text-2xl font-bold mb-4 text-hvac-navy">Diagnostic Flow</h2>
       <div className="mb-8">
-        <Mermaid chart={chart} />
+        {/* TEMP: <Mermaid chart={chart} /> */}
       </div>
 
       {steps && steps.length > 0 && (
