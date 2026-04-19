@@ -10,6 +10,178 @@ export type HsdV25RenderInput = HsdV25Payload &
     vertical: string;
   }>;
 
+const PAD_CORE =
+  "This leads to longer runtimes, higher utility draw, and mechanical stress that turns a nuisance into a major repair when ignored.";
+const PAD_RISK =
+  "Ignoring the pattern forces coil stress, compressor overload, and typical repair bands of $1,500–$3,500 once major parts fail.";
+const DEFAULT_CAUSE_ROW = {
+  label: "Upstream load or control issue",
+  probability: "Requires measurement",
+  deep_dive:
+    "When basics are uncertain, a licensed technician verifies airflow, temperatures, and electrical control before sealed-system work.",
+};
+
+/** Legacy pipelines sometimes stored `summary_30s` as a plain string; v2.5 expects an object. */
+function summary30sFromUnknown(raw: unknown): HsdV25Payload["summary_30s"] {
+  if (typeof raw === "string" || typeof raw === "number") {
+    const blob = String(raw ?? "").trim();
+    let headline = blob.slice(0, 160);
+    if (headline.length < 50) {
+      headline = `${headline} Start with filter, thermostat, and airflow before sealed-system work.`
+        .trim()
+        .slice(0, 200);
+    }
+    const core_truth = blob.length >= 70 ? blob : `${blob} ${PAD_CORE}`.trim().slice(0, 400);
+    const risk_warning = PAD_RISK;
+    return {
+      headline,
+      top_causes: [DEFAULT_CAUSE_ROW, { ...DEFAULT_CAUSE_ROW, label: "Electrical or control fault" }, { ...DEFAULT_CAUSE_ROW, label: "Component wear under load" }],
+      core_truth,
+      risk_warning,
+      flow_lines: [],
+    };
+  }
+  const baseS30 =
+    raw && typeof raw === "object" ? { ...(raw as Record<string, unknown>) } : ({} as Record<string, unknown>);
+  const top = Array.isArray(baseS30.top_causes) ? (baseS30.top_causes as HsdV25Payload["summary_30s"]["top_causes"]) : [];
+  const causes =
+    top.length >= 3
+      ? top
+      : [
+          ...top,
+          ...Array.from({ length: 3 - top.length }, () => ({ ...DEFAULT_CAUSE_ROW })),
+        ].slice(0, 3);
+  return {
+    headline: String(baseS30.headline ?? "").trim() || "Diagnostic summary",
+    top_causes: causes.map((c) => ({
+      label: String((c as { label?: string }).label ?? "Cause"),
+      probability: String((c as { probability?: string }).probability ?? "See technician"),
+      deep_dive: String((c as { deep_dive?: string }).deep_dive ?? ""),
+    })),
+    core_truth: String(baseS30.core_truth ?? "").trim() || PAD_CORE,
+    risk_warning: String(baseS30.risk_warning ?? "").trim() || PAD_RISK,
+    flow_lines: Array.isArray(baseS30.flow_lines) ? (baseS30.flow_lines as string[]).map((x) => String(x ?? "")) : [],
+  };
+}
+
+/** `cta` is a string in {@link HSDV25Schema}; older JSON may use objects (`cta_primary`, etc.). */
+function ctaStringFromUnknown(raw: unknown): string {
+  if (typeof raw === "string") return raw;
+  if (raw == null) return "";
+  if (typeof raw === "object") {
+    const o = raw as Record<string, unknown>;
+    const pick = (v: unknown) => String(v ?? "").trim();
+    const nested = (k: string) => {
+      const inner = o[k];
+      return inner && typeof inner === "object" ? pick((inner as Record<string, unknown>).body ?? (inner as Record<string, unknown>).text) : "";
+    };
+    const direct =
+      pick(o.body) ||
+      pick(o.text) ||
+      pick(o.message) ||
+      pick(o.markdown) ||
+      nested("cta_primary") ||
+      nested("cta_secondary") ||
+      nested("primary") ||
+      nested("secondary");
+    if (direct) return direct;
+  }
+  return String(raw ?? "").trim();
+}
+
+/** `final_warning` must be string-shaped for paragraph splitters. */
+function stringFieldFromUnknown(raw: unknown): string {
+  if (typeof raw === "string" || typeof raw === "number") return String(raw);
+  if (raw && typeof raw === "object") {
+    const o = raw as Record<string, unknown>;
+    const t = String(o.text ?? o.body ?? o.message ?? "").trim();
+    if (t) return t;
+  }
+  return String(raw ?? "").trim();
+}
+
+/** `what_this_means` is a string in v2.5. */
+function whatThisMeansFromUnknown(raw: unknown): string {
+  if (typeof raw === "string" || typeof raw === "number") return String(raw);
+  if (raw && typeof raw === "object") {
+    const o = raw as Record<string, unknown>;
+    const t = String(o.text ?? o.body ?? "").trim();
+    if (t) return t;
+  }
+  return "";
+}
+
+/**
+ * Ensures list-shaped fields are arrays before any `.map` in section builders, and normalizes a few
+ * legacy JSON shapes (string `summary_30s`, string `diagnostic_flow`, object `cta`) so SSR never throws.
+ *
+ * **Contract note:** {@link HSDV25Schema} defines `summary_30s` as an **object**, `diagnostic_flow` as
+ * **`{ nodes, edges }`**, and `cta` as a **string**. If a checklist says “summary_30s must be a string”,
+ * that applies to other generators — not this renderer.
+ */
+function sanitizeHsdV25RenderInput(data: HsdV25RenderInput): HsdV25RenderInput {
+  const summary_30s = summary30sFromUnknown(data.summary_30s as unknown);
+
+  let diagnostic_flow: HsdV25Payload["diagnostic_flow"];
+  const rawFlow = data.diagnostic_flow as unknown;
+  if (typeof rawFlow === "string") {
+    diagnostic_flow = { nodes: [], edges: [] };
+  } else if (rawFlow && typeof rawFlow === "object") {
+    const f = rawFlow as Record<string, unknown>;
+    const nodes = Array.isArray(f.nodes) ? f.nodes : [];
+    const edges = Array.isArray(f.edges) ? f.edges : [];
+    diagnostic_flow = { nodes, edges } as HsdV25Payload["diagnostic_flow"];
+  } else {
+    diagnostic_flow = { nodes: [], edges: [] };
+  }
+
+  const rawDec = data.decision as unknown;
+  const decision = (
+    rawDec && typeof rawDec === "object"
+      ? (() => {
+          const d = rawDec as Record<string, unknown>;
+          const list = (k: string, alt: string) => {
+            const arr = (Array.isArray(d[k]) ? d[k] : Array.isArray(d[alt]) ? d[alt] : []) as unknown[];
+            return arr.map((x) => String(x ?? "").trim()).filter(Boolean);
+          };
+          return {
+            safe: list("safe", "safe_actions"),
+            call_pro: list("call_pro", "callPro"),
+            stop_now: list("stop_now", "stopNow"),
+          };
+        })()
+      : { safe: [], call_pro: [], stop_now: [] }
+  ) as HsdV25Payload["decision"];
+
+  let cta = ctaStringFromUnknown(data.cta as unknown);
+  if (cta.length < 45) {
+    cta = `${cta} If problems persist after basic checks, contact a licensed technician for measured diagnosis and repair.`.trim();
+  }
+
+  let final_warning = stringFieldFromUnknown(data.final_warning as unknown);
+  if (final_warning.length < 60) {
+    final_warning = `${final_warning} ${PAD_RISK}`.trim();
+  }
+
+  return {
+    ...data,
+    summary_30s,
+    what_this_means: whatThisMeansFromUnknown(data.what_this_means as unknown),
+    quick_checks: Array.isArray(data.quick_checks) ? data.quick_checks : [],
+    diagnostic_steps: Array.isArray(data.diagnostic_steps) ? data.diagnostic_steps : [],
+    quick_table: Array.isArray(data.quick_table) ? data.quick_table : [],
+    decision_tree_text: Array.isArray(data.decision_tree_text) ? data.decision_tree_text : [],
+    canonical_truths: Array.isArray(data.canonical_truths) ? data.canonical_truths : [],
+    tools: Array.isArray(data.tools) ? data.tools : [],
+    diagnostic_flow,
+    repair_matrix: Array.isArray(data.repair_matrix) ? data.repair_matrix : [],
+    cost_escalation: Array.isArray(data.cost_escalation) ? data.cost_escalation : [],
+    decision,
+    cta,
+    final_warning,
+  };
+}
+
 /** Lower `priority` renders earlier (after the fixed credibility header). */
 export const HSD_V25_BLOCK_PRIORITY = {
   diagnostic_steps: 10,
@@ -620,18 +792,20 @@ export function renderHsdV25LeadSegments(data: HsdV25RenderInput): {
   midThroughDecisionHtml: string;
   closingHtml: string;
 } {
+  const safe = sanitizeHsdV25RenderInput(data);
   return {
-    headerHtml: renderHsdV25HeaderOnly(data),
-    midThroughDecisionHtml: renderHsdV25MidThroughDecision(data),
-    closingHtml: renderHsdV25Closing(data),
+    headerHtml: renderHsdV25HeaderOnly(safe),
+    midThroughDecisionHtml: renderHsdV25MidThroughDecision(safe),
+    closingHtml: renderHsdV25Closing(safe),
   };
 }
 
 export function renderHsdV25(data: HsdV25RenderInput): string {
-  const header = buildHsdV25HeaderHtml(data);
+  const safe = sanitizeHsdV25RenderInput(data);
+  const header = buildHsdV25HeaderHtml(safe);
   const blocks: HsdV25HtmlBlock[] = [
-    ...buildHsdV25MidBlocks(data),
-    ...buildHsdV25ClosingBlocks(data),
+    ...buildHsdV25MidBlocks(safe),
+    ...buildHsdV25ClosingBlocks(safe),
   ];
 
   return `${header}\n${joinSortedHsdV25Blocks(blocks)}`.trim();

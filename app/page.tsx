@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import DiagnosticCard from "@/components/DiagnosticCard";
+import { canonicalMetadata } from "@/lib/seo/canonical";
 import { buildHvacLocalizedPillarPath } from "@/lib/localized-city-path";
+import { isStrictIndexingEnabled } from "@/lib/seo/strict-indexing";
 
 const RV_DIAGNOSTICS_URL = "https://www.decisiongrid.co";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    ...canonicalMetadata("/"),
+    ...(isStrictIndexingEnabled() ? { robots: { index: true, follow: true } } : {}),
+  };
+}
 
 /** Example FL metro for HVAC localized URLs (indexable symptom × city pattern). */
 const DEMO_CITY_SLUG = "tampa-fl";

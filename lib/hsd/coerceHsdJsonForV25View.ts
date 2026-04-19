@@ -190,7 +190,7 @@ function padStringMin(s: string, min: string, minLen: number): string {
 /**
  * When stored `hsd_v2` JSON predates strict v2.5 Zod (e.g. 3-row cost escalation, short final_warning),
  * patch a **cloned** object so {@link HSDV25Schema} accepts it for **read-time** rendering only.
- * Does not run {@link assertHsdV25ContentRules} — publish workers still enforce full authority.
+ * Does not run {@link assertHsdV26AuthorityRules} — publish / upsert paths still enforce full authority before save.
  */
 export function coerceHsdJsonForV25View(raw: Record<string, unknown>): HsdV25Payload | null {
   let o: Record<string, unknown>;

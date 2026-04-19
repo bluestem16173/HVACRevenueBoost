@@ -19,12 +19,13 @@ import {
 } from "@/lib/prompt-schema-router";
 import { buildHsdV2VeteranTechnicianPrompt } from "@/src/lib/ai/prompts/diagnostic-engine-json";
 import { finalizeHsdV25Page } from "@/lib/hsd/finalizeHsdPage";
+import { patchHsdLlmJsonMinimumGates } from "@/lib/hsd/patchHsdLlmJsonMinimumGates";
 import { HSDV25Schema, type HsdV25Payload } from "@/lib/validation/hsdV25Schema";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const HSD_V2_SYSTEM =
-  "You are a senior field service diagnostic technician (HVAC, plumbing, electrical). Build scan-decide-act diagnostic JSON for React — plain text only, no HTML, no line breaks inside any single string (exception: summary_30s.flow_lines = one short line per array item). No hedging (avoid may/might/could). Limit verbatim repetition across the whole JSON. Output one JSON object only; no markdown fences; no commentary. Required fields include flow_lines (4+), what_this_means (100+), repair_matrix_intro, decision_footer, canonical_truths (2), diagnostic_flow, tools, cost_escalation (4), quick_table (3+ rows, 4 for AC cooling), repair_matrix (4+ rows, one cost_max ≥ 1500), final_warning (60+ with $), cta (45+ with city load). Undersized or invalid payloads are rejected.";
+  "You are a senior field service diagnostic technician (HVAC, plumbing, electrical). Build scan-decide-act diagnostic JSON for React — plain text only, no HTML, no line breaks inside any single string (exception: summary_30s.flow_lines = one short line per array item). No hedging (avoid may/might/could). Limit verbatim repetition across the whole JSON. Output one JSON object only; no markdown fences; no commentary. MATCH THE USER PROMPT FREEZE: no Understanding-style intros; max 2 canonical_truths; must include quick_table (≥4 rows), decision (safe/call_pro/stop_now each ≥2 lines), cost_escalation (≥4 stages with $). Also: flow_lines (4+), what_this_means (100+), repair_matrix_intro, decision_footer, diagnostic_flow, tools, repair_matrix (4+ rows, one cost_max ≥ 1500), final_warning (60+ with $), cta (45+ with city load). Saves run assertHsdV26AuthorityRules — invalid payloads are rejected.";
 
 export type GenerateHsdPageInput = {
   symptom: string;
@@ -163,6 +164,8 @@ export async function generateHsdPageAttempt(
   json.schema_version = HSD_V2_SCHEMA_VERSION;
   json.page_type = "city_symptom";
   json.slug = storageSlug;
+
+  patchHsdLlmJsonMinimumGates(json);
 
   const parsed = HSDV25Schema.safeParse(json);
   if (!parsed.success) {

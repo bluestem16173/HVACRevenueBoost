@@ -14,6 +14,24 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react'],
   },
   output: "standalone",
+  async redirects() {
+    return [
+      // Do not add www ↔ apex redirects here: Vercel "Domains" already sends
+      // apex → www (or the reverse). Duplicating the opposite rule in Next causes
+      // redirect loops and "page won't load" in browsers.
+      //
+      // http → https on apex host only (avoids redirecting http://localhost in dev)
+      {
+        source: "/:path*",
+        has: [
+          { type: "header", key: "x-forwarded-proto", value: "http" },
+          { type: "host", value: "hvacrevenueboost.com" },
+        ],
+        destination: "https://hvacrevenueboost.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       // Sitemap index for GSC: /sitemap-index.xml lists all cluster sitemaps

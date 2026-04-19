@@ -1,18 +1,33 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import Link from "next/link";
 import MobileStickyCallButton from "@/components/MobileStickyCallButton";
 import LeadCaptureModal from "@/components/LeadCaptureModal";
 import DiagnosticModal from "@/components/DiagnosticModal";
 import StickySmsLeadCta from "@/components/StickySmsLeadCta";
+import { SITE_ORIGIN } from "@/lib/seo/canonical";
+import { isStrictIndexingEnabled, strictDefaultRobotsForPathname } from "@/lib/seo/strict-indexing";
 
 const RV_DIAGNOSTICS_URL = "https://www.decisiongrid.co";
 
-export const metadata: Metadata = {
+const defaultMetadata: Metadata = {
+  metadataBase: new URL(SITE_ORIGIN),
   title: "Home Service Diagnostics | HVAC, Plumbing & Electrical",
   description:
     "Diagnose home HVAC, plumbing, and electrical problems with structured guides — then fix it yourself or get matched with a local pro.",
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  if (!isStrictIndexingEnabled()) {
+    return defaultMetadata;
+  }
+  const pathname = (await headers()).get("x-pathname") || "/";
+  return {
+    ...defaultMetadata,
+    robots: strictDefaultRobotsForPathname(pathname),
+  };
+}
 
 export default function RootLayout({
   children,
@@ -156,7 +171,7 @@ export default function RootLayout({
             </div>
           </div>
         </footer>
-        {/* HVAC CTA: fixed bottom Stage-1 bar; full intake + SMS consent in DiagnosticModal LeadCard (Twilio copy in lib/lead-consent) */}
+        {/* Twilio A2P: fixed bottom SMS consent + phone (see StickySmsLeadCta / lib/lead-consent) */}
         <StickySmsLeadCta />
         <DiagnosticModal />
         <MobileStickyCallButton />

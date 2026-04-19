@@ -4,7 +4,9 @@ import { DiagnosticPageView } from "@/components/DiagnosticPageView";
 import { DiagnosticVerticalNav } from "@/components/diagnostic-hub/DiagnosticVerticalNav";
 import { getIndexablePageBySlug } from "@/lib/get-indexable-page";
 
-export const revalidate = 3600;
+/** DB-backed symptom pages: always read fresh `pages` rows (same DATABASE_URL as workers). */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export const dynamicParams = true;
 
 export default async function ElectricalSymptomPage({ params }: { params: { symptom: string } }) {

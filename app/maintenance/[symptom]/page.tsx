@@ -2,6 +2,7 @@ import MaintenancePageTemplate, { MaintenanceSchema } from "@/templates/maintena
 import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { strictRobotsForDbPage } from "@/lib/seo/strict-indexing";
 
 export const revalidate = 3600;
 
@@ -13,11 +14,15 @@ export async function generateMetadata({ params }: { params: { symptom: string }
   }
 
   const data = page.content_json as MaintenanceSchema;
-  
+  const qualityOk = page.quality_status !== "noindex";
+  const strict = strictRobotsForDbPage(qualityOk, page.updated_at);
+
   return {
     title: data.title || "HVAC Diagnostic & Maintenance",
     description: data.hook || "Expert HVAC tune-ups and preventative maintenance.",
-    robots: page.quality_status === 'noindex' ? { index: false, follow: true } : { index: true, follow: true }
+    ...(strict ?? {
+      robots: qualityOk ? { index: true, follow: true } : { index: false, follow: true },
+    }),
   };
 }
 

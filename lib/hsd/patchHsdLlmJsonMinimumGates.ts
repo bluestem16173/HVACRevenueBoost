@@ -1,0 +1,64 @@
+/**
+ * Deterministic fill-ins when the model returns JSON that is close but fails
+ * Zod superRefine or {@link assertHsdV25ContentRules} on headline / flow_lines only.
+ * Does not replace valid content.
+ */
+function cityLoadFromStorageSlug(slug: string): string {
+  const seg = String(slug ?? "").split("/").filter(Boolean).pop() ?? "";
+  const m = seg.match(/^([a-z][a-z-]*)-([a-z]{2})$/i);
+  if (!m) return "Local load context";
+  const city = m[1].replace(/-/g, " ");
+  const pretty = city.replace(/\b\w/g, (c) => c.toUpperCase());
+  return `${pretty}, ${m[2].toUpperCase()}`;
+}
+
+function issueTitleFromSlug(slug: string): string {
+  const parts = String(slug ?? "").split("/").filter(Boolean);
+  const raw = parts[1] ?? "issue";
+  return raw
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+export function patchHsdLlmJsonMinimumGates(json: Record<string, unknown>): void {
+  const slug = String(json.slug ?? "").trim();
+  const load = cityLoadFromStorageSlug(slug);
+  const parts = slug.split("/").filter(Boolean);
+  const vertical = (parts[0] ?? "hvac").toLowerCase();
+  const isHvac = vertical === "hvac";
+
+  const s30 = json.summary_30s;
+  if (!s30 || typeof s30 !== "object") return;
+  const o = s30 as Record<string, unknown>;
+
+  let h = String(o.headline ?? "").trim();
+  if (h.length < 50) {
+    const issueTit = issueTitleFromSlug(slug);
+    const base = h.length > 0 ? h : `${issueTit} triage gate`;
+    o.headline = isHvac
+      ? `${base} — ${load}: separate outdoor electrical buzz, belt or bearing squeal, and rattling hardware before sealed-system spend.`
+      : `${base} — ${load}: separate quick safe checks from call-a-pro failure paths before damage and cost stack.`;
+  }
+
+  const flRaw = o.flow_lines;
+  const lines = Array.isArray(flRaw)
+    ? flRaw.map((x) => String(x ?? "").trim()).filter(Boolean)
+    : [];
+  if (lines.length < 4) {
+    o.flow_lines = isHvac
+      ? [
+          "Noise triage (scan):",
+          "→ Outdoor buzz at compressor start/stop → contactor / capacitor class",
+          "→ Squeal changing with blower speed → belt or motor bearing class",
+          "→ Rattle only when air moves → loose panels / hardware class",
+        ]
+      : [
+          "Field triage (scan):",
+          "→ Stable vs intermittent pattern → control vs mechanical class",
+          "→ Worsens under load vs idle → stress-dependent fault class",
+          "→ Localized vs spreading symptom → containment vs systemic class",
+        ];
+  }
+}

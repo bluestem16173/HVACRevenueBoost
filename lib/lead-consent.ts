@@ -2,11 +2,11 @@
  * Twilio A2P 10DLC — frozen disclosure. Bump SMS_CONSENT_TEXT_VERSION if this literal ever changes.
  * Trust Hub / campaign "CTA + opt-in" must use SMS_CONSENT_FULL_TEXT verbatim (same bytes as the site checkbox).
  */
-export const SMS_CONSENT_TEXT_VERSION = "hvacrb-a2p-10dlc-v3-2026-04-16";
+export const SMS_CONSENT_TEXT_VERSION = "hvacrb-a2p-10dlc-v4-2026-04-18";
 
-/** Exact checkbox / campaign opt-in copy — one continuous literal; do not edit punctuation or spacing. */
+/** Exact checkbox / campaign opt-in copy — one continuous literal; keep in sync with Trust Hub / 10DLC registration. */
 export const SMS_CONSENT_FULL_TEXT =
-  "I agree to receive SMS messages from HVAC Revenue Boost regarding my request, including follow-ups, scheduling, and service updates. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out. Reply HELP for help.";
+  "By submitting this form, you agree to receive SMS messages from HVAC Revenue Boost regarding your inquiry, including follow-ups, scheduling, and service-related updates. Message frequency varies. Msg & data rates may apply. Reply STOP to opt out. Reply HELP for help.";
 
 /** Inline validation copy next to the consent checkbox. */
 export const SMS_CONSENT_REQUIRED_ERROR = "You must agree to receive SMS messages to continue.";

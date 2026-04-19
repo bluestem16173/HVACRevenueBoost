@@ -1,4 +1,4 @@
-import { assertHsdV25ContentRules } from "@/lib/hsd/assertHsdV25ContentRules";
+import { assertHsdV26AuthorityRules } from "@/lib/hsd/assertHsdV26AuthorityRules";
 import { enforceStrongHeadline } from "@/lib/hsd/enforceStrongHeadline";
 import { limitCanonicalTruthOccurrences } from "@/lib/hsd/limitCanonicalTruthOccurrences";
 import { removeScaffoldingFromPayload } from "@/lib/hsd/removeScaffoldingFromPayload";
@@ -12,14 +12,16 @@ export function assertSchema(page: unknown): HsdV25Payload {
   return HSDV25Schema.parse(page);
 }
 
-/** Publish / authority invariants (scaffolding, CTA, quick_table, etc.). */
-export const assertContentRules = assertHsdV25ContentRules;
+/** Publish / authority invariants (scaffolding, CTA, quick_table, decision, cost ladder, etc.). */
+export const assertContentRules = assertHsdV26AuthorityRules;
+
+export { assertHsdV26AuthorityRules };
 
 export { limitCanonicalTruthOccurrences as limitCoreTruthsInPage } from "@/lib/hsd/limitCanonicalTruthOccurrences";
 
 /**
  * **Validate → fix → validate**: schema parse, headline cleanup, scaffolding strip,
- * canonical-truth budget, then full content rules (matches generate → finalize → save).
+ * canonical-truth budget, then {@link assertHsdV26AuthorityRules} (matches generate → finalize → save).
  */
 export function finalizeHsdV25Page(page: unknown): HsdV25Payload {
   let p = assertSchema(page);

@@ -31,6 +31,18 @@ STYLE RULES (CRITICAL)
 - **Limit repetition:** the same verbatim sentence must **not** appear more than **twice** anywhere in the JSON. **canonical_truths** holds two iron laws; echo those **ideas** elsewhere with **new wording**, not copy-paste.
 
 -----------------------------------
+MATCH THIS STYLE EXACTLY (GENERATION FREEZE — SITE VALIDATOR)
+-----------------------------------
+
+The server rejects JSON that drifts from this contract. Match **exactly**:
+
+- **No** "Understanding…" intros (or any consumer-blog openers listed in STYLE RULES above)
+- **Max 2 core truths:** \`canonical_truths\` must be **1–2** non-empty strings (the two iron laws the UI echoes)
+- **Must include** \`quick_table\`: **≥4** rows (Symptom | Likely Cause | Fix) for the Quick Diagnosis scan table
+- **Must include** \`decision\`: \`safe\`, \`call_pro\`, and \`stop_now\` each **≥2** non-empty strings (the "What you should do now" columns)
+- **Must include** \`cost_escalation\`: **≥4** stages (each with \`stage\`, \`description\`, \`cost\` including realistic **$** bands)
+
+-----------------------------------
 AUTHORITY RULES (MANDATORY)
 -----------------------------------
 

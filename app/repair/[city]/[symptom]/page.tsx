@@ -7,6 +7,7 @@ import { getContractorsByCity } from "@/lib/db";
 import ServicePageTemplate from "@/templates/service-page";
 import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
+import { strictRobotsForDbPage } from "@/lib/seo/strict-indexing";
 
 // Enable ISR
 export const revalidate = 3600;
@@ -31,6 +32,9 @@ export async function generateMetadata({ params }: { params: { city: string, sym
   // STATE 1 & 2: Canonical Strategy
   // If Thin (STATE 2): Roll up authority to parent symptom hub.
   // If Full (STATE 1): Self-canonical.
+  const baseRobots = { index: !isThin, follow: true as const };
+  const strict = strictRobotsForDbPage(!isThin, aiPage?.updated_at);
+
   return {
     title: generatedSeo?.title,
     description: generatedSeo?.meta_description,
@@ -39,10 +43,7 @@ export async function generateMetadata({ params }: { params: { city: string, sym
         ? `https://www.hvacrevenueboost.com/repair/${params.symptom}`
         : `https://www.hvacrevenueboost.com/repair/${params.city}/${params.symptom}`
     },
-    robots: {
-      index: !isThin,
-      follow: true
-    }
+    robots: strict?.robots ?? baseRobots,
   };
 }
 

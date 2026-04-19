@@ -5,7 +5,9 @@ import { DiagnosticVerticalNav } from "@/components/diagnostic-hub/DiagnosticVer
 import { getIndexablePageBySlug } from "@/lib/get-indexable-page";
 import { getSystemHub, getSymptomsForHub, SYSTEM_HUBS } from "@/lib/system-hubs";
 
-export const revalidate = 3600;
+/** DB-backed symptom pages: always read fresh `pages` rows (same DATABASE_URL as workers). */
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export const dynamicParams = true;
 
 const SLUG_MAP: Record<string, string> = {

@@ -1,5 +1,7 @@
 import sql from "@/lib/db";
+import { assertHsdV26AuthorityRules } from "@/lib/hsd/assertHsdV26AuthorityRules";
 import { HSD_V2_SCHEMA_VERSION } from "@/lib/generated-page-json-contract";
+import { HSDV25Schema } from "@/lib/validation/hsdV25Schema";
 
 /** Serialize `content_json` for `::jsonb` binding (object or already-JSON string). */
 export function serializePageContentJson(contentJson: unknown): string {
@@ -17,6 +19,14 @@ export type UpsertHsdV2CitySymptomPageInput = {
  * Published `city_symptom` row with **hsd_v2** `content_json` (Neon `sql` tag).
  */
 export async function upsertHsdV2CitySymptomPage(input: UpsertHsdV2CitySymptomPageInput): Promise<void> {
+  const parsed = HSDV25Schema.safeParse(input.contentJson);
+  if (!parsed.success) {
+    throw new Error(
+      `upsertHsdV2CitySymptomPage: invalid HSD payload — ${parsed.error.issues[0]?.message ?? parsed.error.message}`
+    );
+  }
+  assertHsdV26AuthorityRules(parsed.data);
+
   const contentJson = serializePageContentJson(input.contentJson);
 
   await sql`

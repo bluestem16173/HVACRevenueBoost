@@ -2,6 +2,7 @@ import CostPageTemplate, { CostSchema } from "@/templates/cost-page";
 import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
+import { strictRobotsForDbPage } from "@/lib/seo/strict-indexing";
 
 export const revalidate = 3600;
 
@@ -13,11 +14,15 @@ export async function generateMetadata({ params }: { params: { symptom: string }
   }
 
   const data = page.content_json as unknown as CostSchema;
-  
+  const qualityOk = page.quality_status !== "noindex";
+  const strict = strictRobotsForDbPage(qualityOk, page.updated_at);
+
   return {
     title: data.title || `${data.repairOrPart} Replacement Cost Guide`,
     description: data.hook || `Find out exact pricing and labor costs for ${data.repairOrPart} replacement.`,
-    robots: page.quality_status === 'noindex' ? { index: false, follow: true } : { index: true, follow: true }
+    ...(strict ?? {
+      robots: qualityOk ? { index: true, follow: true } : { index: false, follow: true },
+    }),
   };
 }
 

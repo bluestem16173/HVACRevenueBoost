@@ -4,6 +4,7 @@ import { getQuickDecisionTreeBranches, sectionLinksForBranch } from "@/lib/homes
 import { getSystemBlocksForPageSlug } from "@/lib/systemBlockResolver";
 import { LiveElectricitySafetyNotice } from "@/components/LiveElectricitySafetyNotice";
 import { HsdInternalSiteLinks } from "@/components/homeservice/HsdInternalSiteLinks";
+import { HsdTampaRelatedHvacIssues } from "@/components/homeservice/HsdTampaRelatedHvacIssues";
 import { SystemBlocks } from "@/components/SystemBlocks";
 
 function asStrings(arr: unknown): string[] {
@@ -260,6 +261,7 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
       ) : null}
 
       {!deferInternalSiteLinks ? <HsdInternalSiteLinks data={data} /> : null}
+      <HsdTampaRelatedHvacIssues storageSlug={slug} />
     </article>
   );
 }

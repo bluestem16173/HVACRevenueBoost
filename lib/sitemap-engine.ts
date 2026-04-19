@@ -6,6 +6,8 @@
 
 import sql from "@/lib/db";
 import { CLUSTERS } from "@/lib/clusters";
+import { HVAC_TAMPA_RELATED_ISSUES } from "@/lib/homeservice/hvacTampaRelatedIssues";
+import { getIndexableSinceDate, isStrictIndexingEnabled } from "@/lib/seo/strict-indexing";
 import { CONDITIONS } from "@/lib/conditions";
 import { SYMPTOMS, CAUSES, REPAIRS } from "@/data/knowledge-graph";
 import { CITIES } from "@/data/knowledge-graph";
@@ -43,9 +45,23 @@ function toLastmod(d: Date): string {
   return d.toISOString().split("T")[0];
 }
 
+/** Tampa FL HVAC localized pillar URLs (curated; same list as on-page related links). */
+export function getHvacTampaCitySymptomEntries(): SitemapEntry[] {
+  const now = toLastmod(new Date());
+  return HVAC_TAMPA_RELATED_ISSUES.map((row) => ({
+    loc: `${BASE_URL}${row.href}`,
+    lastmod: now,
+    changefreq: "weekly" as const,
+    priority: 0.75,
+  }));
+}
+
 /** Static + pillar routes */
 export function getStaticEntries(): SitemapEntry[] {
   const now = toLastmod(new Date());
+  if (isStrictIndexingEnabled()) {
+    return [{ loc: `${BASE_URL}/`, lastmod: now, changefreq: "daily", priority: 1 }];
+  }
   const routes = [
     { url: "", priority: 1.0, changefreq: "daily" as const },
     { url: "/repair", priority: 0.9, changefreq: "weekly" as const },

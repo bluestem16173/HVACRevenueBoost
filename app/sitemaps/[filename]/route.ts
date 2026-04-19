@@ -17,6 +17,7 @@ import {
   getComponentEntries,
   getCityEntries,
   getLocalEntries,
+  getHvacTampaCitySymptomEntries,
   chunkEntries,
   toUrlSetXml,
   toSitemapIndexXml,
@@ -38,6 +39,11 @@ export async function GET(
     if (filename === "static") {
       const entries = getStaticEntries();
       const xml = toUrlSetXml(entries);
+      return xmlResponse(xml);
+    }
+
+    if (filename === "hvac-tampa-city") {
+      const xml = toUrlSetXml(getHvacTampaCitySymptomEntries());
       return xmlResponse(xml);
     }
 
