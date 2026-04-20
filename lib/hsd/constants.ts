@@ -10,21 +10,19 @@ export const HSD_V1_LOCKED_SCHEMA_VERSION = GENERATED_PAGE_SCHEMA_VERSION;
 export const HSD_V1_LOCKED_LAYOUT = GENERATED_PAGE_LAYOUT;
 
 /** Flat string body keys (AI JSON + `renderHSDPage` text). Mermaid is never stored — see `diagnostic_flow`. */
+/** Flat string body keys for HSD_Page_Build LLM output (server adds `diagnostic_flow`). */
 export const HSD_LOCKED_BODY_KEYS = [
-  "hero",
-  "problem_overview",
+  "summary_30s",
   "decision_tree",
-  "how_system_works",
   "top_causes",
+  "how_system_works",
+  "diagnostic_steps",
   "cost_matrix",
-  "repair_vs_replace",
-  "electrical_warning",
-  "field_insight",
-  "maintenance",
-  "decision_moment",
-  "cost_pressure",
-  "cta",
+  "replace_vs_repair",
   "stop_diy",
+  "prevention_tips",
+  "tools_needed",
+  "bench_test_notes",
 ] as const;
 
 export type HsdLockedBodyKey = (typeof HSD_LOCKED_BODY_KEYS)[number];

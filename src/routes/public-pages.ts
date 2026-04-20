@@ -15,7 +15,13 @@ export async function publicPagesRoutes(app: FastifyInstance) {
     const pageType = page.page_type || "";
 
     // Force Fastify/EJS delivery for authority/city pages
-    if (pageType === "dg_authority_v2" || pageType === "hvac_authority_v3" || slug.startsWith("hvac/") || slug.startsWith("rv/hvac/")) {
+    if (
+      pageType === "dg_authority_v2" ||
+      pageType === "hvac_authority_v3" ||
+      pageType === "hsd" ||
+      slug.startsWith("hvac/") ||
+      slug.startsWith("rv/hvac/")
+    ) {
       const parsed =
         typeof page.content_json === "string"
           ? JSON.parse(page.content_json)

@@ -99,6 +99,19 @@ export const PAGE_TYPES = {
     generator: "generateDiagnosticEngineJson",
     notes: "e.g. AC Not Cooling Tampa — fast answer, quick checks, service area.",
   },
+  /** Home Service Diagnostic (HSD) authority engine — canonical successor to `hvac_authority_v3` queue label. */
+  hsd: {
+    id: "hsd",
+    queueKeys: ["hsd", "hvac_authority_v3"],
+    routes: ["/hvac/[symptom]/[city]", "/diagnose/[symptom]"],
+    templates: ["HSDPage", "HSD locked JSON", "generateDiagnosticEngineJson + HSD_V2 prompt"],
+    schemaVersions: ["hsd_v2"],
+    promptDoc: "lib/prompt-schema-router.ts (HSD_V2) | lib/hsd/validatePage.ts",
+    schemaModule: "lib/validation/hsdV25Schema.ts",
+    validatorModule: "lib/hsd/validatePage.ts",
+    generator: "generateDiagnosticEngineJson",
+    notes: "Veteran-technician HSD v2 JSON; DB `page_type` may be `hsd` or legacy `city_symptom` with same schema.",
+  },
   hybrid: {
     id: "hybrid",
     queueKeys: ["hybrid"],
@@ -237,10 +250,13 @@ export type PageTypeId = keyof typeof PAGE_TYPES;
 
 /** Map legacy / duplicate queue labels → canonical registry id */
 export const PAGE_TYPE_ALIASES: Record<string, PageTypeId> = {
+  hsd: "hsd",
   symptom: "symptom",
-  diagnose: "symptom",
-  diagnostic: "symptom",
-  condition: "symptom",
+  /** Authority / diagnostic engine labels → single HSD contract */
+  diagnose: "hsd",
+  diagnostic: "hsd",
+  diagnostic_engine: "hsd",
+  condition: "hsd",
   repair: "repair",
   emergency: "emergency",
   hybrid: "hybrid",
@@ -257,8 +273,11 @@ export const PAGE_TYPE_ALIASES: Record<string, PageTypeId> = {
   maintenance: "maintenance",
   city_service: "city_service",
   "city-service": "city_service",
-  city_symptom: "city_symptom",
-  "city-symptom": "city_symptom",
+  /** Localized HSD rows historically used `city_symptom`; canonical authority id is `hsd`. */
+  city_symptom: "hsd",
+  "city-symptom": "hsd",
+  /** Legacy `generation_queue` label → canonical HSD registry id */
+  hvac_authority_v3: "hsd",
 };
 
 export function normalizePageTypeKey(pageType: string | undefined | null, proposedSlug: string): PageTypeId {
@@ -266,13 +285,16 @@ export function normalizePageTypeKey(pageType: string | undefined | null, propos
   if (slug.startsWith("repair/")) return "repair";
   if (slug.startsWith("emergency/")) return "emergency";
 
-  const raw = (pageType || "symptom").toLowerCase().trim();
-  const aliased = PAGE_TYPE_ALIASES[raw];
+  const key = (pageType ?? "").toLowerCase().trim();
+  if (!key) return "hsd";
+
+  const aliased = PAGE_TYPE_ALIASES[key];
   if (aliased) return aliased;
 
-  if (raw in PAGE_TYPES) return raw as PageTypeId;
+  if (key in PAGE_TYPES) return key as PageTypeId;
 
-  return "symptom";
+  /** Unknown queue labels default to HSD authority (no silent fallthrough to `symptom`). */
+  return "hsd";
 }
 
 export function getPageTypeConfig(id: PageTypeId): PageTypeDefinition {

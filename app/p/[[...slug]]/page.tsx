@@ -1,3 +1,4 @@
+import { normalizePagesTableSlugLookup } from "@/lib/slug-utils";
 import { getPageFromDB } from "@/src/lib/pages/getPageFromDbBySlug";
 
 export const dynamic = "force-dynamic";
@@ -6,7 +7,8 @@ export const revalidate = 0;
 type PageProps = { params: { slug?: string[] } };
 
 export default async function Page({ params }: PageProps) {
-  const slug = params.slug?.length ? params.slug.join("/") : "";
+  const rawSlug = params.slug?.length ? params.slug.join("/") : "";
+  const slug = normalizePagesTableSlugLookup(rawSlug);
 
   if (!slug) {
     return (

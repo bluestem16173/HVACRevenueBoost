@@ -16,7 +16,7 @@ export type UpsertHsdV2CitySymptomPageInput = {
 };
 
 /**
- * Published `city_symptom` row with **hsd_v2** `content_json` (Neon `sql` tag).
+ * Published **hsd_v2** `content_json` row (`page_type` **`hsd`** — canonical HSD authority engine).
  */
 export async function upsertHsdV2CitySymptomPage(input: UpsertHsdV2CitySymptomPageInput): Promise<void> {
   const parsed = HSDV25Schema.safeParse(input.contentJson);
@@ -44,7 +44,7 @@ export async function upsertHsdV2CitySymptomPage(input: UpsertHsdV2CitySymptomPa
       ${contentJson}::jsonb,
       ${HSD_V2_SCHEMA_VERSION},
       'published',
-      'city_symptom'
+      'hsd'
     )
     ON CONFLICT (slug)
     DO UPDATE SET
@@ -52,7 +52,7 @@ export async function upsertHsdV2CitySymptomPage(input: UpsertHsdV2CitySymptomPa
       content_json = EXCLUDED.content_json,
       schema_version = ${HSD_V2_SCHEMA_VERSION},
       status = 'published',
-      page_type = 'city_symptom',
+      page_type = 'hsd',
       updated_at = NOW()
   `;
 }

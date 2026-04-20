@@ -18,19 +18,21 @@ import {
   getFallback,
   SCHEMA_STRING
 } from "./schema";
-import { normalizePageTypeKey } from "@/config/page-types";
-import {
-  buildHrbTaskPrompt,
-  HRB_SYSTEM_LOCK,
-  isDecisionGridDiagnosticMode,
-} from "./prompts/hvac-revenue-boost";
-import {
-  composePromptForPageType,
-  HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION,
-} from "@/lib/prompt-schema-router";
+import { buildHrbTaskPrompt, HRB_SYSTEM_LOCK } from "./prompts/hvac-revenue-boost";
+import { composePromptForPageType } from "@/lib/prompt-schema-router";
 import { HSD_V2_SCHEMA_VERSION } from "@/lib/generated-page-json-contract";
 import { applyHsdTampaPresetInternalLinks } from "@/lib/homeservice/hsdCityInternalLinksRegistry";
 import { enforceStoredSlug } from "@/lib/slug-utils";
+
+/** Single authority path: every diagnostic-engine generation uses HSD v2 + HVAC vertical. */
+export function enforceHsdOrchestrator(orch: unknown): Record<string, unknown> {
+  const base = orch && typeof orch === "object" ? { ...(orch as Record<string, unknown>) } : {};
+  return {
+    ...base,
+    schemaVersion: HSD_V2_SCHEMA_VERSION,
+    verticalId: "hvac",
+  };
+}
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const gemini = new OpenAI({ 
@@ -49,9 +51,9 @@ function isJsonTruncated(str: string): boolean {
 // --- RETRY ---
 async function callWithRetry<T>(
   fn: () => Promise<T>,
-  options: { maxRetries?: number, pageType?: string } = {}
+  options: { maxRetries?: number; pageType?: string; throwOnFailure?: boolean } = {}
 ): Promise<T> {
-  const { maxRetries = 3, pageType = "symptom" } = options;
+  const { maxRetries = 3, pageType = "symptom", throwOnFailure = false } = options;
   let lastError: unknown;
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
@@ -66,6 +68,9 @@ async function callWithRetry<T>(
     }
   }
   console.error("FAILED_AFTER_3_ATTEMPTS", lastError);
+  if (throwOnFailure) {
+    throw lastError instanceof Error ? lastError : new Error(String(lastError));
+  }
   const hash = EXPECTED_PROMPT_HASH;
   return { ...getFallback(pageType), _prompt_hash: hash } as any as T;
 }
@@ -607,30 +612,85 @@ export async function generateDiagnosticEngineJson(input: { symptom: string, cit
   await assertDailySpendAllows("generateDiagnosticEngineJson:start");
   console.log("GENERATION TRIGGERED", new Date());
 
-  const canonical = normalizePageTypeKey(input.pageType, input.symptom);
-  const useDecisionGrid = isDecisionGridDiagnosticMode();
-  
-  let finalPrompt = "";
-  const orch =
-    orchestratorOptions && typeof orchestratorOptions === "object" ? orchestratorOptions : {};
-  const schemaV = (orch as { schemaVersion?: string }).schemaVersion;
-  if (
-    schemaV === "diagnostic_engine" ||
-    schemaV === "rv_diagnostic" ||
-    schemaV === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION ||
-    schemaV === HSD_V2_SCHEMA_VERSION ||
-    input.pageType === "diagnostic_engine"
-  ) {
-    finalPrompt = composePromptForPageType(input.pageType || "diagnostic_engine", input.symptom, {
-      ...orch,
-      verticalId: (orch as any).verticalId ?? (orch as any).vertical ?? "hvac",
-      city: input.city || (orch as any).city || null,
-      state: (orch as { state?: string | null }).state ?? null,
-      primaryIssue: (orch as { primaryIssue?: string | null }).primaryIssue ?? null,
+  const merged =
+    orchestratorOptions && typeof orchestratorOptions === "object"
+      ? { ...(orchestratorOptions as Record<string, unknown>) }
+      : {};
+  const orch = {
+    ...merged,
+    schemaVersion: HSD_V2_SCHEMA_VERSION,
+    verticalId: "hvac",
+  };
+
+  const finalPrompt = composePromptForPageType("diagnostic_engine", input.symptom, {
+    ...orch,
+    verticalId: (orch as { verticalId?: string }).verticalId ?? "hvac",
+    city: input.city || (orch as { city?: string | null }).city || null,
+    state: (orch as { state?: string | null }).state ?? null,
+    primaryIssue: (orch as { primaryIssue?: string | null }).primaryIssue ?? null,
+  });
+
+  const systemMessage =
+    "You are a senior field service diagnostic technician (HVAC, plumbing, electrical). Output one complete JSON object only. No markdown fences. No commentary outside JSON. Include diagnostic_flow (at least 4 nodes and 3 edges, ids must match), repair_matrix (4+ rows with numeric cost_min/cost_max), and every array must meet the contract minimums — undersized or invalid graphs cause hard rejection.";
+
+  const maxCompletionTokens = 8192;
+
+  return callWithRetry(async () => {
+    await assertDailySpendAllows("generateDiagnosticEngineJson:retry");
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: systemMessage },
+        { role: "user", content: finalPrompt }
+      ],
+      max_completion_tokens: maxCompletionTokens
     });
-  } else {
-    // Fallback legacy Florida prompt
-    finalPrompt = `You are generating HVAC diagnostic pages for a high-conversion website.
+    
+    console.log(`ORCH::METRIC=${JSON.stringify({ tokens: response.usage?.total_tokens || 0, cost: (response.usage?.total_tokens || 0) * 0.000002 })}`);
+    await recordOpenAiChatUsage("gpt-4o-mini", response.usage, "master-validator-generator");
+
+    const contentStr = response.choices[0]?.message?.content;
+    if (!contentStr) throw new Error("Empty AI response");
+
+    try {
+      const parsed = JSON.parse(
+        contentStr.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim()
+      ) as Record<string, unknown>;
+      const incomingSv = String(parsed.schema_version ?? "").trim();
+      if (incomingSv && incomingSv !== HSD_V2_SCHEMA_VERSION) {
+        throw new Error(`Non-HSD schema generated: ${incomingSv}`);
+      }
+      parsed.schema_version = HSD_V2_SCHEMA_VERSION;
+      parsed.page_type = "city_symptom";
+      const jobSlug = enforceStoredSlug(input.symptom);
+      let merged = applyHsdTampaPresetInternalLinks(parsed, jobSlug);
+      if (merged === parsed && typeof (parsed as { slug?: unknown }).slug === "string") {
+        merged = applyHsdTampaPresetInternalLinks(parsed, enforceStoredSlug((parsed as { slug: string }).slug));
+      }
+      return merged;
+    } catch(e: any) {
+      console.error("❌ OpenAI API Parsing Failed:", e.message || e);
+      throw new Error("Invalid JSON from LLM: " + e);
+    }
+  }, { maxRetries: 1, throwOnFailure: true });
+}
+
+/**
+ * Legacy Florida homeowner-style JSON (pre-HSD lock). Used when `generation_queue.page_type !== "hsd"`.
+ */
+export async function generateLegacyFloridaDiagnosticJson(
+  input: { symptom: string; city: string },
+  retryFeedback: string = ""
+): Promise<Record<string, unknown>> {
+  if (process.env.GENERATION_ENABLED !== "true") {
+    console.log("🚫 Generation globally disabled");
+    return undefined as any;
+  }
+  await assertAutoModeEnabled({ bypassAutoMode: true });
+  await assertDailySpendAllows("generateLegacyFloridaDiagnosticJson:start");
+
+  const finalPrompt = `You are generating HVAC diagnostic pages for a high-conversion website.
 
 Output clean JSON only.
 
@@ -666,63 +726,40 @@ Return JSON only.
 Topic: ${input.symptom}
 City/Region Context: ${input.city || "Florida"}
 
-Important Context: Each page should subtly reference the local city (${input.city || "Florida"}) and the intense Florida heat/humidity conditions where relevant (to establish local authority and reality without sounding forced).`;
-  }
+Important Context: Each page should subtly reference the local city (${input.city || "Florida"}) and the intense Florida heat/humidity conditions where relevant (to establish local authority and reality without sounding forced).${retryFeedback ? `\n\n${retryFeedback}` : ""}`;
 
   const systemMessage =
-    schemaV === HSD_V2_SCHEMA_VERSION
-      ? "You are a senior field service diagnostic technician (HVAC, plumbing, electrical). Output one complete JSON object only. No markdown fences. No commentary outside JSON. Include diagnostic_flow (at least 4 nodes and 3 edges, ids must match), repair_matrix (4+ rows with numeric cost_min/cost_max), and every array must meet the contract minimums — undersized or invalid graphs cause hard rejection."
-      : "You are the HVAC Revenue Boost expert JSON generator. Output strict JSON only.";
-
-  const maxCompletionTokens =
-    schemaV === HSD_V2_SCHEMA_VERSION
-      ? 8192
-      : schemaV === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION
-        ? 3200
-        : 2800;
+    "You are the HVAC Revenue Boost expert JSON generator. Output strict JSON only.";
+  const maxCompletionTokens = 2800;
 
   return callWithRetry(async () => {
-    await assertDailySpendAllows("generateDiagnosticEngineJson:retry");
+    await assertDailySpendAllows("generateLegacyFloridaDiagnosticJson:retry");
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: systemMessage },
-        { role: "user", content: finalPrompt }
+        { role: "user", content: finalPrompt },
       ],
-      max_completion_tokens: maxCompletionTokens
+      max_completion_tokens: maxCompletionTokens,
     });
-    
-    console.log(`ORCH::METRIC=${JSON.stringify({ tokens: response.usage?.total_tokens || 0, cost: (response.usage?.total_tokens || 0) * 0.000002 })}`);
-    await recordOpenAiChatUsage("gpt-4o-mini", response.usage, "master-validator-generator");
+
+    console.log(
+      `ORCH::METRIC=${JSON.stringify({ tokens: response.usage?.total_tokens || 0, cost: (response.usage?.total_tokens || 0) * 0.000002 })}`
+    );
+    await recordOpenAiChatUsage("gpt-4o-mini", response.usage, "legacy-florida-diagnostic-generator");
 
     const contentStr = response.choices[0]?.message?.content;
     if (!contentStr) throw new Error("Empty AI response");
 
     try {
-      const parsed = JSON.parse(
+      return JSON.parse(
         contentStr.replace(/^\s*```json/i, "").replace(/```\s*$/i, "").trim()
       ) as Record<string, unknown>;
-      if (schemaV === HSD_V2_SCHEMA_VERSION) {
-        parsed.schema_version = HSD_V2_SCHEMA_VERSION;
-        parsed.page_type = "city_symptom";
-        return parsed;
-      }
-      if (schemaV === HSD_CITY_DIAGNOSTIC_SCHEMA_VERSION) {
-        const jobSlug = enforceStoredSlug(input.symptom);
-        let merged = applyHsdTampaPresetInternalLinks(parsed, jobSlug);
-        if (merged === parsed && typeof (parsed as { slug?: unknown }).slug === "string") {
-          merged = applyHsdTampaPresetInternalLinks(
-            parsed,
-            enforceStoredSlug((parsed as { slug: string }).slug)
-          );
-        }
-        return merged;
-      }
-      return parsed;
-    } catch(e: any) {
-      console.error("❌ OpenAI API Parsing Failed:", e.message || e);
-      throw new Error("Invalid JSON from LLM: " + e);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      console.error("❌ OpenAI API Parsing Failed:", msg);
+      throw new Error("Invalid JSON from LLM: " + msg);
     }
-  }, { maxRetries: 1 }); // Retries are handled cleanly in the generation-worker queue loop
+  }, { maxRetries: 1 });
 }

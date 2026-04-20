@@ -1,0 +1,55 @@
+{
+  "diagnostic_flow": {
+    "version": 1,
+    "system": "hvac",
+    "issue_label": "high energy bills",
+    "nodes": [
+      { "id": "start", "kind": "start", "label": "High energy bills" },
+      { "id": "runtime", "kind": "decision", "label": "Check runtime" },
+      { "id": "airflow", "kind": "decision", "label": "Check airflow" },
+      { "id": "refrigerant", "kind": "decision", "label": "Check refrigerant" },
+      { "id": "inefficiency", "kind": "outcome", "label": "System inefficiency" },
+      { "id": "leak", "kind": "outcome", "label": "Refrigerant leak" }
+    ],
+    "edges": [
+      { "from": "start", "to": "runtime", "label": "If bills rising" },
+      { "from": "runtime", "to": "airflow", "label": "If runtime high" },
+      { "from": "airflow", "to": "inefficiency", "label": "If airflow restricted" },
+      { "from": "airflow", "to": "refrigerant", "label": "If airflow normal" },
+      { "from": "refrigerant", "to": "leak", "label": "If PSI low" }
+    ]
+  },
+  "summary_30s": "High energy bills usually mean the system is running too long due to airflow restriction, poor heat transfer, or refrigerant imbalance. Runtime inflation shows up before comfort fully collapses—static pressure and sensible split tell the story.",
+  "decision_tree": "If bills are rising → check runtime versus design hours.\nIf system runs constantly → airflow or load issue is primary.\nIf airflow is weak → airflow restriction drives watt draw up.\nIf airflow is normal → check refrigerant pressures in PSI next.\nIf suction PSI is low → low charge equals a leak because refrigerant is not consumed.\nIf amps are high at the same setpoint → inefficiency or overwork at a component is likely.\nIf fan running but equipment never reaches setpoint → system working is not proven by blower motion.",
+  "top_causes": "Airflow restriction increases static pressure and reduces heat transfer. Refrigerant is not consumed, so low charge equals a leak. Dirty coils, duct restrictions, and improper sizing all increase runtime and energy consumption.",
+  "how_system_works": "An AC system should cycle off once the set temperature is reached. Airflow carries heat to the evaporator coil for heat transfer. If airflow restriction or refrigerant imbalance exists, the system runs longer and harder. Ignoring this forces the compressor outside its design limits. A fan running does not mean the system working.",
+  "diagnostic_steps": "Measure temperature split in °F across the coil; if below 16°F → inefficient cooling or airflow fault.\nMeasure suction pressure in PSI; if low → leak confirmed because refrigerant is not consumed.\nMeasure system amps and line voltage (VAC); if amps exceed rating while setpoint drags → overload fault is present.\nIf airflow, thermostat, and power are confirmed and the system still is not cooling, the fault is no longer superficial. continuing to run the system is what turns a manageable repair into a major failure.\nStop. Professional diagnosis is not optional before declaring any single component bad.",
+  "cost_matrix": "Tune-up: $150–$400 | Coil cleaning: $300–$800 | Leak repair: $500–$1500 | Replacement: $5000–$12000",
+  "replace_vs_repair": "If repair is $800 vs replacement $8000, repair may make sense under 10 years. If inefficiency persists or the system is over 12 years old, it is better to replace. Chronic inefficiency is not worth repairing repeatedly.",
+  "stop_diy": "Stop. Professional diagnosis is not optional. This is how minor complaints turn into compressor failures.",
+  "prevention_tips": "Maintain airflow, clean coils, monitor runtime, and keep static pressure within manufacturer windows.",
+  "tools_needed": "Thermometer, amp clamp, manifold gauges, multimeter",
+  "bench_test_notes": "Measure amps and line voltage (VAC). If amps exceed rated load → indicates system inefficiency and potential component failure. Measure PSI. Low PSI confirms refrigerant fault. Measure airflow. Low airflow indicates duct restriction fault.",
+  "internal_links": {
+    "related_symptoms": [
+      "hvac/ac-not-cooling",
+      "hvac/ac-running-constantly",
+      "hvac/system-not-efficient"
+    ],
+    "causes": [
+      "hvac/refrigerant-leak",
+      "hvac/dirty-coils",
+      "hvac/ductwork-static-pressure-high",
+      "hvac/undersized-ac-unit-running-constantly"
+    ],
+    "system_pages": ["hvac/central-air-conditioning-system", "hvac/air-handler-system"],
+    "repair_guides": [
+      "repair/tampa-fl/high-energy-bills",
+      "repair/fort-myers-fl/high-energy-bills"
+    ],
+    "context_pages": [
+      "hvac/ac-using-more-electricity-than-normal",
+      "hvac/ac-running-all-day"
+    ]
+  }
+}

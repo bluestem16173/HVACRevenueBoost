@@ -6,9 +6,16 @@ import {
   queueAttemptCount,
 } from "../lib/generation-queue";
 import sql from '../lib/db';
-import { generateDiagnosticEngineJson, transformDGToUnified, assertCriticalDiagnosticFields } from '../lib/content-engine/generator';
-import { getFallback, Schema } from '../lib/content-engine/schema';
-import { HVACAuthorityPageSchema } from '../types/hvac-authority';
+import {
+  enforceHsdOrchestrator,
+  generateDiagnosticEngineJson,
+  generateLegacyFloridaDiagnosticJson,
+  transformDGToUnified,
+  assertCriticalDiagnosticFields,
+} from "../lib/content-engine/generator";
+import { migrateOnePage } from "../lib/content-engine/relational-upsert";
+import { HVACAuthorityPageSchema } from "../types/hvac-authority";
+import { getFallback, Schema } from "../lib/content-engine/schema";
 import { EXPECTED_PROMPT_HASH } from '../lib/content-engine/core';
 import { normalizeToBaseSlug, buildSlug } from '../lib/slug-helpers';
 import { buildRetryPromptFragment } from '../lib/prompt-schema-router';
@@ -19,13 +26,13 @@ import {
   isEmergencyGenerationShutdown,
 } from "../lib/emergency-generation-shutdown";
 import { validateV2 } from "../lib/validators/validate-v2";
-import { migrateOnePage } from "../lib/content-engine/relational-upsert";
 import { QueueStatus } from "../lib/queue-status";
 import { pagesStatusAfterSuccessfulGeneration } from "../lib/page-status";
 import { describeQueueJobForLogs } from "../lib/content-system/registry";
 import {
   GENERATED_PAGE_LAYOUT,
   GENERATED_PAGE_SCHEMA_VERSION,
+  HSD_V2_SCHEMA_VERSION,
 } from "../lib/generated-page-json-contract";
 
 console.log("DB URL:", process.env.DATABASE_URL);
@@ -295,14 +302,21 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
       }
 
       const proposedSlug = job.proposed_slug;
-      
-      // Override legacy fallbacks: Publisher strictly respects the queue page_type
-      const pageType = job.page_type || "hvac_authority_v3";
 
-      console.log("📖 Content OS registry:", describeQueueJobForLogs(String(pageType), String(proposedSlug)));
+      const queuePageTypeRaw = (job.page_type ?? "").trim();
+      const isHsdQueueJob = queuePageTypeRaw === "hsd";
+
+      const orchestratorMerged = isHsdQueueJob
+        ? enforceHsdOrchestrator(job.orchestrator_options)
+        : job.orchestrator_options;
+
+      console.log(
+        "📖 Content OS registry:",
+        describeQueueJobForLogs(String(queuePageTypeRaw || (isHsdQueueJob ? "hsd" : "legacy")), String(proposedSlug)),
+      );
 
       if (process.env.DRY_RUN === "true") {
-        console.log("Would generate:", proposedSlug, { page_type: job.page_type, id: job.id });
+        console.log("Would generate:", proposedSlug, { page_type: queuePageTypeRaw, id: job.id });
         if (!job.is_regen) {
           await sql`
             UPDATE generation_queue
@@ -313,7 +327,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         continue;
       }
 
-      if (!shouldUseAiForQueueJob(String(job.page_type || pageType), String(proposedSlug))) {
+      if (!shouldUseAiForQueueJob(String(job.page_type || (isHsdQueueJob ? "hsd" : queuePageTypeRaw)), String(proposedSlug))) {
         console.log(
           "📍 Layer 8 — skipping AI for location/template page (expand from canonical symptom in code):",
           proposedSlug
@@ -332,42 +346,51 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
       }
 
       try {
-        console.log("🚀 GENERATING:", proposedSlug);
+        console.log("🚀 GENERATING:", proposedSlug, isHsdQueueJob ? "[HSD]" : "[LEGACY]");
 
         let attempts = 0;
         let lastError = "";
         let finalResult: any = null;
         /** Never `generation_queue.status` — only `pages.status` lifecycle (see lib/page-status.ts). */
         let pagesInsertStatus: ReturnType<typeof pagesStatusAfterSuccessfulGeneration> | null = null;
-        let schemaVersion = GENERATED_PAGE_SCHEMA_VERSION;
+        const schemaVersionForInsert = isHsdQueueJob
+          ? HSD_V2_SCHEMA_VERSION
+          : GENERATED_PAGE_SCHEMA_VERSION;
 
         while (attempts < 3) {
-          const rawDgMsg = await generateDiagnosticEngineJson(
-            { symptom: proposedSlug, city: job.city || "Florida", pageType },
-            lastError,
-            job.orchestrator_options
-          );
-
-          // ✨ APPLIED TRANSFORMATION LAYER ✨
-          const transformed = transformToHVACv3(rawDgMsg);
-
-          console.log(`📦 JSON GENERATED AND TRANSFORMED (Attempt ${attempts + 1}/3):`, proposedSlug);
-
-          // 🛡️ RIGID ZOD VALIDATION CHECK 🛡️
-          const schemaCheck = HVACAuthorityPageSchema.safeParse(transformed);
+          let finalData: unknown;
           let validation = { valid: true, error: "" };
-          let finalData;
 
-          if (schemaCheck.success) {
-            finalData = schemaCheck.data;
+          if (isHsdQueueJob) {
+            const rawDgMsg = await generateDiagnosticEngineJson(
+              { symptom: proposedSlug, city: job.city || "Florida", pageType: "diagnostic_engine" },
+              lastError,
+              orchestratorMerged,
+            );
+            finalData = rawDgMsg;
           } else {
-            console.error("Schema failed, using transformed fallback:", schemaCheck.error.flatten());
-            finalData = transformed; // STILL USE IT
+            const rawDgMsg = await generateLegacyFloridaDiagnosticJson(
+              { symptom: proposedSlug, city: job.city || "Florida" },
+              lastError,
+            );
+            const transformed = transformToHVACv3(rawDgMsg);
+            const schemaCheck = HVACAuthorityPageSchema.safeParse(transformed);
+            if (schemaCheck.success) {
+              finalData = schemaCheck.data;
+            } else {
+              validation = { valid: false, error: schemaCheck.error.message };
+            }
           }
+
+          console.log(
+            isHsdQueueJob
+              ? `📦 JSON GENERATED (HSD v2) (Attempt ${attempts + 1}/3):`
+              : `📦 JSON GENERATED (LEGACY) (Attempt ${attempts + 1}/3):`,
+            proposedSlug,
+          );
 
           if (validation.valid) {
             console.log(`✅ Validation completed for ${proposedSlug}`);
-            // Use the data (either fully validated output, or the fallback)
             finalResult = finalData;
             pagesInsertStatus = pagesStatusAfterSuccessfulGeneration();
             break;
@@ -384,6 +407,7 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         }
 
         const result = finalResult;
+        const dbPageTypeForInsert = isHsdQueueJob ? "hsd" : queuePageTypeRaw || "hvac_authority_v3";
 
         if (!job.is_regen) {
           await sql`
@@ -394,10 +418,10 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
         }
 
         // Add required properties safely to avoid null reference crashes
-        if (result && typeof result === 'object') {
+        if (result && typeof result === "object") {
           (result as any)._prompt_hash = EXPECTED_PROMPT_HASH;
           (result as any).engineVersion = "v5.0";
-          if (pageType === "hvac_authority_v3") {
+          if (!isHsdQueueJob && queuePageTypeRaw === "hvac_authority_v3") {
             (result as any).layout = GENERATED_PAGE_LAYOUT;
             (result as any).schema_version = GENERATED_PAGE_SCHEMA_VERSION;
           }
@@ -421,9 +445,8 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
 
         console.log("💾 DUAL-WRITE V2 START:", cleanSlug);
 
-        // V2 Relational Engine Native Upsert
-        if (pageType !== "hvac_authority_v3") {
-           await migrateOnePage(sql, null, cleanSlug, result);
+        if (!isHsdQueueJob && queuePageTypeRaw !== "hvac_authority_v3") {
+          await migrateOnePage(sql, null, cleanSlug, result);
         }
 
         if (finalResult && Object.keys(finalResult).length > 0) {
@@ -440,10 +463,10 @@ export async function runWorker(options: { limit?: number, manual?: boolean, typ
               ${html},
               ${pagesInsertStatus},
               'approved',
-              ${pageType},
+              ${dbPageTypeForInsert},
               ${finalResult.title || 'Untitled'},
               ${city},
-              ${schemaVersion}
+              ${schemaVersionForInsert}
             )
             ON CONFLICT (slug) DO UPDATE
             SET content_json = EXCLUDED.content_json,

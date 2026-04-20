@@ -1,6 +1,9 @@
 /**
  * Step 5 worker: pull pending rows from `page_queue`, generate HSD city JSON, validate, upsert `pages`.
  *
+ * Per-job logic (including **catch** logging + failed-row `UPDATE`) lives in
+ * `processOnePageQueueJob` / `runHsdPipeline` in `lib/homeservice/hsdPageQueueWorker.ts` — not in this file.
+ *
  * Usage:
  *   GENERATION_ENABLED=true npx tsx scripts/hsd-page-queue-worker.ts
  *   npx tsx scripts/hsd-page-queue-worker.ts --limit 5
@@ -8,9 +11,13 @@
  * Prereq: `npx tsx scripts/run-migration-015.ts` and optional seed:
  *   `npx tsx scripts/seed-hsd-tampa-page-queue.ts`
  */
+import path from "node:path";
+
 import "dotenv/config";
 import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
+import { formatDatabaseUrlRuntimeForLog } from "../lib/db/databaseUrlFingerprint";
+
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { runHsdPageQueueBatch } from "@/lib/homeservice/hsdPageQueueWorker";
 
@@ -25,6 +32,7 @@ function argLimit(): number {
 
 async function main() {
   const limit = argLimit();
+  console.log(formatDatabaseUrlRuntimeForLog());
   console.log(`page_queue batch: limit=${limit}`);
   const out = await runHsdPageQueueBatch(limit);
   console.log(JSON.stringify(out, null, 2));

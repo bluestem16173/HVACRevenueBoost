@@ -1,4 +1,7 @@
 import { formatCityPathSegmentForDisplay } from "@/lib/localized-city-path";
+import { applyDedupeLinesPassToHsdJson } from "@/lib/hsd/dedupeHsdMultilineFields";
+import { injectProgrammaticHsdCtas } from "@/lib/hsd/injectProgrammaticHsdCtas";
+import { applyQuickChecksLabelNormalizationToHsdJson } from "@/lib/hsd/normalizeHsdQuickChecksLabels";
 import {
   LOCKED_AC_NOT_COOLING_HEADLINE,
   isAcNotCoolingCitySlug,
@@ -50,7 +53,7 @@ const DEFAULT_DECISION_TREE = [
 
 const DEFAULT_TOOLS = ["multimeter", "manifold gauges", "coil cleaner"];
 
-/** Default Quick Diagnosis ladder when `quick_table` is thin (HVAC cooling pattern). */
+/** Default Quick checks ladder when `quick_table` is thin (HVAC cooling pattern). */
 const DEFAULT_QUICK_TABLE_ROWS: { symptom: string; cause: string; fix: string }[] = [
   { symptom: "Weak airflow", cause: "Dirty filter", fix: "Replace filter" },
   { symptom: "Ice on lines", cause: "Frozen evaporator", fix: "Thaw + restore airflow" },
@@ -200,7 +203,10 @@ export function coerceHsdJsonForV25View(raw: Record<string, unknown>): HsdV25Pay
     return null;
   }
 
-  if (o.page_type !== "city_symptom" || o.schema_version !== "hsd_v2") {
+  if (
+    (o.page_type !== "city_symptom" && o.page_type !== "hsd") ||
+    o.schema_version !== "hsd_v2"
+  ) {
     return null;
   }
 
@@ -422,6 +428,10 @@ export function coerceHsdJsonForV25View(raw: Record<string, unknown>): HsdV25Pay
     call_pro: mergeStringList(strList(decIn.call_pro), DEFAULT_DECISION.call_pro, 2),
     stop_now: mergeStringList(strList(decIn.stop_now), DEFAULT_DECISION.stop_now, 2),
   };
+
+  applyDedupeLinesPassToHsdJson(o);
+  applyQuickChecksLabelNormalizationToHsdJson(o);
+  injectProgrammaticHsdCtas(o);
 
   const parsed = HSDV25Schema.safeParse(o);
   return parsed.success ? parsed.data : null;

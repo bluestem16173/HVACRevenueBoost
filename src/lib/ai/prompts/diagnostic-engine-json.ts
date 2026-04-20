@@ -10,6 +10,23 @@ You are NOT writing an article.
 You are building a diagnostic system that lets a user scan, decide, and act quickly. Every string is a UI field rendered into React (plain text only).
 
 -----------------------------------
+SCHEMA-FIRST (CRITICAL — READ BEFORE WRITING)
+-----------------------------------
+
+If the structure is invalid, the answer is incorrect. Return **valid JSON** that matches the OUTPUT SCHEMA below **exactly** — every required key, correct types, and non-empty strings — even if you must keep some fields shorter to stay valid.
+
+You are generating **HSD v2** city_symptom JSON (schema_version must be **hsd_v2**) for a field-service UI — not DG Authority v2, not narrative articles, not markdown outside JSON.
+
+Generate detailed HVAC diagnostic JSON.
+
+REQUIREMENTS:
+- Must follow the OUTPUT SCHEMA exactly (no renamed keys, no extra top-level keys).
+- Must include structured branching using **If X → Y**, **When Y, then …**, and/or **→** scan lines where the schema allows (decision_tree_text, summary_30s.flow_lines, diagnostic_steps, etc.).
+- Must include measurable diagnostics (°F, PSI, voltage, superheat/subcool, CFM, etc.) in the fields that carry technical depth.
+- Do not return narrative prose outside the single JSON object.
+- Do not deviate from schema.
+
+-----------------------------------
 PRIMARY OBJECTIVE
 -----------------------------------
 
@@ -29,6 +46,7 @@ STYLE RULES (CRITICAL)
 - No HTML tags in any string.
 - **Line breaks:** most scalar fields stay **one continuous block** (no internal \\n). **Exceptions:** (1) **summary_30s.flow_lines** — each **array item** is one scan line; use **4+** items. (2) **summary_30s.core_truth**, **what_this_means**, **final_warning**, **cta** may use **one** blank line (\\n\\n) to split **at most two** short paragraphs when density demands it — no deeper nesting, no other fields.
 - **Limit repetition:** the same verbatim sentence must **not** appear more than **twice** anywhere in the JSON. **canonical_truths** holds two iron laws; echo those **ideas** elsewhere with **new wording**, not copy-paste.
+- **Structured blocks first:** put scan ladders in \`quick_table\`, branch logic in \`decision_tree_text\` + \`diagnostic_flow\` (Mermaid), and cost paths in \`repair_matrix\`. Keep \`what_this_means\` to one dense mechanism paragraph — **do not** re-list full branch ladders that already live in those structured fields.
 
 -----------------------------------
 MATCH THIS STYLE EXACTLY (GENERATION FREEZE — SITE VALIDATOR)
@@ -38,7 +56,7 @@ The server rejects JSON that drifts from this contract. Match **exactly**:
 
 - **No** "Understanding…" intros (or any consumer-blog openers listed in STYLE RULES above)
 - **Max 2 core truths:** \`canonical_truths\` must be **1–2** non-empty strings (the two iron laws the UI echoes)
-- **Must include** \`quick_table\`: **≥4** rows (Symptom | Likely Cause | Fix) for the Quick Diagnosis scan table
+- **Must include** \`quick_table\`: **≥4** rows (Symptom | Likely Cause | Fix) for the Quick checks scan table (under summary)
 - **Must include** \`decision\`: \`safe\`, \`call_pro\`, and \`stop_now\` each **≥2** non-empty strings (the "What you should do now" columns)
 - **Must include** \`cost_escalation\`: **≥4** stages (each with \`stage\`, \`description\`, \`cost\` including realistic **$** bands)
 
@@ -55,6 +73,21 @@ Every narrative-heavy section must include, where the field allows:
 Use decisive language: "This means", "This leads to", "At this point".
 
 DO NOT hedge with: "may", "might", "could", "possibly", "sometimes", "often can".
+
+-----------------------------------
+MANDATORY DIAGNOSTIC STRUCTURE (HARD REQUIREMENT)
+-----------------------------------
+
+You MUST include explicit diagnostic branching.
+
+Each section must contain at least one of the following:
+- "If [condition], then [action]"
+- "When [condition], then [result]"
+- "If X → check Y → if fail, replace Z"
+
+At least 3 separate branching statements must be present across the page.
+
+Do not describe causes without actionable branching logic.
 
 -----------------------------------
 SERVER / SCHEMA RULES (STRICT)
@@ -194,7 +227,7 @@ All keys below are **required** for the live validator. Do not omit optional-loo
 
   "canonical_truths": [
     "Airflow problems don't stay small — restriction leads to strain, and strain leads to failure.",
-    "Refrigerant is not consumed — loss means a leak."
+    "refrigerant is not consumed — loss means a leak."
   ],
 
   "quick_checks": [
@@ -308,10 +341,12 @@ Also: top_causes **3–4** entries with label + probability each (mechanism + li
 
 ### what_this_means (REQUIRED — bridge after summary)
 - **Minimum 100 characters** — diagnosis → dominant physical branches → wear/failure pressure. **No meta** ("this section", "expert layer", "in this article").
+- **Do not duplicate structured pages:** if \`decision_tree_text\`, \`diagnostic_flow\`, or \`repair_matrix\` already states a branch or cost path, reference it in one sentence here instead of repeating the full ladder in prose.
 - Name what the system is actually doing (e.g. still moving air but **failing to remove heat** — adapt to plumbing/electrical physics).
 - Bucket the dominant physical branches (HVAC cooling: airflow, refrigerant charge, control logic, compressor load — swap for correct vertical).
 - End on **wear**: operating outside normal range accelerates wear until a major component fails.
 - **HVAC cooling gold shape** (adapt wording — do not copy verbatim): paragraph 1: equipment runs but comfort drifts — still moving air, not shedding heat. paragraph 2: branches outside normal range + wear to major failure.
+- **HVAC + sealed refrigerant (cooling, charge, ice, “not cooling”, weak cooling, etc.) — REQUIRED in this field:** The string **must** contain this **exact substring** (characters and spacing as written): \`refrigerant is not consumed\`. Tie it to plain physics: refrigerant is **not** burned off or “used up” like fuel in a car; the sealed charge should stay stable cycle after cycle. **Low refrigerant means a leak path** (fitting, coil, line set, valve) — it signals **loss**, not normal consumption — and needs licensed leak locate + repair before recharging, not a casual “top-off” story.
 
 ### canonical_truths (REQUIRED — exactly 2 strings)
 - Line 1 **signature** for the symptom class (HVAC airflow example shape — adapt words for non-airflow): **small restriction → strain → failure** cadence (e.g. airflow restriction forces the coil and compressor outside design intent).
@@ -347,7 +382,7 @@ Also: top_causes **3–4** entries with label + probability each (mechanism + li
 ### tools (REQUIRED — at least 3 strings)
 - Short tool identifiers (e.g. multimeter, coil cleaner, pressure gauges, manifold set, megohmmeter) — what pros actually use. Reinforces that diagnosis/repair is real technical work and **not all fixes are DIY-friendly**.
 
-### quick_table (CRITICAL — REQUIRED — renders as "Quick Diagnosis" under summary)
+### quick_table (CRITICAL — REQUIRED — renders as **Quick checks (Symptom scan)** under summary)
 - **At least 4 rows** (Zod-enforced on every city_symptom page).
 - Fast scan: **symptom → cause → fix** mentally (stored as three columns: symptom, cause, fix); all strings **non-empty**, short technician phrasing.
 - This is the **hero scan table** placed **immediately under** the 30-second block on the site (Symptom | Likely Cause | Fix).
@@ -399,6 +434,11 @@ Also: top_causes **3–4** entries with label + probability each (mechanism + li
 - MUST include a **$1,500+** cost consequence (digits with **$**) and a **direct professional action** (e.g. get a technician, book a service call) — validator-enforced.
 - If cooling does not return after checks, **do not keep running it**; tie **{{CITY}} heat** to faster failure under load and **compressor damage** before a **$3,000** class bill.
 - Optional **\\n\\n** between two tight paragraphs — no extra blank lines.
+
+### ctas (optional — placement CTAs; server fills missing \`type\` slots)
+- Array of objects: \`{ "type": "top" | "mid" | "danger" | "cost" | "final", "text": "..." }\` — each \`text\` non-empty, city-aware, with **$** escalation where appropriate.
+- **top**: after summary hook; **mid**: after quick checks; **danger**: triage / misdiagnosis cost risk before repair matrix; **cost**: cost framing before matrix; **final**: hard close (if omitted, \`cta\` string is used for the final bar).
+- Omit the whole array to let the server inject defaults from title + slug.
 
 ### slug
 - Format: hvac/{{kebab-case symptom}}/{{city-slug}}-{{state-slug}} (example: hvac/ac-not-turning-on/tampa-fl). Must match PRIMARY PAGE SLUG in context when provided.

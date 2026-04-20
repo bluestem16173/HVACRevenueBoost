@@ -323,7 +323,7 @@ STRICT HYPER-TECHNICAL REQUIREMENTS:
 - Generate a system flowchart in Mermaid syntax (flowchart LR) outlining the specific thermodynamic and electrical cycle.
 - Generate a diagnostic flowchart in Mermaid syntax (flowchart TD) that includes exact testing benchmarks (e.g., "Check capacitor microfarads (µF)").
 - Provide critical thresholds for system performance (e.g., Target Subcooling, T.E.S.P., Delta-T ranges, or specific voltage drops).
-- Provide a quick diagnosis table mapping symptoms to exact causes and technical testing actions.
+- Provide a quick checks table mapping symptoms to exact causes and technical testing actions.
 - Provide common causes with High/Medium/Low probability, including a highly specific fix (e.g., "Hard start kit installation").
 - Provide a deep dive into the top causes with hyper-specific fix_steps and highly technical tools_needed (e.g., "Fieldpiece SMAN manifold, Megohmmeter, Dual-display multimeter").
 - Provide a list of recommended tools and their exact industrial purposes.

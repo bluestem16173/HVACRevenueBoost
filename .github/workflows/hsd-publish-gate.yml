@@ -1,0 +1,28 @@
+name: HSD publish gate
+
+on:
+  pull_request:
+    paths:
+      - "lib/hsd/**"
+      - "lib/homeservice/validateHsdCityPublishGate.ts"
+      - "scripts/test-hsd-publish-gate.ts"
+      - "scripts/fixtures/**"
+  push:
+    branches: [main, master]
+    paths:
+      - "lib/hsd/**"
+      - "lib/homeservice/validateHsdCityPublishGate.ts"
+      - "scripts/test-hsd-publish-gate.ts"
+      - "scripts/fixtures/**"
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run test:hsd-publish-gate

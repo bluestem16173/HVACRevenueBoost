@@ -1,0 +1,55 @@
+{
+  "diagnostic_flow": {
+    "version": 1,
+    "system": "hvac",
+    "issue_label": "ac short cycling",
+    "nodes": [
+      { "id": "start", "kind": "start", "label": "Short cycling" },
+      { "id": "airflow", "kind": "decision", "label": "Check airflow" },
+      { "id": "refrigerant", "kind": "decision", "label": "Check refrigerant" },
+      { "id": "pressure", "kind": "decision", "label": "Check pressure" },
+      { "id": "restriction", "kind": "outcome", "label": "Airflow issue" },
+      { "id": "fault", "kind": "outcome", "label": "System fault" }
+    ],
+    "edges": [
+      { "from": "start", "to": "airflow", "label": "If cycling fast" },
+      { "from": "airflow", "to": "restriction", "label": "If airflow low" },
+      { "from": "airflow", "to": "refrigerant", "label": "If airflow normal" },
+      { "from": "refrigerant", "to": "pressure", "label": "If imbalance" },
+      { "from": "pressure", "to": "fault", "label": "If unsafe PSI" }
+    ]
+  },
+  "summary_30s": "Short cycling means the AC turns on and off rapidly, usually from airflow restriction, pressure imbalance, or improper sizing. Runtime that never stabilizes wastes energy and stresses every major component.",
+  "decision_tree": "If AC cycles rapidly → check airflow first.\nIf airflow is restricted → overheating or high static shutdown is likely.\nIf airflow is normal → check refrigerant pressures in PSI.\nIf PSI is high or low → pressure imbalance drives short cycles.\nIf equipment is oversized for sensible load → short cycling is expected until capacity is matched.\nIf fan running but setpoint never holds → system working is not proven by motion alone.",
+  "top_causes": "Airflow restriction increases static pressure. Refrigerant imbalance disrupts heat transfer. Oversized units cycle too quickly and never stabilize. Refrigerant is not consumed, so low charge equals a leak when suction PSI stays weak after airflow is corrected.",
+  "how_system_works": "AC systems rely on stable runtime to complete heat transfer. Airflow restriction or refrigerant imbalance disrupts that process. Refrigerant is not consumed, so low charge equals a leak. Ignoring this forces the compressor outside its design limits. A fan running does not mean the system working.",
+  "diagnostic_steps": "Measure cycle duration in minutes; if cycles are under 5 minutes → fault class is confirmed.\nCheck filters and static pressure; if restriction exists → fix airflow before PSI work.\nMeasure high and low side PSI; if abnormal → leak or overcharge path for low charge equals a leak logic applies with airflow cleared.\nMeasure amps and voltage (VAC) during startup for contactor pull-in timing.\nIf airflow, thermostat, and power are confirmed and the system still is not cooling, the fault is no longer superficial. continuing to run the system is what turns a manageable repair into a major failure.\nStop. Professional diagnosis is not optional.",
+  "cost_matrix": "Airflow fix: $200–$800 | Refrigerant correction: $500–$1500 | Replacement: $6000+",
+  "replace_vs_repair": "If repair is $900 vs replacement $7000, repair may be viable under 10 years. If the system is over 12 years old, it is often better to replace. Repeated short cycling damage is not worth repairing and can lead to compressor failure.",
+  "stop_diy": "Stop. Professional diagnosis is not optional. This is how minor complaints turn into compressor failures.",
+  "prevention_tips": "Maintain airflow and ensure proper system sizing so heat transfer can finish each cycle.",
+  "tools_needed": "Gauge set, multimeter, timer, thermometer",
+  "bench_test_notes": "Measure cycle timing, amps, and voltage (VAC). If voltage stable but cycling continues → indicates component fault. Measure PSI spikes to confirm pressure imbalance. Rapid pressure swings indicate system failure under load.",
+  "internal_links": {
+    "related_symptoms": [
+      "hvac/ac-not-cooling",
+      "hvac/ac-turning-on-and-off",
+      "hvac/system-running-nonstop"
+    ],
+    "causes": [
+      "hvac/oversized-ac-unit-short-cycling",
+      "hvac/ductwork-static-pressure-high",
+      "hvac/tripped-high-pressure-switch",
+      "hvac/refrigerant-overcharge"
+    ],
+    "system_pages": ["hvac/central-air-conditioning-system", "hvac/air-handler-system"],
+    "repair_guides": [
+      "repair/tampa-fl/ac-short-cycling",
+      "repair/fort-myers-fl/ac-short-cycling"
+    ],
+    "context_pages": [
+      "hvac/ac-short-cycling-frequently",
+      "hvac/ac-turns-on-and-off-rapidly"
+    ]
+  }
+}

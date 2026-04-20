@@ -6,6 +6,18 @@ export function enforceStoredSlug(slug: string | null | undefined): string {
   return String(slug ?? "").replace(/^\/+/, "").trim();
 }
 
+/** `pages.slug` / catch-all joins: strip `diagnose/`, normalize vertical prefix, trim slashes, lowercase. */
+export function normalizePagesTableSlugLookup(raw: string | null | undefined): string {
+  const rawSlug = String(raw ?? "").trim();
+  if (!rawSlug) return "";
+  const slug = rawSlug
+    .replace(/^diagnose\//i, "")
+    .replace(/^(hvac|plumbing|electrical)\//i, (m) => m.toLowerCase())
+    .replace(/^\/+|\/+$/g, "")
+    .toLowerCase();
+  return slug.trim();
+}
+
 export function normalizeSlug(rawSlug: string): string {
   if (!rawSlug) return "";
   
@@ -102,7 +114,10 @@ export function isAllowedType(page: any): boolean {
   if (type === "diagnostic") return true;
   if (type === "hvac_html") return true;
   if (type === "hvac_authority_v3") return true;
-  
+
+  /** Canonical HSD authority engine (`pages.page_type` + `schema_version` hsd_v2). */
+  if (type === "hsd") return true;
+
   if (type === "dg_authority_v3") return true;
 
   if (type === "dg_authority_v2") {
@@ -202,10 +217,13 @@ export function isIndexable(page: any): boolean {
 
   // Strict Auto-Fails (overrides the algorithm)
   if (page.status !== "published") return false;
-  if (page.noindex) return false;
 
-  // HSD city_symptom JSON pages (slug = vertical/symptom/city); HTML may be a short stub.
-  if (page.page_type === "city_symptom" && isLocalizedPillarPageSlug(page.slug)) {
+  // Localized HSD / city_symptom JSON pages — evaluate before `noindex` so a legacy DB flag does not 404 the route.
+  // Crawl policy remains on routes via {@link strictRobotsForDbPage} when strict indexing is enabled.
+  if (
+    (page.page_type === "city_symptom" || page.page_type === "hsd") &&
+    isLocalizedPillarPageSlug(page.slug)
+  ) {
     let cj: unknown = page.content_json;
     if (typeof cj === "string") {
       try {
@@ -223,6 +241,8 @@ export function isIndexable(page: any): boolean {
     if (title.length >= 5 && !title.toLowerCase().includes("untitled")) return true;
     return false;
   }
+
+  if (page.noindex) return false;
 
   if (!isValidSlug(page.slug)) return false; // Auto-fail exact nested paths and spam patterns
   if (!isAllowedType(page)) return false; // Auto-fail non-approved schema structures

@@ -1,4 +1,9 @@
 export {
+  HSD_CTA_TYPES,
+  injectProgrammaticHsdCtas,
+  normalizeCtasOnJson,
+} from "@/lib/hsd/injectProgrammaticHsdCtas";
+export {
   HSD_V25_BLOCK_PRIORITY,
   joinSortedHsdV25Blocks,
   renderHsdV25,
@@ -6,6 +11,8 @@ export {
   renderHsdV25HeaderOnly,
   renderHsdV25LeadSegments,
   renderHsdV25MidThroughDecision,
+  sectionInternalRelatedLinks,
+  sectionPlacementCta,
   sectionSummary,
   sectionWhatThisMeans,
   sectionQuickChecks,
@@ -22,6 +29,7 @@ export {
   sectionCta,
   sectionFinal,
   sectionFinalWarning,
+  wrapHsdV25LayoutDocument,
   type HsdV25HtmlBlock,
   type HsdV25RenderInput,
 } from "@/src/lib/hsd/renderHsdV25";

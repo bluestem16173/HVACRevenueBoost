@@ -76,3 +76,17 @@ export function safeJsonParse<T = unknown>(input: string): T | null {
     }
   }
 }
+
+/** Collapse duplicate lines (trimmed); first occurrence wins; blank lines dropped. */
+export function dedupeLines(text: string): string {
+  const seen = new Set<string>();
+  return text
+    .split("\n")
+    .filter((line) => {
+      const key = line.trim();
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .join("\n");
+}

@@ -14,7 +14,7 @@ export type UpsertPageInput = Record<string, unknown> & {
 };
 
 /**
- * Upsert a published **hsd_v2** `city_symptom` row (`pages` table, Neon `sql` tag).
+ * Upsert a published **hsd_v2** row (`pages` table, Neon `sql` tag). `page_type` may be `hsd` or legacy `city_symptom`.
  * `content_json` is the serialized `page` object (must include valid contract fields).
  *
  * @remarks Do **not** interpolate a raw object as `${page}` for `content_json` — bind a
@@ -22,7 +22,10 @@ export type UpsertPageInput = Record<string, unknown> & {
  */
 export async function upsertPage(page: UpsertPageInput): Promise<void> {
   const row = page as Record<string, unknown>;
-  if (row.schema_version === HSD_V2_SCHEMA_VERSION && row.page_type === "city_symptom") {
+  if (
+    row.schema_version === HSD_V2_SCHEMA_VERSION &&
+    (row.page_type === "city_symptom" || row.page_type === "hsd")
+  ) {
     const parsed = HSDV25Schema.safeParse(page);
     if (!parsed.success) {
       throw new Error(
@@ -33,6 +36,9 @@ export async function upsertPage(page: UpsertPageInput): Promise<void> {
   }
 
   const contentJson = serializePageContentJson(page);
+
+  const persistedPageType =
+    row.page_type === "hsd" || row.page_type === "city_symptom" ? String(row.page_type) : "city_symptom";
 
   await sql`
     INSERT INTO pages (
@@ -49,7 +55,7 @@ export async function upsertPage(page: UpsertPageInput): Promise<void> {
       ${contentJson}::jsonb,
       ${HSD_V2_SCHEMA_VERSION},
       'published',
-      'city_symptom'
+      ${persistedPageType}
     )
     ON CONFLICT (slug)
     DO UPDATE SET
@@ -57,7 +63,7 @@ export async function upsertPage(page: UpsertPageInput): Promise<void> {
       content_json = EXCLUDED.content_json,
       schema_version = ${HSD_V2_SCHEMA_VERSION},
       status = 'published',
-      page_type = 'city_symptom',
+      page_type = ${persistedPageType},
       updated_at = NOW()
   `;
 }

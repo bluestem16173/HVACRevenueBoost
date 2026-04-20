@@ -109,7 +109,7 @@ export function assertHsdV25ContentRules(page: HsdV25Payload): void {
   assertSummaryHeadlineTone(page.slug, page.summary_30s.headline);
 
   if (!page.quick_table || page.quick_table.length < 4) {
-    throw new Error("quick_table must have at least 4 rows (Quick Diagnosis scan table)");
+    throw new Error("quick_table must have at least 4 rows (Quick checks scan table)");
   }
 
   const qcBlob = JSON.stringify(page.quick_checks ?? []);

@@ -8,10 +8,8 @@ import dotenv from "dotenv";
 
 dotenv.config({ path: ".env.local" });
 
-import {
-  generateJsonForHsdPageQueueSlug,
-  upsertPageFromHsdCityJson,
-} from "../lib/homeservice/hsdPageQueueWorker";
+import { generateJsonForHsdPageQueueSlug } from "../lib/homeservice/hsdPageQueueWorker";
+import { upsertHsdPage } from "../lib/homeservice/upsertHsdPage";
 
 async function main() {
   const slug = process.argv[2]?.trim() || "hvac/ac-not-cooling/tampa-fl";
@@ -26,10 +24,7 @@ async function main() {
 
   console.log("Regenerating:", slug);
   const result = await generateJsonForHsdPageQueueSlug(slug);
-  await upsertPageFromHsdCityJson(
-    { slug, page_type: "city_symptom" },
-    result
-  );
+  await upsertHsdPage({ slug, page_type: "hsd" }, result);
   console.log("Done. title:", result.title);
   console.log("Has diagnostic_flow:", !!result.diagnostic_flow);
   console.log("content_html stored as NULL (render from JSON at request).");

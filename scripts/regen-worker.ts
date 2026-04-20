@@ -1,19 +1,18 @@
 import "dotenv/config";
-import sql from '../lib/db';
-import { generateDiagnosticEngineJson } from '../lib/content-engine/generator';
-import { transformToHVACv3 } from './generation-worker';
-
+import sql from "../lib/db";
+import {
+  enforceHsdOrchestrator,
+  generateDiagnosticEngineJson,
+} from "../lib/content-engine/generator";
 async function generateUpdatedContent(slug: string, title: string): Promise<string> {
-    // 1. Generate new content via AI using our existing generator
-    const lastError = "";
-    const rawDgMsg = await generateDiagnosticEngineJson(
-        { symptom: slug, city: "Florida", pageType: "hvac_authority_v3" },
-        lastError,
-        null
-    );
+  const lastError = "";
+  const rawDgMsg = await generateDiagnosticEngineJson(
+    { symptom: slug, city: "Florida", pageType: "diagnostic_engine" },
+    lastError,
+    enforceHsdOrchestrator(null),
+  );
 
-    // 2. Transform the payload
-    const transformed = transformToHVACv3(rawDgMsg);
+  const transformed = rawDgMsg;
 
     // 3. Instead of returning raw HTML strings, returning stringified JSON
     // for our Next.js frontend to render via buildHtml fallback.

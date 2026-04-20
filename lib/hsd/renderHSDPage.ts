@@ -53,7 +53,7 @@ function resolveMermaidSource(data: Record<string, unknown>): string {
     return legacy;
   }
   const v = inferVerticalFromSlug(data.slug);
-  const issueGuess = stringField(data, "hero").slice(0, 120) || "Issue";
+  const issueGuess = stringField(data, "summary_30s").slice(0, 120) || "Issue";
   if (v) {
     return graphToMermaid(buildDiagnosticFlowGraph(v, issueGuess));
   }
@@ -84,9 +84,9 @@ function quickCheckListItems(raw: string): string[] {
 function h1Title(c: Record<string, unknown>): string {
   const title = stringField(c, "title").trim();
   if (title) return title;
-  const hero = stringField(c, "hero").trim();
-  if (!hero) return "Diagnostic guide";
-  const firstLine = hero.split(/\n+/)[0]?.trim() || hero;
+  const s30 = stringField(c, "summary_30s").trim();
+  if (!s30) return "Diagnostic guide";
+  const firstLine = s30.split(/\n+/)[0]?.trim() || s30;
   return firstLine.length > 120 ? `${firstLine.slice(0, 117)}…` : firstLine;
 }
 
@@ -111,9 +111,9 @@ export function renderHSDPage(content: Record<string, unknown>): string {
 <header class="hsd-cred" data-hsd-zone="credibility">
   <h1 class="hsd-cred__title">${escapeHtml(h1Title(c))}</h1>
   <p class="hsd-cred__sub">${escapeHtml(sub)}</p>
-  <section class="hsd-cred__summary" id="${hsdSectionDomId("problem_overview")}" aria-labelledby="hsd-30s-label">
+  <section class="hsd-cred__summary" id="${hsdSectionDomId("summary_30s")}" aria-labelledby="hsd-30s-label">
     <h2 id="hsd-30s-label" class="hsd-cred__summary-head">30-Second Diagnosis</h2>
-    <div class="hsd-cred__summary-body">${e("problem_overview")}</div>
+    <div class="hsd-cred__summary-body">${e("summary_30s")}</div>
   </section>
   <hr class="hsd-cred__rule" />
   <section class="hsd-cred__quick" id="${hsdSectionDomId("decision_tree")}" aria-labelledby="hsd-quick-label">
@@ -145,31 +145,32 @@ export function renderHSDPage(content: Record<string, unknown>): string {
   <div class="hsd-section__body"><p>${e("top_causes")}</p></div>
 </section>
 <section class="hsd-section">
+  <h2 id="${hsdSectionDomId("diagnostic_steps")}" class="hsd-section__title">Diagnostic steps</h2>
+  <div class="hsd-section__body"><p>${e("diagnostic_steps")}</p></div>
+</section>
+<section class="hsd-section">
   <h2 id="${hsdSectionDomId("cost_matrix")}" class="hsd-section__title">Repair Cost Matrix</h2>
   <div class="hsd-section__body"><p>${e("cost_matrix")}</p></div>
 </section>
 <section class="hsd-section">
-  <h2 id="${hsdSectionDomId("repair_vs_replace")}" class="hsd-section__title">Repair vs Replace</h2>
-  <div class="hsd-section__body"><p>${e("repair_vs_replace")}</p></div>
+  <h2 id="${hsdSectionDomId("replace_vs_repair")}" class="hsd-section__title">Replace vs Repair</h2>
+  <div class="hsd-section__body"><p>${e("replace_vs_repair")}</p></div>
 </section>
-<section class="hsd-section">
-  <h2 id="${hsdSectionDomId("electrical_warning")}" class="hsd-section__title">Electrical Warning</h2>
-  <div class="hsd-section__body"><p>${e("electrical_warning")}</p></div>
-</section>
-<section class="hsd-section">
-  <h2 id="${hsdSectionDomId("field_insight")}" class="hsd-section__title">Field Insight</h2>
-  <div class="hsd-section__body"><p>${e("field_insight")}</p></div>
-</section>
-<section class="hsd-section">
-  <h2 id="${hsdSectionDomId("maintenance")}" class="hsd-section__title">Maintenance</h2>
-  <div class="hsd-section__body"><p>${e("maintenance")}</p></div>
-</section>
-<div class="hsd-standout hsd-standout--plain" id="${hsdSectionDomId("decision_moment")}"><p>${e("decision_moment")}</p></div>
-<div class="hsd-standout hsd-standout--plain" id="${hsdSectionDomId("cost_pressure")}"><p>${e("cost_pressure")}</p></div>
-<div class="hsd-standout hsd-standout--cta" id="${hsdSectionDomId("cta")}"><p>${e("cta")}</p></div>
 <section class="hsd-section hsd-section--stop">
   <h2 id="${hsdSectionDomId("stop_diy")}" class="hsd-section__title">When to Stop DIY</h2>
   <div class="hsd-section__body"><p>${e("stop_diy")}</p></div>
+</section>
+<section class="hsd-section">
+  <h2 id="${hsdSectionDomId("prevention_tips")}" class="hsd-section__title">Prevention</h2>
+  <div class="hsd-section__body"><p>${e("prevention_tips")}</p></div>
+</section>
+<section class="hsd-section">
+  <h2 id="${hsdSectionDomId("tools_needed")}" class="hsd-section__title">Tools needed</h2>
+  <div class="hsd-section__body"><p>${e("tools_needed")}</p></div>
+</section>
+<section class="hsd-section">
+  <h2 id="${hsdSectionDomId("bench_test_notes")}" class="hsd-section__title">Bench test notes</h2>
+  <div class="hsd-section__body"><p>${e("bench_test_notes")}</p></div>
 </section>
 `.trim();
 

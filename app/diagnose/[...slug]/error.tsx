@@ -1,6 +1,6 @@
 "use client";
 
-export default function DiagnoseSymptomError({
+export default function DiagnoseCatchAllError({
   error,
   reset,
 }: {

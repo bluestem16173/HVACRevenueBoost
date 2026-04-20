@@ -29,7 +29,7 @@ async function main() {
       const slug = canonicalLocalizedStorageSlug(raw);
       return sql`
         INSERT INTO public.page_queue (slug, page_type, status, priority)
-        VALUES (${slug}, ${"city_symptom"}, ${"pending"}, ${"high"})
+        VALUES (${slug}, ${"hsd"}, ${"pending"}, ${"high"})
         ON CONFLICT (slug) DO NOTHING
       `;
     })

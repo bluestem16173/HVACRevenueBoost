@@ -1,5 +1,7 @@
 import { hsdSectionDomId } from "@/lib/hsd/mermaidClickMap";
+import { injectProgrammaticHsdCtas, normalizeCtasOnJson, type HsdCtaType } from "@/lib/hsd/injectProgrammaticHsdCtas";
 import { simpleDiagnosticFlowToMermaid } from "@/lib/hsd/simpleDiagnosticFlowToMermaid";
+import { dedupeLines } from "@/lib/utils";
 import type { HsdV25Payload } from "@/src/lib/validation/hsdV25Schema";
 
 /** Optional row/envelope fields sometimes merged onto stored `content_json`. */
@@ -8,6 +10,10 @@ export type HsdV25RenderInput = HsdV25Payload &
     city: string;
     symptom: string;
     vertical: string;
+    /** LLM / CMS optional — footer internal links. */
+    internal_links?: { related_symptoms?: string[]; relatedSymptoms?: string[] };
+    /** Legacy key — coerced into {@link HsdV25Payload.decision_tree_text} at render time. */
+    decision_tree?: unknown;
   }>;
 
 const PAD_CORE =
@@ -15,11 +21,105 @@ const PAD_CORE =
 const PAD_RISK =
   "Ignoring the pattern forces coil stress, compressor overload, and typical repair bands of $1,500–$3,500 once major parts fail.";
 const DEFAULT_CAUSE_ROW = {
-  label: "Upstream load or control issue",
-  probability: "Requires measurement",
+  label: "Something earlier in the system (airflow, thermostat, or power)",
+  probability: "Needs testing with tools",
   deep_dive:
     "When basics are uncertain, a licensed technician verifies airflow, temperatures, and electrical control before sealed-system work.",
 };
+
+/** Plain-language substitutions for stored model copy (renderer-only; no LLM). */
+function simplifyReaderLanguage(text: string): string {
+  let s = String(text ?? "");
+  s = s.replace(/\bupstream load or control issue\b/gi, "Something earlier in the system (airflow, thermostat, or power)");
+  s = s.replace(/\bupstream load\b/gi, "earlier system issue");
+  s = s.replace(/\bcontrol issue\b/gi, "control problem");
+  s = s.replace(/\brequires measurement\b/gi, "needs testing with tools");
+  return s;
+}
+
+function polishSummary30s(s: HsdV25Payload["summary_30s"]): HsdV25Payload["summary_30s"] {
+  return {
+    ...s,
+    headline: simplifyReaderLanguage(dedupeLines(s.headline)),
+    core_truth: simplifyReaderLanguage(dedupeLines(s.core_truth)),
+    risk_warning: simplifyReaderLanguage(dedupeLines(s.risk_warning)),
+    flow_lines: s.flow_lines.map((l) => simplifyReaderLanguage(String(l ?? "").trim())),
+    top_causes: s.top_causes.map((c) => ({
+      ...c,
+      label: simplifyReaderLanguage(c.label),
+      probability: simplifyReaderLanguage(c.probability),
+      deep_dive: simplifyReaderLanguage(dedupeLines(c.deep_dive)),
+    })),
+  };
+}
+
+function polishQuickChecks(rows: HsdV25Payload["quick_checks"]): HsdV25Payload["quick_checks"] {
+  return rows.map((q) => ({
+    check: simplifyReaderLanguage(String(q.check ?? "")),
+    homeowner: simplifyReaderLanguage(dedupeLines(String(q.homeowner ?? ""))),
+    result_meaning: simplifyReaderLanguage(dedupeLines(String(q.result_meaning ?? ""))),
+    next_step: simplifyReaderLanguage(dedupeLines(String(q.next_step ?? ""))),
+    risk: simplifyReaderLanguage(dedupeLines(String(q.risk ?? ""))),
+  }));
+}
+
+/** Dedupe trimmed strings while preserving order (scan lines, tool lists, decision columns). */
+function dedupeStringArray(arr: string[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const s of arr) {
+    const t = String(s ?? "").trim();
+    if (!t || seen.has(t)) continue;
+    seen.add(t);
+    out.push(t);
+  }
+  return out;
+}
+
+/** Prefer `decision_tree_text`; accept legacy `decision_tree` array or `{ lines }`-shaped blobs. */
+function decisionTreeLinesFromInput(data: HsdV25RenderInput): string[] {
+  const primary = data.decision_tree_text;
+  if (Array.isArray(primary) && primary.some((x) => String(x ?? "").trim())) {
+    return primary.map((x) => String(x ?? "").trim()).filter(Boolean);
+  }
+  const legacy = (data as Record<string, unknown>).decision_tree;
+  if (Array.isArray(legacy)) {
+    return legacy.map((x) => String(x ?? "").trim()).filter(Boolean);
+  }
+  if (legacy && typeof legacy === "object") {
+    const o = legacy as Record<string, unknown>;
+    const lines = o.lines ?? o.branches ?? o.entries;
+    if (Array.isArray(lines)) {
+      return lines.map((x) => String(x ?? "").trim()).filter(Boolean);
+    }
+  }
+  return [];
+}
+
+/**
+ * Bordered card surface for HSD sections below the hero header.
+ * (Tailwind classes — `./src/**` must stay in `tailwind.config` content globs.)
+ */
+const HSD_V25_SURFACE =
+  "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/80 sm:p-6";
+const HSD_V25_SECTION_SPACING = "mb-8 last:mb-0";
+const HSD_V25_SECTION_SHELL = `hsd-section hsd-block ${HSD_V25_SURFACE} ${HSD_V25_SECTION_SPACING}`;
+const HSD_V25_DECISION_SHELL = `hsd-section hsd-decision hsd-block ${HSD_V25_SURFACE} ${HSD_V25_SECTION_SPACING}`;
+const HSD_V25_FINAL_SHELL = `hsd-section hsd-section--stop hsd-block ${HSD_V25_SURFACE} ${HSD_V25_SECTION_SPACING}`;
+const HSD_V25_FIGURE_SHELL = `hsd-figure hsd-block ${HSD_V25_SURFACE} ${HSD_V25_SECTION_SPACING}`;
+const HSD_V25_HEADER_SHELL = `hsd-cred ${HSD_V25_SURFACE} ${HSD_V25_SECTION_SPACING}`;
+
+const HSD_V25_PAGE_OUTER =
+  "hsd-v25-compose mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 text-slate-900 dark:text-slate-100";
+/** Typography: explicit utilities inside sections; `prose` fights custom H2/list styling, so we use a neutral article shell. */
+const HSD_V25_PAGE_ARTICLE = "hsd-v25-article max-w-none space-y-8 text-base leading-relaxed";
+
+/** Wraps full-page HSD HTML for `/diagnose/*` and other bare `dangerouslySetInnerHTML` hosts. */
+export function wrapHsdV25LayoutDocument(inner: string): string {
+  const body = inner.trim();
+  if (!body) return "";
+  return `<div class="${HSD_V25_PAGE_OUTER}"><article class="${HSD_V25_PAGE_ARTICLE}">${body}</article></div>`;
+}
 
 /** Legacy pipelines sometimes stored `summary_30s` as a plain string; v2.5 expects an object. */
 function summary30sFromUnknown(raw: unknown): HsdV25Payload["summary_30s"] {
@@ -60,7 +160,9 @@ function summary30sFromUnknown(raw: unknown): HsdV25Payload["summary_30s"] {
     })),
     core_truth: String(baseS30.core_truth ?? "").trim() || PAD_CORE,
     risk_warning: String(baseS30.risk_warning ?? "").trim() || PAD_RISK,
-    flow_lines: Array.isArray(baseS30.flow_lines) ? (baseS30.flow_lines as string[]).map((x) => String(x ?? "")) : [],
+    flow_lines: dedupeStringArray(
+      Array.isArray(baseS30.flow_lines) ? (baseS30.flow_lines as string[]).map((x) => String(x ?? "")) : []
+    ),
   };
 }
 
@@ -120,7 +222,8 @@ function whatThisMeansFromUnknown(raw: unknown): string {
  * that applies to other generators — not this renderer.
  */
 function sanitizeHsdV25RenderInput(data: HsdV25RenderInput): HsdV25RenderInput {
-  const summary_30s = summary30sFromUnknown(data.summary_30s as unknown);
+  injectProgrammaticHsdCtas(data as Record<string, unknown>);
+  const summary_30s = polishSummary30s(summary30sFromUnknown(data.summary_30s as unknown));
 
   let diagnostic_flow: HsdV25Payload["diagnostic_flow"];
   const rawFlow = data.diagnostic_flow as unknown;
@@ -163,22 +266,64 @@ function sanitizeHsdV25RenderInput(data: HsdV25RenderInput): HsdV25RenderInput {
     final_warning = `${final_warning} ${PAD_RISK}`.trim();
   }
 
+  cta = simplifyReaderLanguage(dedupeLines(cta));
+  final_warning = simplifyReaderLanguage(dedupeLines(final_warning));
+
+  const decision_tree_text = dedupeStringArray(decisionTreeLinesFromInput(data)).map((l) => simplifyReaderLanguage(l));
+  const canonical_truths = dedupeStringArray(
+    Array.isArray(data.canonical_truths) ? (data.canonical_truths as unknown[]).map((x) => String(x ?? "")) : []
+  )
+    .slice(0, 2)
+    .map((l) => simplifyReaderLanguage(l));
+  const tools = dedupeStringArray(
+    Array.isArray(data.tools) ? (data.tools as unknown[]).map((x) => String(x ?? "")) : []
+  ).map((t) => simplifyReaderLanguage(t));
+
+  const quick_checks = polishQuickChecks(
+    Array.isArray(data.quick_checks) ? (data.quick_checks as HsdV25Payload["quick_checks"]) : []
+  );
+
+  const diagnostic_steps = Array.isArray(data.diagnostic_steps)
+    ? (data.diagnostic_steps as HsdV25Payload["diagnostic_steps"]).map((s) => ({
+        step: simplifyReaderLanguage(String(s.step ?? "")),
+        homeowner: simplifyReaderLanguage(dedupeLines(String(s.homeowner ?? ""))),
+        pro: simplifyReaderLanguage(dedupeLines(String(s.pro ?? ""))),
+        risk: simplifyReaderLanguage(dedupeLines(String(s.risk ?? ""))),
+      }))
+    : [];
+
+  const what_this_means = simplifyReaderLanguage(dedupeLines(whatThisMeansFromUnknown(data.what_this_means as unknown)));
+  const repair_matrix_intro = simplifyReaderLanguage(dedupeLines(String(data.repair_matrix_intro ?? "")));
+  const decision_footer = simplifyReaderLanguage(dedupeLines(String(data.decision_footer ?? "")));
+
+  const ctas = normalizeCtasOnJson(data as Record<string, unknown>).map((c) => ({
+    type: c.type,
+    text: simplifyReaderLanguage(dedupeLines(c.text)),
+  }));
+
   return {
     ...data,
     summary_30s,
-    what_this_means: whatThisMeansFromUnknown(data.what_this_means as unknown),
-    quick_checks: Array.isArray(data.quick_checks) ? data.quick_checks : [],
-    diagnostic_steps: Array.isArray(data.diagnostic_steps) ? data.diagnostic_steps : [],
+    what_this_means,
+    quick_checks,
+    diagnostic_steps,
     quick_table: Array.isArray(data.quick_table) ? data.quick_table : [],
-    decision_tree_text: Array.isArray(data.decision_tree_text) ? data.decision_tree_text : [],
-    canonical_truths: Array.isArray(data.canonical_truths) ? data.canonical_truths : [],
-    tools: Array.isArray(data.tools) ? data.tools : [],
+    decision_tree_text,
+    canonical_truths,
+    tools,
     diagnostic_flow,
     repair_matrix: Array.isArray(data.repair_matrix) ? data.repair_matrix : [],
     cost_escalation: Array.isArray(data.cost_escalation) ? data.cost_escalation : [],
-    decision,
+    repair_matrix_intro,
+    decision_footer,
+    decision: {
+      safe: dedupeStringArray(decision.safe).map((l) => simplifyReaderLanguage(l)),
+      call_pro: dedupeStringArray(decision.call_pro).map((l) => simplifyReaderLanguage(l)),
+      stop_now: dedupeStringArray(decision.stop_now).map((l) => simplifyReaderLanguage(l)),
+    },
     cta,
     final_warning,
+    ctas,
   };
 }
 
@@ -189,6 +334,10 @@ export const HSD_V25_BLOCK_PRIORITY = {
   quick_table: 15,
   tools: 17,
   visual_diagnostic_flow: 20,
+  /** JSON `ctas` with `type: "danger"` — after diagnostic flow, before repair matrix. */
+  cta_danger_before_repair: 25,
+  /** JSON `ctas` with `type: "cost"` — cost framing before {@link sectionRepairMatrix}. */
+  cta_cost_before_repair: 27,
   repair_matrix: 30,
   cost_escalation: 40,
   decision: 100,
@@ -213,6 +362,38 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+/** Optional footer links when `internal_links.related_symptoms` is present on stored JSON. */
+export function sectionInternalRelatedLinks(data: HsdV25RenderInput): string {
+  const raw = (data as Record<string, unknown>).internal_links;
+  if (!raw || typeof raw !== "object") return "";
+  const il = raw as Record<string, unknown>;
+  const rel = il.related_symptoms ?? il.relatedSymptoms;
+  if (!Array.isArray(rel) || !rel.length) return "";
+  const vertical = String(data.vertical ?? "hvac").trim().toLowerCase() || "hvac";
+  const city = String(data.city ?? "").trim();
+  const title =
+    vertical === "hvac"
+      ? `Related HVAC issues${city ? ` in ${city}` : ""}`
+      : `Related ${vertical} issues${city ? ` in ${city}` : ""}`;
+  const lis = rel
+    .map((s) => {
+      const path = String(s ?? "").trim();
+      if (!path) return "";
+      const href = path.startsWith("/") ? path : `/${vertical}/${path}`;
+      const tail = path.replace(/^\/+/, "").split("/").filter(Boolean).pop() ?? path;
+      const display = tail.replace(/-/g, " ");
+      return `<li class="mb-2 last:mb-0"><a href="${escapeHtml(href)}" class="font-semibold text-hvac-blue underline decoration-hvac-blue/40 underline-offset-2 hover:text-hvac-gold dark:text-hvac-gold">${escapeHtml(display)}</a></li>`;
+    })
+    .filter(Boolean)
+    .join("");
+  if (!lis) return "";
+  return `
+<section class="${HSD_V25_SECTION_SHELL} hsd-internal-related" aria-labelledby="hsd-internal-related-label">
+  <h2 id="hsd-internal-related-label" class="hsd-section__title hsd-section-title">${escapeHtml(title)}</h2>
+  <ul class="m-0 list-none p-0">${lis}</ul>
+</section>`.trim();
 }
 
 /** Strip low-value scan meta the model sometimes appends to the summary H2 or flow lines. */
@@ -249,6 +430,67 @@ function bodyParagraphsHtml(s: string, pClass: string): string {
     .join("");
 }
 
+const PLACEMENT_CTA_SURFACE: Record<HsdCtaType, string> = {
+  top: "bg-blue-600 text-white",
+  mid: "bg-yellow-500 text-slate-900",
+  danger: "bg-red-600 text-white",
+  cost: "bg-orange-500 text-white",
+  final: "bg-black text-white",
+};
+
+const PLACEMENT_CTA_BTN: Record<HsdCtaType, string> = {
+  top: "inline-block mt-4 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100",
+  mid: "inline-block mt-4 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800",
+  danger: "inline-block mt-4 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100",
+  cost: "inline-block mt-4 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100",
+  final: "inline-block mt-4 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-sm transition hover:bg-slate-100",
+};
+
+/** Renders all `data.ctas` entries matching any of `types` (JSON-driven placement). */
+function renderCtasByTypes(data: HsdV25RenderInput, types: readonly HsdCtaType[], domIdForFinal?: string): string {
+  const set = new Set(types);
+  const rows = (data.ctas ?? []).filter((c) => set.has(c.type));
+  return rows
+    .map((c) =>
+      c.type === "final" && domIdForFinal
+        ? sectionPlacementCta(c.type, c.text, domIdForFinal)
+        : sectionPlacementCta(c.type, c.text)
+    )
+    .join("\n");
+}
+
+function buildFinalCtaHtml(data: HsdV25RenderInput): string {
+  const fromJson = renderCtasByTypes(data, ["final"], hsdSectionDomId("cta")).trim();
+  if (fromJson) return fromJson;
+  return sectionPlacementCta("final", data.cta, hsdSectionDomId("cta"));
+}
+
+/**
+ * Strong inline CTAs (placement variants). Mirrors product `CTA` React component styling in static HTML.
+ */
+export function sectionPlacementCta(variant: HsdCtaType, text: string, domId?: string): string {
+  const t = String(text ?? "").trim();
+  if (!t) return "";
+  const pClass =
+    variant === "mid"
+      ? "text-lg font-semibold leading-snug text-slate-900"
+      : "text-lg font-semibold leading-snug text-white";
+  const paras = bodyParagraphsHtml(t, pClass);
+  const surface = PLACEMENT_CTA_SURFACE[variant];
+  const btn = PLACEMENT_CTA_BTN[variant];
+  const safeId = domId ? String(domId).replace(/["'<>]/g, "") : "";
+  const idAttr = safeId ? ` id="${safeId}"` : "";
+  const kicker =
+    variant === "final"
+      ? `<p class="mb-2 text-[11px] font-black uppercase tracking-widest text-slate-400">Next step</p>`
+      : "";
+  return `<aside class="hsd-placement-cta hsd-block mt-6 rounded-xl p-6 shadow-md ${surface}"${idAttr} data-hsd-cta-placement="${variant}" aria-label="Call to action">
+  ${kicker}
+  ${paras}
+  <a href="/contact" class="${btn}">Get Professional Help</a>
+</aside>`.trim();
+}
+
 /** Prefix → for DG flow lines when the model omitted the glyph. */
 function dgArrowLine(s: string): string {
   const t = String(s ?? "").trim();
@@ -265,7 +507,7 @@ function decisionFailureHook(vertical: string | undefined): string {
   return "→ This is how minor issues become major failures.";
 }
 
-/** Canonical truths: **max 2** on page — after Quick Diagnosis / scan table, then before Decision. */
+/** Canonical truths: **max 2** on page — after Quick checks scan table, then before Decision. */
 function canonicalTruthsEchoHtml(
   truths: HsdV25Payload["canonical_truths"] | undefined,
   variant: "quick_diagnosis" | "pre_decision"
@@ -391,24 +633,31 @@ export function sectionQuickChecks(
   quick_checks: HsdV25Payload["quick_checks"],
   _canonicalTruths?: HsdV25Payload["canonical_truths"]
 ): string {
-  const items = quick_checks
+  const startHere = `<div class="mb-6 rounded-xl border-l-4 border-hvac-blue bg-blue-50 p-4 dark:border-hvac-gold dark:bg-slate-900/60">
+  <strong class="text-slate-900 dark:text-white">Start here:</strong>
+  <p class="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">Check the thermostat, air filter, and airflow at registers first. Most comfort problems start on the house side of the system. If those look normal, the issue is often deeper (control wiring, refrigerant, or compressor).</p>
+</div>`;
+  const cards = quick_checks
     .map((q) => {
-      const lines = [q.homeowner, q.result_meaning, q.next_step, q.risk]
-        .map((x) => dgArrowLine(String(x ?? "")))
-        .filter(Boolean)
-        .map((line) => `<div class="text-sm leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(line)}</div>`)
-        .join("");
-      return `<li class="hsd-check hsd-block">
-  <div class="text-base font-bold text-slate-900 dark:text-white">${escapeHtml(q.check)}</div>
-  <div class="hsd-dg-check-flow mt-2 space-y-1 border-l-2 border-slate-300 pl-3 dark:border-slate-600">${lines}</div>
-</li>`;
+      const home = String(q.homeowner ?? "").trim();
+      const homeLine = home
+        ? `<p class="mt-1 text-xs font-medium leading-snug text-slate-500 dark:text-slate-400">${escapeHtml(dgArrowLine(home))}</p>`
+        : "";
+      return `<div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-slate-950/40" role="listitem">
+  <p class="font-semibold text-slate-900 dark:text-white">${escapeHtml(String(q.check ?? "").trim())}</p>
+  ${homeLine}
+  <p class="mt-2 text-sm text-slate-600 dark:text-slate-400"><strong class="text-slate-800 dark:text-slate-200">What it means:</strong> ${escapeHtml(String(q.result_meaning ?? "").trim())}</p>
+  <p class="mt-2 text-sm text-slate-800 dark:text-slate-200"><strong>Next:</strong> ${escapeHtml(String(q.next_step ?? "").trim())}</p>
+  <p class="mt-2 text-sm font-medium text-red-700 dark:text-red-300">${escapeHtml(String(q.risk ?? "").trim())}</p>
+</div>`;
     })
-    .join("");
+    .join("\n");
   return `
 <section class="hsd-cred__quick hsd-block" id="${hsdSectionDomId("quick_checks")}" aria-labelledby="hsd-quick-label">
   <h2 id="hsd-quick-label" class="hsd-cred__quick-head">Quick checks <span class="text-base font-semibold normal-case text-slate-600 dark:text-slate-400">(Do this first)</span></h2>
+  ${startHere}
   <p class="mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">Run these in order. If cooling does not return after these checks, the issue is no longer simple.</p>
-  <ol class="hsd-cred__quick-list hsd-v2__checks hsd-quick-checks-list">${items}</ol>
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" role="list">${cards}</div>
 </section>`.trim();
 }
 
@@ -430,7 +679,7 @@ export function sectionDiagnosticSteps(
     })
     .join("");
   return `
-<section class="hsd-section hsd-block">
+<section class="${HSD_V25_SECTION_SHELL}">
   <h2 id="${hsdSectionDomId("diagnostic_steps")}" class="hsd-section__title hsd-section-title">Diagnostic Flow <span class="text-sm font-semibold normal-case text-slate-600 dark:text-slate-400">(What&rsquo;s actually happening)</span></h2>
   <div class="hsd-section__body">
     <p class="mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">Follow the physical branch in order. Do not treat a control problem like a refrigerant problem, and do not treat a refrigerant problem like an airflow problem.</p>
@@ -464,7 +713,7 @@ export function sectionDecisionTreeText(lines: HsdV25Payload["decision_tree_text
     .filter(Boolean)
     .join("\n");
   return `
-<section class="hsd-section hsd-block" id="${hsdSectionDomId("decision_tree_text")}">
+<section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("decision_tree_text")}">
   <h2 class="hsd-section__title hsd-section-title">Decision tree (text)</h2>
   <div class="hsd-section__body hsd-dtree-text">${blocks}</div>
 </section>`.trim();
@@ -484,7 +733,7 @@ export function sectionTools(tools: HsdV25Payload["tools"]): string {
     })
     .join("\n");
   return `
-<section class="hsd-section hsd-block" id="${hsdSectionDomId("tools")}">
+<section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("tools")}">
   <h2 id="hsd-tools-label" class="hsd-section__title hsd-section-title">Tools &amp; verification</h2>
   <div class="hsd-section__body">
     <p class="mb-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300"><strong>This is real technical work</strong> — technicians use the tools below to verify conditions you cannot see from the thermostat alone. Measurements and judgment matter as much as parts. <strong>Not all fixes are DIY-friendly</strong>: high voltage, refrigerant, and combustion work require licensing and proper equipment.</p>
@@ -493,7 +742,7 @@ export function sectionTools(tools: HsdV25Payload["tools"]): string {
 </section>`.trim();
 }
 
-/** Quick Diagnosis table — same data as quick_table, placed under summary (DG hero scan). */
+/** Quick checks scan table — same data as quick_table, placed under summary (hero scan). */
 export function sectionQuickDiagnosisTable(
   quick_table: HsdV25Payload["quick_table"],
   canonicalTruths?: HsdV25Payload["canonical_truths"]
@@ -517,7 +766,7 @@ export function sectionQuickDiagnosisTable(
     .join("\n");
   return `
 <section class="hsd-section hsd-block hsd-quick-diagnosis" id="${hsdSectionDomId("quick_diagnosis")}" aria-labelledby="hsd-quick-dx-label">
-  <h2 id="hsd-quick-dx-label" class="hsd-section__title hsd-section-title">Quick Diagnosis</h2>
+  <h2 id="hsd-quick-dx-label" class="hsd-section__title hsd-section-title">Quick checks <span class="text-base font-semibold normal-case text-slate-600 dark:text-slate-400">(Symptom scan)</span></h2>
   <div class="hsd-section__body hsd-v2__table-wrap">
     <table class="hsd-v2__matrix hsd-quick-table hsd-quick-diagnosis-table font-mono text-[13px]" aria-labelledby="hsd-quick-dx-label">
       <thead>
@@ -583,7 +832,7 @@ export function renderMermaid(flow: HsdV25Payload["diagnostic_flow"]): string {
   const chart = simpleDiagnosticFlowToMermaid(flow).trim();
   if (!chart) return "";
   return `
-<section class="hsd-figure hsd-block" aria-label="Visual diagnostic flow">
+<section class="${HSD_V25_FIGURE_SHELL}" aria-label="Visual diagnostic flow">
   <h2 class="hsd-section__title hsd-section-title">Visual diagnostic flow</h2>
   <div class="hsd-figure__surface rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-sm font-medium text-slate-700 dark:border-slate-600 dark:bg-slate-900/40 dark:text-slate-300">
     Use the text branches above to narrow the fault path before moving into refrigerant or compressor diagnosis.
@@ -621,26 +870,36 @@ export function sectionRepairMatrix(
       const hi = Number.isFinite(hiNum) ? formatRepairUsd(hiNum) : "";
       const costCell =
         Number.isFinite(hiNum) && hiNum >= 1500
-          ? `<span class="hsd-cost">$${escapeHtml(lo)}${nd}<span class="hsd-cost-high">$${escapeHtml(hi)}</span></span>`
-          : `<span class="hsd-cost">$${escapeHtml(lo)}${nd}$${escapeHtml(hi)}</span>`;
+          ? `<span class="hsd-cost font-semibold text-slate-900 dark:text-slate-100">$${escapeHtml(lo)}${nd}<span class="hsd-cost-high">$${escapeHtml(hi)}</span></span>`
+          : `<span class="hsd-cost font-semibold text-slate-900 dark:text-slate-100">$${escapeHtml(lo)}${nd}$${escapeHtml(hi)}</span>`;
       const issue = String(r.issue ?? "").trim();
       const fix = String(r.fix ?? "").trim();
-      const path =
-        /→|->/.test(fix) || /→|->/.test(issue)
-          ? `${escapeHtml(issue)} — ${escapeHtml(fix)}`
-          : `${escapeHtml(issue)} → ${escapeHtml(fix)}`;
-      return `<tr>
-  <td class="hsd-repair-path text-sm font-medium leading-snug text-slate-900 dark:text-slate-100">${path} — ${costCell}</td>
-  <td class="text-sm capitalize text-slate-700 dark:text-slate-300">${escapeHtml(r.difficulty)}</td>
+      return `<tr class="border-t border-slate-200 dark:border-slate-600">
+  <td class="p-3 text-sm font-medium leading-snug text-slate-900 dark:text-slate-100">${escapeHtml(issue)}</td>
+  <td class="p-3 text-sm text-slate-800 dark:text-slate-200">${escapeHtml(fix)}</td>
+  <td class="p-3 text-sm">${costCell}</td>
+  <td class="p-3 text-sm capitalize text-slate-700 dark:text-slate-300">${escapeHtml(r.difficulty)}</td>
 </tr>`;
     })
     .join("");
   return `
-<section class="hsd-section hsd-block" id="${hsdSectionDomId("repair_matrix")}">
+<section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("repair_matrix")}">
   <h2 class="hsd-section__title hsd-section-title">Repair matrix</h2>
-  <div class="hsd-section__body hsd-v2__table-wrap">
+  <div class="hsd-section__body">
     ${introBlock}
-    <table class="hsd-v2__matrix hsd-repair-matrix-dg"><thead><tr><th scope="col">Path (component — reason → action — cost)</th><th scope="col">Tier</th></tr></thead><tbody>${rows}</tbody></table>
+    <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-600">
+      <table class="w-full table-fixed border-collapse text-left text-sm">
+        <thead class="bg-slate-100 text-left dark:bg-slate-800">
+          <tr>
+            <th class="p-3 font-semibold text-slate-900 dark:text-slate-100" scope="col">Issue</th>
+            <th class="p-3 font-semibold text-slate-900 dark:text-slate-100" scope="col">Fix</th>
+            <th class="p-3 font-semibold text-slate-900 dark:text-slate-100" scope="col">Cost</th>
+            <th class="p-3 font-semibold text-slate-900 dark:text-slate-100" scope="col">Difficulty</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
   </div>
 </section>`.trim();
 }
@@ -656,7 +915,7 @@ export function sectionCostEscalation(cost_escalation: HsdV25Payload["cost_escal
     })
     .join("");
   return `
-<section class="hsd-section hsd-block">
+<section class="${HSD_V25_SECTION_SHELL}">
   <h2 id="${hsdSectionDomId("cost_escalation")}" class="hsd-section__title hsd-section-title"><span aria-hidden="true">⚡</span> Cost escalation</h2>
   <div class="hsd-section__body">
     <p class="hsd-cost-esc-lead mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">There is no idle recovery once the system runs wrong under load. Delay burns the cheap exit first, then leaves only expensive repairs.</p>
@@ -681,7 +940,7 @@ export function sectionDecision(
     ? `<div class="hsd-decision-footer mt-4 border-t border-slate-200 pt-4 space-y-2 dark:border-slate-600">${summaryCoreTruthParagraphsHtml(foot, "m-0 text-sm font-semibold leading-relaxed text-slate-900 dark:text-white")}</div>`
     : "";
   return `
-<section class="hsd-section hsd-decision hsd-block" id="${hsdSectionDomId("decision")}">
+<section class="${HSD_V25_DECISION_SHELL}" id="${hsdSectionDomId("decision")}">
   <h2 class="hsd-section__title hsd-section-title">What you should do now</h2>
   <div class="hsd-section__body hsd-v2__cols">
     ${col("hsd-decision-safe", `<span aria-hidden="true">🟦</span> Safe — try first`, decision.safe)}
@@ -702,19 +961,16 @@ export function sectionFinalWarning(
     "text-base font-medium leading-relaxed text-slate-900 dark:text-slate-100"
   );
   return `
-<section class="hsd-section hsd-section--stop hsd-block">
+<section class="${HSD_V25_FINAL_SHELL}">
   <h2 id="${hsdSectionDomId("final_warning")}" class="hsd-section__title hsd-section-title"><span aria-hidden="true">🔥</span> Final warning</h2>
   <div class="hsd-section__body space-y-3">${paras}</div>
 </section>`.trim();
 }
 
 export function sectionCta(cta: string): string {
-  const paras = bodyParagraphsHtml(cta, "font-semibold leading-relaxed text-slate-900 dark:text-slate-100");
-  return `
-<div class="hsd-standout hsd-standout--cta hsd-block" id="${hsdSectionDomId("cta")}">
-  <p class="text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Next step</p>
-  <div class="mt-1 space-y-3">${paras}</div>
-</div>`.trim();
+  const t = String(cta ?? "").trim();
+  if (!t) return "";
+  return sectionPlacementCta("final", t, hsdSectionDomId("cta"));
 }
 
 /** @deprecated Prefer {@link sectionFinalWarning} + {@link sectionCta} via {@link joinSortedHsdV25Blocks}. */
@@ -730,20 +986,26 @@ function buildHsdV25HeaderHtml(data: HsdV25RenderInput): string {
   const sub = subhead(data);
   const quickDx = sectionQuickDiagnosisTable(data.quick_table, data.canonical_truths);
   return `
-<header class="hsd-cred" data-hsd-zone="credibility">
+<header class="${HSD_V25_HEADER_SHELL}" data-hsd-zone="credibility">
   <h1 class="hsd-cred__title">${escapeHtml(data.title)}</h1>
   ${sub ? `<p class="hsd-cred__sub">${escapeHtml(sub)}</p>` : ""}
   ${sectionSummary(data.summary_30s, data.canonical_truths)}
+  ${renderCtasByTypes(data, ["top"])}
   ${quickDx}
   ${sectionWhatThisMeans(data.what_this_means)}
   <hr class="hsd-cred__rule" />
   ${sectionQuickChecks(data.quick_checks, data.canonical_truths)}
+  ${renderCtasByTypes(data, ["mid"])}
 </header>`.trim();
 }
 
 function buildHsdV25MidBlocks(data: HsdV25RenderInput): HsdV25HtmlBlock[] {
   const quickDx = sectionQuickDiagnosisTable(data.quick_table, data.canonical_truths);
   const P = HSD_V25_BLOCK_PRIORITY;
+  const repairMatrixHtml = sectionRepairMatrix(data.repair_matrix, data.repair_matrix_intro, data.vertical);
+  const showPreRepairCtAs = repairMatrixHtml.trim().length > 0;
+  const dangerCtas = showPreRepairCtAs ? renderCtasByTypes(data, ["danger"]) : "";
+  const costCtas = showPreRepairCtAs ? renderCtasByTypes(data, ["cost"]) : "";
   return [
     { priority: P.diagnostic_steps, html: sectionDiagnosticSteps(data.diagnostic_steps, data.canonical_truths) },
     { priority: P.decision_tree_text, html: sectionDecisionTreeText(data.decision_tree_text) },
@@ -753,9 +1015,11 @@ function buildHsdV25MidBlocks(data: HsdV25RenderInput): HsdV25HtmlBlock[] {
     },
     { priority: P.tools, html: sectionTools(data.tools) },
     { priority: P.visual_diagnostic_flow, html: renderMermaid(data.diagnostic_flow) },
+    { priority: P.cta_danger_before_repair, html: dangerCtas },
+    { priority: P.cta_cost_before_repair, html: costCtas },
     {
       priority: P.repair_matrix,
-      html: sectionRepairMatrix(data.repair_matrix, data.repair_matrix_intro, data.vertical),
+      html: repairMatrixHtml,
     },
     { priority: P.cost_escalation, html: sectionCostEscalation(data.cost_escalation) },
     { priority: 99, html: canonicalTruthsEchoHtml(data.canonical_truths, "pre_decision") },
@@ -766,7 +1030,7 @@ function buildHsdV25MidBlocks(data: HsdV25RenderInput): HsdV25HtmlBlock[] {
 function buildHsdV25ClosingBlocks(data: HsdV25RenderInput): HsdV25HtmlBlock[] {
   const P = HSD_V25_BLOCK_PRIORITY;
   return [
-    { priority: P.cta, html: sectionCta(data.cta) },
+    { priority: P.cta, html: buildFinalCtaHtml(data) },
     { priority: P.final_warning, html: sectionFinalWarning(data.final_warning, data.canonical_truths) },
   ];
 }
@@ -807,6 +1071,7 @@ export function renderHsdV25(data: HsdV25RenderInput): string {
     ...buildHsdV25MidBlocks(safe),
     ...buildHsdV25ClosingBlocks(safe),
   ];
-
-  return `${header}\n${joinSortedHsdV25Blocks(blocks)}`.trim();
+  const related = sectionInternalRelatedLinks(safe);
+  const inner = `${header}\n${joinSortedHsdV25Blocks(blocks)}\n${related}`.trim();
+  return wrapHsdV25LayoutDocument(inner);
 }

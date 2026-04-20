@@ -17,6 +17,7 @@
  * **HSD city diagnostic batch (Tampa presets + publish gate):** real table **`page_queue`**
  * (`db/migrations/015_page_queue.sql`, `016_page_queue_attempts.sql`, `017_page_queue_completed_at.sql`, worker `lib/homeservice/hsdPageQueueWorker.ts`,
  * `scripts/hsd-page-queue-worker.ts`). Status flow: `pending` → `generating` → `done` | `failed`.
+ * **HVAC high-intent core cluster (10 pages, scale mode):** `lib/homeservice/hsdHvacCoreCluster.ts`, seed `scripts/seed-hsd-hvac-core-cluster-queue.ts`.
  * Each claim increments **`attempts`** (`UPDATE … SET status = 'generating', attempts = attempts + 1`).
  *
  * ### Column mapping (conceptual → actual)

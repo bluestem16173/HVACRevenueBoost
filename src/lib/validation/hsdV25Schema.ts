@@ -139,6 +139,20 @@ export const HSDV25Schema = z
     /** Single authority line after the three decision columns (continued operation / cost). */
     decision_footer: z.string().default(""),
 
+    /**
+     * Placement CTAs (DB / LLM). Missing types are filled server-side by {@link injectProgrammaticHsdCtas}.
+     * Renderer places by `type`: top (after summary), mid (after quick checks), danger (before repair matrix),
+     * cost (before repair matrix), final (closing — falls back to `cta` when empty).
+     */
+    ctas: z
+      .array(
+        z.object({
+          type: z.enum(["top", "mid", "danger", "cost", "final"]),
+          text: z.string().min(1),
+        })
+      )
+      .default([]),
+
     final_warning: z.string().min(60),
     cta: z.string().min(45),
   })

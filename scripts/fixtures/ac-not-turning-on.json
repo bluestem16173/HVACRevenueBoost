@@ -1,0 +1,55 @@
+{
+  "diagnostic_flow": {
+    "version": 1,
+    "system": "hvac",
+    "issue_label": "ac not turning on",
+    "nodes": [
+      { "id": "start", "kind": "start", "label": "AC not turning on" },
+      { "id": "thermostat", "kind": "decision", "label": "Check thermostat" },
+      { "id": "power", "kind": "decision", "label": "Check power" },
+      { "id": "capacitor", "kind": "decision", "label": "Check capacitor" },
+      { "id": "electrical", "kind": "outcome", "label": "Electrical fault" },
+      { "id": "compressor", "kind": "outcome", "label": "Compressor fault" }
+    ],
+    "edges": [
+      { "from": "start", "to": "thermostat", "label": "If no startup" },
+      { "from": "thermostat", "to": "power", "label": "If thermostat OK" },
+      { "from": "power", "to": "capacitor", "label": "If voltage present" },
+      { "from": "capacitor", "to": "electrical", "label": "If failed" },
+      { "from": "capacitor", "to": "compressor", "label": "If OK but no start" }
+    ]
+  },
+  "summary_30s": "AC not turning on usually indicates a control, power, or startup component failure. Even when the issue appears electrical, underlying system conditions like airflow restriction or heat transfer imbalance can contribute to shutdowns.",
+  "decision_tree": "If AC does not turn on → check thermostat.\nIf thermostat blank → no low-voltage power.\nIf thermostat active → check breaker and disconnect.\nIf breaker tripped → restore power and verify load.\nIf power present → check capacitor and contactor operation.\nIf capacitor failed → compressor cannot start.\nIf voltage is present but no startup → compressor or contactor fault is in scope.\nIf fan running → this does not mean the system working.",
+  "top_causes": "Failed capacitor, blown transformer, thermostat wiring faults, and electrical disconnect issues prevent startup. Airflow restriction can increase system load and contribute to shutdown conditions. Poor heat transfer performance can trigger protective lockouts in modern systems.",
+  "how_system_works": "An AC system requires a thermostat signal and correct voltage (VAC) to energize the contactor and compressor. Airflow must move heat across the evaporator coil for proper heat transfer. If airflow restriction exists, system load rises and can trigger faults. Refrigerant is not consumed, so low charge equals a leak when pressure is abnormal. Ignoring these conditions forces the compressor outside its design limits. A fan running does not mean the system working.",
+  "diagnostic_steps": "If thermostat calls but no response → measure control voltage (24 VAC).\nIf no voltage → transformer or wiring issue.\nIf voltage present → test capacitor and contactor under load.\nMeasure line voltage (VAC) at contactor input.\nIf voltage present but no startup → compressor or capacitor failure is next isolation branch.\nIf airflow, thermostat, and power are confirmed and the system still is not cooling, the fault is no longer superficial. continuing to run the system is what turns a manageable repair into a major failure.\nStop. Professional diagnosis is not optional before swapping major electrical parts.",
+  "cost_matrix": "Thermostat: $150–$400 | Capacitor: $150–$400 | Electrical repair: $200–$800 | Compressor: $1500–$3000",
+  "replace_vs_repair": "If repair is $400 vs replacement $7000, repair is reasonable under 10 years. If the system is over 12 years old or requires compressor replacement, it is often better to replace. Repeated startup failures are not worth repairing multiple times.",
+  "stop_diy": "Stop. Professional diagnosis is not optional. This is how minor complaints turn into compressor failures.",
+  "prevention_tips": "Inspect electrical components, maintain airflow, and schedule annual system checks to prevent load-related shutdowns.",
+  "tools_needed": "Multimeter, voltage tester",
+  "bench_test_notes": "Measure line voltage (VAC) at contactor. If voltage present but compressor does not start, that indicates capacitor or compressor failure. Measure capacitor microfarads versus label; low microfarads confirms capacitor fault. Measure blower amps if accessible; abnormal readings indicate motor overload fault.",
+  "internal_links": {
+    "related_symptoms": [
+      "hvac/ac-not-cooling",
+      "hvac/thermostat-not-responding",
+      "hvac/outdoor-unit-not-turning-on"
+    ],
+    "causes": [
+      "hvac/failed-capacitor",
+      "hvac/blown-hvac-transformer",
+      "hvac/faulty-thermostat-wiring",
+      "hvac/control-board-relay-stuck"
+    ],
+    "system_pages": ["hvac/central-air-conditioning-system", "hvac/thermostat-control-system"],
+    "repair_guides": [
+      "repair/tampa-fl/ac-not-turning-on",
+      "repair/fort-myers-fl/ac-not-turning-on"
+    ],
+    "context_pages": [
+      "hvac/ac-not-turning-on-after-power-outage",
+      "hvac/ac-not-turning-on-intermittently"
+    ]
+  }
+}

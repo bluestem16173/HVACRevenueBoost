@@ -1,0 +1,55 @@
+{
+  "diagnostic_flow": {
+    "version": 1,
+    "system": "hvac",
+    "issue_label": "weak airflow",
+    "nodes": [
+      { "id": "start", "kind": "start", "label": "Weak airflow" },
+      { "id": "filter", "kind": "decision", "label": "Check filter" },
+      { "id": "duct", "kind": "decision", "label": "Check ductwork" },
+      { "id": "blower", "kind": "decision", "label": "Check blower motor" },
+      { "id": "restriction", "kind": "outcome", "label": "Airflow restriction confirmed" },
+      { "id": "failure", "kind": "outcome", "label": "Blower failure" }
+    ],
+    "edges": [
+      { "from": "start", "to": "filter", "label": "If airflow weak" },
+      { "from": "filter", "to": "duct", "label": "If filter clean" },
+      { "from": "duct", "to": "blower", "label": "If ducts clear" },
+      { "from": "duct", "to": "restriction", "label": "If blocked" },
+      { "from": "blower", "to": "failure", "label": "If not spinning" }
+    ]
+  },
+  "summary_30s": "Weak airflow reduces heat transfer and static pressure rises when the return path is choked. Once airflow is restored, abnormal suction behavior still means low charge equals a leak because refrigerant is not consumed—charge work belongs after proving airflow.",
+  "decision_tree": "If airflow is weak → check filter first.\nIf filter clogged → airflow restriction confirmed.\nIf filter clean → check ductwork for collapse or damper faults.\nIf ducts are restricted → static pressure climbs and heat transfer collapses.\nIf airflow still low with clean path → check blower wheel loading and motor amps.\nIf voltage is present at the blower but wheel speed is flat → blower motor or capacitor fault is likely.\nIf the homeowner sees the fan running but rooms never cool → system working is not proven by motion alone.",
+  "top_causes": "Dirty filters and blocked returns drive airflow restriction and rising static pressure. Refrigerant is not consumed, so low charge equals a leak if gauges look weak after airflow is verified. Blower wheel buildup and slipping belts stall heat transfer—the coil never sees design load.",
+  "how_system_works": "Moving air carries sensible heat across the coil so refrigerant can absorb energy. When airflow restriction wins, static pressure spikes and the coil starves. Refrigerant is not consumed, so any sustained low-side weakness after correcting airflow still maps to low charge equals a leak logic. Forcing the system to idle in that state forces the compressor outside its design limits. A fan running does not mean the system working.",
+  "diagnostic_steps": "If registers feel weak → measure static pressure in W.C. and compare to manufacturer max.\nIf filter is dirty → replace immediately and recheck face velocity.\nIf filter is clean but static remains high → inspect duct transitions for restriction.\nIf blower amps are low with weak airflow → wheel loading or belt slip is suspect.\nIf airflow, thermostat, and power are confirmed and the system still is not cooling, the fault is no longer superficial. continuing to run the system is what turns a manageable repair into a major failure.\nIf split stays low after airflow fix → suction PSI and superheat decide whether low charge equals a leak.\nStop. Professional diagnosis is not optional when airflow and charge both misbehave.",
+  "cost_matrix": "Filter: $20–$50 | Duct cleaning: $300–$800 | Blower motor: $500–$1200",
+  "replace_vs_repair": "If repair is $600 vs replacement $6000, repair is usually justified under 10 years. If the system is over 12 years old with repeat blower failures, it is often better to replace. Patch duct tape fixes are not worth repairing twice.",
+  "stop_diy": "Stop. Professional diagnosis is not optional. This is how minor complaints turn into compressor failures.",
+  "prevention_tips": "Replace filters on schedule, keep return grilles open, and avoid stacking storage in front of low returns so heat transfer stays stable.",
+  "tools_needed": "Manometer, multimeter, static pressure probe, thermometer",
+  "bench_test_notes": "Measure static pressure (W.C.) across filter and coil. If static climbs above spec after a clean filter, that indicates duct restriction fault. Measure blower amps and line voltage (VAC). If voltage is present but airflow remains low, that indicates blower motor failure or capacitor fault before condemning the coil.",
+  "internal_links": {
+    "related_symptoms": [
+      "hvac/ac-not-cooling",
+      "hvac/ac-freezing-up",
+      "hvac/weak-cooling-from-ac"
+    ],
+    "causes": [
+      "hvac/dirty-filter",
+      "hvac/blocked-return-air-grille",
+      "hvac/ductwork-static-pressure-high",
+      "hvac/indoor-blower-motor-bad"
+    ],
+    "system_pages": ["hvac/air-handler-system", "hvac/central-air-conditioning-system"],
+    "repair_guides": [
+      "repair/tampa-fl/weak-airflow",
+      "repair/fort-myers-fl/weak-airflow"
+    ],
+    "context_pages": [
+      "hvac/airflow-weak-and-warm-air",
+      "hvac/low-airflow-after-filter-change"
+    ]
+  }
+}

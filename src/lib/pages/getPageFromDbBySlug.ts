@@ -1,5 +1,5 @@
 import sql from "@/lib/db";
-import { enforceStoredSlug } from "@/lib/slug-utils";
+import { normalizePagesTableSlugLookup } from "@/lib/slug-utils";
 
 export type PageFromDbRow = {
   slug: string;
@@ -11,7 +11,7 @@ export type PageFromDbRow = {
 
 /** Raw published row for TEMP HTML/JSON bypass routes (no quality / schema gates). */
 export async function getPageFromDB(slug: string): Promise<PageFromDbRow | null> {
-  const normalized = enforceStoredSlug(slug);
+  const normalized = normalizePagesTableSlugLookup(slug);
   if (!normalized) return null;
 
   const rows = await sql`

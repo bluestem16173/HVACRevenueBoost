@@ -1,0 +1,57 @@
+{
+  "diagnostic_flow": {
+    "version": 1,
+    "system": "hvac",
+    "issue_label": "contactor buzz no start",
+    "nodes": [
+      { "id": "start", "kind": "start", "label": "Outdoor hums, no start" },
+      { "id": "lv", "kind": "decision", "label": "Check 24 VAC call" },
+      { "id": "hv", "kind": "decision", "label": "Check line voltage" },
+      { "id": "cont", "kind": "decision", "label": "Check contactor" },
+      { "id": "cap", "kind": "decision", "label": "Check capacitor" },
+      { "id": "elec", "kind": "outcome", "label": "Control fault" },
+      { "id": "mech", "kind": "outcome", "label": "Start assist fault" }
+    ],
+    "edges": [
+      { "from": "start", "to": "lv", "label": "If buzz only" },
+      { "from": "lv", "to": "hv", "label": "If 24 VAC OK" },
+      { "from": "hv", "to": "cont", "label": "If L1-L2 present" },
+      { "from": "cont", "to": "elec", "label": "If chatter" },
+      { "from": "cont", "to": "cap", "label": "If pulled in" },
+      { "from": "cap", "to": "mech", "label": "If no rotation" }
+    ]
+  },
+  "summary_30s": "A buzzing outdoor unit with no compressor start is usually low-voltage call, weak contactor pull, or failed start assist. Even when it sounds purely electrical, airflow restriction or abnormal heat transfer can still load the stack and show up as marginal voltage under LRA.",
+  "decision_tree": "If outdoor buzzes but never starts → verify thermostat is calling cooling.\nIf 24 VAC is missing at the contactor coil → transformer or stat path fault.\nIf 24 VAC is present but contactor chatters → weak coil or pitted contacts fault.\nIf contactor pulls in but compressor silent → measure line voltage (VAC) at load side and capacitor assist.\nIf line voltage sags when contactor pulls in → supply or lug fault is suspect.\nIf fan runs indoors but outdoor never commits → system working is not proven by indoor motion alone.\nIf airflow, thermostat, and power are confirmed but capacity never arrives → sealed-system imbalance still means refrigerant is not consumed and low charge equals a leak once airflow is cleared.",
+  "top_causes": "Pitted contactor points, weak 24 VAC from transformer or stat wiring, and failed run/start capacitors are common no-start causes. Airflow restriction increases blower and return static pressure, which can drag controls low under load. Heat transfer collapse from dirty coils can trip logic before the homeowner notices weak cooling.",
+  "how_system_works": "The contactor is the high-voltage gate: 24 VAC energizes the coil, line voltage passes to compressor and fan. If start assist is weak, the compressor may hum without rotation while the fan runs. Airflow must move heat for stable operation; airflow restriction raises static pressure and can extend runtime until safeties intervene. Refrigerant is not consumed, so low charge equals a leak when gauges disagree after airflow is verified. Ignoring marginal starts forces the compressor outside its design limits. A fan running does not mean the system working.",
+  "diagnostic_steps": "If buzz is steady with no rotation → measure 24 VAC at the contactor coil first.\nIf 24 VAC is low under call → stat cable or transformer fault is primary.\nIf 24 VAC is stable but contactor rattles → replace contactor after proving lug torque.\nIf contactor pulls in → measure line voltage (VAC) at compressor terminals and capacitor microfarads.\nIf voltage is present but compressor does not turn → capacitor or locked rotor fault is next branch.\nIf airflow, thermostat, and power are confirmed and the system still is not cooling, the fault is no longer superficial. continuing to run the system is what turns a manageable repair into a major failure.\nStop. Professional diagnosis is not optional when LRA current is involved.",
+  "cost_matrix": "Contactor: $150–$350 | Capacitor: $150–$400 | Low-voltage repair: $200–$600 | Compressor: $1800–$3500",
+  "replace_vs_repair": "If repair is $450 vs replacement $7200, repair is reasonable under 10 years when the fault is contactor or capacitor only. If the system is over 12 years old with repeat no-start events, it is often better to replace. Chasing the same electrical fault twice is not worth repairing when the compressor is marginal.",
+  "stop_diy": "Stop. Professional diagnosis is not optional. This is how minor complaints turn into compressor failures.",
+  "prevention_tips": "Keep disconnects tight, replace weak capacitors on schedule, and maintain airflow so controls stay in spec under load.",
+  "tools_needed": "Multimeter, AC voltage tester, capacitor tester",
+  "bench_test_notes": "Measure 24 VAC at the contactor coil with a call for cooling. If 24 VAC is present but the contactor chatters, that indicates coil or contact fault. Measure line voltage (VAC) across incoming lugs; if it sags under pull-in, that indicates supply or lug failure. Measure capacitor microfarads versus label; low microfarads confirms start-assist component failure before condemning the compressor.",
+  "internal_links": {
+    "related_symptoms": [
+      "hvac/ac-not-cooling",
+      "hvac/thermostat-not-responding",
+      "hvac/outdoor-unit-not-turning-on"
+    ],
+    "causes": [
+      "hvac/failed-capacitor",
+      "hvac/blown-hvac-transformer",
+      "hvac/faulty-thermostat-wiring",
+      "hvac/control-board-relay-stuck"
+    ],
+    "system_pages": ["hvac/central-air-conditioning-system", "hvac/thermostat-control-system"],
+    "repair_guides": [
+      "repair/tampa-fl/ac-not-turning-on",
+      "repair/fort-myers-fl/ac-not-turning-on"
+    ],
+    "context_pages": [
+      "hvac/ac-not-turning-on-after-power-outage",
+      "hvac/ac-not-turning-on-intermittently"
+    ]
+  }
+}

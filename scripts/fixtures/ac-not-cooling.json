@@ -1,0 +1,62 @@
+{
+  "diagnostic_flow": {
+    "version": 1,
+    "system": "hvac",
+    "issue_label": "AC not cooling",
+    "nodes": [
+      { "id": "A", "kind": "start", "label": "AC not cooling" },
+      { "id": "B", "kind": "decision", "label": "Airflow Present?" },
+      { "id": "C", "kind": "outcome", "label": "Filter / Blower Issue", "styleClass": "airflow" },
+      { "id": "D", "kind": "decision", "label": "Air Cold?" },
+      { "id": "E", "kind": "outcome", "label": "Refrigerant / Compressor", "styleClass": "refrigerant" },
+      { "id": "F", "kind": "outcome", "label": "System Load", "styleClass": "load" }
+    ],
+    "edges": [
+      { "from": "A", "to": "B" },
+      { "from": "B", "to": "C", "label": "No" },
+      { "from": "B", "to": "D", "label": "Yes" },
+      { "from": "D", "to": "E", "label": "No" },
+      { "from": "D", "to": "F", "label": "Yes" }
+    ]
+  },
+  "summary_30s": "AC not cooling is almost always a heat transfer or capacity problem: airflow, refrigerant mass flow, or compressor work. Low charge equals a leak because refrigerant is not consumed—loss is always a sealed-system defect, not maintenance.",
+  "decision_tree": "If supply air stays warm at registers → then verify blower delivery and static pressure first.\nIf outdoor airflow is weak at the condenser → then head pressure and heat rejection suffer.\nIf indoor airflow is strong but ΔT is low → then charge or metering faults dominate.\nIf suction pressure is low with high superheat → then low charge equals a leak after airflow is cleared.\nIf liquid line is cold but vapor line is warm → then metering or restriction is suspect.\nIf the compressor is hot with marginal cooling → then forces the compressor outside its design limits is the risk narrative.\nIf noise rises with airflow drop → then blower wheel or duct leakage is likely.",
+  "top_causes": "Airflow restriction increases static pressure and reduces heat transfer at the evaporator. Refrigerant is not consumed in normal operation—so low charge equals a leak once airflow is ruled in or out. If you see ice on the line set first → then low airflow or metering fault must be separated before adding charge. Capacitor degradation can show volts but fail under compressor LRA.",
+  "how_system_works": "Comfort cooling is sustained sensible and latent heat transfer from the house air to the refrigerant circuit. When the fan running is steady but the system working outcome fails—warm supply while the stat is satisfied—that contrast is the first branch technicians use. Ignoring airflow and superheat margins is what forces the compressor outside its design limits. this is how minor complaints turn into compressor failures when the homeowner keeps forcing runtime.",
+  "diagnostic_steps": "Start with a dry-bulb supply/return check in °F: if the measured split stays under 16°F with normal blower flow, then treat capacity and charge as primary suspects.\nif airflow, thermostat, and power are confirmed and the system still is not cooling, the fault is no longer superficial. continuing to run the system is what turns a manageable repair into a major failure.\nIf suction pressure reads low on gauges while superheat is high and airflow is confirmed, then low charge equals a leak.\nwhat starts as a minor repair can become a multi-thousand-dollar failure when the system continues running under fault.\nMeasure line voltage at the disconnect: if voltage is present and the contactor pulls in but the compressor never starts, then test the capacitor under load, not only open-circuit.\nIf PSI on the suction line falls after a short run with stable indoor wet-bulb, then refrigerant mass flow is insufficient.\nIf one zone is cold but others are warm, then duct leakage or damper fault can mimic a not-cooling complaint.",
+  "cost_matrix": "Filter change: $20–$50 | Capacitor: $150–$400 | Leak locate + repair: $500–$1500 | Compressor changeout: $2000–$4500",
+  "replace_vs_repair": "If repair is $800 vs replacement $7000, repair may make sense under 10 years. If the system is over 12 years old, it is often better to replace. Continued failures are not worth repairing and may lead to compressor damage.",
+  "stop_diy": "Stop. Professional diagnosis is not optional before adding refrigerant, recovering charge, or altering the sealed system. Low charge equals a leak and requires leak verification—not top-offs.",
+  "prevention_tips": "Keep filters clean to avoid airflow restriction and rising static pressure. Schedule seasonal checks so heat transfer stays predictable before peak load.",
+  "tools_needed": "Thermometer, multimeter for volts and ohms, manifold gauge set for PSI, inspection mirror",
+  "bench_test_notes": "Measure line voltage (VAC) and system amps. If voltage is present but the compressor does not start, that indicates capacitor or compressor failure. Measure refrigerant pressure in PSI to confirm system fault.",
+  "internal_links": {
+    "related_symptoms": [
+      "hvac/ac-freezing-up",
+      "hvac/weak-airflow",
+      "hvac/high-energy-bills",
+      "hvac/ac-short-cycling"
+    ],
+    "causes": [
+      "hvac/refrigerant-leak",
+      "hvac/dirty-coils",
+      "hvac/failed-capacitor",
+      "hvac/ductwork-static-pressure-high",
+      "hvac/compressor-hard-start-needed"
+    ],
+    "system_pages": [
+      "hvac/how-central-air-conditioning-works",
+      "hvac/heat-transfer-airflow-and-delta-t"
+    ],
+    "repair_guides": [
+      "repair/tampa/ac-not-cooling",
+      "hvac/when-compressor-risk-requires-a-pro"
+    ],
+    "context_pages": [
+      "hvac/ac-not-cooling-during-day",
+      "hvac/ac-not-cooling-when-hot-outside",
+      "hvac/ac-not-cooling-after-filter-change",
+      "hvac/ac-not-cooling-first-heat-wave"
+    ]
+  }
+}

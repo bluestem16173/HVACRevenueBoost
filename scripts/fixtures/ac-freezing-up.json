@@ -1,0 +1,63 @@
+{
+  "diagnostic_flow": {
+    "version": 1,
+    "system": "hvac",
+    "issue_label": "AC freezing up",
+    "nodes": [
+      { "id": "A", "kind": "start", "label": "AC freezing up" },
+      { "id": "B", "kind": "decision", "label": "Airflow adequate?" },
+      { "id": "C", "kind": "outcome", "label": "Filter / blower / static pressure", "styleClass": "airflow" },
+      { "id": "D", "kind": "decision", "label": "Ice pattern?" },
+      { "id": "E", "kind": "outcome", "label": "Charge / metering / restriction", "styleClass": "refrigerant" },
+      { "id": "F", "kind": "outcome", "label": "Low load / controls", "styleClass": "load" }
+    ],
+    "edges": [
+      { "from": "A", "to": "B" },
+      { "from": "B", "to": "C", "label": "No" },
+      { "from": "B", "to": "D", "label": "Yes" },
+      { "from": "D", "to": "E", "label": "Coil / line ice" },
+      { "from": "D", "to": "F", "label": "Intermittent only" }
+    ]
+  },
+  "summary_30s": "Ice on the indoor coil or suction line is a heat-transfer imbalance: airflow restriction, low airflow setpoint, metering issues, or low charge can all drive coil temperature below freezing. Low charge equals a leak because refrigerant is not consumed—ice is a symptom, not the root class by itself.",
+  "decision_tree": "If the coil is iced and blower amps are low → then treat static pressure and filter loading first.\nIf registers are warm while the coil is frozen → then airflow delivery is suspect before any charge work.\nIf ice tracks the line set after a long run → then metering or restriction must be separated from pure undercharge.\nIf suction pressure is low with a wide superheat → then low charge equals a leak after airflow is verified.\nIf suction is low with floodback signs → then metering or valve behavior can dominate the freeze pattern.\nIf the outdoor head pressure climbs while indoor wet-bulb is stable → then condenser rejection or non-condensable issues enter scope.\nIf the homeowner reports the fan running but rooms never reach setpoint → then system working is not proven by blower motion alone.",
+  "top_causes": "Airflow restriction increases static pressure and drops evaporator load, which can push coil surface temperature below freezing. Refrigerant is not consumed in normal operation—so low charge equals a leak once airflow and metering are ruled in or out. If you see ice first without a measured split → then misdiagnosis risk rises. this is how minor complaints turn into compressor failures when the coil keeps icing under fault.",
+  "how_system_works": "The evaporator removes sensible and latent heat from the airstream; when airflow or mass flow is wrong, sensible heat removal collapses and latent energy can freeze water on fins. When the fan running is steady but the system working outcome fails—setpoint never satisfied while ice spreads—that contrast is the technician branch point. Sustained operation with marginal airflow is what forces the compressor outside its design limits on return gas temperature and oil return.",
+  "diagnostic_steps": "Start with a dry-bulb supply/return check in °F: if the measured split collapses while ice is present, then separate airflow from charge before adding refrigerant.\nif airflow, thermostat, and power are confirmed and the system still is not cooling, the fault is no longer superficial. continuing to run the system is what turns a manageable repair into a major failure.\nIf wet-bulb across the coil is abnormal with low face velocity, then low charge equals a leak only after proving the coil is not airflow-starved.\nwhat starts as a minor repair can become a multi-thousand-dollar failure when the system continues running under fault.\nMeasure line voltage at the indoor blower: if voltage is present but airflow is weak, then duct leakage or blower wheel loading is likely.\nIf PSI on suction trends low after melt with verified airflow, then leak verification is the next professional gate.\nIf short cycling coincides with rapid ice return, then controls, charge, and airflow must be triaged as a set, not as isolated guesses.",
+  "cost_matrix": "Blower deep clean: $150–$350 | Metering device / TXV work: $400–$900 | Leak locate + repair: $500–$1500 | Coil replacement (severe): $2000–$4500",
+  "replace_vs_repair": "Age of system matters: if the repair is $1100 versus replacement at $6200 and the unit is over 12 years old, it is often not worth repairing—temporary fixes stack—and better to replace for reliability. If the equipment is under 8 years with a verified airflow-first fault, repair may be appropriate when stacking cost stays below changeout.",
+  "stop_diy": "Stop. Professional diagnosis is not optional before recovering charge, opening the sealed system, or chipping ice from the coil. Low charge equals a leak and requires verification—not repeated top-offs.",
+  "prevention_tips": "Keep filters and coils clean to avoid airflow restriction and rising static pressure. Confirm registers are open after remodels so heat transfer stays balanced before peak humidity.",
+  "tools_needed": "Thermometer, multimeter for volts and ohms, manifold gauge set for PSI, hygrometer",
+  "bench_test_notes": "Measure blower motor voltage at tap points. If voltage is present but speed does not change under load, then indicates blower control or motor failure risk. Test winding resistance in ohms: an open reading confirms motor fault. If microfarads read low versus the capacitor label, that component fault can explain weak airflow that precedes coil icing—fault isolation matters before condemning the coil.",
+  "internal_links": {
+    "related_symptoms": [
+      "hvac/ac-not-cooling",
+      "hvac/weak-airflow",
+      "hvac/ac-short-cycling",
+      "hvac/high-energy-bills"
+    ],
+    "causes": [
+      "hvac/low-airflow-coil-freeze",
+      "hvac/refrigerant-charge-imbalance",
+      "hvac/dirty-evaporator-coil",
+      "hvac/txv-or-metering-fault",
+      "hvac/blower-motor-degradation"
+    ],
+    "system_pages": [
+      "hvac/how-central-air-conditioning-works",
+      "hvac/evaporator-coil-freeze-dynamics"
+    ],
+    "repair_guides": [
+      "repair/tampa/ac-freezing-up",
+      "hvac/refrigerant-charge-vs-airflow-misdiagnosis",
+      "hvac/ac-coil-service-escalation"
+    ],
+    "context_pages": [
+      "hvac/ac-freezing-up-during-day",
+      "hvac/ac-freezing-up-when-hot-outside",
+      "hvac/ac-freezing-up-after-filter-change",
+      "hvac/ac-freezing-up-first-heat-wave"
+    ]
+  }
+}

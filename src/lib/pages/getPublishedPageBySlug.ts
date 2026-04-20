@@ -1,4 +1,5 @@
 import sql from "../../../lib/db";
+import { normalizePagesTableSlugLookup } from "@/lib/slug-utils";
 
 export type PublishedPageRow = {
   id?: number;
@@ -12,7 +13,8 @@ export type PublishedPageRow = {
 };
 
 export async function getPublishedPageBySlug(slug: string): Promise<PublishedPageRow | null> {
-  // Use existing Neon 'sql' template tag
+  const key = normalizePagesTableSlugLookup(slug);
+  if (!key) return null;
   const result = await sql`
     SELECT
       id,
@@ -22,7 +24,7 @@ export async function getPublishedPageBySlug(slug: string): Promise<PublishedPag
       content_json,
       content_html
     FROM pages
-    WHERE slug = ${slug}
+    WHERE slug = ${key}
       AND status = 'published'
     LIMIT 1
   `;

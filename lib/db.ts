@@ -1,6 +1,9 @@
+import path from "node:path";
+
 import "dotenv/config";
 import dotenv from "dotenv";
-dotenv.config({ path: ".env.local" });
+
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import { enforceStoredSlug } from "./slug-utils";

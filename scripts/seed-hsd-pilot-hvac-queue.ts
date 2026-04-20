@@ -30,7 +30,7 @@ async function main() {
     const slug = canonicalLocalizedStorageSlug(row.slug);
     await sql`
       INSERT INTO public.page_queue (slug, page_type, status, priority)
-      VALUES (${slug}, ${"city_symptom"}, ${"pending"}, ${row.priority})
+      VALUES (${slug}, ${"hsd"}, ${"pending"}, ${row.priority})
       ON CONFLICT (slug) DO UPDATE SET
         status = 'pending',
         priority = EXCLUDED.priority,

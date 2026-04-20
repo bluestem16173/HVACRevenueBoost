@@ -1,4 +1,4 @@
-export default function DiagnoseSymptomLoading() {
+export default function DiagnoseCatchAllLoading() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10" aria-busy="true" aria-label="Loading diagnostic page">
       <div className="animate-pulse space-y-4">

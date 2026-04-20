@@ -3,6 +3,7 @@ import {
   DG_AUTHORITY_V3_SCHEMA_VERSION,
   GENERATED_PAGE_LAYOUT,
   GENERATED_PAGE_SCHEMA_VERSION,
+  HSD_V2_SCHEMA_VERSION,
 } from "@/lib/generated-page-json-contract";
 
 function nonEmptyString(v: unknown): v is string {
@@ -67,9 +68,16 @@ export function assertDgAuthorityV2StructuredPayload(o: Record<string, unknown>)
 }
 
 export function isStructuredDgAuthorityV2Payload(o: Record<string, unknown>): boolean {
-  if (!Array.isArray(o.quick_checks)) return false;
   if (o.layout === DG_AUTHORITY_V3_LAYOUT || o.schema_version === DG_AUTHORITY_V3_SCHEMA_VERSION) {
     return false;
   }
+  if (String(o.schema_version ?? "").trim() === HSD_V2_SCHEMA_VERSION) {
+    return false;
+  }
+  /** HSD v2 city_symptom JSON uses object `summary_30s` + `quick_checks[]`; DG structured v2 uses string `summary_30s`. */
+  if (typeof o.summary_30s === "object" && o.summary_30s !== null) {
+    return false;
+  }
+  if (!Array.isArray(o.quick_checks)) return false;
   return true;
 }

@@ -1,0 +1,58 @@
+{
+  "diagnostic_flow": {
+    "version": 1,
+    "system": "hvac",
+    "issue_label": "ac not cooling",
+    "nodes": [
+      { "id": "start", "kind": "start", "label": "AC not cooling" },
+      { "id": "airflow", "kind": "decision", "label": "Check airflow" },
+      { "id": "refrigerant", "kind": "decision", "label": "Check refrigerant pressure" },
+      { "id": "compressor", "kind": "decision", "label": "Check compressor operation" },
+      { "id": "leak", "kind": "outcome", "label": "Refrigerant leak confirmed" },
+      { "id": "fault", "kind": "outcome", "label": "Component failure" }
+    ],
+    "edges": [
+      { "from": "start", "to": "airflow", "label": "If weak airflow" },
+      { "from": "airflow", "to": "refrigerant", "label": "If airflow OK" },
+      { "from": "refrigerant", "to": "leak", "label": "If low pressure" },
+      { "from": "refrigerant", "to": "compressor", "label": "If pressure normal" },
+      { "from": "compressor", "to": "fault", "label": "If not running" }
+    ]
+  },
+  "summary_30s": "AC running but not cooling means heat transfer has failed. If airflow, refrigerant, or compressor operation breaks, cooling stops and risk increases quickly.",
+  "decision_tree": "If air is warm → check airflow first. If airflow is weak → airflow restriction is likely. If airflow is strong → then check refrigerant. If pressure is low → low charge equals a leak because refrigerant is not consumed. If pressure is normal → check compressor operation. If compressor does not start → electrical or capacitor failure. If fan running → this does not mean the system working.",
+  "top_causes": "Airflow restriction increases static pressure and reduces heat transfer. Refrigerant is not consumed, so low charge equals a leak. Dirty coils block heat exchange. Compressor failure stops refrigerant movement.",
+  "how_system_works": "An AC system removes heat through airflow and refrigerant circulation. Air carries heat to the evaporator coil where refrigerant absorbs it and moves it outside. If airflow drops, heat cannot reach the coil. If refrigerant is low, heat cannot be absorbed. If the compressor fails, refrigerant cannot circulate. Ignoring faults forces the compressor outside its design limits. A fan running does not mean the system working.",
+  "diagnostic_steps": "If airflow is restricted → heat transfer drops and coil temperature falls. If thermostat is calling and power is present → then the fault is inside the cooling system. If refrigerant pressure is low → leak confirmed because refrigerant is not consumed. If compressor receives voltage but does not start → capacitor or compressor failure. If system runs continuously without cooling → compressor stress is occurring. What starts as a minor repair can become a multi-thousand-dollar failure when the system continues running under fault. Stop. Professional diagnosis is not optional.\nif airflow, thermostat, and power are confirmed and the system still is not cooling, the fault is no longer superficial. continuing to run the system is what turns a manageable repair into a major failure.",
+  "cost_matrix": "Filter: $20–$50 | Capacitor: $150–$400 | Refrigerant leak repair: $500–$1500 | Compressor: $1500–$3000 | Full system replacement: $5000–$12000",
+  "replace_vs_repair": "If repair is $900 vs replacement $7000, repair may make sense under 8 years. If system is over 12 years old and repair exceeds $1200, it is often not worth repairing and better to replace. Continuing to operate under fault conditions drives costs toward full replacement.",
+  "stop_diy": "Stop. Professional diagnosis is not optional. This is how minor complaints turn into compressor failures. Running the system under fault forces the compressor outside its design limits.",
+  "prevention_tips": "Replace filters regularly. Maintain airflow. Keep coils clean. Schedule annual inspections.",
+  "tools_needed": "Multimeter, thermometer, manifold gauges",
+  "bench_test_notes": "Measure capacitor microfarads. If below rating → indicates capacitor failure. Measure compressor windings in ohms. If open circuit → confirms component failure. Measure voltage at contactor. If voltage present but no startup → indicates compressor or capacitor fault.",
+  "internal_links": {
+    "related_symptoms": [
+      "hvac/weak-airflow",
+      "hvac/ac-freezing-up",
+      "hvac/ac-running-constantly"
+    ],
+    "causes": [
+      "hvac/refrigerant-leak",
+      "hvac/dirty-coils",
+      "hvac/failed-capacitor",
+      "hvac/compressor-hard-start-needed"
+    ],
+    "system_pages": [
+      "hvac/central-air-conditioning-system",
+      "hvac/air-handler-system"
+    ],
+    "repair_guides": [
+      "repair/tampa-fl/ac-not-cooling",
+      "repair/fort-myers-fl/ac-not-cooling"
+    ],
+    "context_pages": [
+      "hvac/ac-not-cooling-during-day",
+      "hvac/ac-not-cooling-when-hot-outside"
+    ]
+  }
+}

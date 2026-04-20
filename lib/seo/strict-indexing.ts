@@ -4,10 +4,10 @@ import type { Metadata } from "next";
  * Rollout / crawl hygiene — **playbook**
  *
  * **Phase 1 — Lockdown (generating in the background)**  
- * `STRICT_SITE_INDEXING=true` — leave `INDEXABLE_SINCE` unset.  
- * Result: only `/` and paths in `INDEXABLE_EXTRA_PATHS` (e.g. `/hvac`) are indexable; everything else is
- * `noindex` (unless a route explicitly opts in via `strictRobotsForDbPage` once you set a date).  
- * Master `sitemap.xml` lists **only** `sitemaps/static` (home URL) until Phase 2.
+ * `STRICT_SITE_INDEXING=true` — root metadata still uses {@link strictDefaultRobotsForPathname} (only `/` and
+ * `INDEXABLE_EXTRA_PATHS` are broadly indexable). DB-backed routes that call {@link strictRobotsForDbPage} with
+ * `eligible=true` and **no** `INDEXABLE_SINCE` are treated as **indexable** in page metadata (set `INDEXABLE_SINCE`
+ * when you want a hard cutoff on `updated_at` for staged rollout).
  *
  * **Phase 2 — First controlled release**  
  * Set `INDEXABLE_SINCE` to an ISO instant (e.g. start of release day). Publish 10–25 high-value pages.  
@@ -81,7 +81,8 @@ export function strictRobotsForDbPage(eligible: boolean, updatedAt: unknown): Pi
   if (!isStrictIndexingEnabled()) return undefined;
   if (!eligible) return { robots: { index: false, follow: true } };
   const since = getIndexableSinceDate();
-  if (!since) return { robots: { index: false, follow: true } };
+  // No cutoff: do not blanket-noindex eligible rows (use `INDEXABLE_SINCE` when you want a staged rollout).
+  if (!since) return { robots: { index: true, follow: true } };
   const at = parsePageUpdatedAt(updatedAt);
   return { robots: { index: Boolean(at && at >= since), follow: true } };
 }
