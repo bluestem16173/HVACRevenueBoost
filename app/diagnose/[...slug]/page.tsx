@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { getIndexablePageForDiagnoseJoinedSlug } from "@/lib/get-indexable-page";
+import { joinedSlugEndsWithCityStorage } from "@/lib/localized-city-path";
+import { siteCanonicalUrl } from "@/lib/seo/canonical";
+import { robotsForDbBackedPage } from "@/lib/seo/strict-indexing";
+import { isLocalizedTradeTripletEligibleForIndexingRobots } from "@/lib/seo/tier-one-discovery";
 import { renderHsdV25 } from "@/lib/hsd/renderHsdV25";
 
 export const runtime = "nodejs";
@@ -30,6 +35,43 @@ function verticalFromStorageSlug(slug: string): string {
   return "hvac";
 }
 
+export async function generateMetadata({
+  params,
+}: {
+  params: CatchAllParams | Promise<CatchAllParams>;
+}): Promise<Metadata> {
+  const resolved = await Promise.resolve(params);
+  const join = (resolved.slug ?? []).filter(Boolean).join("/");
+  if (!join) {
+    return { title: "Diagnose" };
+  }
+
+  const page = await getIndexablePageForDiagnoseJoinedSlug(join);
+  const storageSlug = page ? String((page as { slug?: string }).slug ?? join).trim() : "";
+  const isCityPage =
+    joinedSlugEndsWithCityStorage(join) || (Boolean(storageSlug) && joinedSlugEndsWithCityStorage(storageSlug));
+
+  const strict = robotsForDbBackedPage(
+    page as { status?: unknown; updated_at?: unknown } | null,
+    Boolean(page) && isLocalizedTradeTripletEligibleForIndexingRobots(page as { slug?: unknown }),
+  );
+
+  const pathname = `/diagnose/${join}`;
+
+  if (!isCityPage) {
+    return {
+      title: "Diagnostic guide",
+      robots: { index: false, follow: true },
+    };
+  }
+
+  return {
+    title: page ? String((page as { title?: string }).title ?? "").trim() || "Diagnostic guide" : "Diagnostic guide",
+    alternates: { canonical: siteCanonicalUrl(pathname) },
+    ...(strict ?? { robots: { index: true, follow: true } }),
+  };
+}
+
 export default async function Page({
   params,
 }: {
@@ -40,7 +82,9 @@ export default async function Page({
   if (!slug) notFound();
 
   const page = await getIndexablePageForDiagnoseJoinedSlug(slug);
-  if (!page || String((page as { page_type?: string }).page_type ?? "") !== "hsd") {
+  const pageType = String((page as { page_type?: string }).page_type ?? "").trim();
+  /** `generateHsdPage` persists `city_symptom`; older rows may use `hsd`. */
+  if (!page || (pageType !== "hsd" && pageType !== "city_symptom")) {
     notFound();
   }
 

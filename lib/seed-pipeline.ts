@@ -33,6 +33,7 @@
  */
 
 import { formatCityPathSegmentForDisplay } from "@/lib/localized-city-path";
+import { LEE_COUNTY_CITIES } from "@/lib/vertical-hub-shared";
 
 /** Canonical queue table for seeded build targets. */
 export const SEED_QUEUE_TABLE = "generation_queue" as const;
@@ -69,7 +70,7 @@ export const FIRST_50_HVAC_FL_DIAGNOSTIC_SEEDS: HvacFlDiagnosticSeedTarget[] = (
     "hvac-not-responding-to-thermostat",
     "hvac-leaking-water",
   ];
-  const cities = ["tampa-fl", "orlando-fl", "miami-fl", "jacksonville-fl", "fort-myers-fl"];
+  const cities = [...LEE_COUNTY_CITIES];
   const out: HvacFlDiagnosticSeedTarget[] = [];
   let p = 1;
   for (const proposedSlug of slugs) {

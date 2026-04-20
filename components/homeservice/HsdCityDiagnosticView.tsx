@@ -3,6 +3,7 @@ import { getHsdTensionSubhead } from "@/lib/homeservice/hsdTensionSubhead";
 import { getQuickDecisionTreeBranches, sectionLinksForBranch } from "@/lib/homeservice/parseQuickDecisionTree";
 import { getSystemBlocksForPageSlug } from "@/lib/systemBlockResolver";
 import { LiveElectricitySafetyNotice } from "@/components/LiveElectricitySafetyNotice";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { HsdInternalSiteLinks } from "@/components/homeservice/HsdInternalSiteLinks";
 import { HsdTampaRelatedHvacIssues } from "@/components/homeservice/HsdTampaRelatedHvacIssues";
 import { SystemBlocks } from "@/components/SystemBlocks";
@@ -121,6 +122,7 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
               {secondaryCta ? (
                 <p className="mt-3 text-center text-xs font-medium text-slate-600 dark:text-slate-400">{secondaryCta}</p>
               ) : null}
+              <SmsLegalFooterLinks className="mt-3 justify-center text-[10px]" />
             </div>
           </div>
         </div>

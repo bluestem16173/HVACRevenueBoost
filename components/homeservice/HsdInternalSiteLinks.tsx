@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { filterTierDiscoveryPaths } from "@/lib/seo/tier-one-discovery";
 
 function asStrings(arr: unknown): string[] {
   if (!Array.isArray(arr)) return [];
@@ -12,7 +13,8 @@ function hrefForSlugPath(s: string): string {
 }
 
 function isHubLinks(links: Record<string, unknown>): boolean {
-  return Array.isArray(links.related_symptoms) && asStrings(links.related_symptoms).length >= 3;
+  const n = filterTierDiscoveryPaths(asStrings(links.related_symptoms)).length;
+  return Array.isArray(links.related_symptoms) && n >= 2;
 }
 
 function HubLinkList({ title, paths }: { title: string; paths: string[] }) {
@@ -41,11 +43,11 @@ export function HsdInternalSiteLinks({ data }: { data: Record<string, unknown> }
   if (!links) return null;
 
   if (isHubLinks(links)) {
-    const related = asStrings(links.related_symptoms);
-    const causes = asStrings(links.causes);
-    const repairs = asStrings(links.repair_guides);
-    const systems = asStrings(links.system_pages);
-    const context = asStrings(links.context_pages);
+    const related = filterTierDiscoveryPaths(asStrings(links.related_symptoms));
+    const causes = filterTierDiscoveryPaths(asStrings(links.causes));
+    const repairs = filterTierDiscoveryPaths(asStrings(links.repair_guides));
+    const systems = filterTierDiscoveryPaths(asStrings(links.system_pages));
+    const context = filterTierDiscoveryPaths(asStrings(links.context_pages));
     if (!related.length) return null;
 
     return (

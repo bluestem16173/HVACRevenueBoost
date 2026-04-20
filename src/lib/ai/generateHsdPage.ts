@@ -17,15 +17,26 @@ import {
 import {
   parseCityStateForPrompt,
 } from "@/lib/prompt-schema-router";
-import { buildHsdV2VeteranTechnicianPrompt } from "@/src/lib/ai/prompts/diagnostic-engine-json";
+import {
+  buildHsdV2VeteranTechnicianPrompt,
+  HSD_CITY_OVERLAY,
+  HSD_HARD_ENFORCEMENT_RULES,
+  HSD_MASTER_FIELD_AUTHORITY_LAYER,
+  HSD_MASTER_IDEMPOTENT,
+  HSD_PILLAR_AUTHORITY_OVERRIDE,
+} from "@/src/lib/ai/prompts/diagnostic-engine-json";
 import { finalizeHsdV25Page } from "@/lib/hsd/finalizeHsdPage";
+import {
+  applyLeeCountyLocalizedEnrichmentToHsdJson,
+  isLeeCountyCityStorageSlug,
+} from "@/lib/homeservice/leeCountyLocalizedEnrichment";
 import { patchHsdLlmJsonMinimumGates } from "@/lib/hsd/patchHsdLlmJsonMinimumGates";
 import { HSDV25Schema, type HsdV25Payload } from "@/lib/validation/hsdV25Schema";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const HSD_V2_SYSTEM =
-  "You are a senior field service diagnostic technician (HVAC, plumbing, electrical). Build scan-decide-act diagnostic JSON for React — plain text only, no HTML, no line breaks inside any single string (exception: summary_30s.flow_lines = one short line per array item). No hedging (avoid may/might/could). Limit verbatim repetition across the whole JSON. Output one JSON object only; no markdown fences; no commentary. MATCH THE USER PROMPT FREEZE: no Understanding-style intros; max 2 canonical_truths; must include quick_table (≥4 rows), decision (safe/call_pro/stop_now each ≥2 lines), cost_escalation (≥4 stages with $). Also: flow_lines (4+), what_this_means (100+), repair_matrix_intro, decision_footer, diagnostic_flow, tools, repair_matrix (4+ rows, one cost_max ≥ 1500), final_warning (60+ with $), cta (45+ with city load). Saves run assertHsdV26AuthorityRules — invalid payloads are rejected.";
+  "You are a senior field service diagnostic technician (HVAC, plumbing, electrical). Build scan-decide-act diagnostic JSON for React — plain text only, no HTML, no line breaks inside any single string (exception: summary_30s.flow_lines = one short line per array item). No hedging (avoid may/might/could). Limit verbatim repetition across the whole JSON. Output one JSON object only; no markdown fences; no commentary. MATCH THE USER PROMPT FREEZE: no Understanding-style intros; max 2 canonical_truths; must include quick_table (≥4 rows), decision (safe/call_pro/stop_now each ≥2 lines), cost_escalation (≥4 stages with $). Also: flow_lines (4+), what_this_means (100+), repair_matrix_intro, decision_footer, diagnostic_flow, tools, repair_matrix (4+ rows, one cost_max ≥ 1500), final_warning (60+ with $), cta (45+ with city load). For localized pages (slug has city segment): include cityContext (2–4 strings: humidity/runtime, coastal corrosion, cycling wear) at top of page contract; national pillars use cityContext: []. Saves run assertHsdV26AuthorityRules — invalid payloads are rejected.";
 
 export type GenerateHsdPageInput = {
   symptom: string;
@@ -107,14 +118,39 @@ export function buildPrompt(
   const core = buildHsdV2VeteranTechnicianPrompt(symptomLine, cityLine, stateLine);
   const preamble = buildVerticalPromptPreamble(normalizeVerticalId(vertical));
   const topicLine = `PRIMARY PAGE SLUG / TOPIC SEED: "${enforceStoredSlug(storageSlug)}"`;
+  const leeBlock = isLeeCountyCityStorageSlug(storageSlug)
+    ? `\n\n---\n\nLOCAL MARKET (use in copy, cityContext bullets, and CTA — no generic nationwide filler):\n- REGION: Lee County, Florida\n- CLIMATE: hot, humid, coastal\n- NEIGHBOR CITIES TO NAME NATURALLY: Fort Myers, Cape Coral, Estero, Fort Myers Beach, Sanibel\n`
+    : "";
+
+  /** Lee County localized slugs use `…-fl`; national storage slugs omit that city segment. */
+  const isPillar = !storageSlug.includes("-fl");
+  const idempotentLayer = HSD_MASTER_IDEMPOTENT.replace(/\{\{symptom\}\}/g, symptomLine);
+  const authorityLayer = HSD_MASTER_FIELD_AUTHORITY_LAYER;
+  const modeLayer = isPillar ? HSD_PILLAR_AUTHORITY_OVERRIDE : HSD_CITY_OVERLAY;
+
+  const assembled = [
+    idempotentLayer,
+    authorityLayer,
+    HSD_HARD_ENFORCEMENT_RULES,
+    modeLayer,
+    `${topicLine}${leeBlock}`,
+    "---",
+    core,
+  ].join("\n\n");
+
   if (!preamble) {
-    return `${topicLine}\n\n---\n\n${core}`;
+    return assembled;
   }
-  return `${preamble}\n\n${topicLine}\n\n---\n\n${core}`;
+  return `${preamble}\n\n${assembled}`;
 }
 
 /** OpenAI JSON completion (same model family as `generateDiagnosticEngineJson`). */
-export async function callLLM(userPrompt: string, retryFeedback: string = ""): Promise<string> {
+export async function callLLM(
+  userPrompt: string,
+  retryFeedback: string = "",
+  /** Logged on `ai_usage.source` — use `generate-hsd-page:{slug}:attempt-{n}` from {@link generateHsdPageAttempt}. */
+  usageSource: string = "generate-hsd-page"
+): Promise<string> {
   if (process.env.GENERATION_ENABLED !== "true") {
     throw new Error("GENERATION_ENABLED must be 'true' to call callLLM");
   }
@@ -136,7 +172,7 @@ export async function callLLM(userPrompt: string, retryFeedback: string = ""): P
     max_completion_tokens: 8192,
   });
 
-  await recordOpenAiChatUsage("gpt-4o-mini", response.usage, "generate-hsd-page");
+  await recordOpenAiChatUsage("gpt-4o-mini", response.usage, usageSource);
 
   const contentStr = response.choices[0]?.message?.content;
   if (!contentStr) throw new Error("callLLM: empty model response");
@@ -146,9 +182,13 @@ export async function callLLM(userPrompt: string, retryFeedback: string = ""): P
 /**
  * One LLM round-trip + Zod safeParse + {@link finalizeHsdV25Page} (assert inside finalize).
  * Prefer {@link generateHsdPageWithRetry} or {@link generateHsdPage} for production — flow: **generate → finalize → save**.
+ *
+ * @param attempt 1-based index; each OpenAI call logs `ai_usage.source` =
+ *   `generate-hsd-page:{storageSlug}:attempt-{attempt}` so retries are visible in spend reports.
  */
 export async function generateHsdPageAttempt(
-  input: GenerateHsdPageInput
+  input: GenerateHsdPageInput,
+  attempt: number = 1
 ): Promise<GenerateHsdPageResult> {
   const vertical = (input.vertical ?? "hvac") as ServiceVertical;
   const pillar = slugifySymptomSegment(input.symptom);
@@ -156,8 +196,16 @@ export async function generateHsdPageAttempt(
   const storageSlug = enforceStoredSlug(`${vertical}/${pillar}/${cityState}`);
   const displayCity = formatCityStateLine(input.city, input.state);
 
+  if (!Number.isFinite(attempt) || attempt < 1 || attempt > 99) {
+    throw new Error(`generateHsdPageAttempt: attempt must be 1–99, got ${attempt}`);
+  }
+
   const prompt = buildPrompt(input.symptom, input.city, input.state, storageSlug, vertical);
-  const raw = await callLLM(prompt, input.retryFeedback ?? "");
+  const raw = await callLLM(
+    prompt,
+    input.retryFeedback ?? "",
+    `generate-hsd-page:${storageSlug}:attempt-${attempt}`
+  );
 
   const json = JSON.parse(raw) as Record<string, unknown>;
 
@@ -166,6 +214,7 @@ export async function generateHsdPageAttempt(
   json.slug = storageSlug;
 
   patchHsdLlmJsonMinimumGates(json);
+  applyLeeCountyLocalizedEnrichmentToHsdJson(json, storageSlug, vertical);
 
   const parsed = HSDV25Schema.safeParse(json);
   if (!parsed.success) {
@@ -196,7 +245,7 @@ export async function generateHsdPageWithRetry(
   let feedback = input.retryFeedback ?? "";
   for (let i = 0; i <= retries; i++) {
     try {
-      const page = await generateHsdPageAttempt({ ...input, retryFeedback: feedback });
+      const page = await generateHsdPageAttempt({ ...input, retryFeedback: feedback }, i + 1);
       return page;
     } catch (err) {
       if (i === retries) throw err;

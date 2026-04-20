@@ -12,7 +12,7 @@ const HTML_STICKY_CLASS = "hvacrb-sticky-lead-visible";
 
 function stickyShellClass(trade: HomeServiceTrade): string {
   const base =
-    "fixed inset-x-0 bottom-0 z-50 max-h-[min(46vh,24rem)] overflow-y-auto border-t shadow-[0_-8px_30px_rgba(0,0,0,0.12)]";
+    "fixed inset-x-0 bottom-0 z-50 max-h-[min(52vh,28rem)] overflow-y-auto border-t shadow-[0_-8px_30px_rgba(0,0,0,0.12)]";
   if (trade === "plumbing") return `${base} border-blue-200/90 bg-blue-50`;
   if (trade === "electrical") return `${base} border-amber-300/90 bg-amber-50`;
   return `${base} border-sky-200/90 bg-sky-100`;
@@ -92,7 +92,7 @@ export default function StickySmsLeadCta() {
     document.documentElement.classList.add(HTML_STICKY_CLASS);
     document.documentElement.style.setProperty(
       "--hvacrb-sticky-call-offset",
-      "min(42vh, 22rem)"
+      "min(46vh, 24rem)"
     );
     return () => {
       document.documentElement.classList.remove(HTML_STICKY_CLASS);

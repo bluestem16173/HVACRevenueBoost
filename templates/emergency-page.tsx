@@ -1,4 +1,5 @@
 import { RelatedTopics } from "@/components/hub/RelatedTopics";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { ShieldAlert, AlertTriangle, ShieldCheck, PhoneCall, CheckSquare } from "lucide-react";
 // TEMP: import dynamic from "next/dynamic";
 // TEMP: const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
@@ -175,6 +176,7 @@ export default function EmergencyPageTemplate({ data, city }: { data: EmergencyS
             <PhoneCall className="w-5 h-5 animate-pulse" />
             Get Local HVAC Help
           </button>
+          <SmsLegalFooterLinks className="mt-4 justify-center text-[10px]" />
         </div>
 
       </div>

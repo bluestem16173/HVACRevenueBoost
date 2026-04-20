@@ -1,5 +1,6 @@
 "use client";
 
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { useState, useEffect } from "react";
 
 export interface DiagnosticStep {
@@ -130,6 +131,7 @@ export default function DiagnosticWizard({ diagnosticSlug, onComplete }: Diagnos
         >
           Get HVAC Repair Help →
         </button>
+        <SmsLegalFooterLinks className="mt-3 justify-center text-[10px]" />
       </div>
     );
   }

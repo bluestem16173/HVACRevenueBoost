@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import DiagnosticCard from "@/components/DiagnosticCard";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { canonicalMetadata } from "@/lib/seo/canonical";
 import { buildHvacLocalizedPillarPath } from "@/lib/localized-city-path";
+import { FL_EXAMPLE_PRIMARY_CITY_SLUG } from "@/lib/vertical-hub-shared";
 import { isStrictIndexingEnabled } from "@/lib/seo/strict-indexing";
 
 const RV_DIAGNOSTICS_URL = "https://www.decisiongrid.co";
@@ -14,8 +16,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** Example FL metro for HVAC localized URLs (indexable symptom × city pattern). */
-const DEMO_CITY_SLUG = "tampa-fl";
+/** Example Lee County FL storage slug for HVAC localized URLs (`/{vertical}/{symptom}/{city}`). */
+const DEMO_CITY_SLUG = FL_EXAMPLE_PRIMARY_CITY_SLUG;
 
 export default function Home() {
   return (
@@ -150,6 +152,7 @@ export default function Home() {
               Find a Local Technician
             </button>
           </div>
+          <SmsLegalFooterLinks className="mt-6 justify-center text-[10px]" />
         </div>
       </section>
 

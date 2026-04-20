@@ -29,6 +29,7 @@ export {
   sectionCta,
   sectionFinal,
   sectionFinalWarning,
+  sectionCityContext,
   wrapHsdV25LayoutDocument,
   type HsdV25HtmlBlock,
   type HsdV25RenderInput,

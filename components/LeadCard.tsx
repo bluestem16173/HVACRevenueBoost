@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import type { HomeServiceTrade } from "@/lib/homeservice/inferHomeServiceTrade";
 import {
   type LeadCardProfile,
@@ -10,8 +10,10 @@ import {
   tradeFromLeadProfile,
 } from "@/lib/lead-card-profile";
 import {
+  SMS_CONSENT_OPT_IN_LEAD,
   SMS_CONSENT_ORIGINATION_DISCLOSURE,
   SMS_CONSENT_REQUIRED_ERROR,
+  SMS_CONSENT_SAMPLE_MESSAGE,
   getSmsConsentFullText,
   getSmsConsentTextVersion,
   getSmsLeadSubmitButtonLabel,
@@ -71,6 +73,15 @@ export default function LeadCard({
   const consentSurface: SmsConsentSurface =
     trade === "plumbing" ? "plumbing" : trade === "electrical" ? "electrical" : "hvac";
   const consentCheckboxText = getSmsConsentFullText(consentSurface);
+  const consentCheckboxLabel =
+    consentCheckboxText.startsWith(SMS_CONSENT_OPT_IN_LEAD) ? (
+      <>
+        <strong className="font-black text-slate-900">{SMS_CONSENT_OPT_IN_LEAD}</strong>
+        {consentCheckboxText.slice(SMS_CONSENT_OPT_IN_LEAD.length)}
+      </>
+    ) : (
+      consentCheckboxText
+    );
 
   const [status, setStatus] = useState<"idle" | "loading" | "submitted">("idle");
   const [selectedIssue, setSelectedIssue] = useState<string>(issue);
@@ -747,17 +758,17 @@ export default function LeadCard({
                   onChange={() => consentError && setConsentError(false)}
                 />
               </div>
-              <span className="text-sm text-slate-700 font-medium leading-relaxed">{consentCheckboxText}</span>
+              <span className="text-sm text-slate-700 font-medium leading-relaxed">{consentCheckboxLabel}</span>
             </label>
-            <p className="mt-3 pl-8 text-[11px] text-slate-600 font-medium leading-relaxed">{SMS_CONSENT_ORIGINATION_DISCLOSURE}</p>
-            <div className="mt-3 pl-8 flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-bold">
-              <Link href="/privacy" className="text-blue-700 underline hover:text-blue-900">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="text-blue-700 underline hover:text-blue-900">
-                Terms & Conditions
-              </Link>
-            </div>
+            <p className="mt-3 pl-8 text-[11px] text-slate-600 font-medium leading-relaxed">
+              <span className="font-bold text-slate-700">Consent description: </span>
+              {SMS_CONSENT_ORIGINATION_DISCLOSURE}
+            </p>
+            <p className="mt-2 pl-8 text-[11px] text-slate-600 font-medium leading-relaxed">
+              <span className="font-bold text-slate-700">Sample message: </span>
+              {SMS_CONSENT_SAMPLE_MESSAGE}
+            </p>
+            <SmsLegalFooterLinks className="mt-3 pl-8" />
           </div>
           {consentError ? (
             <p className="text-sm font-bold text-red-700" role="alert">

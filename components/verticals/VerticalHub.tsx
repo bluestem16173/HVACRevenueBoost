@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { getVertical, HOME_SERVICE_VERTICALS, normalizeVerticalId } from "@/lib/verticals";
 
 export default function VerticalHub({ verticalId }: { verticalId: string }) {
@@ -59,6 +60,7 @@ export default function VerticalHub({ verticalId }: { verticalId: string }) {
           >
             Request local {v.label} help
           </button>
+          <SmsLegalFooterLinks className="mt-3 text-[10px]" />
         </div>
 
         <h3 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Other verticals</h3>

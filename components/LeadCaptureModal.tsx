@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SMS_CONSENT_FULL_TEXT } from "@/lib/lead-consent";
+import { SMS_CONSENT_FULL_TEXT, SMS_CONSENT_ORIGINATION_DISCLOSURE, SMS_CONSENT_SAMPLE_MESSAGE } from "@/lib/lead-consent";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 
 /** Parses labels like `Tampa, FL` for city/state form fields. */
 function parseCityStateFromLabel(raw: string): { city: string; state: string } | null {
@@ -276,18 +277,29 @@ export default function LeadCaptureModal() {
                   <textarea required name="service" value={formData.service} onChange={handleChange} rows={3} placeholder="E.g., AC blowing warm air, thermostat screen blank..." className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-hvac-blue transition-shadow text-slate-900 dark:text-white resize-none"></textarea>
                 </div>
 
-                <div className="flex items-start gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3">
-                  <input
-                    id="smsOptIn"
-                    name="smsOptIn"
-                    type="checkbox"
-                    checked={formData.smsOptIn}
-                    onChange={handleChange}
-                    className="mt-1 h-4 w-4 rounded border-slate-300 text-hvac-blue focus:ring-hvac-blue"
-                  />
-                  <label htmlFor="smsOptIn" className="text-sm text-slate-600 dark:text-slate-300 leading-snug cursor-pointer">
-                    {SMS_CONSENT_FULL_TEXT}
-                  </label>
+                <div className="flex flex-col gap-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3">
+                  <div className="flex items-start gap-3">
+                    <input
+                      id="smsOptIn"
+                      name="smsOptIn"
+                      type="checkbox"
+                      checked={formData.smsOptIn}
+                      onChange={handleChange}
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-hvac-blue focus:ring-hvac-blue"
+                    />
+                    <label htmlFor="smsOptIn" className="text-sm text-slate-600 dark:text-slate-300 leading-snug cursor-pointer">
+                      {SMS_CONSENT_FULL_TEXT}
+                    </label>
+                  </div>
+                  <p className="pl-7 text-xs leading-snug text-slate-500 dark:text-slate-400">
+                    <span className="font-semibold text-slate-600 dark:text-slate-300">Consent description: </span>
+                    {SMS_CONSENT_ORIGINATION_DISCLOSURE}
+                  </p>
+                  <p className="pl-7 text-xs leading-snug text-slate-500 dark:text-slate-400">
+                    <span className="font-semibold text-slate-600 dark:text-slate-300">Sample message: </span>
+                    {SMS_CONSENT_SAMPLE_MESSAGE}
+                  </p>
+                  <SmsLegalFooterLinks className="mt-2 pl-7 text-[11px]" />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

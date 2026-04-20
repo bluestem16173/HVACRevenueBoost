@@ -6,6 +6,20 @@ export function enforceStoredSlug(slug: string | null | undefined): string {
   return String(slug ?? "").replace(/^\/+/, "").trim();
 }
 
+/**
+ * Normalize a path for `pages.slug` lookups. Some rows use a leading slash (`/hvac/...`, required by DB checks);
+ * others use legacy storage shape without it (`hvac/...`). Always derive **both** keys from one collapsed path.
+ */
+export function canonicalPagesSlugPathKeys(fullPath: string): { withLeading: string; noLeading: string } {
+  const collapsed = String(fullPath ?? "")
+    .trim()
+    .replace(/\/+/g, "/")
+    .replace(/\/$/, "");
+  const noLeading = collapsed.replace(/^\/+/g, "").toLowerCase();
+  if (!noLeading) return { withLeading: "", noLeading: "" };
+  return { withLeading: `/${noLeading}`, noLeading };
+}
+
 /** `pages.slug` / catch-all joins: strip `diagnose/`, normalize vertical prefix, trim slashes, lowercase. */
 export function normalizePagesTableSlugLookup(raw: string | null | undefined): string {
   const rawSlug = String(raw ?? "").trim();
@@ -18,15 +32,42 @@ export function normalizePagesTableSlugLookup(raw: string | null | undefined): s
   return slug.trim();
 }
 
-export function normalizeSlug(rawSlug: string): string {
+/**
+ * Next.js `app/hvac/[...slug]` gives **segments after** `/hvac/`. Build a normalized **URL path**
+ * (leading slash, no trailing slash) for DB lookup / logging.
+ *
+ * Collapses duplicate vertical-style prefixes when the first segment equals the first hyphen
+ * chunk of the second (e.g. `['hvac','hvac-ac-not-cooling']` → `['hvac','hvac/ac-not-cooling']` per join rule).
+ * If segments do not start with `hvac`, **`/hvac/`** is prepended so paths match `pages.slug` storage.
+ */
+export function normalizeCatchAllParamsSlugPath(paramsSlug: string[] | undefined): string | null {
+  if (!paramsSlug || paramsSlug.length === 0) return null;
+
+  let parts = paramsSlug.map((p) => String(p ?? "").trim()).filter(Boolean);
+  if (parts.length === 0) return null;
+
+  if (parts.length >= 2 && parts[0] === parts[1]!.split("-")[0]) {
+    parts = [parts[0]!, parts.slice(1).join("/")];
+  }
+
+  const path = `/${parts.join("/")}`.replace(/\/+$/, "");
+  if (/^\/hvac(\/|$)/i.test(path)) {
+    return path;
+  }
+  const suffixed = `/hvac${path}`.replace(/\/{2,}/g, "/");
+  return suffixed.replace(/\/+$/, "") || null;
+}
+
+/** Legacy single-string slug: flatten to kebab path segment (no nested `/`). */
+function normalizeSlugStringInput(rawSlug: string): string {
   if (!rawSlug) return "";
-  
+
   let slug = rawSlug.toLowerCase().trim();
 
   // Strip prefixes
   if (slug.startsWith("diagnose/")) slug = slug.replace(/^diagnose\//, "");
   if (slug.startsWith("repair/")) slug = slug.replace(/^repair\//, "");
-  
+
   // Strip garbage terms
   const badTerms = ["canary", "test", "v1", "full", "fixed"];
   for (const term of badTerms) {
@@ -35,11 +76,21 @@ export function normalizeSlug(rawSlug: string): string {
 
   // Remove any remaining slashes (no nesting allowed)
   slug = slug.replace(/\//g, "-");
-  
+
   // Clean multiple hyphens
   slug = slug.replace(/-+/g, "-").replace(/^-|-$/g, "");
 
   return slug;
+}
+
+/** Legacy string slug, or `app/hvac/[...slug]` segment array → URL path for DB lookup. */
+export function normalizeSlug(rawSlug: string): string;
+export function normalizeSlug(paramsSlug: string[] | undefined): string | null;
+export function normalizeSlug(arg: string | string[] | undefined): string | null {
+  if (typeof arg === "string") {
+    return normalizeSlugStringInput(arg);
+  }
+  return normalizeCatchAllParamsSlugPath(arg);
 }
 
 /** Slug shape written by `page_queue` / HSD worker: `hvac/ac-not-cooling/tampa-fl`. */
@@ -117,6 +168,9 @@ export function isAllowedType(page: any): boolean {
 
   /** Canonical HSD authority engine (`pages.page_type` + `schema_version` hsd_v2). */
   if (type === "hsd") return true;
+
+  /** National problem pillar rows (`{vertical}/{symptom}`), same `content_json` contract as HSD v2. */
+  if (type === "problem_pillar") return true;
 
   if (type === "dg_authority_v3") return true;
 
@@ -221,8 +275,10 @@ export function isIndexable(page: any): boolean {
   // Localized HSD / city_symptom JSON pages — evaluate before `noindex` so a legacy DB flag does not 404 the route.
   // Crawl policy remains on routes via {@link strictRobotsForDbPage} when strict indexing is enabled.
   if (
-    (page.page_type === "city_symptom" || page.page_type === "hsd") &&
-    isLocalizedPillarPageSlug(page.slug)
+    (page.page_type === "city_symptom" ||
+      page.page_type === "hsd" ||
+      page.page_type === "problem_pillar") &&
+    (isLocalizedPillarPageSlug(page.slug) || isNationalVerticalPillarSlug(page.slug))
   ) {
     let cj: unknown = page.content_json;
     if (typeof cj === "string") {

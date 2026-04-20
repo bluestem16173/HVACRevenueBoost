@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { inferHomeServiceTradeFromPathname } from "@/lib/homeservice/inferHomeServiceTrade";
 
 type Level = "high" | "medium" | "final";
@@ -91,6 +92,7 @@ export function HsdUrgentCta({ level = "high" }: { level?: HsdUrgentCtaLevel }) 
       >
         {button}
       </button>
+      <SmsLegalFooterLinks className="mt-3 justify-start text-[10px]" />
     </div>
   );
 }

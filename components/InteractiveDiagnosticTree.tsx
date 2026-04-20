@@ -1,5 +1,6 @@
 "use client";
 
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { useState } from "react";
 import Link from "next/link";
 import { getCauseDiagnosticDetail } from "@/lib/cause-diagnostic-content";
@@ -146,6 +147,7 @@ export default function InteractiveDiagnosticTree({
               Get HVAC Repair Help →
             </button>
           </div>
+          <SmsLegalFooterLinks className="mt-3 justify-center text-[10px]" />
         </div>
       )}
     </div>

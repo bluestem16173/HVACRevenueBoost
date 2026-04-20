@@ -27,6 +27,12 @@ import type { Metadata } from "next";
  * Routes that set `robots: { index: true }` without merging strict logic can override the root default. Prefer
  * {@link robotsForDbBackedPage} for any route backed by a `pages` row so **unpublished** rows and rows before
  * `INDEXABLE_SINCE` never ship `index: true` metadata.
+ *
+ * **Tier-1 discovery (localized trade pages)**  
+ * For `hvac|plumbing|electrical/{symptom}/{city}` triplets, indexing eligibility is further gated by
+ * {@link isLocalizedTradeTripletEligibleForIndexingRobots} in `lib/seo/tier-one-discovery.ts` (HVAC core ×
+ * `TIER_ONE_CITIES`, optional `TIER_ONE_EXTRA_SLUGS`). Sitemaps and hub links use the same cohort so crawl
+ * budget concentrates on money pages while Tier-2 locals can stay published for direct traffic.
  */
 
 export function isStrictIndexingEnabled(): boolean {

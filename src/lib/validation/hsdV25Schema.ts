@@ -10,10 +10,16 @@ export const HSDV25Schema = z
     schema_version: z.literal("hsd_v2"),
 
     title: z.string().min(10),
-    /** Storage slug: `{vertical}/{symptom-kebab}/{city-kebab}` (e.g. `hvac/weak-airflow/tampa-fl`, `hvac/ac-not-cooling/fort-myers-fl`). */
+    /** Storage slug: national pillar `{vertical}/{symptom}` or localized `{vertical}/{symptom}/{city-kebab}`. */
     slug: z
       .string()
-      .regex(/^(hvac|plumbing|electrical)\/[a-z0-9-]+\/[a-z0-9-]+$/i),
+      .regex(/^(hvac|plumbing|electrical)\/[a-z0-9-]+(?:\/[a-z0-9-]+)?$/i),
+
+    /**
+     * Local market / climate bullets shown at the top of the page (above the 30s summary).
+     * Use 2–4 short lines for **localized** slugs (`vertical/symptom/city-st`); omit or `[]` for national pillars.
+     */
+    cityContext: z.array(z.string()).max(8).default([]),
 
     summary_30s: z.object({
       headline: z.string().min(1),
@@ -38,6 +44,65 @@ export const HSDV25Schema = z
 
     /** Expert-voice bridge after the 30s summary: diagnosis → mechanism → wear/failure (plain text). */
     what_this_means: z.string().default(""),
+
+    /**
+     * Single ranked “most likely in the field” cause (mechanism + fix + cost).
+     * Optional for legacy rows; renderer shows after the symptom scan when present.
+     */
+    most_common_cause: z
+      .object({
+        cause: z.string(),
+        why: z.string(),
+        fix: z.string(),
+        cost: z.string(),
+      })
+      .optional(),
+
+    /** Age bands + typical failure class under load (trust / conversion). */
+    system_age_load: z
+      .object({
+        summary: z.string(),
+        ranges: z.array(
+          z.object({
+            age_range: z.string(),
+            likely_failure: z.string(),
+          })
+        ),
+      })
+      .optional(),
+
+    /** Code / material deltas that change repair decisions (PEX vs copper, AFCI, refrigerant rules, etc.). */
+    code_updates: z
+      .object({
+        title: z.string(),
+        items: z.array(z.string()),
+      })
+      .optional(),
+
+    /** Decision framing: when repair vs replace is rational. */
+    repair_vs_replace: z
+      .object({
+        /** Optional section heading; renderer falls back to "Repair vs replace". */
+        title: z.string().optional(),
+        guidance: z.string(),
+        rules: z.array(z.string()),
+      })
+      .optional(),
+
+    /** Logical upsell / next-decision paths (titles support internal linking in copy). */
+    upgrade_paths: z
+      .array(
+        z.object({
+          title: z.string(),
+          description: z.string(),
+          /** Internal app path, e.g. `/plumbing/not-enough-hot-water/tampa-fl` */
+          href: z.string().optional(),
+        })
+      )
+      .optional(),
+
+    /** Symptom patterns often mistaken for this fault class. */
+    common_misdiagnosis: z.array(z.string()).optional(),
 
     quick_checks: z
       .array(

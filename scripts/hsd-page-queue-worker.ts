@@ -7,6 +7,7 @@
  * Usage:
  *   GENERATION_ENABLED=true npx tsx scripts/hsd-page-queue-worker.ts
  *   npx tsx scripts/hsd-page-queue-worker.ts --limit 5
+ *   (--limit is matched case-insensitively, e.g. --LIMIT 2)
  *
  * Prereq: `npx tsx scripts/run-migration-015.ts` and optional seed:
  *   `npx tsx scripts/seed-hsd-tampa-page-queue.ts`
@@ -22,7 +23,7 @@ dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
 import { runHsdPageQueueBatch } from "@/lib/homeservice/hsdPageQueueWorker";
 
 function argLimit(): number {
-  const idx = process.argv.indexOf("--limit");
+  const idx = process.argv.findIndex((a) => a.toLowerCase() === "--limit");
   if (idx >= 0 && process.argv[idx + 1]) {
     const n = parseInt(process.argv[idx + 1], 10);
     if (!Number.isNaN(n) && n > 0) return Math.min(50, n);

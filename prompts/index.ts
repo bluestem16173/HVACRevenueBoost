@@ -69,6 +69,8 @@ export function composeAuthorityAndHighConversionPrompt(pageType: PageType): str
   return `${a}\n\n---\n\n${b}\n\n---\n\n${pagePrompt}`;
 }
 
+export { HSD_TIER1_PILLAR } from "./hsdTier1Pillar";
+
 export {
   getHvacHighConversionDecisiongridMasterPrompt,
   getMasterAuthorityConversionPrompt,

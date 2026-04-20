@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 import AmazonDisclosure from "@/components/AmazonDisclosure";
 
@@ -73,6 +74,7 @@ export default function ToolPageTemplate({ tool, repairs }: any) {
               <button data-open-lead-modal className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm transition-colors shadow-md w-full">
                 Get HVAC Repair Quotes
               </button>
+              <SmsLegalFooterLinks className="mt-3 justify-center text-[10px]" tone="onDark" />
             </div>
           </div>
         </div>

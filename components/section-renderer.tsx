@@ -10,6 +10,7 @@
 import React from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { normalizeToString } from "@/lib/utils";
 import { normalizeItems } from "@/lib/text-format";
 
@@ -415,6 +416,7 @@ export function renderSection({
             <button data-open-lead-modal className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-10 py-5 rounded-2xl uppercase tracking-widest text-lg">
               Request Diagnostic Today
             </button>
+            <SmsLegalFooterLinks className="mt-4 justify-center text-[10px]" tone="onDark" />
           </div>
         </section>
       );

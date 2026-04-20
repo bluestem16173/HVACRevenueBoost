@@ -4,7 +4,7 @@ import { ProblemCard } from "@/components/diagnostic-hub/ProblemCard";
 import { ProblemClusterSection } from "@/components/diagnostic-hub/ProblemClusterSection";
 import { buildHvacLocalizedPillarPath } from "@/lib/localized-city-path";
 import { HVAC_SYSTEM_HUB_PATHS, hvacPillarPath } from "@/lib/hvac-hub-clusters";
-import { FL_EXAMPLE_CITIES, HOW_IT_WORKS_STEPS } from "@/lib/vertical-hub-shared";
+import { FL_EXAMPLE_CITIES, FL_EXAMPLE_PRIMARY_CITY_SLUG, HOW_IT_WORKS_STEPS } from "@/lib/vertical-hub-shared";
 
 export const revalidate = 3600;
 
@@ -112,8 +112,11 @@ export default function ResidentialHub() {
             Each card links to a national diagnostic pillar under{" "}
             <span className="font-mono text-sm text-slate-800 dark:text-slate-200">/hvac/…</span>. From there,
             open your city page (example:{" "}
-            <Link className="font-medium text-hvac-blue hover:underline" href={buildHvacLocalizedPillarPath(DEMO_SYMPTOM, "tampa-fl")}>
-              /hvac/{DEMO_SYMPTOM}/tampa-fl
+            <Link
+              className="font-medium text-hvac-blue hover:underline"
+              href={buildHvacLocalizedPillarPath(DEMO_SYMPTOM, FL_EXAMPLE_PRIMARY_CITY_SLUG)}
+            >
+              /hvac/{DEMO_SYMPTOM}/{FL_EXAMPLE_PRIMARY_CITY_SLUG}
             </Link>
             ) for Florida-specific context.
           </p>

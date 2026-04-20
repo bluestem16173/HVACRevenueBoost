@@ -1,4 +1,5 @@
 import { RelatedTopics } from "@/components/hub/RelatedTopics";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { ShieldCheck, CheckCircle, TrendingUp, Calendar, Zap } from "lucide-react";
 
 export interface MaintenanceSchema {
@@ -188,6 +189,7 @@ export default function MaintenancePageTemplate({ data }: { data: MaintenanceSch
                     </button>
                   )}
                 </div>
+                <SmsLegalFooterLinks className="mt-4 justify-center text-[10px]" tone="onDark" />
               </div>
             </div>
         </div>

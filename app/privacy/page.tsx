@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
 
+import {
+  SMS_CONSENT_FULL_TEXT,
+  SMS_CONSENT_ORIGINATION_DISCLOSURE,
+  SMS_CONSENT_SAMPLE_MESSAGE,
+} from "@/lib/lead-consent";
+
 export const metadata: Metadata = {
   title: "Privacy Policy | HVAC Revenue Boost",
   description: "Privacy policy for HVAC Revenue Boost regarding how we collect and use your data.",
@@ -22,8 +28,42 @@ export default function PrivacyPage() {
 
       <h2>SMS Consent</h2>
       <p>
-        By submitting your information, you consent to receive SMS messages related to your request.
-        You may opt out at any time by replying STOP. We only send SMS messages in response to user-initiated requests and do not send unsolicited marketing messages.
+        <strong>Opt-in message</strong> (the language you affirm with the SMS consent checkbox):
+      </p>
+      <blockquote
+        style={{
+          margin: "12px 0",
+          padding: "12px 16px",
+          borderLeft: "4px solid #1e3a5f",
+          background: "#f8fafc",
+          fontSize: 14,
+          lineHeight: 1.5,
+        }}
+      >
+        {SMS_CONSENT_FULL_TEXT}
+      </blockquote>
+      <p>
+        <strong>Consent description</strong> (how we use SMS and where numbers come from):
+      </p>
+      <p>{SMS_CONSENT_ORIGINATION_DISCLOSURE}</p>
+      <p>
+        <strong>Sample message</strong> (example of a follow-up text after you opt in; actual wording may vary):
+      </p>
+      <blockquote
+        style={{
+          margin: "12px 0",
+          padding: "12px 16px",
+          borderLeft: "4px solid #0369a1",
+          background: "#f0f9ff",
+          fontSize: 14,
+          lineHeight: 1.5,
+        }}
+      >
+        {SMS_CONSENT_SAMPLE_MESSAGE}
+      </blockquote>
+      <p>
+        Message frequency varies. Msg &amp; data rates may apply. Reply <strong>STOP</strong> to opt out. Reply{" "}
+        <strong>HELP</strong> for help.
       </p>
 
       <h2>Data Sharing</h2>

@@ -1,4 +1,5 @@
 import { RelatedTopics } from "@/components/hub/RelatedTopics";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { CheckCircle, ShieldCheck, Wrench, Settings, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
@@ -205,6 +206,7 @@ export default function ComponentPageTemplate({ data }: { data: ComponentSchema 
                   </button>
                 ))}
               </div>
+              <SmsLegalFooterLinks className="mt-4 justify-center text-[10px]" tone="onDark" />
             </div>
           </div>
         </div>

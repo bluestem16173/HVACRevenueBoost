@@ -6,8 +6,10 @@
 
 import sql from "@/lib/db";
 import { CLUSTERS } from "@/lib/clusters";
-import { HVAC_TAMPA_RELATED_ISSUES } from "@/lib/homeservice/hvacTampaRelatedIssues";
+import { HVAC_CORE_CLUSTER_SYMPTOM_ORDER } from "@/lib/homeservice/hsdHvacCoreCluster";
 import { isStrictIndexingEnabled, rowPassesIndexableSince } from "@/lib/seo/strict-indexing";
+import { getTierOneCityStorageSlugs, isTierOneDiscoverableStorageSlug } from "@/lib/seo/tier-one-discovery";
+import { isLocalizedPillarPageSlug } from "@/lib/slug-utils";
 import { CONDITIONS } from "@/lib/conditions";
 import { SYMPTOMS, CAUSES, REPAIRS } from "@/data/knowledge-graph";
 import { CITIES } from "@/data/knowledge-graph";
@@ -45,15 +47,21 @@ function toLastmod(d: Date): string {
   return d.toISOString().split("T")[0];
 }
 
-/** Tampa FL HVAC localized pillar URLs (curated; same list as on-page related links). */
+/** Tier-1 HVAC localized URLs (core cluster × `TIER_ONE_CITIES`; same cohort as on-page related links). */
 export function getHvacTampaCitySymptomEntries(): SitemapEntry[] {
   const now = toLastmod(new Date());
-  return HVAC_TAMPA_RELATED_ISSUES.map((row) => ({
-    loc: `${BASE_URL}${row.href}`,
-    lastmod: now,
-    changefreq: "weekly" as const,
-    priority: 0.75,
-  }));
+  const entries: SitemapEntry[] = [];
+  for (const city of getTierOneCityStorageSlugs()) {
+    for (const sym of HVAC_CORE_CLUSTER_SYMPTOM_ORDER) {
+      entries.push({
+        loc: `${BASE_URL}/hvac/${sym}/${city}`,
+        lastmod: now,
+        changefreq: "weekly" as const,
+        priority: 0.75,
+      });
+    }
+  }
+  return entries;
 }
 
 /** Static + pillar routes */
@@ -118,6 +126,13 @@ export async function getDiagnosticEntries(): Promise<SitemapEntry[]> {
     const rows = await sql`SELECT slug, created_at, updated_at FROM pages WHERE status = 'published'`;
     return (rows as any[])
       .filter((r) => rowPassesIndexableSince(r.updated_at))
+      .filter((r) => {
+        const slug = String(r.slug ?? "");
+        if (isLocalizedPillarPageSlug(slug)) {
+          return isTierOneDiscoverableStorageSlug(slug);
+        }
+        return true;
+      })
       .map((r) => ({
         loc: locFromPublishedPageSlug(r.slug),
         lastmod: r.updated_at ? toLastmod(new Date(r.updated_at)) : (r.created_at ? toLastmod(new Date(r.created_at)) : now),

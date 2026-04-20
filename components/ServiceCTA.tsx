@@ -1,5 +1,6 @@
 "use client";
 
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { trackEvent } from "@/lib/tracking";
 
 type Props = {
@@ -40,6 +41,7 @@ export default function ServiceCTA({ variant = "primary" }: Props) {
       >
         Local Techs Coming Soon
       </button>
+      <SmsLegalFooterLinks className="mt-3 justify-center text-[10px]" />
     </div>
   );
 }

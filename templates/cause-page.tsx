@@ -6,6 +6,7 @@
  * @see docs/MASTER-PROMPT-DECISIONGRID.md
  */
 import Link from "next/link";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import ThirtySecondSummary from "@/components/ThirtySecondSummary";
 import ServiceCTA from "@/components/ServiceCTA";
 import SystemOverviewBlock from "@/components/sections/SystemOverviewBlock";
@@ -75,6 +76,7 @@ export default function CausePageTemplate({
               Skip the reading. Get professional diagnostic help right now before the damage cascades.
             </div>
           </div>
+          <SmsLegalFooterLinks className="mt-3 justify-center text-[10px]" />
         </section>
 
         {/* 🔍 WHAT THIS PROBLEM REALLY IS */}
@@ -537,6 +539,7 @@ export default function CausePageTemplate({
               <button data-open-lead-modal className="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-8 py-4 rounded-xl uppercase tracking-widest text-sm transition-all border border-slate-600 shadow-md">
                 Local Techs Coming Soon
               </button>
+              <SmsLegalFooterLinks className="mt-4 justify-center text-[10px]" tone="onDark" />
             </div>
           </section>
         )}
@@ -712,6 +715,7 @@ export default function CausePageTemplate({
             >
               Get HVAC Repair Quotes
             </button>
+            <SmsLegalFooterLinks className="mt-4 justify-center text-[10px]" tone="onDark" />
           </section>
         </>
       ) : (
@@ -832,6 +836,7 @@ export default function CausePageTemplate({
               >
                 Local Techs Coming Soon
               </button>
+                  <SmsLegalFooterLinks className="mt-3 justify-center text-[10px]" tone="onDark" />
                 </div>
               </div>
             </div>

@@ -6,9 +6,29 @@ import { inferHomeServiceTradeFromPathname } from "@/lib/homeservice/inferHomeSe
 import { inferLeadCardProfile } from "@/lib/lead-card-profile";
 import LeadCard from "./LeadCard";
 
+function normalizePathname(pathname: string | null | undefined): string {
+  if (!pathname) return "";
+  const p = pathname.split("?")[0] ?? "";
+  return p.replace(/\/+$/, "") || "/";
+}
+
+/**
+ * National pillar URLs: `/{trade}/{symptom}` → `"".split("/")` length **3**
+ * (e.g. `/hvac/ac-not-cooling`). City pages have 4+ segments after split.
+ */
+function isPillarPath(pathname: string | null | undefined): boolean {
+  const p = normalizePathname(pathname);
+  if (!p || p === "/") return false;
+  return p.split("/").length === 3;
+}
+
+function isExcludedDiagnosticModalPath(pathname: string | null | undefined): boolean {
+  return isPillarPath(pathname);
+}
+
 /** Auto-open (scroll/timer) only on multi-segment trade diagnostic URLs — not hub pages like `/hvac`. */
 function shouldAutoOpenLeadModal(pathname: string | null | undefined): boolean {
-  if (!pathname) return false;
+  if (!pathname || isExcludedDiagnosticModalPath(pathname)) return false;
   const p = pathname.split("?")[0] ?? "";
   const parts = p.split("/").filter(Boolean);
   if (parts[0] === "hvac" && parts.length >= 2) return true;
@@ -43,6 +63,7 @@ function modalAriaLabelForPath(path: string | null | undefined): string {
 
 export default function DiagnosticModal() {
   const pathname = usePathname();
+  const excluded = useMemo(() => isExcludedDiagnosticModalPath(pathname), [pathname]);
   const enableAutoOpen = useMemo(() => shouldAutoOpenLeadModal(pathname), [pathname]);
   const modalAria = useMemo(() => modalAriaLabelForPath(pathname), [pathname]);
 
@@ -53,6 +74,9 @@ export default function DiagnosticModal() {
   const modalProfile = useMemo(() => inferLeadCardProfile({ pathname, issue: leadIssue }), [pathname, leadIssue]);
 
   const openFromEvent = useCallback((e: Event) => {
+    if (typeof window !== "undefined" && isExcludedDiagnosticModalPath(window.location.pathname)) {
+      return;
+    }
     let issueFromDetail: string | undefined;
     const ce = e as CustomEvent<{ issue?: string }>;
     if (ce.detail && typeof ce.detail.issue === "string" && ce.detail.issue.trim()) {
@@ -67,6 +91,8 @@ export default function DiagnosticModal() {
   }, []);
 
   useEffect(() => {
+    if (excluded) return;
+
     const w = window as Window & {
       openLeadCard?: (issue?: string) => void;
       openHvacServiceModal?: () => void;
@@ -92,7 +118,11 @@ export default function DiagnosticModal() {
       if (w.openLeadCard) delete w.openLeadCard;
       if (w.openHvacServiceModal) delete w.openHvacServiceModal;
     };
-  }, [openFromEvent]);
+  }, [excluded, openFromEvent]);
+
+  useEffect(() => {
+    if (excluded) setIsOpen(false);
+  }, [excluded]);
 
   useEffect(() => {
     if (!enableAutoOpen) return;
@@ -119,6 +149,7 @@ export default function DiagnosticModal() {
     };
   }, [enableAutoOpen]);
 
+  if (excluded) return null;
   if (!isOpen) return null;
 
   return (

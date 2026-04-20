@@ -1,3 +1,4 @@
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import type { DgAuthorityCtaPayload } from "@/lib/dg/dgAuthorityCta";
 import type { Trade } from "@/lib/dg/resolveCTA";
 
@@ -69,6 +70,7 @@ export function DGCTA({
           {button}
         </button>
       )}
+      <SmsLegalFooterLinks className="mt-2 justify-center text-[10px]" tone={useConversionPanel ? "onDark" : "default"} />
     </aside>
   );
 }

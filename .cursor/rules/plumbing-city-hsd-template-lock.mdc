@@ -1,0 +1,29 @@
+---
+description: LOCKED template — plumbing localized HSD v2.5 city diagnostics (triage, binary flow, misdiagnosis, repair vs replace). Do not regress toward blog tone.
+globs: app/plumbing/**/*,lib/homeservice/backfillLocalizedTradeAuthority.ts,lib/hsd/normalizeHsdV25PreFinalize.ts,src/lib/ai/prompts/diagnostic-engine-json.ts,src/lib/ai/prompts/hsdHardEnforcementRules.ts,src/lib/hsd/renderHsdV25.ts,lib/hsd/finalizeHsdPage.ts
+alwaysApply: false
+---
+
+# Plumbing city HSD — diagnostic template (LOCKED for scale)
+
+**Status:** Confirmed baseline for **plumbing** `page_type: city_symptom` / storage `plumbing/{pillar}/{city}` JSON and render pipeline. Extend to new plumbing pillars **only** by matching this bar unless product explicitly changes the contract.
+
+## Non‑negotiables (quality bar)
+
+1. **Field triage (`summary_30s.flow_lines` + hero)** — **Clean classification only**: symptom pattern → failure **class**. No repair steps, no “call a pro / flush / replace” in scan lines; no consequence paragraphs stacked in the triage block (renderer + `core_truth` rules for locked slugs). Cost tone belongs in `risk_warning`, matrix, `final_warning` — not mixed into classify lines.
+
+2. **Diagnostic flow (`diagnostic_steps`)** — **Binary enough**: IF → branch / gate order; short homeowner lines; avoid essay “technician will…” filler. Prefer checklist ladder over narrative.
+
+3. **Common misdiagnosis (`common_misdiagnosis`)** — **Present and sharp**: concrete swap mistakes + “why it matters” cost hook where schema allows.
+
+4. **Repair vs replace (`repair_vs_replace`)** — **Conversion‑ready**: clear guidance + rules that separate wrong‑part spend from replacement path; not generic blog hedging.
+
+## Where this is enforced
+
+- **Prompt / model contract:** `src/lib/ai/prompts/hsdHardEnforcementRules.ts`, `src/lib/ai/prompts/diagnostic-engine-json.ts` (plumbing sections + `flow_lines` rules).
+- **Server finalize / locks:** `lib/hsd/normalizeHsdV25PreFinalize.ts`, `lib/homeservice/backfillLocalizedTradeAuthority.ts` (localized plumbing authority backfill).
+- **Render:** `src/lib/hsd/renderHsdV25.ts` (field triage, quick checks, diagnostic intro — keep triage visually classify‑only for locked slugs).
+
+## When changing this template
+
+- If you relax classification purity, binary flow density, misdiagnosis, or RvR strength for plumbing city pages, **update this rule** and note the product decision (date + owner). Silent regression is worse than an explicit rule change.

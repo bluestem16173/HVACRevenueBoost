@@ -1,4 +1,5 @@
 import { RelatedTopics } from "@/components/hub/RelatedTopics";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { DollarSign, ShieldAlert, LineChart, Wrench, MapPin, Calculator, ThumbsUp } from "lucide-react";
 
 export interface CostSchema {
@@ -210,6 +211,7 @@ export default function CostPageTemplate({ data }: { data: CostSchema }) {
               </button>
             )}
           </div>
+          <SmsLegalFooterLinks className="mt-4 justify-center text-[10px]" />
         </div>
       </section>
           <RelatedTopics />

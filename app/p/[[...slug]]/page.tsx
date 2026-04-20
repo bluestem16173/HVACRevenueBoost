@@ -1,3 +1,4 @@
+import { RenderAuthority } from "@/components/RenderAuthority";
 import { normalizePagesTableSlugLookup } from "@/lib/slug-utils";
 import { getPageFromDB } from "@/src/lib/pages/getPageFromDbBySlug";
 
@@ -30,21 +31,12 @@ export default async function Page({ params }: PageProps) {
       return <div style={{ padding: 20 }}>Page not found</div>;
     }
 
-    if (page.content_html) {
-      return <div dangerouslySetInnerHTML={{ __html: page.content_html }} />;
+    if (page.content_json != null) {
+      return <RenderAuthority content={page.content_json} />;
     }
 
-    if (page.content_json != null) {
-      const raw =
-        typeof page.content_json === "string"
-          ? page.content_json
-          : JSON.stringify(page.content_json, null, 2);
-      return (
-        <div style={{ padding: 20 }}>
-          <h1>{page.title ?? page.slug}</h1>
-          <pre>{raw}</pre>
-        </div>
-      );
+    if (page.content_html) {
+      return <div dangerouslySetInnerHTML={{ __html: page.content_html }} />;
     }
 
     return <div>No content available</div>;

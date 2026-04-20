@@ -30,35 +30,63 @@ export function patchHsdLlmJsonMinimumGates(json: Record<string, unknown>): void
   const isHvac = vertical === "hvac";
 
   const s30 = json.summary_30s;
-  if (!s30 || typeof s30 !== "object") return;
-  const o = s30 as Record<string, unknown>;
+  if (s30 && typeof s30 === "object") {
+    const o = s30 as Record<string, unknown>;
 
-  let h = String(o.headline ?? "").trim();
-  if (h.length < 50) {
-    const issueTit = issueTitleFromSlug(slug);
-    const base = h.length > 0 ? h : `${issueTit} triage gate`;
-    o.headline = isHvac
-      ? `${base} — ${load}: separate outdoor electrical buzz, belt or bearing squeal, and rattling hardware before sealed-system spend.`
-      : `${base} — ${load}: separate quick safe checks from call-a-pro failure paths before damage and cost stack.`;
+    let h = String(o.headline ?? "").trim();
+    if (h.length < 50) {
+      const issueTit = issueTitleFromSlug(slug);
+      const base = h.length > 0 ? h : `${issueTit} triage gate`;
+      o.headline = isHvac
+        ? `${base} — ${load}: separate outdoor electrical buzz, belt or bearing squeal, and rattling hardware before sealed-system spend.`
+        : `${base} — ${load}: separate quick safe checks from call-a-pro failure paths before damage and cost stack.`;
+    }
+
+    const flRaw = o.flow_lines;
+    const lines = Array.isArray(flRaw)
+      ? flRaw.map((x) => String(x ?? "").trim()).filter(Boolean)
+      : [];
+    if (lines.length < 4) {
+      o.flow_lines = isHvac
+        ? [
+            "Noise triage (scan):",
+            "→ Outdoor buzz at compressor start/stop → contactor / capacitor class",
+            "→ Squeal changing with blower speed → belt or motor bearing class",
+            "→ Rattle only when air moves → loose panels / hardware class",
+          ]
+        : [
+            "Field triage (scan):",
+            "→ Stable vs intermittent pattern → control vs mechanical class",
+            "→ Worsens under load vs idle → stress-dependent fault class",
+            "→ Localized vs spreading symptom → containment vs systemic class",
+          ];
+    }
   }
 
-  const flRaw = o.flow_lines;
-  const lines = Array.isArray(flRaw)
-    ? flRaw.map((x) => String(x ?? "").trim()).filter(Boolean)
-    : [];
-  if (lines.length < 4) {
-    o.flow_lines = isHvac
-      ? [
-          "Noise triage (scan):",
-          "→ Outdoor buzz at compressor start/stop → contactor / capacitor class",
-          "→ Squeal changing with blower speed → belt or motor bearing class",
-          "→ Rattle only when air moves → loose panels / hardware class",
-        ]
-      : [
-          "Field triage (scan):",
-          "→ Stable vs intermittent pattern → control vs mechanical class",
-          "→ Worsens under load vs idle → stress-dependent fault class",
-          "→ Localized vs spreading symptom → containment vs systemic class",
+  if (parts.length >= 3) {
+    const rawLines = Array.isArray(json.cityContext)
+      ? (json.cityContext as unknown[]).map((x) => String(x ?? "").trim()).filter(Boolean)
+      : [];
+    if (rawLines.length === 0) {
+      if (vertical === "plumbing") {
+        json.cityContext = [
+          `In ${load}, hard water and peak evening hot-water demand accelerate sediment and element stress in tank heaters.`,
+          "Coastal humidity speeds exterior jacket rust on garage or lanai units—small weeps become floor and cabinet damage quickly.",
+          "When pressure swings or hot water ends early, verify distribution and mixing before assuming the tank alone failed.",
         ];
+      } else if (vertical === "electrical") {
+        json.cityContext = [
+          `In ${load}, heat-driven electrical load and coastal moisture increase breaker, GFCI, and outdoor disconnect stress.`,
+          "Salt air corrodes meter bases, panel lugs, and conduit bodies—intermittent trips often return under the next humidity spike.",
+          "After storms, separate branch faults from utility-side loss before repeated resets damage equipment.",
+        ];
+      } else {
+        json.cityContext = [
+          `In ${load}, high humidity and long equipment runtime increase failure rates for airflow and drainage systems.`,
+          "Salt air exposure near coastal zones accelerates corrosion on electrical panels and outdoor HVAC units.",
+          "Frequent system cycling in hot climates increases wear on capacitors, compressors, and pumps.",
+        ];
+      }
+    }
   }
 }

@@ -4,6 +4,7 @@
  */
 import React from "react";
 import Link from "next/link";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 // TEMP: import dynamic from "next/dynamic";
 // TEMP: const MermaidDiagram = dynamic(() => import("@/components/MermaidDiagram"), { ssr: false });
 
@@ -117,6 +118,7 @@ export default function SystemPageTemplate({ system, contentJson }: any) {
         >
           Get Local HVAC Help
         </button>
+        <SmsLegalFooterLinks className="mt-4 justify-center text-[10px]" tone="onDark" />
       </section>
     </div>
   );

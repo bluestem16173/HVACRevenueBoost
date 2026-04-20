@@ -2,6 +2,8 @@ import sql from "@/lib/db";
 import { assertHsdV26AuthorityRules } from "@/lib/hsd/assertHsdV26AuthorityRules";
 import { HSD_V2_SCHEMA_VERSION } from "@/lib/generated-page-json-contract";
 import { serializePageContentJson } from "@/lib/db/upsertHsdV2CitySymptomPage";
+import { assertPayloadSubstantiveForPublish } from "@/lib/homeservice/assertPayloadSubstantiveForPublish";
+import { enforceStoredSlug } from "@/lib/slug-utils";
 import { HSDV25Schema } from "@/lib/validation/hsdV25Schema";
 
 /**
@@ -22,18 +24,29 @@ export type UpsertPageInput = Record<string, unknown> & {
  */
 export async function upsertPage(page: UpsertPageInput): Promise<void> {
   const row = page as Record<string, unknown>;
-  if (
+  /** DB CHECK `slug_must_start_with_slash`; `content_json.slug` stays storage-shaped (no leading slash). */
+  const storageSlug = enforceStoredSlug(String(row.slug ?? ""));
+  row.slug = storageSlug;
+  const rowSlug = storageSlug.startsWith("/") ? storageSlug : `/${storageSlug}`;
+
+  const isHsdV2City =
     row.schema_version === HSD_V2_SCHEMA_VERSION &&
-    (row.page_type === "city_symptom" || row.page_type === "hsd")
-  ) {
-    const parsed = HSDV25Schema.safeParse(page);
-    if (!parsed.success) {
-      throw new Error(
-        `upsertPage: HSD v2 payload failed schema before save — ${parsed.error.issues[0]?.message ?? parsed.error.message}`
-      );
-    }
-    assertHsdV26AuthorityRules(parsed.data);
+    (row.page_type === "city_symptom" || row.page_type === "hsd");
+
+  if (!isHsdV2City) {
+    throw new Error(
+      `upsertPage: refusing publish — only ${HSD_V2_SCHEMA_VERSION} with page_type city_symptom|hsd (slug=${String(row.slug)})`
+    );
   }
+
+  const parsed = HSDV25Schema.safeParse(page);
+  if (!parsed.success) {
+    throw new Error(
+      `upsertPage: HSD v2 payload failed schema before save — ${parsed.error.issues[0]?.message ?? parsed.error.message}`
+    );
+  }
+  assertHsdV26AuthorityRules(parsed.data);
+  assertPayloadSubstantiveForPublish(storageSlug, page as Record<string, unknown>);
 
   const contentJson = serializePageContentJson(page);
 
@@ -50,7 +63,7 @@ export async function upsertPage(page: UpsertPageInput): Promise<void> {
       page_type
     )
     VALUES (
-      ${page.slug},
+      ${rowSlug},
       ${page.title},
       ${contentJson}::jsonb,
       ${HSD_V2_SCHEMA_VERSION},

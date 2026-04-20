@@ -2,6 +2,17 @@ import { enforceStoredSlug } from "./slug-utils";
 
 export type ServiceVertical = "hvac" | "plumbing" | "electrical";
 
+/**
+ * True when a path under a trade vertical ends with a **storage city** segment (`{city}-{st}`),
+ * e.g. `ac-not-cooling/tampa-fl`, `clogged-drain/orlando-fl`. A single segment (`ac-not-cooling`) is national-only.
+ */
+export function joinedSlugEndsWithCityStorage(joinedUnderVertical: string): boolean {
+  const parts = enforceStoredSlug(joinedUnderVertical).split("/").filter(Boolean);
+  if (parts.length < 2) return false;
+  const last = parts[parts.length - 1].toLowerCase();
+  return /^[a-z0-9]+-[a-z]{2}$/.test(last);
+}
+
 function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -125,4 +136,13 @@ export function pagesSlugForLocalizedPillar(
   citySlug: string
 ): string {
   return buildLocalizedStorageSlug(vertical, pillarSlug, citySlug);
+}
+
+/** Storage or URL slug: `plumbing/no-hot-water` or `plumbing/no-hot-water/tampa-fl`. */
+export function isPlumbingNoHotWaterSlug(slug: string): boolean {
+  const p = enforceStoredSlug(slug)
+    .split("/")
+    .filter(Boolean)
+    .map((s) => s.toLowerCase());
+  return p[0] === "plumbing" && p[1] === "no-hot-water";
 }

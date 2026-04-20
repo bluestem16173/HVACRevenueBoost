@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DiagnosticPageView } from "@/components/DiagnosticPageView";
+import { HvacAuthorityLoopNav } from "@/components/homeservice/HvacAuthorityLoopNav";
 import { DiagnosticVerticalNav } from "@/components/diagnostic-hub/DiagnosticVerticalNav";
-import { getIndexablePageBySlug } from "@/lib/get-indexable-page";
+import { getIndexablePageBySlug, getPageBySlug } from "@/lib/get-indexable-page";
+import { isIndexableProblemPillar } from "@/lib/seo/indexable-pillars";
+import { canonicalMetadata } from "@/lib/seo/canonical";
 import { getSystemHub, getSymptomsForHub, SYSTEM_HUBS } from "@/lib/system-hubs";
+import { RenderAuthority } from "@/components/RenderAuthority";
 
 /** DB-backed symptom pages: always read fresh `pages` rows (same DATABASE_URL as workers). */
 export const dynamic = "force-dynamic";
@@ -21,6 +26,47 @@ const SLUG_MAP: Record<string, string> = {
 
 export async function generateStaticParams() {
   return Object.keys(SLUG_MAP).map((slug) => ({ symptom: slug }));
+}
+
+export async function generateMetadata({ params }: { params: { symptom: string } }): Promise<Metadata> {
+  const segment = params.symptom;
+  if (SLUG_MAP[segment]) {
+    const hub = getSystemHub(SLUG_MAP[segment]);
+    return {
+      title: hub?.name ?? "HVAC",
+      description: hub?.description ?? "HVAC system hub",
+      ...canonicalMetadata(`/hvac/${segment}`),
+    };
+  }
+  const titlePart = segment.replace(/-/g, " ");
+  const storageSlug = `hvac/${segment}`.toLowerCase();
+  const dbPillar = await getPageBySlug(storageSlug);
+  if (dbPillar) {
+    const title = String((dbPillar as { title?: string | null }).title ?? "").trim();
+    return {
+      title: title || `${titlePart} | HVAC diagnostic`,
+      description: `National HVAC overview for ${titlePart}. Add a city segment for the localized guide.`,
+      ...canonicalMetadata(`/hvac/${segment}`),
+      robots: { index: true, follow: true },
+    };
+  }
+  let page = await getIndexablePageBySlug(`hvac/${segment}`);
+  if (!page) page = await getIndexablePageBySlug(segment);
+  if (!page) page = await getIndexablePageBySlug(`diagnose/${segment}`);
+  const title = page ? String((page as { title?: string | null }).title ?? "").trim() : "";
+  if (isIndexableProblemPillar("hvac", segment)) {
+    return {
+      title: title || `${titlePart} | HVAC diagnostic`,
+      description: `National HVAC overview for ${titlePart}. Add a city segment for the localized guide.`,
+      ...canonicalMetadata(`/hvac/${segment}`),
+      robots: { index: true, follow: true },
+    };
+  }
+  return {
+    title: title || `${titlePart} | HVAC diagnostic`,
+    description: `National HVAC overview for ${titlePart}. Add a city segment for the localized guide.`,
+    robots: { index: false, follow: true },
+  };
 }
 
 export default async function HvacSymptomOrHubPage({ params }: { params: { symptom: string } }) {
@@ -94,6 +140,13 @@ export default async function HvacSymptomOrHubPage({ params }: { params: { sympt
     );
   }
 
+  const storageSlug = `hvac/${segment}`.toLowerCase();
+  const dbPillar = await getPageBySlug(storageSlug);
+  /** Always prefer fresh `content_json` from `getPageBySlug` — do not require local parse success before rendering (avoids falling through to older indexable/HTML paths). */
+  if (dbPillar != null && (dbPillar as { content_json?: unknown }).content_json != null) {
+    return <RenderAuthority content={(dbPillar as { content_json: unknown }).content_json} vertical="hvac" />;
+  }
+
   let page = await getIndexablePageBySlug(`hvac/${segment}`);
   if (!page) page = await getIndexablePageBySlug(segment);
   if (!page) page = await getIndexablePageBySlug(`diagnose/${segment}`);
@@ -120,6 +173,7 @@ export default async function HvacSymptomOrHubPage({ params }: { params: { sympt
           </Link>{" "}
           or append <span className="font-mono">/{`{city}`}</span> to this URL.
         </p>
+        <HvacAuthorityLoopNav variant="pillar" symptom={segment} />
         <div className="mx-auto max-w-4xl px-4">
           <DiagnosticVerticalNav vertical="hvac" pillarSlug={segment} citySlug={null} />
         </div>

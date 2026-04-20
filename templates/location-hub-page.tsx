@@ -4,6 +4,7 @@
  */
 import React from "react";
 import Link from "next/link";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 
 export default function LocationHubPageTemplate({ location, contentJson }: any) {
   const {
@@ -110,6 +111,7 @@ export default function LocationHubPageTemplate({ location, contentJson }: any) 
         >
           Request Repair Quote
         </button>
+        <SmsLegalFooterLinks className="mt-4 justify-center text-[10px]" tone="onDark" />
       </section>
     </div>
   );

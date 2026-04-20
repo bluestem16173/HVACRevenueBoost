@@ -24,7 +24,8 @@ function adminAlertSmsToForSystemType(st: string): string | undefined {
 }
 
 function consentAckSmsBody(firstName: string, st: string): string {
-  const tail = " We will contact you about your inquiry, scheduling, and service updates. Reply STOP to opt out. Reply HELP for help.";
+  const tail =
+    " We'll text you about scheduling and service updates. Msg & data rates may apply. Reply STOP to opt out. Reply HELP for help.";
   if (st === "plumbing") return `Thanks ${firstName}, we received your plumbing request.${tail}`;
   if (st === "electrical") return `Thanks ${firstName}, we received your electrical request.${tail}`;
   if (st === "rv_hvac") return `Thanks ${firstName}, we received your RV HVAC request.${tail}`;

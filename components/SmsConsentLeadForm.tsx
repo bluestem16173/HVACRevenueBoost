@@ -3,12 +3,16 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
+  SMS_CONSENT_OPT_IN_LEAD,
+  SMS_CONSENT_ORIGINATION_DISCLOSURE,
   SMS_CONSENT_REQUIRED_ERROR,
+  SMS_CONSENT_SAMPLE_MESSAGE,
   getSmsConsentFullText,
   getSmsLeadSubmitButtonLabel,
   type SmsConsentSurface,
 } from "@/lib/lead-consent";
 import { useSmsConsentLeadForm, type UseSmsConsentLeadFormOptions } from "@/hooks/useSmsConsentLeadForm";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 
 export type SmsConsentLeadFormVariant = "sticky" | "static";
 
@@ -92,8 +96,18 @@ export default function SmsConsentLeadForm({
       }`;
 
   const consentTextClass = isSticky
-    ? "text-left text-xs leading-snug text-slate-600 sm:text-sm"
+    ? "text-left text-xs leading-snug text-slate-900 sm:text-sm"
     : "text-left text-sm leading-snug text-slate-800";
+
+  const consentCheckboxLabel =
+    consentCheckboxText.startsWith(SMS_CONSENT_OPT_IN_LEAD) ? (
+      <>
+        <strong className="font-black text-slate-900">{SMS_CONSENT_OPT_IN_LEAD}</strong>
+        {consentCheckboxText.slice(SMS_CONSENT_OPT_IN_LEAD.length)}
+      </>
+    ) : (
+      consentCheckboxText
+    );
 
   const errClass = isSticky ? "text-red-600" : "text-red-700";
 
@@ -120,8 +134,8 @@ export default function SmsConsentLeadForm({
       <input type="hidden" name="source_page" value={sourcePage} readOnly />
 
       {isSticky ? (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:gap-3">
-          <div className="min-w-0 flex-1 sm:max-w-[18rem]">
+        <div className="flex flex-col gap-3">
+          <div className="min-w-0 w-full">
             <label
               htmlFor={phoneFieldId}
               className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-red-600"
@@ -156,13 +170,6 @@ export default function SmsConsentLeadForm({
               </p>
             ) : null}
           </div>
-          <button
-            type="submit"
-            disabled={f.isSubmitting || f.isSuccess}
-            className="w-full shrink-0 rounded-lg bg-hvac-gold px-6 py-2.5 text-center text-base font-black uppercase tracking-wide text-hvac-navy shadow-md transition hover:brightness-105 disabled:opacity-60 sm:w-auto sm:min-w-[11rem]"
-          >
-            {f.isSubmitting ? "Sending…" : stickySubmit}
-          </button>
         </div>
       ) : (
         <div className={inputsRowClass}>
@@ -241,8 +248,35 @@ export default function SmsConsentLeadForm({
             aria-invalid={f.consentError}
             aria-describedby={f.consentError ? `${phoneFieldId}-consent-err` : undefined}
           />
-          <span className={consentTextClass}>{consentCheckboxText}</span>
+          <span className={consentTextClass}>{consentCheckboxLabel}</span>
         </label>
+        <p
+          className={
+            isSticky
+              ? "mt-2 pl-7 text-left text-[11px] leading-snug text-slate-500 sm:text-xs"
+              : "mt-2 pl-7 text-left text-xs leading-snug text-slate-600"
+          }
+        >
+          <span className="font-semibold text-slate-700">Consent description: </span>
+          {SMS_CONSENT_ORIGINATION_DISCLOSURE}
+        </p>
+        <p
+          className={
+            isSticky
+              ? "mt-2 pl-7 text-left text-[11px] leading-snug text-slate-500 sm:text-xs"
+              : "mt-2 pl-7 text-left text-xs leading-snug text-slate-600"
+          }
+        >
+          <span className="font-semibold text-slate-700">Sample message: </span>
+          {SMS_CONSENT_SAMPLE_MESSAGE}
+        </p>
+        <SmsLegalFooterLinks
+          className={
+            isSticky
+              ? "mt-2 pl-7 text-[11px] sm:text-xs"
+              : "mt-2 pl-7 text-xs"
+          }
+        />
         {f.consentError ? (
           <p id={`${phoneFieldId}-consent-err`} className={`mt-2 pl-7 text-sm font-semibold ${errClass}`} role="alert">
             {SMS_CONSENT_REQUIRED_ERROR}
@@ -250,7 +284,15 @@ export default function SmsConsentLeadForm({
         ) : null}
       </div>
 
-      {!isSticky ? (
+      {isSticky ? (
+        <button
+          type="submit"
+          disabled={f.isSubmitting || f.isSuccess}
+          className="mt-3 w-full rounded-lg bg-hvac-gold px-6 py-2.5 text-center text-base font-black uppercase tracking-wide text-hvac-navy shadow-md transition hover:brightness-105 disabled:opacity-60"
+        >
+          {f.isSubmitting ? "Sending…" : stickySubmit}
+        </button>
+      ) : (
         <div className="mt-4 flex flex-col gap-2 md:flex-row md:justify-end">
           <button
             type="submit"
@@ -260,7 +302,7 @@ export default function SmsConsentLeadForm({
             {f.isSubmitting ? "Sending…" : getSmsLeadSubmitButtonLabel()}
           </button>
         </div>
-      ) : null}
+      )}
 
       {f.serverError ? (
         <p className={`mt-2 text-xs font-semibold ${errClass}`} role="alert">

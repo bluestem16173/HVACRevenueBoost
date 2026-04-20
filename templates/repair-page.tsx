@@ -8,6 +8,7 @@
  */
 import Link from "next/link";
 // TEMP: import dynamic from "next/dynamic";
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import SystemOverviewBlock from "@/components/sections/SystemOverviewBlock";
 import { normalizeToString } from "@/lib/utils";
 import ServiceCTA from "@/components/ServiceCTA";
@@ -299,6 +300,7 @@ export default function RepairPageTemplate({
               <button data-open-lead-modal className="bg-hvac-gold hover:bg-yellow-500 text-hvac-navy font-black px-6 py-3 rounded-xl uppercase tracking-widest text-sm transition-colors shadow-md w-full">
                 Get Repair Quotes
               </button>
+              <SmsLegalFooterLinks className="mt-3 justify-center text-[10px]" tone="onDark" />
             </div>
           </div>
         </div>

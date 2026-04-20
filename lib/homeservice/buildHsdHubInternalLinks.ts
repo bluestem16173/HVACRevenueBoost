@@ -3,6 +3,11 @@
  * Symptom → diagnosis → cause → repair funnel; see product HSD hub strategy.
  */
 
+import {
+  crossCityTierOneContextSlugs,
+  ensureDiscoverableRelatedSymptoms,
+  filterTierDiscoveryPaths,
+} from "@/lib/seo/tier-one-discovery";
 import { enforceStoredSlug } from "@/lib/slug-utils";
 import {
   HVAC_CORE_CLUSTER_LINKS,
@@ -69,14 +74,6 @@ const CAUSES_BY_SYMPTOM: Partial<Record<string, readonly string[]>> = {
   ],
 };
 
-function contextPagesFor(symptom: string): string[] {
-  return [
-    `hvac/${symptom}-during-day`,
-    `hvac/${symptom}-when-hot-outside`,
-    `hvac/${symptom}-after-filter-change`,
-    `hvac/${symptom}-first-heat-wave`,
-  ];
-}
 
 function defaultRelatedFor(symptom: string, city: string): string[] {
   const pool = HVAC_CORE_CLUSTER_SYMPTOM_ORDER.filter((s) => s !== symptom).slice(0, 5);
@@ -99,13 +96,16 @@ export function buildHvacHubInternalLinks(storageSlug: string): HsdHubInternalLi
   const symCluster = CLUSTER_SYMPTOM_SET.has(symptom) ? (symptom as HvacCoreClusterSymptom) : null;
   const cluster = symCluster ? HVAC_CORE_CLUSTER_LINKS[symCluster] : null;
 
-  const related_symptoms = cluster
+  const relatedSeeds = cluster
     ? cluster.related_symptoms.map((p) => localizeHvacSymptomPath(p, city)).slice(0, 5)
     : defaultRelatedFor(symptom, city).slice(0, 5);
+  const related_symptoms = ensureDiscoverableRelatedSymptoms(symptom, city, relatedSeeds);
 
-  const system_pages = (cluster ? [...cluster.system_pages] : ["hvac/how-central-air-conditioning-works", "hvac/heat-transfer-airflow-and-delta-t"]).slice(0, 2);
+  const system_pages = filterTierDiscoveryPaths(
+    (cluster ? [...cluster.system_pages] : ["hvac/how-central-air-conditioning-works", "hvac/heat-transfer-airflow-and-delta-t"]).slice(0, 2),
+  );
 
-  const causes = [...(CAUSES_BY_SYMPTOM[symptom] ?? FALLBACK_CAUSES)].slice(0, 6);
+  const causes = filterTierDiscoveryPaths([...(CAUSES_BY_SYMPTOM[symptom] ?? FALLBACK_CAUSES)].slice(0, 6));
 
   const repair_guides: string[] = [`repair/${citySeg}/${symptom}`];
   if (symptom === "ac-not-cooling") {
@@ -119,12 +119,12 @@ export function buildHvacHubInternalLinks(storageSlug: string): HsdHubInternalLi
     repair_guides.push(cluster.repair_guides[1].replace(/^\/?/, ""));
   }
 
-  const context_pages = contextPagesFor(symptom).slice(0, 4);
+  const context_pages = crossCityTierOneContextSlugs(symptom, city).slice(0, 4);
 
   return {
     related_symptoms,
     causes,
-    repair_guides: repair_guides.slice(0, 3),
+    repair_guides: filterTierDiscoveryPaths(repair_guides.slice(0, 3)),
     system_pages,
     context_pages,
   };

@@ -1,17 +1,54 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DiagnosticPageView } from "@/components/DiagnosticPageView";
 import { DiagnosticVerticalNav } from "@/components/diagnostic-hub/DiagnosticVerticalNav";
-import { getIndexablePageBySlug } from "@/lib/get-indexable-page";
+import { getIndexablePageBySlug, getPageBySlug } from "@/lib/get-indexable-page";
+import { siteCanonicalUrl } from "@/lib/seo/canonical";
+import { isIndexableProblemPillar } from "@/lib/seo/indexable-pillars";
+import { RenderAuthority } from "@/components/RenderAuthority";
 
 /** DB-backed symptom pages: always read fresh `pages` rows (same DATABASE_URL as workers). */
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const dynamicParams = true;
 
+export async function generateMetadata({ params }: { params: { symptom: string } }): Promise<Metadata> {
+  const segment = params.symptom;
+  const titlePart = segment.replace(/-/g, " ");
+  const pathname = `/electrical/${segment}`;
+  const storageSlug = `electrical/${segment}`.toLowerCase();
+  const dbPillar = await getPageBySlug(storageSlug);
+  if (dbPillar) {
+    const title = String((dbPillar as { title?: string | null }).title ?? "").trim();
+    return {
+      title: title || `${titlePart} | Electrical diagnostic`,
+      description: `National electrical overview for ${titlePart}. Pick a city for the localized guide.`,
+      alternates: { canonical: siteCanonicalUrl(pathname) },
+      robots: { index: true, follow: true },
+    };
+  }
+  const indexable = isIndexableProblemPillar("electrical", segment);
+  return {
+    title: `${titlePart} | Electrical diagnostic`,
+    description: `National electrical overview for ${titlePart}. Pick a city for the localized guide.`,
+    ...(indexable
+      ? {
+          alternates: { canonical: siteCanonicalUrl(pathname) },
+          robots: { index: true, follow: true },
+        }
+      : { robots: { index: false, follow: true } }),
+  };
+}
+
 export default async function ElectricalSymptomPage({ params }: { params: { symptom: string } }) {
   const segment = params.symptom;
-  const slug = `electrical/${segment}`;
+  const slug = `electrical/${segment}`.toLowerCase();
+  const dbPillar = await getPageBySlug(slug);
+  if (dbPillar != null && (dbPillar as { content_json?: unknown }).content_json != null) {
+    return <RenderAuthority content={(dbPillar as { content_json: unknown }).content_json} vertical="electrical" />;
+  }
+
   let page = await getIndexablePageBySlug(slug);
   if (!page) page = await getIndexablePageBySlug(segment);
   if (!page) page = await getIndexablePageBySlug(`diagnose/${segment}`);

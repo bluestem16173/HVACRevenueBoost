@@ -1,5 +1,5 @@
 import sql from "@/lib/db";
-import { normalizePagesTableSlugLookup } from "@/lib/slug-utils";
+import { canonicalPagesSlugPathKeys, normalizePagesTableSlugLookup } from "@/lib/slug-utils";
 
 export type PageFromDbRow = {
   slug: string;
@@ -14,10 +14,13 @@ export async function getPageFromDB(slug: string): Promise<PageFromDbRow | null>
   const normalized = normalizePagesTableSlugLookup(slug);
   if (!normalized) return null;
 
+  const { withLeading, noLeading } = canonicalPagesSlugPathKeys(normalized);
+  if (!noLeading) return null;
+
   const rows = await sql`
     SELECT slug, title, content_html, content_json, status
     FROM pages
-    WHERE slug = ${normalized}
+    WHERE (LOWER(slug) = ${noLeading} OR LOWER(slug) = ${withLeading})
       AND status = 'published'
     LIMIT 1
   `;

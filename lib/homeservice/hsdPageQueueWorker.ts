@@ -24,8 +24,10 @@ import {
 } from "@/lib/localized-city-path";
 import { parseCityStateForPrompt } from "@/lib/prompt-schema-router";
 import { generateHsdPage } from "@/src/lib/ai/generateHsdPage";
+import { generateProblemPillarPageWithRetry } from "@/src/lib/ai/generateProblemPillarPage";
 import { upsertPage } from "@/src/lib/db/upsertPage";
 import { upsertHsdPage } from "@/lib/homeservice/upsertHsdPage";
+import { assertPayloadSubstantiveForPublish } from "@/lib/homeservice/assertPayloadSubstantiveForPublish";
 
 export type PageQueueRow = {
   id: number;
@@ -43,6 +45,7 @@ const allowedPageTypes = new Set([
   "city_symptom",
   "hsd",
   "national_symptom",
+  "problem_pillar",
   "repair",
   "guide",
   "landing",
@@ -68,6 +71,17 @@ function inferCityColumn(slug: string): string | null {
   const last = parts[parts.length - 1];
   if (last && /-fl$|-tx$|-az$/i.test(last)) return last;
   return null;
+}
+
+/** `hvac/ac-not-cooling` → national problem pillar (no city segment). */
+export function parseNationalPillarJob(slug: string): { vertical: "hvac" | "plumbing" | "electrical"; pillar: string } | null {
+  const parts = enforceStoredSlug(slug).split("/").filter(Boolean);
+  if (parts.length !== 2) return null;
+  const v = parts[0].toLowerCase();
+  if (v !== "hvac" && v !== "plumbing" && v !== "electrical") return null;
+  const pillar = parts[1].trim().toLowerCase();
+  if (!pillar) return null;
+  return { vertical: v, pillar };
 }
 
 /**
@@ -138,6 +152,8 @@ export async function upsertPageFromHsdCityJson(
   if (schemaVersion === HSD_V1_LOCKED_SCHEMA_VERSION) {
     assertPersistableDgAuthorityV2ContentJson(result);
   }
+
+  assertPayloadSubstantiveForPublish(cleanSlug, result);
 
   await sql`
     INSERT INTO pages (
@@ -253,6 +269,21 @@ export async function generateJsonForHsdPageQueueSlug(slug: string): Promise<Rec
   };
 }
 
+/** PROBLEM_PILLAR_V1 → HSD v2 national slug (`{vertical}/{symptom}`) → `pages` as `problem_pillar`. */
+export async function runNationalProblemPillarPipeline(job: PageQueueRow): Promise<void> {
+  const slug = canonicalLocalizedStorageSlug(job.slug);
+  const parsed = parseNationalPillarJob(slug);
+  if (!parsed) {
+    throw new Error(`national pillar: expected {vertical}/{symptom}, got: ${slug}`);
+  }
+  const page = await generateProblemPillarPageWithRetry(
+    { vertical: parsed.vertical, pillarSlug: parsed.pillar },
+    2
+  );
+  const upsertJob = { ...job, slug, page_type: "problem_pillar" };
+  await upsertHsdPage(upsertJob, page as unknown as Record<string, unknown>);
+}
+
 /** `page_type === "hsd"`: HSD v2 diagnostic engine + finalize (via {@link generateJsonForHsdPageQueueSlug}) → `pages` upsert. */
 export async function runHsdPipeline(job: PageQueueRow): Promise<void> {
   const result = await generateJsonForHsdPageQueueSlug(canonicalLocalizedStorageSlug(job.slug));
@@ -281,12 +312,19 @@ async function runLegacyPageQueuePipeline(job: PageQueueRow): Promise<void> {
 }
 
 /**
- * One job: `page_type === "hsd"` → {@link runHsdPipeline}; otherwise → `generateHsdPage` + `upsertPage` (queue worker legacy).
+ * One job:
+ * - `national_symptom` / `problem_pillar` with `{vertical}/{symptom}` slug → {@link runNationalProblemPillarPipeline}
+ * - `hsd` → {@link runHsdPipeline}
+ * - else → `generateHsdPage` + `upsertPage` (localized legacy)
  */
 export async function processOnePageQueueJob(job: PageQueueRow): Promise<void> {
   try {
     const pt = (job.page_type ?? "").trim();
-    if (pt === "hsd") {
+    const slug = canonicalLocalizedStorageSlug(job.slug);
+    const national = parseNationalPillarJob(slug);
+    if (national && (pt === "national_symptom" || pt === "problem_pillar")) {
+      await runNationalProblemPillarPipeline(job);
+    } else if (pt === "hsd") {
       await runHsdPipeline(job);
     } else {
       await runLegacyPageQueuePipeline(job);

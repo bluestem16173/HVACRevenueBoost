@@ -1,5 +1,6 @@
 "use client";
 
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
 import { useEffect, useState } from "react";
 import type { Trade } from "@/lib/dg/resolveCTA";
 
@@ -65,6 +66,7 @@ export function DgAuthorityStickyCta({
         >
           {button}
         </button>
+        <SmsLegalFooterLinks className="mt-2 w-full justify-center text-[9px]" tone="onDark" />
       </div>
     </div>
   );

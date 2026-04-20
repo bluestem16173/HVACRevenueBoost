@@ -1,3 +1,5 @@
+import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
+
 export default function CTA({ data }: { data: any }) {
   const primary = data?.primary;
   if (!primary) return null;
@@ -11,6 +13,7 @@ export default function CTA({ data }: { data: any }) {
         >
           Request Diagnostic Today
         </button>
+        <SmsLegalFooterLinks className="mt-4 justify-center text-[10px]" tone="onDark" />
       </div>
     </section>
   );

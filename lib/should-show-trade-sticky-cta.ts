@@ -17,7 +17,6 @@ export function shouldShowTradeStickyCta(pathname: string | null | undefined): b
   if (p === "/commercial-hvac") return true;
 
   const standaloneHvac = new Set([
-    "/hvac-ac-not-cooling",
     "/hvac-air-conditioning",
     "/hvac-airflow-ductwork",
     "/hvac-electrical-controls",
