@@ -2,7 +2,7 @@ import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import GoldStandardPage from "@/components/gold/GoldStandardPage";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { strictRobotsForDbPage } from "@/lib/seo/strict-indexing";
+import { robotsForDbBackedPage } from "@/lib/seo/strict-indexing";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -23,10 +23,8 @@ async function getPageWithRetry(symptom: string, retries = 2) {
 
 export async function generateMetadata({ params }: { params: { city: string } }): Promise<Metadata> {
   const aiPage = await getPageWithRetry("repair/" + params.city);
-  if (aiPage?.quality_status === "noindex") {
-    return { robots: { index: false, follow: true } };
-  }
-  return { ...(strictRobotsForDbPage(true, aiPage?.updated_at) ?? {}) };
+  const eligible = aiPage?.quality_status !== "noindex";
+  return { ...(robotsForDbBackedPage(aiPage, eligible) ?? {}) };
 }
 
 export default async function RepairPage({ params }: { params: { city: string } }) {

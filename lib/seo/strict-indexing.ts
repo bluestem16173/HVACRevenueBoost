@@ -25,7 +25,8 @@ import type { Metadata } from "next";
  *
  * **Leak risk**  
  * Routes that set `robots: { index: true }` without merging strict logic can override the root default. Prefer
- * `strictRobotsForDbPage` wherever a DB row should control indexing after Phase 2.
+ * {@link robotsForDbBackedPage} for any route backed by a `pages` row so **unpublished** rows and rows before
+ * `INDEXABLE_SINCE` never ship `index: true` metadata.
  */
 
 export function isStrictIndexingEnabled(): boolean {
@@ -60,6 +61,38 @@ export function parsePageUpdatedAt(row: unknown): Date | null {
     return Number.isNaN(d.getTime()) ? null : d;
   }
   return null;
+}
+
+/** `true` when `INDEXABLE_SINCE` is unset, or `updated_at` parses and is on/after that instant. */
+export function rowPassesIndexableSince(updatedAt: unknown): boolean {
+  const since = getIndexableSinceDate();
+  if (!since) return true;
+  const at = parsePageUpdatedAt(updatedAt);
+  return Boolean(at && at >= since);
+}
+
+type DbPageLike = { status?: unknown; updated_at?: unknown } | null | undefined;
+
+/**
+ * Crawl policy for a `pages` row:
+ * - Always **noindex** when missing or `status !== 'published'`.
+ * - When `INDEXABLE_SINCE` is set, **noindex** if `updated_at` is missing or before the cutoff (independent of
+ *   `STRICT_SITE_INDEXING`, so new rollout rows stay out of the index until bumped).
+ * - `eligible: false` (thin page, `quality_status`, etc.) always yields **noindex**, even when strict mode is off.
+ * - When `STRICT_SITE_INDEXING` is on, published + eligible + date-ok rows get explicit `index: true` metadata
+ *   (via {@link strictRobotsForDbPage}); otherwise the caller may fall back to route defaults.
+ */
+export function robotsForDbBackedPage(page: DbPageLike, eligible: boolean): Pick<Metadata, "robots"> | undefined {
+  if (!page || String(page.status) !== "published") {
+    return { robots: { index: false, follow: true } };
+  }
+  if (!rowPassesIndexableSince(page.updated_at)) {
+    return { robots: { index: false, follow: true } };
+  }
+  if (!eligible) {
+    return { robots: { index: false, follow: true } };
+  }
+  return strictRobotsForDbPage(true, page.updated_at);
 }
 
 /** Root default: noindex everywhere except `/` and optional extras when strict is on. */

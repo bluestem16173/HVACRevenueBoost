@@ -3,7 +3,7 @@ import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { FLORIDA_CITIES } from "@/lib/locations";
 import { permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
-import { strictRobotsForDbPage } from "@/lib/seo/strict-indexing";
+import { robotsForDbBackedPage } from "@/lib/seo/strict-indexing";
 import { SYMPTOMS } from "@/data/knowledge-graph";
 
 export const revalidate = 3600;
@@ -92,7 +92,7 @@ export async function generateMetadata({ params }: { params: { city: string, sym
   // If Thin (STATE 2): Roll up authority to parent symptom hub.
   // If Full (STATE 1): Self-canonical + AI SEO Metadata.
   const baseRobots = { index: !isThin, follow: true as const };
-  const strict = strictRobotsForDbPage(!isThin, page?.updated_at);
+  const strict = robotsForDbBackedPage(page, !isThin);
 
   return {
     title: generatedSeo?.title || `24/7 HVAC Emergency in ${formatCity(params.city)} | Fix It Today`,

@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import {
-  SMS_CONSENT_FULL_TEXT,
   SMS_CONSENT_REQUIRED_ERROR,
+  getSmsConsentFullText,
   getSmsLeadSubmitButtonLabel,
+  type SmsConsentSurface,
 } from "@/lib/lead-consent";
 import { useSmsConsentLeadForm, type UseSmsConsentLeadFormOptions } from "@/hooks/useSmsConsentLeadForm";
 
@@ -21,7 +22,19 @@ type Props = UseSmsConsentLeadFormOptions & {
   showNameField?: boolean;
   /** Sticky CTA label (ad creative). Static variant ignores this and uses {@link getSmsLeadSubmitButtonLabel}. */
   submitButtonLabel?: string;
+  /** Overrides default form `aria-label` (e.g. trade-specific sticky bar). */
+  formAriaLabel?: string;
 };
+
+function resolvedConsentSurface(
+  serviceType: UseSmsConsentLeadFormOptions["serviceType"],
+  explicit?: SmsConsentSurface
+): SmsConsentSurface {
+  if (explicit) return explicit;
+  if (serviceType === "plumbing") return "plumbing";
+  if (serviceType === "electrical") return "electrical";
+  return "hvac";
+}
 
 export default function SmsConsentLeadForm({
   variant,
@@ -29,9 +42,11 @@ export default function SmsConsentLeadForm({
   defaultSourcePage = "/",
   phoneFieldId = "sms-lead-phone",
   serviceType,
+  consentSurface,
   issueSummary,
   showNameField = variant !== "sticky",
   submitButtonLabel,
+  formAriaLabel,
 }: Props) {
   const pathname = usePathname();
   /** `usePathname()` may be null during SSR; using pathname in the first paint mismatches the client. */
@@ -40,7 +55,14 @@ export default function SmsConsentLeadForm({
     setPathReady(true);
   }, []);
   const sourcePage = (pathReady ? (pathname || defaultSourcePage) : defaultSourcePage).slice(0, 2048);
-  const f = useSmsConsentLeadForm({ defaultSourcePage, serviceType, issueSummary });
+  const consentSurfaceResolved = resolvedConsentSurface(serviceType, consentSurface);
+  const consentCheckboxText = getSmsConsentFullText(consentSurfaceResolved);
+  const f = useSmsConsentLeadForm({
+    defaultSourcePage,
+    serviceType,
+    consentSurface: consentSurfaceResolved,
+    issueSummary,
+  });
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +71,9 @@ export default function SmsConsentLeadForm({
 
   const isSticky = variant === "sticky";
   const stickySubmit = (submitButtonLabel ?? "GET HELP NOW").trim() || "GET HELP NOW";
+  const resolvedFormAria =
+    (formAriaLabel ?? "").trim() ||
+    (variant === "sticky" ? "SMS help request" : "Request HVAC service");
 
   const inputsRowClass = isSticky
     ? "flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end sm:gap-3"
@@ -90,7 +115,7 @@ export default function SmsConsentLeadForm({
       onSubmit={onSubmit}
       className={className}
       noValidate
-      aria-label={variant === "sticky" ? "SMS help request" : "Request HVAC service"}
+      aria-label={resolvedFormAria}
     >
       <input type="hidden" name="source_page" value={sourcePage} readOnly />
 
@@ -216,7 +241,7 @@ export default function SmsConsentLeadForm({
             aria-invalid={f.consentError}
             aria-describedby={f.consentError ? `${phoneFieldId}-consent-err` : undefined}
           />
-          <span className={consentTextClass}>{SMS_CONSENT_FULL_TEXT}</span>
+          <span className={consentTextClass}>{consentCheckboxText}</span>
         </label>
         {f.consentError ? (
           <p id={`${phoneFieldId}-consent-err`} className={`mt-2 pl-7 text-sm font-semibold ${errClass}`} role="alert">

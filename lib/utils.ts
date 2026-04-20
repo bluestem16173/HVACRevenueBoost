@@ -90,3 +90,10 @@ export function dedupeLines(text: string): string {
     })
     .join("\n");
 }
+
+/** SEO titles: "typical cost bands" → "typical cost" (drops redundant "bands" after "cost"). */
+export function stripCostBandsFromTitle(title: string): string {
+  return String(title ?? "")
+    .replace(/\bcost\s+bands\b/gi, "cost")
+    .trim();
+}

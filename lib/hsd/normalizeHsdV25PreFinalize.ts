@@ -2,6 +2,7 @@ import { applyDedupeLinesPassToHsdJson } from "@/lib/hsd/dedupeHsdMultilineField
 import { injectProgrammaticHsdCtas } from "@/lib/hsd/injectProgrammaticHsdCtas";
 import { applyQuickChecksLabelNormalizationToHsdJson } from "@/lib/hsd/normalizeHsdQuickChecksLabels";
 import { isAcNotCoolingCitySlug } from "@/lib/hsd/lockedAcNotCoolingHeadline";
+import { stripCostBandsFromTitle } from "@/lib/utils";
 
 /** Same dollar parser as {@link assertHsdV25ContentRules} / CTA gate. */
 function maxParsedUsdInText(s: string): number {
@@ -40,12 +41,12 @@ function ctaMeetsBar(cta: string, vertical: string): boolean {
 
 /** Top-level title + `summary_30s.headline` (Zod ≥50) without forbidden scaffolding words. */
 export function ensureHeadline(json: Record<string, unknown>): Record<string, unknown> {
-  let title = String(json.title ?? "").trim();
+  let title = stripCostBandsFromTitle(String(json.title ?? ""));
   if (!title || title.length < 10) {
-    title = `${title || "HVAC issue"} — causes, fixes, and typical cost bands`;
+    title = `${title || "HVAC issue"} — causes, fixes, and typical repair costs`;
     json.title = title.slice(0, 200);
   } else if (title.length < 40) {
-    json.title = `${title} — causes, fixes, and typical cost bands (2026)`.slice(0, 200);
+    json.title = `${title} — causes, fixes, and typical repair costs (2026)`.slice(0, 200);
   }
 
   const slug = String(json.slug ?? "");
@@ -129,7 +130,7 @@ function ensureRepairMatrixIntro(json: Record<string, unknown>): void {
   if (r.length >= 50) return;
   json.repair_matrix_intro =
     (r ? `${r} ` : "") +
-    "Most failures start as airflow or control-side issues; once sealed-system or compressor problems appear, costs jump quickly—use the matrix below as field-realistic bands, not quotes.";
+    "Most failures start as airflow or control-side issues; once sealed-system or compressor problems appear, costs jump quickly—treat the matrix below as planning ranges from field work, not firm quotes.";
 }
 
 function ensureDecisionFooter(json: Record<string, unknown>): void {

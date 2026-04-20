@@ -249,7 +249,7 @@ export function coerceHsdJsonForV25View(raw: Record<string, unknown>): HsdV25Pay
   if (risk.length < 45 || !risk.includes("$")) {
     risk = padStringMin(
       risk,
-      "Ignoring the pattern forces coil stress, compressor overload, and typical repair bands of $1,500–$3,500 once major parts fail.",
+      "Ignoring the pattern forces coil stress, compressor overload, and typical repair costs of $1,500–$3,500 once major parts fail.",
       45
     );
   }

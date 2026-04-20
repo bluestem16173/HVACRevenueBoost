@@ -173,7 +173,7 @@ export default function AcNotCoolingPage() {
           </p>
 
           <p className="text-slate-600 dark:text-slate-400 mt-6 mb-2">
-            Delay or continued operation under fault increases final cost. These bands are typical repair paths from
+            Delay or continued operation under fault increases final cost. The table below shows typical repair paths from
             common symptom patterns—compressor damage risk rises while the system runs faulted, and a leak left unrepaired
             repeats pressure imbalance and stacks repeat service cost. Low charge equals a leak; refrigerant is not
             consumed in normal operation; running in this condition forces the compressor outside its design limits. At
@@ -185,7 +185,7 @@ export default function AcNotCoolingPage() {
                 <tr>
                   <th>Symptom pattern</th>
                   <th>Common fix</th>
-                  <th>Cost band (USD)</th>
+                  <th>Typical cost (USD)</th>
                 </tr>
               </thead>
               <tbody>

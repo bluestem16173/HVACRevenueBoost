@@ -6,7 +6,7 @@ import {
   type HsdCtaType,
 } from "@/lib/hsd/injectProgrammaticHsdCtas";
 import { simpleDiagnosticFlowToMermaid } from "@/lib/hsd/simpleDiagnosticFlowToMermaid";
-import { dedupeLines } from "@/lib/utils";
+import { dedupeLines, stripCostBandsFromTitle } from "@/lib/utils";
 import type { HsdV25Payload } from "@/src/lib/validation/hsdV25Schema";
 
 /** Optional row/envelope fields sometimes merged onto stored `content_json`. */
@@ -24,7 +24,7 @@ export type HsdV25RenderInput = HsdV25Payload &
 const PAD_CORE =
   "This leads to longer runtimes, higher utility draw, and mechanical stress that turns a nuisance into a major repair when ignored.";
 const PAD_RISK =
-  "Ignoring the pattern forces coil stress, compressor overload, and typical repair bands of $1,500–$3,500 once major parts fail.";
+  "Ignoring the pattern forces coil stress, compressor overload, and typical repair costs of $1,500–$3,500 once major parts fail.";
 const DEFAULT_CAUSE_ROW = {
   label: "Something earlier in the system (airflow, thermostat, or power)",
   probability: "Needs testing with tools",
@@ -356,6 +356,7 @@ function sanitizeHsdV25RenderInput(data: HsdV25RenderInput): HsdV25RenderInput {
 
   return {
     ...data,
+    title: stripCostBandsFromTitle(String(data.title ?? "")),
     summary_30s,
     what_this_means,
     quick_checks,
@@ -494,13 +495,24 @@ const PLACEMENT_CTA_BTN: Record<HsdCtaType, string> = {
   final: "inline-block mt-4 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-sm transition hover:bg-slate-100",
 };
 
-function leadModalPrefillFromData(data: HsdV25RenderInput): { vertical?: string; city?: string } {
-  const vertical = String(data.vertical ?? "").trim();
-  const city = String(data.city ?? "").trim();
-  return {
-    ...(vertical ? { vertical } : {}),
-    ...(city ? { city } : {}),
-  };
+function hsdPageVertical(data: HsdV25RenderInput): string {
+  return String(data.vertical ?? "").trim().toLowerCase() || "hvac";
+}
+
+function placementCtaButtonLabel(vertical: string): string {
+  const v = vertical.toLowerCase();
+  if (v === "plumbing") return "Urgent: book a licensed plumber";
+  if (v === "electrical") return "Urgent: book a licensed electrician";
+  if (v === "hvac") return "Urgent: book HVAC service now";
+  return "Urgent: book professional help now";
+}
+
+function placementCtaOpenLeadOnclickAttr(vertical: string): string {
+  const v = vertical.toLowerCase();
+  if (v === "plumbing" || v === "electrical") {
+    return `onclick="try{window.dispatchEvent(new CustomEvent('open-leadcard',{detail:{issue:'not_sure'}}))}catch(e){}"`;
+  }
+  return `onclick="try{window.dispatchEvent(new CustomEvent('open-leadcard'))}catch(e){}"`;
 }
 
 function isRenderablePlacementCtaType(t: string): t is HsdCtaType {
@@ -510,7 +522,7 @@ function isRenderablePlacementCtaType(t: string): t is HsdCtaType {
 /** Renders all `data.ctas` entries matching any of `types` (JSON-driven placement). */
 function renderCtasByTypes(data: HsdV25RenderInput, types: readonly HsdCtaType[], domIdForFinal?: string): string {
   const set = new Set(types);
-  const prefill = leadModalPrefillFromData(data);
+  const vertical = hsdPageVertical(data);
   const rows = (data.ctas ?? []).filter(
     (c): c is HsdCtaEntry =>
       Boolean(c?.text) && isRenderablePlacementCtaType(String(c.type)) && set.has(c.type as HsdCtaType)
@@ -518,17 +530,16 @@ function renderCtasByTypes(data: HsdV25RenderInput, types: readonly HsdCtaType[]
   return rows
     .map((c) =>
       c.type === "final" && domIdForFinal
-        ? sectionPlacementCta(c.type, c.text, domIdForFinal, prefill)
-        : sectionPlacementCta(c.type, c.text, undefined, prefill)
+        ? sectionPlacementCta(c.type, c.text, domIdForFinal, vertical)
+        : sectionPlacementCta(c.type, c.text, undefined, vertical)
     )
     .join("\n");
 }
 
 function buildFinalCtaHtml(data: HsdV25RenderInput): string {
-  const prefill = leadModalPrefillFromData(data);
   const fromJson = renderCtasByTypes(data, ["final"], hsdSectionDomId("cta")).trim();
   if (fromJson) return fromJson;
-  return sectionPlacementCta("final", data.cta, hsdSectionDomId("cta"), prefill);
+  return sectionPlacementCta("final", data.cta, hsdSectionDomId("cta"), hsdPageVertical(data));
 }
 
 /**
@@ -538,7 +549,7 @@ export function sectionPlacementCta(
   variant: HsdCtaType,
   text: string,
   domId?: string,
-  leadPrefill?: { vertical?: string; city?: string }
+  vertical: string = "hvac"
 ): string {
   const t = String(text ?? "").trim();
   if (!t) return "";
@@ -555,17 +566,13 @@ export function sectionPlacementCta(
     variant === "final"
       ? `<p class="mb-2 text-[11px] font-black uppercase tracking-widest text-slate-400">Next step</p>`
       : "";
-  const trade = String(leadPrefill?.vertical ?? "").trim();
-  const loc = String(leadPrefill?.city ?? "").trim();
-  const leadAttrs = [
-    ` data-open-lead-modal="1"`,
-    trade ? ` data-lead-trade="${escapeHtml(trade)}"` : "",
-    loc ? ` data-lead-location="${escapeHtml(loc)}"` : "",
-  ].join("");
-  return `<aside class="hsd-placement-cta not-prose hsd-block mt-6 rounded-xl p-6 shadow-md ${surface}"${idAttr} data-hsd-cta-placement="${variant}" aria-label="Call to action">
+  /** Opens LeadCard in DiagnosticModal via the global `open-leadcard` event. */
+  const openLeadOnclick = placementCtaOpenLeadOnclickAttr(vertical);
+  const btnLabel = escapeHtml(placementCtaButtonLabel(vertical));
+  return `<aside class="hsd-placement-cta not-prose hsd-block mt-6 rounded-xl p-6 shadow-md ${surface}"${idAttr} data-hsd-cta-placement="${variant}" data-hsd-vertical="${escapeHtml(vertical)}" aria-label="Call to action">
   ${kicker}
   ${paras}
-  <button type="button"${leadAttrs} class="${btn} cursor-pointer border-0 text-center" aria-haspopup="dialog">Get Professional Help</button>
+  <button type="button" ${openLeadOnclick} class="${btn} cursor-pointer border-0 text-center" aria-haspopup="dialog">${btnLabel}</button>
 </aside>`.trim();
 }
 
@@ -707,14 +714,44 @@ export function sectionCanonicalTruths(truths: HsdV25Payload["canonical_truths"]
 </div>`.trim();
 }
 
-export function sectionQuickChecks(
-  quick_checks: HsdV25Payload["quick_checks"],
-  _canonicalTruths?: HsdV25Payload["canonical_truths"]
-): string {
-  const startHere = `<div class="mb-6 rounded-xl border-l-4 border-hvac-blue bg-blue-50 p-4 dark:border-hvac-gold dark:bg-slate-900/60">
+function quickChecksStartHereHtml(vertical: string): string {
+  const v = vertical.toLowerCase();
+  if (v === "plumbing") {
+    return `<div class="mb-6 rounded-xl border-l-4 border-hvac-blue bg-blue-50 p-4 dark:border-hvac-gold dark:bg-slate-900/60">
+  <strong class="text-slate-900 dark:text-white">Start here:</strong>
+  <p class="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">Locate the main water shutoff, scan for active leaks at toilets, sinks, and supply lines, and try the simplest drain flow checks you can do safely (no harsh chemicals). Most urgent plumbing damage is slowed or isolated on the fixture side. If pressure drops, water keeps running, or sewage backs up, the problem may be deeper in supply piping, the water heater, or the building drain—call a licensed plumber.</p>
+</div>`;
+  }
+  if (v === "electrical") {
+    return `<div class="mb-6 rounded-xl border-l-4 border-hvac-blue bg-blue-50 p-4 dark:border-hvac-gold dark:bg-slate-900/60">
+  <strong class="text-slate-900 dark:text-white">Start here:</strong>
+  <p class="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">Check whether the outage is one circuit or the whole house, reset only GFCI devices you can identify safely, and look for a tripped breaker you can reset once—do not hammer breakers. Many &quot;no power&quot; calls start with a branch trip or a GFCI protecting downstream outlets. If breakers trip again, you smell heat or ozone, or voltage looks unstable, stop—fault current can damage the panel and wiring. Call a licensed electrician.</p>
+</div>`;
+  }
+  return `<div class="mb-6 rounded-xl border-l-4 border-hvac-blue bg-blue-50 p-4 dark:border-hvac-gold dark:bg-slate-900/60">
   <strong class="text-slate-900 dark:text-white">Start here:</strong>
   <p class="mt-2 text-sm leading-relaxed text-slate-700 dark:text-slate-300">Check the thermostat, air filter, and airflow at registers first. Most comfort problems start on the house side of the system. If those look normal, the issue is often deeper (control wiring, refrigerant, or compressor).</p>
 </div>`;
+}
+
+function quickChecksRunOrderLine(vertical: string): string {
+  const v = vertical.toLowerCase();
+  if (v === "plumbing") {
+    return "Run these in order. If you cannot stop active leaking, pressure loss, or sewage backup safely, treat it as urgent and call a licensed plumber.";
+  }
+  if (v === "electrical") {
+    return "Run these in order only when it is safe. If breakers trip repeatedly, you see sparks, or there is a burning smell, stop—call a licensed electrician.";
+  }
+  return "Run these in order. If cooling does not return after these checks, the issue is no longer simple.";
+}
+
+export function sectionQuickChecks(
+  quick_checks: HsdV25Payload["quick_checks"],
+  _canonicalTruths?: HsdV25Payload["canonical_truths"],
+  vertical: string = "hvac"
+): string {
+  const startHere = quickChecksStartHereHtml(vertical);
+  const runOrderLine = escapeHtml(quickChecksRunOrderLine(vertical));
   const cards = quick_checks
     .map((q) => {
       const home = String(q.homeowner ?? "").trim();
@@ -734,7 +771,7 @@ export function sectionQuickChecks(
 <section class="hsd-cred__quick hsd-block" id="${hsdSectionDomId("quick_checks")}" aria-labelledby="hsd-quick-label">
   <h2 id="hsd-quick-label" class="hsd-cred__quick-head">Quick checks <span class="text-base font-semibold normal-case text-slate-600 dark:text-slate-400">(Do this first)</span></h2>
   ${startHere}
-  <p class="mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">Run these in order. If cooling does not return after these checks, the issue is no longer simple.</p>
+  <p class="mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">${runOrderLine}</p>
   <div class="grid list-none gap-6 p-0 sm:gap-8 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3" role="list">${cards}</div>
 </section>`.trim();
 }
@@ -989,7 +1026,7 @@ export function sectionCostEscalation(cost_escalation: HsdV25Payload["cost_escal
   const items = cost_escalation
     .map((c, i) => {
       const peak = i === n - 1 ? " hsd-cost-esc--peak" : "";
-      /** One decisive line: `Stage — $band: what happens` (matches authority spec). */
+      /** One decisive line: `Stage — $range: what happens` (matches authority spec). */
       const line = `${c.stage} — ${c.cost}: ${c.description}`.trim();
       return `<li class="hsd-block${peak}"><span class="hsd-cost-esc-line font-semibold leading-relaxed text-slate-900 dark:text-slate-100">${escapeHtml(line)}</span></li>`;
     })
@@ -1047,10 +1084,10 @@ export function sectionFinalWarning(
 </section>`.trim();
 }
 
-export function sectionCta(cta: string): string {
+export function sectionCta(cta: string, vertical: string = "hvac"): string {
   const t = String(cta ?? "").trim();
   if (!t) return "";
-  return sectionPlacementCta("final", t, hsdSectionDomId("cta"));
+  return sectionPlacementCta("final", t, hsdSectionDomId("cta"), vertical);
 }
 
 /** @deprecated Prefer {@link sectionFinalWarning} + {@link sectionCta} via {@link joinSortedHsdV25Blocks}. */
@@ -1074,7 +1111,7 @@ function buildHsdV25HeaderHtml(data: HsdV25RenderInput): string {
   ${quickDx}
   ${sectionWhatThisMeans(data.what_this_means)}
   <hr class="hsd-cred__rule" />
-  ${sectionQuickChecks(data.quick_checks, data.canonical_truths)}
+  ${sectionQuickChecks(data.quick_checks, data.canonical_truths, hsdPageVertical(data))}
   ${renderCtasByTypes(data, ["mid"])}
 </header>`.trim();
 }

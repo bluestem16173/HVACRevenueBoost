@@ -3,7 +3,7 @@ import type { ComponentType } from 'react';
 import { notFound } from 'next/navigation';
 import HybridServicePageTemplate, { CityServiceSchema } from '@/templates/hybrid-service-page';
 import { getDiagnosticPageFromDB } from '@/lib/diagnostic-engine';
-import { strictRobotsForDbPage } from '@/lib/seo/strict-indexing';
+import { robotsForDbBackedPage } from '@/lib/seo/strict-indexing';
 import { isUmbrellaVerticalHubSlug } from '@/lib/verticals';
 import VerticalHub from '@/components/verticals/VerticalHub';
 
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: { params: { symptom: string }
   }
 
   const content = page.content_json as unknown as CityServiceSchema;
-  const strict = strictRobotsForDbPage(true, page.updated_at);
+  const strict = robotsForDbBackedPage(page, true);
 
   return {
     title: content.seo?.metaTitle || content.hero?.headline || `${content.title} | HVAC Expert Service`,

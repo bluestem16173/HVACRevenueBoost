@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { SMS_CONSENT_TEXT_VERSION } from "@/lib/lead-consent";
+import { getSmsConsentTextVersion, type SmsConsentSurface } from "@/lib/lead-consent";
 
 export const STICKY_CTA_DISMISS_STORAGE_KEY = "hvacrb-sms-sticky-cta-dismissed";
 
@@ -28,14 +28,27 @@ export function formatPhoneDisplay(digits: string): string {
 export type UseSmsConsentLeadFormOptions = {
   /** Used until `window` is available; also SSR fallback for `source_page`. */
   defaultSourcePage?: string;
-  serviceType?: "hvac" | "rv_hvac";
+  serviceType?: "hvac" | "rv_hvac" | "plumbing" | "electrical";
+  /** Which opt-in literal + version to submit (defaults from `serviceType`). */
+  consentSurface?: SmsConsentSurface;
   /** Stored on the lead record (issue_description). */
   issueSummary?: string;
 };
 
+function consentSurfaceFromServiceType(serviceType: string): SmsConsentSurface {
+  if (serviceType === "plumbing") return "plumbing";
+  if (serviceType === "electrical") return "electrical";
+  return "hvac";
+}
+
 export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}) {
-  const { defaultSourcePage = "/", serviceType = "hvac", issueSummary = "Website service request (quick form)" } =
-    options;
+  const {
+    defaultSourcePage = "/",
+    serviceType = "hvac",
+    consentSurface: consentSurfaceOpt,
+    issueSummary = "Website service request (quick form)",
+  } = options;
+  const consentSurface = consentSurfaceOpt ?? consentSurfaceFromServiceType(serviceType);
 
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
@@ -46,7 +59,7 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
   const [isSuccess, setIsSuccess] = useState(false);
   const [serverError, setServerError] = useState("");
 
-  const consentTextVersion = SMS_CONSENT_TEXT_VERSION;
+  const consentTextVersion = getSmsConsentTextVersion(consentSurface);
 
   const reset = useCallback(() => {
     setPhone("");
@@ -107,12 +120,19 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
           phone: digits,
           location_raw: MINIMAL_LEAD_LOCATION_PLACEHOLDER,
           urgency: "asap",
-          service_type: serviceType === "rv_hvac" ? "rv_hvac" : "hvac",
+          service_type:
+            serviceType === "rv_hvac"
+              ? "rv_hvac"
+              : serviceType === "plumbing"
+                ? "plumbing"
+                : serviceType === "electrical"
+                  ? "electrical"
+                  : "hvac",
           issue: issueSummary,
           source_page: page.slice(0, 2048),
           sms_consent: true,
           consent_at: consentAt,
-          consent_text_version: SMS_CONSENT_TEXT_VERSION,
+          consent_text_version: getSmsConsentTextVersion(consentSurface),
         }),
       });
 
@@ -130,7 +150,7 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
     } finally {
       setIsSubmitting(false);
     }
-  }, [consent, consentTextVersion, defaultSourcePage, issueSummary, name, serviceType, validate]);
+  }, [consent, consentSurface, consentTextVersion, defaultSourcePage, issueSummary, name, serviceType, validate]);
 
   return {
     phone,

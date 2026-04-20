@@ -45,25 +45,44 @@ function buildDefaultCtasMap(json: Record<string, unknown>): Map<HsdCtaType, Hsd
     text:
       vertical === "hvac"
         ? `In ${city}, comfort system faults rarely get cheaper on their own. Once equipment keeps running under the wrong conditions, repair costs often climb past $1,500—address the root cause before major components fail.`
-        : `In ${city}, this kind of fault usually worsens with continued use. Repair exposure commonly exceeds $1,500 when problems are left unresolved—have a licensed professional verify before damage spreads.`,
+        : vertical === "plumbing"
+          ? `In ${city}, active leaks and drain backups do not self-resolve—water damage, mold, and sewer exposure stack fast. Urgent: stop the spread and book a licensed plumber before a $300 fix becomes $1,500+ tear-out.`
+          : vertical === "electrical"
+            ? `In ${city}, breaker trips, heat at devices, or partial power are emergency-class signals. Urgent: do not keep forcing power—book a licensed electrician before arc faults or panel damage push repairs past $1,500.`
+            : `In ${city}, this kind of fault usually worsens with continued use. Repair exposure commonly exceeds $1,500 when problems are left unresolved—have a licensed professional verify before damage spreads.`,
   });
   m.set("mid", {
     type: "mid",
     text:
       vertical === "hvac"
         ? `If quick checks fail, continuing to run the system risks compressor damage in ${city}.`
-        : `If quick checks fail, continuing to operate the system worsens damage in ${city}.`,
+        : vertical === "plumbing"
+          ? `If water keeps running, pressure is dropping, or sewage is backing up, every hour widens damage in ${city}—treat it as urgent.`
+          : vertical === "electrical"
+            ? `If breakers will not stay reset, you smell ozone, or outlets are dead, stop DIY escalation in ${city}—call a licensed electrician today.`
+            : `If quick checks fail, continuing to operate the system worsens damage in ${city}.`,
   });
   m.set("danger", {
     type: "danger",
     text:
       vertical === "hvac"
         ? `Misdiagnosing airflow vs refrigerant vs electrical can lead to $3,500+ repairs. Do not guess.`
-        : `Misdiagnosing the root cause can add thousands in repair cost in ${city}. Do not guess.`,
+        : vertical === "plumbing"
+          ? `Guessing on supply lines vs drains vs water heaters wastes time while finishes and framing soak—urgent: get measured diagnosis from a licensed plumber in ${city}.`
+          : vertical === "electrical"
+            ? `Misdiagnosing branch circuits vs panel vs grounding risks fire and shock—urgent: do not guess in ${city}; get a licensed electrician.`
+            : `Misdiagnosing the root cause can add thousands in repair cost in ${city}. Do not guess.`,
   });
   m.set("final", {
     type: "final",
-    text: `In ${city}, delay accelerates failure—book a licensed technician before damage spreads. Waiting can turn a $300 issue into $1,500+ worst-case damage under load.`,
+    text:
+      vertical === "plumbing"
+        ? `In ${city}, delay turns drips into drywall, cabinet, and subfloor damage—urgent: book a licensed plumber now. Waiting commonly pushes a contained repair past $1,500 once mold and tear-out enter the picture.`
+        : vertical === "electrical"
+          ? `In ${city}, electrical faults escalate without warning—urgent: book a licensed electrician now. Waiting can turn a $300 repair into $1,500+ once panels, feeders, or devices are damaged under fault current.`
+          : vertical === "hvac"
+            ? `In ${city}, delay accelerates failure—book a licensed HVAC technician before damage spreads. Waiting can turn a $300 issue into $1,500+ worst-case damage under load.`
+            : `In ${city}, delay accelerates failure—book a licensed technician before damage spreads. Waiting can turn a $300 issue into $1,500+ worst-case damage under load.`,
   });
   return m;
 }

@@ -4,7 +4,7 @@ import {
   LOCKED_AC_NOT_COOLING_HEADLINE,
   isAcNotCoolingCitySlug,
 } from "@/lib/hsd/lockedAcNotCoolingHeadline";
-import { normalizeHsdV25 } from "@/lib/hsd/normalizeHsdV25";
+import { forceHsdLayout, normalizeHsdV25 } from "@/lib/hsd/normalizeHsdV25";
 import type { HsdV25Payload } from "@/src/lib/validation/hsdV25Schema";
 
 function splitTopCausesBlob(blob: string): Array<{ label: string; probability: string; deep_dive: string }> {
@@ -106,7 +106,7 @@ export function mapLockedHvacNarrativeToHsdV25Payload(
       top_causes: splitTopCausesBlob(String(locked.top_causes ?? summaryBlob)),
       core_truth: coreTruth.slice(0, 4000),
       risk_warning:
-        "Ignoring the pattern forces coil stress, compressor overload, and typical repair bands of $1,500–$3,500 once major parts fail.",
+        "Ignoring the pattern forces coil stress, compressor overload, and typical repair costs of $1,500–$3,500 once major parts fail.",
       flow_lines: decision_tree_text.slice(0, 8),
     },
     what_this_means: how || summaryBlob,
@@ -145,6 +145,7 @@ export function mapLockedHvacNarrativeToHsdV25(
 ): HsdV25Payload | null {
   const payload = mapLockedHvacNarrativeToHsdV25Payload(locked, meta);
   if (!payload) return null;
-  const normalized = normalizeHsdV25(payload);
+  const normalized = normalizeHsdV25(payload as Record<string, unknown>);
+  forceHsdLayout(normalized);
   return finalizeHsdV25Page(normalized);
 }

@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
+import { inferHomeServiceTradeFromPathname } from "@/lib/homeservice/inferHomeServiceTrade";
+import { inferLeadCardProfile } from "@/lib/lead-card-profile";
 import LeadCard from "./LeadCard";
 
 /** Auto-open (scroll/timer) only on multi-segment trade diagnostic URLs — not hub pages like `/hvac`. */
@@ -26,13 +28,29 @@ function inferLeadIssueFromPathname(pathname: string): string {
   return "wont_turn_on";
 }
 
+function defaultLeadIssueForPath(path: string): string {
+  const trade = inferHomeServiceTradeFromPathname(path);
+  if (trade !== "hvac") return "not_sure";
+  return inferLeadIssueFromPathname(path);
+}
+
+function modalAriaLabelForPath(path: string | null | undefined): string {
+  const t = inferHomeServiceTradeFromPathname(path);
+  if (t === "plumbing") return "Request plumbing service";
+  if (t === "electrical") return "Request electrical service";
+  return "Request HVAC service";
+}
+
 export default function DiagnosticModal() {
   const pathname = usePathname();
   const enableAutoOpen = useMemo(() => shouldAutoOpenLeadModal(pathname), [pathname]);
+  const modalAria = useMemo(() => modalAriaLabelForPath(pathname), [pathname]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [leadIssue, setLeadIssue] = useState("wont_turn_on");
   const [formMountKey, setFormMountKey] = useState(0);
+
+  const modalProfile = useMemo(() => inferLeadCardProfile({ pathname, issue: leadIssue }), [pathname, leadIssue]);
 
   const openFromEvent = useCallback((e: Event) => {
     let issueFromDetail: string | undefined;
@@ -42,7 +60,7 @@ export default function DiagnosticModal() {
     }
     const next =
       issueFromDetail ??
-      (typeof window !== "undefined" ? inferLeadIssueFromPathname(window.location.pathname) : "wont_turn_on");
+      (typeof window !== "undefined" ? defaultLeadIssueForPath(window.location.pathname) : "not_sure");
     setLeadIssue(next);
     setFormMountKey((k) => k + 1);
     setIsOpen(true);
@@ -108,7 +126,7 @@ export default function DiagnosticModal() {
       className="fixed inset-0 z-[10050] bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Request HVAC service"
+      aria-label={modalAria}
     >
       <div className="relative w-full max-w-[460px] sm:scale-95 animate-in fade-in zoom-in duration-200">
         <button
@@ -121,7 +139,7 @@ export default function DiagnosticModal() {
         </button>
 
         <div className="max-h-[85vh] overflow-y-auto rounded-2xl shadow-2xl overscroll-contain">
-          <LeadCard key={formMountKey} serviceType="ac" issue={leadIssue} />
+          <LeadCard key={formMountKey} profile={modalProfile} issue={leadIssue} />
           <p className="text-center text-xs text-slate-300 mt-3 px-2 pb-2">
             <a href="/request-service" className="underline hover:text-white">
               Open the same form without this popup

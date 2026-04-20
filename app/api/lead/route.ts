@@ -3,6 +3,34 @@ import sql from "@/lib/db";
 import { sendLeadSMS } from "@/lib/twilio/send-sms";
 import { SMS_CONSENT_TEXT_VERSION } from "@/lib/lead-consent";
 
+/**
+ * Optional per-trade admin SMS destinations (E.164). When unset, {@link sendLeadSMS} falls back to
+ * `TWILIO_ADMIN_ALERT_PHONE` / `TWILIO_TO_NUMBER`.
+ *
+ * - `TWILIO_ADMIN_ALERT_PHONE_PLUMBING`
+ * - `TWILIO_ADMIN_ALERT_PHONE_ELECTRICAL`
+ * - `TWILIO_ADMIN_ALERT_PHONE_HVAC` (non-RV residential/commercial HVAC)
+ * - `TWILIO_ADMIN_ALERT_PHONE_RV_HVAC` (falls back to `TWILIO_ADMIN_ALERT_PHONE_HVAC` then global default)
+ */
+function adminAlertSmsToForSystemType(st: string): string | undefined {
+  const direct =
+    (st === "plumbing" && process.env.TWILIO_ADMIN_ALERT_PHONE_PLUMBING?.trim()) ||
+    (st === "electrical" && process.env.TWILIO_ADMIN_ALERT_PHONE_ELECTRICAL?.trim()) ||
+    (st === "rv_hvac" &&
+      (process.env.TWILIO_ADMIN_ALERT_PHONE_RV_HVAC?.trim() || process.env.TWILIO_ADMIN_ALERT_PHONE_HVAC?.trim())) ||
+    (st === "hvac" && process.env.TWILIO_ADMIN_ALERT_PHONE_HVAC?.trim()) ||
+    undefined;
+  return direct || undefined;
+}
+
+function consentAckSmsBody(firstName: string, st: string): string {
+  const tail = " We will contact you about your inquiry, scheduling, and service updates. Reply STOP to opt out. Reply HELP for help.";
+  if (st === "plumbing") return `Thanks ${firstName}, we received your plumbing request.${tail}`;
+  if (st === "electrical") return `Thanks ${firstName}, we received your electrical request.${tail}`;
+  if (st === "rv_hvac") return `Thanks ${firstName}, we received your RV HVAC request.${tail}`;
+  return `Thanks ${firstName}, we received your request.${tail}`;
+}
+
 export type Lead = {
   id?: string;
   first_name?: string;
@@ -12,7 +40,7 @@ export type Lead = {
   zip?: string;
   city?: string;
   state?: string;
-  service_type: "hvac" | "rv_hvac";
+  service_type: "hvac" | "rv_hvac" | "plumbing" | "electrical";
   issue: string;
   urgency: "asap" | "today" | "week" | string;
   source_page?: string;
@@ -99,7 +127,14 @@ export async function POST(req: Request) {
       }
     }
 
-    const st = service_type === "rv_hvac" ? "rv_hvac" : "hvac";
+    const st =
+      service_type === "rv_hvac"
+        ? "rv_hvac"
+        : service_type === "plumbing"
+          ? "plumbing"
+          : service_type === "electrical"
+            ? "electrical"
+            : "hvac";
     const src = (source_page || "/").toString().slice(0, 2048);
 
     try {
@@ -155,16 +190,17 @@ export async function POST(req: Request) {
     const displayName = `${firstName}${lastName ? ` ${lastName}` : ""}`.trim();
 
     try {
+      const tradeLabel =
+        st === "plumbing" ? "Plumbing" : st === "electrical" ? "Electrical" : st === "rv_hvac" ? "RV HVAC" : "HVAC";
+      const adminTo = adminAlertSmsToForSystemType(st);
       const adminMessage = await sendLeadSMS(
-        `New HVAC lead (consent ${consentVersion} @ ${consentAt})\nName: ${displayName}\nPhone: ${phone}\nIssue: ${issue || "N/A"}\nLocation: ${location_raw || "N/A"}\nSource: ${src}`
+        `New ${tradeLabel} lead (consent ${consentVersion} @ ${consentAt})\nName: ${displayName}\nPhone: ${phone}\nIssue: ${issue || "N/A"}\nLocation: ${location_raw || "N/A"}\nSource: ${src}`,
+        adminTo
       );
       console.log("TWILIO RESPONSE (ADMIN):", adminMessage);
 
       if (smsConsent && phone) {
-        const message = await sendLeadSMS(
-          `Thanks ${firstName}, we received your request. We will contact you about your inquiry, scheduling, and service updates. Reply STOP to opt out. Reply HELP for help.`,
-          phone
-        );
+        const message = await sendLeadSMS(consentAckSmsBody(firstName, st), phone);
         console.log("TWILIO RESPONSE (USER):", message);
       }
     } catch (twilioErr) {

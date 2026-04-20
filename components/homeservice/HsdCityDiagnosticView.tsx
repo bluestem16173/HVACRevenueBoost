@@ -37,10 +37,25 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
         : ""
   );
   const slug = storageSlug || String(data.slug || "");
+  const pageVertical = (slug.split("/")[0] || "hvac").toLowerCase();
   const tensionSubhead = getHsdTensionSubhead(data, slug);
   const cta = (data.cta && typeof data.cta === "object" ? data.cta : {}) as Record<string, unknown>;
+  const rawPrimary = typeof cta.primary === "string" ? cta.primary.trim() : "";
+  const looksHvacLocked =
+    /\b(hvac|compressor|refrigerant|furnace|air conditioner|heat pump)\b/i.test(rawPrimary) ||
+    /^get local hvac/i.test(rawPrimary) ||
+    /^book.*hvac/i.test(rawPrimary);
   const primaryCta =
-    (typeof cta.primary === "string" && cta.primary.trim()) || "Get Local HVAC Help";
+    (pageVertical === "plumbing" || pageVertical === "electrical") && (!rawPrimary || looksHvacLocked)
+      ? pageVertical === "plumbing"
+        ? "Urgent: dispatch a licensed plumber"
+        : "Urgent: dispatch a licensed electrician"
+      : rawPrimary ||
+        (pageVertical === "plumbing"
+          ? "Urgent: dispatch a licensed plumber"
+          : pageVertical === "electrical"
+            ? "Urgent: dispatch a licensed electrician"
+            : "Urgent: get local HVAC help");
   const secondaryCta = typeof cta.secondary === "string" ? cta.secondary.trim() : "";
 
   const quickChecks = asStrings(data.quick_checks);
@@ -91,7 +106,14 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
             <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-600 dark:bg-slate-900">
               <button
                 type="button"
-                data-open-lead-modal
+                onClick={() => {
+                  if (typeof window === "undefined") return;
+                  if (pageVertical === "plumbing" || pageVertical === "electrical") {
+                    window.dispatchEvent(new CustomEvent("open-leadcard", { detail: { issue: "not_sure" } }));
+                  } else {
+                    window.dispatchEvent(new CustomEvent("open-leadcard"));
+                  }
+                }}
                 className="w-full rounded-xl bg-hvac-navy px-4 py-3.5 text-center text-sm font-black uppercase tracking-wide text-white shadow-md transition hover:bg-hvac-blue focus:outline-none focus:ring-2 focus:ring-hvac-gold"
               >
                 {primaryCta}
@@ -199,7 +221,13 @@ export function HsdCityDiagnosticView({ data, pageTitle, storageSlug = "", defer
       {quickChecks.length ? (
         <section id="section-quick-checks" className="mb-10 scroll-mt-28">
           <h2 className="mb-1 text-xl font-black text-hvac-navy dark:text-white">Quick checks (2–5 min)</h2>
-          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">Fast pass — rule out the common tripwires before you dig deeper.</p>
+          <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
+            {pageVertical === "plumbing"
+              ? "Fast pass — locate shutoffs, obvious leaks, and simple drain flow before water damage spreads."
+              : pageVertical === "electrical"
+                ? "Fast pass — confirm whole-house vs one circuit and GFCI trips before opening the panel further."
+                : "Fast pass — rule out the common tripwires before you dig deeper."}
+          </p>
           <ul className="space-y-2.5 text-slate-800 dark:text-slate-200">
             {quickChecks.map((item, i) => (
               <li key={`hsd-qc-${i}`} className="flex gap-2.5 text-sm font-semibold leading-snug sm:text-base">

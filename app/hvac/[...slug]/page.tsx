@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 
 import { getIndexablePageForDiagnoseJoinedSlug } from "@/lib/get-indexable-page";
 import { formatCityPathSegmentForDisplay } from "@/lib/localized-city-path";
-import { strictRobotsForDbPage } from "@/lib/seo/strict-indexing";
+import { robotsForDbBackedPage } from "@/lib/seo/strict-indexing";
 import { renderHsdV25 } from "@/src/lib/hsd/renderHsdV25";
 
 export const runtime = "nodejs";
@@ -45,7 +45,7 @@ export async function generateMetadata({
     return { title: "HVAC" };
   }
   const page = await loadHsdPageRow(join);
-  const strict = strictRobotsForDbPage(Boolean(page), page?.updated_at);
+  const strict = robotsForDbBackedPage(page as { status?: unknown; updated_at?: unknown } | null, Boolean(page));
   const title = page ? String((page as { title?: string }).title ?? "").trim() : "";
   const parts = join.split("/").filter(Boolean);
   const citySeg = parts.length >= 2 ? parts[parts.length - 1] : "";

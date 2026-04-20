@@ -2,7 +2,7 @@ import CostPageTemplate, { CostSchema } from "@/templates/cost-page";
 import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { strictRobotsForDbPage } from "@/lib/seo/strict-indexing";
+import { robotsForDbBackedPage } from "@/lib/seo/strict-indexing";
 
 export const revalidate = 3600;
 
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: { symptom: string }
 
   const data = page.content_json as unknown as CostSchema;
   const qualityOk = page.quality_status !== "noindex";
-  const strict = strictRobotsForDbPage(qualityOk, page.updated_at);
+  const strict = robotsForDbBackedPage(page, qualityOk);
 
   return {
     title: data.title || `${data.repairOrPart} Replacement Cost Guide`,

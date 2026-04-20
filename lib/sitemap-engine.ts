@@ -7,7 +7,7 @@
 import sql from "@/lib/db";
 import { CLUSTERS } from "@/lib/clusters";
 import { HVAC_TAMPA_RELATED_ISSUES } from "@/lib/homeservice/hvacTampaRelatedIssues";
-import { getIndexableSinceDate, isStrictIndexingEnabled } from "@/lib/seo/strict-indexing";
+import { isStrictIndexingEnabled, rowPassesIndexableSince } from "@/lib/seo/strict-indexing";
 import { CONDITIONS } from "@/lib/conditions";
 import { SYMPTOMS, CAUSES, REPAIRS } from "@/data/knowledge-graph";
 import { CITIES } from "@/data/knowledge-graph";
@@ -103,20 +103,27 @@ export async function getSystemEntries(): Promise<SitemapEntry[]> {
   }
 }
 
+function locFromPublishedPageSlug(slug: string): string {
+  const s = String(slug || "").trim();
+  if (!s) return `${BASE_URL}/`;
+  if (s.startsWith("diagnose/")) return `${BASE_URL}/${s}`;
+  if (/^(hvac|plumbing|electrical)\//i.test(s)) return `${BASE_URL}/${s}`;
+  return `${BASE_URL}/diagnose/${s}`;
+}
+
 /** Diagnostics (DecisionGrid wizard) */
 export async function getDiagnosticEntries(): Promise<SitemapEntry[]> {
   const now = toLastmod(new Date());
   try {
     const rows = await sql`SELECT slug, created_at, updated_at FROM pages WHERE status = 'published'`;
-    return (rows as any[]).map((r) => {
-      const slugValue = r.slug.startsWith("diagnose/") ? r.slug : `diagnose/${r.slug}`;
-      return {
-        loc: `${BASE_URL}/${slugValue}`,
+    return (rows as any[])
+      .filter((r) => rowPassesIndexableSince(r.updated_at))
+      .map((r) => ({
+        loc: locFromPublishedPageSlug(r.slug),
         lastmod: r.updated_at ? toLastmod(new Date(r.updated_at)) : (r.created_at ? toLastmod(new Date(r.created_at)) : now),
-        changefreq: "weekly",
+        changefreq: "weekly" as const,
         priority: 0.8,
-      };
-    });
+      }));
   } catch {
     return [];
   }

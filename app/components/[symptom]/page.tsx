@@ -2,7 +2,7 @@ import ComponentPageTemplate, { ComponentSchema } from "@/templates/component-pa
 import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { strictRobotsForDbPage } from "@/lib/seo/strict-indexing";
+import { robotsForDbBackedPage } from "@/lib/seo/strict-indexing";
 
 export const revalidate = 3600;
 
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: { symptom: string }
 
   const data = page.content_json as ComponentSchema;
   const qualityOk = page.quality_status !== "noindex";
-  const strict = strictRobotsForDbPage(qualityOk, page.updated_at);
+  const strict = robotsForDbBackedPage(page, qualityOk);
 
   return {
     title: data.seo?.metaTitle || data.title || "Component Diagnostic & Repair",

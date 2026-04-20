@@ -1,25 +1,77 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import type { HomeServiceTrade } from "@/lib/homeservice/inferHomeServiceTrade";
 import {
-  SMS_CONSENT_FULL_TEXT,
+  type LeadCardProfile,
+  inferLeadCardProfile,
+  tradeFromLeadProfile,
+} from "@/lib/lead-card-profile";
+import {
   SMS_CONSENT_ORIGINATION_DISCLOSURE,
   SMS_CONSENT_REQUIRED_ERROR,
-  SMS_CONSENT_TEXT_VERSION,
+  getSmsConsentFullText,
+  getSmsConsentTextVersion,
   getSmsLeadSubmitButtonLabel,
+  type SmsConsentSurface,
 } from "@/lib/lead-consent";
+
+const PLUMBING_ISSUES = new Set([
+  "plumbing_leak",
+  "plumbing_drain_backup",
+  "plumbing_water_heater",
+  "weird_noises",
+  "not_sure",
+]);
+const ELECTRICAL_ISSUES = new Set([
+  "elec_no_power",
+  "elec_breaker_tripping",
+  "elec_partial_power",
+  "weird_noises",
+  "not_sure",
+]);
+
+function coerceIssueForTrade(trade: HomeServiceTrade, issue: string): string {
+  if (trade === "hvac") return issue;
+  if (trade === "plumbing" && PLUMBING_ISSUES.has(issue)) return issue;
+  if (trade === "electrical" && ELECTRICAL_ISSUES.has(issue)) return issue;
+  return "not_sure";
+}
+
+function normalizeLeadIssue(profile: LeadCardProfile, issueIn: string, trade: HomeServiceTrade): string {
+  let i = issueIn;
+  if (profile === "hvac_heating" && (i === "no_cooling" || i === "blowing_warm")) i = "not_sure";
+  if ((profile === "hvac_cooling" || profile === "rv_hvac") && (i === "no_heat" || i === "blowing_cold")) i = "not_sure";
+  return coerceIssueForTrade(trade, i);
+}
 
 export default function LeadCard({
   serviceType = "heating",
   issue = "wont_turn_on",
   variant = "embedded",
+  profile: profileProp,
 }: {
   serviceType?: "hvac" | "heating" | "rv_hvac" | "ac";
   issue?: string;
+  /** When set, overrides URL-based trade and HVAC cooling vs heating (e.g. `/request-service?profile=plumbing`). */
+  profile?: LeadCardProfile;
   /** `embedded` = inside modal/card shell. `standalone` = /request-service full-page form (no modal). */
   variant?: "embedded" | "standalone";
 }) {
+  const pathname = usePathname();
+  const resolvedProfile = useMemo(
+    () => profileProp ?? inferLeadCardProfile({ pathname, issue, serviceType }),
+    [profileProp, pathname, issue, serviceType]
+  );
+  const trade = tradeFromLeadProfile(resolvedProfile);
+  const isHvacTrade = trade === "hvac";
+  const isAC = resolvedProfile === "hvac_cooling" || resolvedProfile === "rv_hvac";
+  const consentSurface: SmsConsentSurface =
+    trade === "plumbing" ? "plumbing" : trade === "electrical" ? "electrical" : "hvac";
+  const consentCheckboxText = getSmsConsentFullText(consentSurface);
+
   const [status, setStatus] = useState<"idle" | "loading" | "submitted">("idle");
   const [selectedIssue, setSelectedIssue] = useState<string>(issue);
   const [consentError, setConsentError] = useState(false);
@@ -33,7 +85,9 @@ export default function LeadCard({
     );
   }, []);
 
-  const isAC = serviceType === "ac" || serviceType === "hvac";
+  useEffect(() => {
+    setSelectedIssue(normalizeLeadIssue(resolvedProfile, issue, trade));
+  }, [resolvedProfile, trade, issue]);
 
   const messages: Record<string, { warning: string; sub: string; cta: string }> = {
     no_heat: {
@@ -74,6 +128,36 @@ export default function LeadCard({
       warning: "We’ll help diagnose the issue and match you with the exact right technician.",
       sub: "No guesswork — just fast, reliable help.",
       cta: "Get Help Now",
+    },
+    plumbing_leak: {
+      warning: "Active leaks spread damage to cabinets, flooring, and framing fast.",
+      sub: "Local plumbers are available for leak isolation and repair.",
+      cta: "Book a plumber now",
+    },
+    plumbing_drain_backup: {
+      warning: "Backups can indicate a main line blockage—continued use can force sewage into the home.",
+      sub: "Get a licensed plumber to camera and clear the line safely.",
+      cta: "Clear the backup",
+    },
+    plumbing_water_heater: {
+      warning: "Tank and connection failures can flood utility areas and risk scalding.",
+      sub: "Technicians can test controls, relief valve, and tank condition.",
+      cta: "Fix water heater",
+    },
+    elec_no_power: {
+      warning: "Partial or full power loss can indicate a hazardous fault—do not reset breakers repeatedly.",
+      sub: "Licensed electricians can trace the circuit safely.",
+      cta: "Restore power safely",
+    },
+    elec_breaker_tripping: {
+      warning: "A breaker that won’t stay on often means overload or a ground fault—forcing it risks fire.",
+      sub: "Electricians can find the fault before damage spreads.",
+      cta: "Fix breaker issue",
+    },
+    elec_partial_power: {
+      warning: "Flickering or brownout symptoms can damage motors and electronics.",
+      sub: "Have voltage and connections checked by a pro.",
+      cta: "Diagnose electrical",
     },
   };
 
@@ -122,7 +206,14 @@ export default function LeadCard({
     setStatus("loading");
 
     const consentAt = new Date().toISOString();
-    const apiServiceType = serviceType === "rv_hvac" ? "rv_hvac" : "hvac";
+    const apiServiceType =
+      resolvedProfile === "rv_hvac"
+        ? "rv_hvac"
+        : trade === "plumbing"
+          ? "plumbing"
+          : trade === "electrical"
+            ? "electrical"
+            : "hvac";
 
     try {
       await fetch("/api/lead", {
@@ -137,7 +228,7 @@ export default function LeadCard({
           source_page: fd.get("source_page") || sourcePage || "/",
           sms_consent: true,
           consent_at: consentAt,
-          consent_text_version: SMS_CONSENT_TEXT_VERSION,
+          consent_text_version: getSmsConsentTextVersion(consentSurface),
         }),
         headers: { "Content-Type": "application/json" },
       });
@@ -182,12 +273,52 @@ export default function LeadCard({
     );
   }
 
+  const requestServiceTitle =
+    trade === "plumbing"
+      ? "Request plumbing service"
+      : trade === "electrical"
+        ? "Request electrical service"
+        : resolvedProfile === "rv_hvac"
+          ? "Request RV HVAC service"
+          : "Request HVAC service";
+
+  const embeddedTitle =
+    trade === "plumbing"
+      ? "Get plumbing help now"
+      : trade === "electrical"
+        ? "Get electrical help now"
+        : resolvedProfile === "rv_hvac"
+          ? "Get RV HVAC help now"
+          : isAC
+            ? "Get HVAC Help Now"
+            : "Furnace Unresponsive? Get a Technician Out Today";
+
+  const embeddedSub =
+    trade === "plumbing"
+      ? "A licensed plumber will contact you about your issue and next steps."
+      : trade === "electrical"
+        ? "A licensed electrician will contact you about your issue and next steps."
+        : resolvedProfile === "rv_hvac"
+          ? "An RV HVAC technician will contact you about your issue and next steps."
+          : isAC
+            ? "A technician will contact you about your issue and next steps."
+            : null;
+
+  const issuePromptMain =
+    trade === "plumbing"
+      ? "What plumbing problem matches best?"
+      : trade === "electrical"
+        ? "What electrical symptom matches best?"
+        : resolvedProfile === "rv_hvac"
+          ? "What is your RV comfort system doing?"
+          : isAC
+            ? "What is your AC doing?"
+            : "What is your furnace doing?";
+
   const headerBlock =
     variant === "standalone" ? (
       <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">
-          Request HVAC service
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">{requestServiceTitle}</h1>
         <p className="text-sm text-slate-600 leading-relaxed">
           Same secure form used across the site. For inquiry response, scheduling, and service coordination only—not
           marketing blasts.
@@ -203,12 +334,12 @@ export default function LeadCard({
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-600 via-orange-500 to-yellow-400"></div>
 
           <h2 className="relative z-10 text-3xl sm:text-[32px] font-black text-white mb-3 tracking-tight drop-shadow-md leading-[1.1]">
-            {isAC ? "Get HVAC Help Now" : "Furnace Unresponsive? Get a Technician Out Today"}
+            {embeddedTitle}
           </h2>
 
-          {isAC ? (
+          {embeddedSub ? (
             <p className="relative z-10 mx-auto mb-4 max-w-md text-sm font-medium leading-relaxed text-slate-200">
-              A technician will contact you about your issue and next steps.
+              {embeddedSub}
             </p>
           ) : null}
 
@@ -224,7 +355,13 @@ export default function LeadCard({
       ) : (
         <div className="relative bg-hvac-navy px-6 py-6 text-center border-b border-slate-800">
           <h2 className="relative z-10 text-xl sm:text-2xl font-black text-white tracking-tight">
-            HVAC service request
+            {trade === "plumbing"
+              ? "Plumbing service request"
+              : trade === "electrical"
+                ? "Electrical service request"
+                : resolvedProfile === "rv_hvac"
+                  ? "RV HVAC service request"
+                  : "HVAC service request"}
           </h2>
           <p className="relative z-10 text-slate-300 text-xs mt-2 font-medium">
             Inquiry · scheduling · service updates (SMS only with consent below)
@@ -235,149 +372,253 @@ export default function LeadCard({
       <form onSubmit={handleSubmit} className="p-6 sm:p-7 space-y-6 bg-white relative z-20" noValidate>
         <input type="hidden" name="source_page" value={sourcePage || "/request-service"} readOnly />
 
-        {isAC ? (
+        {isHvacTrade ? (
+          isAC ? (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-snug text-amber-950">
+              This issue can escalate quickly if the system keeps running.
+            </p>
+          ) : null
+        ) : (
           <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-snug text-amber-950">
-            This issue can escalate quickly if the system keeps running.
+            {trade === "plumbing"
+              ? "Water and drain problems usually get more expensive the longer they run unchecked."
+              : "Electrical problems can get worse without warning—don’t ignore heat, buzz, or breakers that won’t stay on."}
           </p>
-        ) : null}
+        )}
 
         <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl shadow-inner">
           <div className="mb-4">
-            <label className="block text-[15px] font-black text-slate-900 tracking-tight">
-              {isAC ? "What is your AC doing?" : "What is your furnace doing?"}
-            </label>
+            <label className="block text-[15px] font-black text-slate-900 tracking-tight">{issuePromptMain}</label>
             <p className="text-[12px] text-slate-500 font-bold mt-0.5">
               Select the closest symptom for faster dispatch
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <label
-              className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "wont_turn_on" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
-            >
-              <input
-                type="radio"
-                name="issue"
-                value="wont_turn_on"
-                checked={selectedIssue === "wont_turn_on"}
-                onChange={(e) => setSelectedIssue(e.target.value)}
-                className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
-              />
-              <span
-                className={`text-[13px] ${selectedIssue === "wont_turn_on" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
-              >
-                Won&apos;t turn on
-              </span>
-            </label>
-
-            {isAC ? (
+            {isHvacTrade ? (
               <>
                 <label
-                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "blowing_warm" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "wont_turn_on" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
                 >
                   <input
                     type="radio"
                     name="issue"
-                    value="blowing_warm"
-                    checked={selectedIssue === "blowing_warm"}
+                    value="wont_turn_on"
+                    checked={selectedIssue === "wont_turn_on"}
                     onChange={(e) => setSelectedIssue(e.target.value)}
                     className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
                   />
                   <span
-                    className={`text-[13px] ${selectedIssue === "blowing_warm" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                    className={`text-[13px] ${selectedIssue === "wont_turn_on" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
                   >
-                    Blowing warm air
+                    Won&apos;t turn on
+                  </span>
+                </label>
+
+                {isAC ? (
+                  <>
+                    <label
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "blowing_warm" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                    >
+                      <input
+                        type="radio"
+                        name="issue"
+                        value="blowing_warm"
+                        checked={selectedIssue === "blowing_warm"}
+                        onChange={(e) => setSelectedIssue(e.target.value)}
+                        className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
+                      />
+                      <span
+                        className={`text-[13px] ${selectedIssue === "blowing_warm" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                      >
+                        Blowing warm air
+                      </span>
+                    </label>
+                    <label
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "no_cooling" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                    >
+                      <input
+                        type="radio"
+                        name="issue"
+                        value="no_cooling"
+                        checked={selectedIssue === "no_cooling"}
+                        onChange={(e) => setSelectedIssue(e.target.value)}
+                        className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
+                      />
+                      <span
+                        className={`text-[13px] ${selectedIssue === "no_cooling" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                      >
+                        No cooling at all
+                      </span>
+                    </label>
+                  </>
+                ) : (
+                  <>
+                    <label
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "blowing_cold" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                    >
+                      <input
+                        type="radio"
+                        name="issue"
+                        value="blowing_cold"
+                        checked={selectedIssue === "blowing_cold"}
+                        onChange={(e) => setSelectedIssue(e.target.value)}
+                        className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
+                      />
+                      <span
+                        className={`text-[13px] ${selectedIssue === "blowing_cold" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                      >
+                        Blowing cold air
+                      </span>
+                    </label>
+                    <label
+                      className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "no_heat" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                    >
+                      <input
+                        type="radio"
+                        name="issue"
+                        value="no_heat"
+                        checked={selectedIssue === "no_heat"}
+                        onChange={(e) => setSelectedIssue(e.target.value)}
+                        className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
+                      />
+                      <span
+                        className={`text-[13px] ${selectedIssue === "no_heat" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                      >
+                        No heat at all
+                      </span>
+                    </label>
+                  </>
+                )}
+                <label
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "weird_noises" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                >
+                  <input
+                    type="radio"
+                    name="issue"
+                    value="weird_noises"
+                    checked={selectedIssue === "weird_noises"}
+                    onChange={(e) => setSelectedIssue(e.target.value)}
+                    className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
+                  />
+                  <span
+                    className={`text-[13px] ${selectedIssue === "weird_noises" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                  >
+                    Weird noises
                   </span>
                 </label>
                 <label
-                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "no_cooling" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm sm:col-span-2 ${selectedIssue === "not_sure" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
                 >
                   <input
                     type="radio"
                     name="issue"
-                    value="no_cooling"
-                    checked={selectedIssue === "no_cooling"}
+                    value="not_sure"
+                    checked={selectedIssue === "not_sure"}
                     onChange={(e) => setSelectedIssue(e.target.value)}
                     className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
                   />
                   <span
-                    className={`text-[13px] ${selectedIssue === "no_cooling" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                    className={`text-[13px] ${selectedIssue === "not_sure" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
                   >
-                    No cooling at all
+                    Not sure — need diagnosis
+                  </span>
+                </label>
+              </>
+            ) : trade === "plumbing" ? (
+              <>
+                {(
+                  [
+                    ["plumbing_leak", "Leak or dripping water"],
+                    ["plumbing_drain_backup", "Drain or sewer backup"],
+                    ["plumbing_water_heater", "Water heater problem"],
+                    ["weird_noises", "Odd sounds (pipes or fixtures)"],
+                  ] as const
+                ).map(([val, label]) => (
+                  <label
+                    key={val}
+                    className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === val ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                  >
+                    <input
+                      type="radio"
+                      name="issue"
+                      value={val}
+                      checked={selectedIssue === val}
+                      onChange={(e) => setSelectedIssue(e.target.value)}
+                      className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
+                    />
+                    <span
+                      className={`text-[13px] ${selectedIssue === val ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                    >
+                      {label}
+                    </span>
+                  </label>
+                ))}
+                <label
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm sm:col-span-2 ${selectedIssue === "not_sure" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                >
+                  <input
+                    type="radio"
+                    name="issue"
+                    value="not_sure"
+                    checked={selectedIssue === "not_sure"}
+                    onChange={(e) => setSelectedIssue(e.target.value)}
+                    className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
+                  />
+                  <span
+                    className={`text-[13px] ${selectedIssue === "not_sure" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                  >
+                    Not sure — need diagnosis
                   </span>
                 </label>
               </>
             ) : (
               <>
+                {(
+                  [
+                    ["elec_no_power", "No power / dead outlets"],
+                    ["elec_breaker_tripping", "Breaker keeps tripping"],
+                    ["elec_partial_power", "Dimming lights / partial power"],
+                    ["weird_noises", "Buzzing or humming (panel or devices)"],
+                  ] as const
+                ).map(([val, label]) => (
+                  <label
+                    key={val}
+                    className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === val ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                  >
+                    <input
+                      type="radio"
+                      name="issue"
+                      value={val}
+                      checked={selectedIssue === val}
+                      onChange={(e) => setSelectedIssue(e.target.value)}
+                      className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
+                    />
+                    <span
+                      className={`text-[13px] ${selectedIssue === val ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                    >
+                      {label}
+                    </span>
+                  </label>
+                ))}
                 <label
-                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "blowing_cold" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
+                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm sm:col-span-2 ${selectedIssue === "not_sure" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
                 >
                   <input
                     type="radio"
                     name="issue"
-                    value="blowing_cold"
-                    checked={selectedIssue === "blowing_cold"}
+                    value="not_sure"
+                    checked={selectedIssue === "not_sure"}
                     onChange={(e) => setSelectedIssue(e.target.value)}
                     className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
                   />
                   <span
-                    className={`text-[13px] ${selectedIssue === "blowing_cold" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
+                    className={`text-[13px] ${selectedIssue === "not_sure" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
                   >
-                    Blowing cold air
-                  </span>
-                </label>
-                <label
-                  className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "no_heat" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
-                >
-                  <input
-                    type="radio"
-                    name="issue"
-                    value="no_heat"
-                    checked={selectedIssue === "no_heat"}
-                    onChange={(e) => setSelectedIssue(e.target.value)}
-                    className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
-                  />
-                  <span
-                    className={`text-[13px] ${selectedIssue === "no_heat" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
-                  >
-                    No heat at all
+                    Not sure — need diagnosis
                   </span>
                 </label>
               </>
             )}
-            <label
-              className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm ${selectedIssue === "weird_noises" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
-            >
-              <input
-                type="radio"
-                name="issue"
-                value="weird_noises"
-                checked={selectedIssue === "weird_noises"}
-                onChange={(e) => setSelectedIssue(e.target.value)}
-                className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
-              />
-              <span
-                className={`text-[13px] ${selectedIssue === "weird_noises" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
-              >
-                Weird noises
-              </span>
-            </label>
-            <label
-              className={`flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all shadow-sm sm:col-span-2 ${selectedIssue === "not_sure" ? "border-red-600 bg-red-50/30" : "border-slate-200 bg-white hover:border-red-300"}`}
-            >
-              <input
-                type="radio"
-                name="issue"
-                value="not_sure"
-                checked={selectedIssue === "not_sure"}
-                onChange={(e) => setSelectedIssue(e.target.value)}
-                className="w-4 h-4 text-red-600 focus:ring-red-600 border-slate-300"
-              />
-              <span
-                className={`text-[13px] ${selectedIssue === "not_sure" ? "font-black text-red-900" : "font-bold text-slate-700"}`}
-              >
-                Not sure — need diagnosis
-              </span>
-            </label>
           </div>
 
           <div className="mt-4 pt-4 border-t border-slate-200 transition-all duration-300">
@@ -506,7 +747,7 @@ export default function LeadCard({
                   onChange={() => consentError && setConsentError(false)}
                 />
               </div>
-              <span className="text-sm text-slate-700 font-medium leading-relaxed">{SMS_CONSENT_FULL_TEXT}</span>
+              <span className="text-sm text-slate-700 font-medium leading-relaxed">{consentCheckboxText}</span>
             </label>
             <p className="mt-3 pl-8 text-[11px] text-slate-600 font-medium leading-relaxed">{SMS_CONSENT_ORIGINATION_DISCLOSURE}</p>
             <div className="mt-3 pl-8 flex flex-wrap gap-x-4 gap-y-1 text-[11px] font-bold">
@@ -545,7 +786,7 @@ export default function LeadCard({
               </span>
             ) : (
               <span className="flex items-center gap-2 uppercase tracking-wide">
-                {isAC ? getSmsLeadSubmitButtonLabel() : dynamicContent.cta}
+                {isHvacTrade && isAC ? getSmsLeadSubmitButtonLabel() : dynamicContent.cta}
                 <svg className="w-6 h-6 opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                 </svg>

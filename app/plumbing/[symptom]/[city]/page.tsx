@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { DiagnosticPageView } from "@/components/DiagnosticPageView";
 import { getIndexablePageForLocalizedRoute } from "@/lib/get-indexable-page";
 import { formatCityPathSegmentForDisplay } from "@/lib/localized-city-path";
-import { strictRobotsForDbPage } from "@/lib/seo/strict-indexing";
+import { robotsForDbBackedPage } from "@/lib/seo/strict-indexing";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const local = formatCityPathSegmentForDisplay(params.city);
   const titlePart = params.symptom.replace(/-/g, " ");
   const page = await getIndexablePageForLocalizedRoute("plumbing", params.symptom, params.city);
-  const strict = strictRobotsForDbPage(Boolean(page), page?.updated_at);
+  const strict = robotsForDbBackedPage(page as { status?: unknown; updated_at?: unknown } | null, Boolean(page));
   return {
     title: `${titlePart} in ${local} | Plumbing diagnostic`,
     description: `Localized plumbing diagnostic guide for ${titlePart} in ${local}.`,
