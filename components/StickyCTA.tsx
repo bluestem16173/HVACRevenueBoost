@@ -8,7 +8,7 @@ export function StickyCTA() {
         type="button"
         onClick={() => {
           if (typeof window !== "undefined") {
-            window.dispatchEvent(new CustomEvent("open-leadcard"));
+            window.dispatchEvent(new Event("open-lead-modal"));
           }
         }}
         className="ml-2 inline-flex items-center rounded-md border border-hvac-navy bg-hvac-navy px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-white transition hover:bg-hvac-blue focus:outline-none focus:ring-2 focus:ring-hvac-gold dark:border-hvac-gold dark:bg-hvac-navy"

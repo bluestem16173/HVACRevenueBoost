@@ -1,6 +1,6 @@
 import { formatCityPathSegmentForDisplay, parseLocalizedStorageSlug } from "@/lib/localized-city-path";
 
-export const HSD_CTA_TYPES = ["top", "mid", "danger", "cost", "final"] as const;
+export const HSD_CTA_TYPES = ["top", "mid", "danger", "final"] as const;
 export type HsdCtaType = (typeof HSD_CTA_TYPES)[number];
 
 export type HsdCtaEntry = { type: HsdCtaType; text: string };
@@ -34,17 +34,18 @@ function verticalFromSlug(slug: string): string {
 }
 
 function buildDefaultCtasMap(json: Record<string, unknown>): Map<HsdCtaType, HsdCtaEntry> {
-  const title = String(json.title ?? "This issue").trim();
   const slug = String(json.slug ?? "").trim();
   const city = cityPhraseFromSlug(slug);
   const vertical = verticalFromSlug(slug);
-  const issue = title.length > 140 ? `${title.slice(0, 137)}…` : title;
-  const issueLower = issue.toLowerCase();
 
   const m = new Map<HsdCtaType, HsdCtaEntry>();
+  /** Do not splice `title` into "If … is not fixed in {city}" — titles often repeat the city or read as questions and break grammar. */
   m.set("top", {
     type: "top",
-    text: `If ${issueLower} is not fixed in ${city}, costs can exceed $1,500 quickly. What starts as a small issue becomes a major failure once the system keeps running wrong.`,
+    text:
+      vertical === "hvac"
+        ? `In ${city}, comfort system faults rarely get cheaper on their own. Once equipment keeps running under the wrong conditions, repair costs often climb past $1,500—address the root cause before major components fail.`
+        : `In ${city}, this kind of fault usually worsens with continued use. Repair exposure commonly exceeds $1,500 when problems are left unresolved—have a licensed professional verify before damage spreads.`,
   });
   m.set("mid", {
     type: "mid",
@@ -59,10 +60,6 @@ function buildDefaultCtasMap(json: Record<string, unknown>): Map<HsdCtaType, Hsd
       vertical === "hvac"
         ? `Misdiagnosing airflow vs refrigerant vs electrical can lead to $3,500+ repairs. Do not guess.`
         : `Misdiagnosing the root cause can add thousands in repair cost in ${city}. Do not guess.`,
-  });
-  m.set("cost", {
-    type: "cost",
-    text: `Small issues escalate fast: what starts as a $300 repair can become a $3,500 class failure when fault hours stack. Use the matrix below as bands—not quotes—after measurement, not guessing.`,
   });
   m.set("final", {
     type: "final",

@@ -1,7 +1,5 @@
 "use client";
 
-const LEAD_ISSUE = "no_cooling";
-
 const content = {
   high: {
     text: "At this point, every extra hour of runtime increases the risk of a $1,500\u2013$3,500 repair.",
@@ -21,7 +19,7 @@ export type HsdUrgentCtaLevel = keyof typeof content;
 
 function openLead() {
   if (typeof window === "undefined") return;
-  window.dispatchEvent(new CustomEvent("open-leadcard", { detail: { issue: LEAD_ISSUE } }));
+  window.dispatchEvent(new Event("open-lead-modal"));
 }
 
 export function HsdUrgentCta({ level = "high" }: { level?: HsdUrgentCtaLevel }) {

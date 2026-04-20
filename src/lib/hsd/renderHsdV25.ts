@@ -1,5 +1,10 @@
 import { hsdSectionDomId } from "@/lib/hsd/mermaidClickMap";
-import { injectProgrammaticHsdCtas, normalizeCtasOnJson, type HsdCtaType } from "@/lib/hsd/injectProgrammaticHsdCtas";
+import {
+  injectProgrammaticHsdCtas,
+  normalizeCtasOnJson,
+  type HsdCtaEntry,
+  type HsdCtaType,
+} from "@/lib/hsd/injectProgrammaticHsdCtas";
 import { simpleDiagnosticFlowToMermaid } from "@/lib/hsd/simpleDiagnosticFlowToMermaid";
 import { dedupeLines } from "@/lib/utils";
 import type { HsdV25Payload } from "@/src/lib/validation/hsdV25Schema";
@@ -37,19 +42,67 @@ function simplifyReaderLanguage(text: string): string {
   return s;
 }
 
+/** Collapse repeated sentences inside one paragraph (model sometimes echoes the same clause). */
+function dedupeRepeatedSentencesInParagraph(s: string): string {
+  const t = String(s ?? "").trim();
+  if (!t) return "";
+  const pieces = t.split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
+  if (pieces.length <= 1) return t;
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const sen of pieces) {
+    const key = sen.replace(/\s+/g, " ").toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(sen);
+  }
+  return out.join(" ");
+}
+
+/** Blank-line paragraphs: dedupe lines; first paragraph also drops duplicate sentences. */
+function dedupeCoreTruthParagraphs(coreTruth: string): string {
+  const raw = String(coreTruth ?? "");
+  const parts = raw.split(/\n\n+/).map((p) => p.trim()).filter(Boolean);
+  if (!parts.length) return dedupeLines(raw.trim());
+  return parts
+    .map((p, i) => {
+      let x = dedupeLines(p);
+      if (i === 0) x = dedupeRepeatedSentencesInParagraph(x);
+      return x;
+    })
+    .join("\n\n");
+}
+
+function dedupeTopCauseDeepdives(
+  causes: HsdV25Payload["summary_30s"]["top_causes"]
+): HsdV25Payload["summary_30s"]["top_causes"] {
+  const seen = new Set<string>();
+  return causes.map((c) => {
+    const div = String(c.deep_dive ?? "").trim();
+    const key = div.replace(/\s+/g, " ").toLowerCase();
+    if (!key) return c;
+    if (seen.has(key)) return { ...c, deep_dive: "" };
+    seen.add(key);
+    return c;
+  });
+}
+
 function polishSummary30s(s: HsdV25Payload["summary_30s"]): HsdV25Payload["summary_30s"] {
-  return {
-    ...s,
-    headline: simplifyReaderLanguage(dedupeLines(s.headline)),
-    core_truth: simplifyReaderLanguage(dedupeLines(s.core_truth)),
-    risk_warning: simplifyReaderLanguage(dedupeLines(s.risk_warning)),
-    flow_lines: s.flow_lines.map((l) => simplifyReaderLanguage(String(l ?? "").trim())),
-    top_causes: s.top_causes.map((c) => ({
+  const topCauses = dedupeTopCauseDeepdives(
+    s.top_causes.map((c) => ({
       ...c,
       label: simplifyReaderLanguage(c.label),
       probability: simplifyReaderLanguage(c.probability),
       deep_dive: simplifyReaderLanguage(dedupeLines(c.deep_dive)),
-    })),
+    }))
+  );
+  return {
+    ...s,
+    headline: simplifyReaderLanguage(dedupeRepeatedSentencesInParagraph(dedupeLines(s.headline))),
+    core_truth: simplifyReaderLanguage(dedupeCoreTruthParagraphs(s.core_truth)),
+    risk_warning: simplifyReaderLanguage(dedupeLines(s.risk_warning)),
+    flow_lines: s.flow_lines.map((l) => simplifyReaderLanguage(String(l ?? "").trim())),
+    top_causes: topCauses,
   };
 }
 
@@ -334,12 +387,9 @@ export const HSD_V25_BLOCK_PRIORITY = {
   quick_table: 15,
   tools: 17,
   visual_diagnostic_flow: 20,
-  /** JSON `ctas` with `type: "danger"` — after diagnostic flow, before repair matrix. */
+  /** JSON `ctas` with `type: "danger"` — after visual flow, before {@link sectionRepairMatrix}. */
   cta_danger_before_repair: 25,
-  /** JSON `ctas` with `type: "cost"` — cost framing before {@link sectionRepairMatrix}. */
-  cta_cost_before_repair: 27,
   repair_matrix: 30,
-  cost_escalation: 40,
   decision: 100,
   cta: 200,
   final_warning: 300,
@@ -434,7 +484,6 @@ const PLACEMENT_CTA_SURFACE: Record<HsdCtaType, string> = {
   top: "bg-blue-600 text-white",
   mid: "bg-yellow-500 text-slate-900",
   danger: "bg-red-600 text-white",
-  cost: "bg-orange-500 text-white",
   final: "bg-black text-white",
 };
 
@@ -442,33 +491,55 @@ const PLACEMENT_CTA_BTN: Record<HsdCtaType, string> = {
   top: "inline-block mt-4 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100",
   mid: "inline-block mt-4 rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-slate-800",
   danger: "inline-block mt-4 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100",
-  cost: "inline-block mt-4 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-100",
   final: "inline-block mt-4 rounded-lg bg-white px-5 py-2.5 text-sm font-semibold text-black shadow-sm transition hover:bg-slate-100",
 };
+
+function leadModalPrefillFromData(data: HsdV25RenderInput): { vertical?: string; city?: string } {
+  const vertical = String(data.vertical ?? "").trim();
+  const city = String(data.city ?? "").trim();
+  return {
+    ...(vertical ? { vertical } : {}),
+    ...(city ? { city } : {}),
+  };
+}
+
+function isRenderablePlacementCtaType(t: string): t is HsdCtaType {
+  return t === "top" || t === "mid" || t === "danger" || t === "final";
+}
 
 /** Renders all `data.ctas` entries matching any of `types` (JSON-driven placement). */
 function renderCtasByTypes(data: HsdV25RenderInput, types: readonly HsdCtaType[], domIdForFinal?: string): string {
   const set = new Set(types);
-  const rows = (data.ctas ?? []).filter((c) => set.has(c.type));
+  const prefill = leadModalPrefillFromData(data);
+  const rows = (data.ctas ?? []).filter(
+    (c): c is HsdCtaEntry =>
+      Boolean(c?.text) && isRenderablePlacementCtaType(String(c.type)) && set.has(c.type as HsdCtaType)
+  );
   return rows
     .map((c) =>
       c.type === "final" && domIdForFinal
-        ? sectionPlacementCta(c.type, c.text, domIdForFinal)
-        : sectionPlacementCta(c.type, c.text)
+        ? sectionPlacementCta(c.type, c.text, domIdForFinal, prefill)
+        : sectionPlacementCta(c.type, c.text, undefined, prefill)
     )
     .join("\n");
 }
 
 function buildFinalCtaHtml(data: HsdV25RenderInput): string {
+  const prefill = leadModalPrefillFromData(data);
   const fromJson = renderCtasByTypes(data, ["final"], hsdSectionDomId("cta")).trim();
   if (fromJson) return fromJson;
-  return sectionPlacementCta("final", data.cta, hsdSectionDomId("cta"));
+  return sectionPlacementCta("final", data.cta, hsdSectionDomId("cta"), prefill);
 }
 
 /**
  * Strong inline CTAs (placement variants). Mirrors product `CTA` React component styling in static HTML.
  */
-export function sectionPlacementCta(variant: HsdCtaType, text: string, domId?: string): string {
+export function sectionPlacementCta(
+  variant: HsdCtaType,
+  text: string,
+  domId?: string,
+  leadPrefill?: { vertical?: string; city?: string }
+): string {
   const t = String(text ?? "").trim();
   if (!t) return "";
   const pClass =
@@ -484,10 +555,17 @@ export function sectionPlacementCta(variant: HsdCtaType, text: string, domId?: s
     variant === "final"
       ? `<p class="mb-2 text-[11px] font-black uppercase tracking-widest text-slate-400">Next step</p>`
       : "";
-  return `<aside class="hsd-placement-cta hsd-block mt-6 rounded-xl p-6 shadow-md ${surface}"${idAttr} data-hsd-cta-placement="${variant}" aria-label="Call to action">
+  const trade = String(leadPrefill?.vertical ?? "").trim();
+  const loc = String(leadPrefill?.city ?? "").trim();
+  const leadAttrs = [
+    ` data-open-lead-modal="1"`,
+    trade ? ` data-lead-trade="${escapeHtml(trade)}"` : "",
+    loc ? ` data-lead-location="${escapeHtml(loc)}"` : "",
+  ].join("");
+  return `<aside class="hsd-placement-cta not-prose hsd-block mt-6 rounded-xl p-6 shadow-md ${surface}"${idAttr} data-hsd-cta-placement="${variant}" aria-label="Call to action">
   ${kicker}
   ${paras}
-  <a href="/contact" class="${btn}">Get Professional Help</a>
+  <button type="button"${leadAttrs} class="${btn} cursor-pointer border-0 text-center" aria-haspopup="dialog">Get Professional Help</button>
 </aside>`.trim();
 }
 
@@ -643,12 +721,12 @@ export function sectionQuickChecks(
       const homeLine = home
         ? `<p class="mt-1 text-xs font-medium leading-snug text-slate-500 dark:text-slate-400">${escapeHtml(dgArrowLine(home))}</p>`
         : "";
-      return `<div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-600 dark:bg-slate-950/40" role="listitem">
-  <p class="font-semibold text-slate-900 dark:text-white">${escapeHtml(String(q.check ?? "").trim())}</p>
+      return `<div class="min-w-0 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-600 dark:bg-slate-950/40" role="listitem">
+  <p class="break-words font-semibold text-slate-900 dark:text-white">${escapeHtml(String(q.check ?? "").trim())}</p>
   ${homeLine}
-  <p class="mt-2 text-sm text-slate-600 dark:text-slate-400"><strong class="text-slate-800 dark:text-slate-200">What it means:</strong> ${escapeHtml(String(q.result_meaning ?? "").trim())}</p>
-  <p class="mt-2 text-sm text-slate-800 dark:text-slate-200"><strong>Next:</strong> ${escapeHtml(String(q.next_step ?? "").trim())}</p>
-  <p class="mt-2 text-sm font-medium text-red-700 dark:text-red-300">${escapeHtml(String(q.risk ?? "").trim())}</p>
+  <p class="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400"><strong class="text-slate-800 dark:text-slate-200">What it means:</strong> ${escapeHtml(String(q.result_meaning ?? "").trim())}</p>
+  <p class="mt-3 text-sm leading-relaxed text-slate-800 dark:text-slate-200"><strong>Next:</strong> ${escapeHtml(String(q.next_step ?? "").trim())}</p>
+  <p class="mt-3 text-sm font-medium leading-relaxed text-red-700 dark:text-red-300">${escapeHtml(String(q.risk ?? "").trim())}</p>
 </div>`;
     })
     .join("\n");
@@ -657,7 +735,7 @@ export function sectionQuickChecks(
   <h2 id="hsd-quick-label" class="hsd-cred__quick-head">Quick checks <span class="text-base font-semibold normal-case text-slate-600 dark:text-slate-400">(Do this first)</span></h2>
   ${startHere}
   <p class="mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">Run these in order. If cooling does not return after these checks, the issue is no longer simple.</p>
-  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3" role="list">${cards}</div>
+  <div class="grid list-none gap-6 p-0 sm:gap-8 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3" role="list">${cards}</div>
 </section>`.trim();
 }
 
@@ -680,7 +758,7 @@ export function sectionDiagnosticSteps(
     .join("");
   return `
 <section class="${HSD_V25_SECTION_SHELL}">
-  <h2 id="${hsdSectionDomId("diagnostic_steps")}" class="hsd-section__title hsd-section-title">Diagnostic Flow <span class="text-sm font-semibold normal-case text-slate-600 dark:text-slate-400">(What&rsquo;s actually happening)</span></h2>
+  <h2 id="${hsdSectionDomId("diagnostic_steps")}" class="hsd-section__title hsd-section-title">Diagnostic flow <span class="text-sm font-semibold normal-case text-slate-600 dark:text-slate-400">(Pro-level evaluation)</span></h2>
   <div class="hsd-section__body">
     <p class="mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">Follow the physical branch in order. Do not treat a control problem like a refrigerant problem, and do not treat a refrigerant problem like an airflow problem.</p>
     <ol class="hsd-v2__logic space-y-6">${items}</ol>
@@ -755,29 +833,31 @@ export function sectionQuickDiagnosisTable(
     }))
     .filter((r) => r.symptom.length > 0 || r.cause.length > 0 || r.fix.length > 0);
   if (!rows.length) return "";
-  const body = rows
+  const cards = rows
     .map(
-      (r) => `<tr>
-  <td>${escapeHtml(r.symptom)}</td>
-  <td>${escapeHtml(r.cause)}</td>
-  <td>${escapeHtml(r.fix)}</td>
-</tr>`
+      (r) => `<li class="min-w-0 list-none">
+  <div class="flex h-full flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 dark:border-slate-600 dark:bg-slate-950/40">
+    <div>
+      <div class="text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Symptom</div>
+      <p class="mt-1 break-words text-sm font-semibold leading-relaxed text-slate-900 dark:text-white">${escapeHtml(r.symptom)}</p>
+    </div>
+    <div>
+      <div class="text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Likely cause</div>
+      <p class="mt-1 break-words text-sm leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(r.cause)}</p>
+    </div>
+    <div>
+      <div class="text-[11px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Fix</div>
+      <p class="mt-1 break-words text-sm leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(r.fix)}</p>
+    </div>
+  </div>
+</li>`
     )
     .join("\n");
   return `
 <section class="hsd-section hsd-block hsd-quick-diagnosis" id="${hsdSectionDomId("quick_diagnosis")}" aria-labelledby="hsd-quick-dx-label">
   <h2 id="hsd-quick-dx-label" class="hsd-section__title hsd-section-title">Quick checks <span class="text-base font-semibold normal-case text-slate-600 dark:text-slate-400">(Symptom scan)</span></h2>
-  <div class="hsd-section__body hsd-v2__table-wrap">
-    <table class="hsd-v2__matrix hsd-quick-table hsd-quick-diagnosis-table font-mono text-[13px]" aria-labelledby="hsd-quick-dx-label">
-      <thead>
-        <tr>
-          <th scope="col">Symptom</th>
-          <th scope="col">Likely Cause</th>
-          <th scope="col">Fix</th>
-        </tr>
-      </thead>
-      <tbody>${body}</tbody>
-    </table>
+  <div class="hsd-section__body">
+    <ul class="grid list-none gap-6 p-0 sm:gap-8 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3" aria-labelledby="hsd-quick-dx-label">${cards}</ul>
   </div>
   ${canonicalTruthsEchoHtml(canonicalTruths, "quick_diagnosis")}
 </section>`.trim();
@@ -1005,7 +1085,6 @@ function buildHsdV25MidBlocks(data: HsdV25RenderInput): HsdV25HtmlBlock[] {
   const repairMatrixHtml = sectionRepairMatrix(data.repair_matrix, data.repair_matrix_intro, data.vertical);
   const showPreRepairCtAs = repairMatrixHtml.trim().length > 0;
   const dangerCtas = showPreRepairCtAs ? renderCtasByTypes(data, ["danger"]) : "";
-  const costCtas = showPreRepairCtAs ? renderCtasByTypes(data, ["cost"]) : "";
   return [
     { priority: P.diagnostic_steps, html: sectionDiagnosticSteps(data.diagnostic_steps, data.canonical_truths) },
     { priority: P.decision_tree_text, html: sectionDecisionTreeText(data.decision_tree_text) },
@@ -1016,12 +1095,10 @@ function buildHsdV25MidBlocks(data: HsdV25RenderInput): HsdV25HtmlBlock[] {
     { priority: P.tools, html: sectionTools(data.tools) },
     { priority: P.visual_diagnostic_flow, html: renderMermaid(data.diagnostic_flow) },
     { priority: P.cta_danger_before_repair, html: dangerCtas },
-    { priority: P.cta_cost_before_repair, html: costCtas },
     {
       priority: P.repair_matrix,
       html: repairMatrixHtml,
     },
-    { priority: P.cost_escalation, html: sectionCostEscalation(data.cost_escalation) },
     { priority: 99, html: canonicalTruthsEchoHtml(data.canonical_truths, "pre_decision") },
     { priority: P.decision, html: sectionDecision(data.decision, data.decision_footer, data.vertical) },
   ];
