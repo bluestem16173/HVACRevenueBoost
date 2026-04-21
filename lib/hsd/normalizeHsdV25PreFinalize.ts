@@ -2,8 +2,13 @@ import { applyDedupeLinesPassToHsdJson } from "@/lib/hsd/dedupeHsdMultilineField
 import { injectProgrammaticHsdCtas } from "@/lib/hsd/injectProgrammaticHsdCtas";
 import { patchHsdLlmJsonMinimumGates } from "@/lib/hsd/patchHsdLlmJsonMinimumGates";
 import { applyQuickChecksLabelNormalizationToHsdJson } from "@/lib/hsd/normalizeHsdQuickChecksLabels";
-import { backfillLocalizedPlumbingAuthorityFields } from "@/lib/homeservice/backfillLocalizedTradeAuthority";
+import {
+  backfillLocalizedElectricalAuthorityFields,
+  backfillLocalizedPlumbingAuthorityFields,
+} from "@/lib/homeservice/backfillLocalizedTradeAuthority";
 import { isAcNotCoolingCitySlug } from "@/lib/hsd/lockedAcNotCoolingHeadline";
+import { electricalLeeMonetizationRelatedSymptoms } from "@/lib/homeservice/electricalLeeRelatedSymptoms";
+import { isLeeCountyCityStorageSlug } from "@/lib/homeservice/leeCountyLocalizedEnrichment";
 import { isPlumbingNoHotWaterSlug, parseLocalizedStorageSlug } from "@/lib/localized-city-path";
 import { stripCostBandsFromTitle } from "@/lib/utils";
 
@@ -12,7 +17,7 @@ const NO_HOT_WATER_CLASSIFY_FLOW_LINES = [
   "No hot water at all? → Power loss or failed element",
   "Water warm but not hot? → Partial element failure or thermostat issue",
   "Hot water runs out fast? → Sediment limiting recovery",
-  "Rusty or discolored water? → Tank corrosion (replacement path)",
+  "Rusty or discolored water? → Tank corrosion",
 ] as const;
 
 const NO_HOT_WATER_WHAT_THIS_MEANS =
@@ -79,10 +84,11 @@ const NO_HOT_WATER_QUICK_CHECKS: {
 function buildNoHotWaterMostCommonCause(slug: string): { cause: string; why: string; fix: string; cost: string } {
   const parsed = parseLocalizedStorageSlug(slug);
   const city = parsed?.citySlug?.toLowerCase() ?? "";
+  const leeNoHotWater = city && isLeeCountyCityStorageSlug(`plumbing/no-hot-water/${city}`);
   const waterLine =
     city === "fort-myers-fl"
       ? "In Fort Myers, mineral-heavy water accelerates scale buildup, which traps heat at the element and shortens element life."
-      : city === "cape-coral-fl" || city === "lehigh-acres-fl" || city === "bonita-springs-fl" || city === "estero-fl" || city === "north-fort-myers-fl"
+      : leeNoHotWater
         ? "In Lee County, mineral-heavy water accelerates scale buildup, which traps heat at the element and shortens element life."
         : city
           ? "In hard-water coastal markets, mineral loading accelerates scale on elements, traps heat at the sheath, and shortens element life."
@@ -256,7 +262,7 @@ function ensureFlowLines(json: Record<string, unknown>): void {
     return;
   }
 
-  if (lines.length >= 4) return;
+  if (lines.length >= 3) return;
   const v = verticalFromSlug(slug);
   if (v === "plumbing") {
     o.flow_lines = [
@@ -267,10 +273,10 @@ function ensureFlowLines(json: Record<string, unknown>): void {
     ];
   } else if (v === "electrical") {
     o.flow_lines = [
-      "Power loss (scan):",
-      "→ One device vs whole circuit → localized vs branch trip path",
-      "→ GFCI / breaker resets once only → repeat trips → stop forcing power",
-      "→ Heat, ozone, or sparking → emergency electrician path before $1,500+ panel damage",
+      "Breaker trips immediately when you reset?",
+      "→ Short circuit or ground fault",
+      "Breaker trips when you turn something on?",
+      "→ Circuit overload or failing device",
     ];
   } else {
     o.flow_lines = [
@@ -332,6 +338,24 @@ function ensureRepairMatrixIntro(json: Record<string, unknown>): void {
   json.repair_matrix_intro = (r ? `${r} ` : "") + tail;
 }
 
+function ensureElectricalLeeRelatedSymptoms(json: Record<string, unknown>): void {
+  const slug = String(json.slug ?? "").trim();
+  const rel = electricalLeeMonetizationRelatedSymptoms(slug);
+  if (!rel?.length) return;
+  const raw = json.internal_links;
+  const il =
+    raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as Record<string, unknown>) : null;
+  if (!il) {
+    json.internal_links = {
+      related_symptoms: rel,
+      system_pages: ["electrical/breaker-keeps-tripping"],
+      repair_guides: ["repair/electrical-safety"],
+    };
+    return;
+  }
+  il.related_symptoms = rel;
+}
+
 function ensureDecisionFooter(json: Record<string, unknown>): void {
   let d = String(json.decision_footer ?? "").trim();
   if (d.length >= 35) return;
@@ -361,6 +385,8 @@ export function normalizeHsdV25PreFinalize(json: Record<string, unknown>): Recor
   ensureCta(json);
   ensureFinalWarning(json);
   backfillLocalizedPlumbingAuthorityFields(json);
+  backfillLocalizedElectricalAuthorityFields(json);
+  ensureElectricalLeeRelatedSymptoms(json);
   ensureNoHotWaterLockedCopy(json);
   applyDedupeLinesPassToHsdJson(json);
   applyQuickChecksLabelNormalizationToHsdJson(json);

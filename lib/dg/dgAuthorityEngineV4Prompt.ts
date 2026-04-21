@@ -235,15 +235,15 @@ bottom: "Call a plumber before water damage spreads"
 
 # INTERNAL LINKING — RELATED (MASTER ADD-ON, LOCKED)
 
-Populate **`internalLinks.related`**, **`internalLinks.system`**, and **`internalLinks.deep`** so the page ships a credible **Related** graph (near-bottom in product). **If `internalLinks` is empty or unrelated filler → output is INVALID.**
+Populate **\`internalLinks.related\`**, **\`internalLinks.system\`**, and **\`internalLinks.deep\`** so the page ships a credible **Related** graph (near-bottom in product). **If \`internalLinks\` is empty or unrelated filler → output is INVALID.**
 
-- **`internalLinks.related`:** **3–5** entries (inclusive). Each value is a **path this site can serve** (same style as other prompts: `/{vertical}/...` or `vertical/...` per your mapper — stay consistent with the examples in the user message). **No** other trades, **no** naked homepage-only `/`.
+- **\`internalLinks.related\`:** **3–5** entries (inclusive). Each value is a **path this site can serve** (same style as other prompts: \`/{vertical}/...\` or \`vertical/...\` per your mapper — stay consistent with the examples in the user message). **No** other trades, **no** naked homepage-only \`/\`.
 - **Composition:**
   - **≥2** links = **same trade** + **different symptom** (problem cluster peers for this system).
-  - **≥1** link = **same symptom in a different city** (`.../{city-fl}`) **or** a **system-level** page for this trade.
+  - **≥1** link = **same symptom in a different city** (\`.../{city-fl}\`) **or** a **system-level** page for this trade.
   - **≤1 optional** = deeper root/system topic, same trade only.
 - Links MUST be **contextually relevant** to this page’s failure class; do **not** reuse one static list for every page when the brief allows better neighbors.
-- **`localLinks`:** when the page is localized, align with the same city grid in the brief so “nearby” entries are real.
+- **\`localLinks\`:** when the page is localized, align with the same city grid in the brief so “nearby” entries are real.
 
 ---
 

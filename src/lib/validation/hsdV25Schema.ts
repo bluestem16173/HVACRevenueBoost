@@ -89,6 +89,21 @@ export const HSDV25Schema = z
       })
       .optional(),
 
+    /**
+     * Optional authority: how ignored electrical faults escalate (heat, arcing, fire).
+     * Omitted on most HVAC/plumbing pages; localized electrical pages are backfilled when absent.
+     */
+    risk_escalation: z
+      .object({
+        /** Renderer default: "Risk escalation". */
+        title: z.string().min(3).optional(),
+        intro: z.string().min(10),
+        /** Cause chain under "If ignored:" (use → between beats). */
+        if_ignored: z.array(z.string().min(5)).min(2).max(8),
+        closing: z.string().min(20),
+      })
+      .optional(),
+
     /** Logical upsell / next-decision paths (titles support internal linking in copy). */
     upgrade_paths: z
       .array(

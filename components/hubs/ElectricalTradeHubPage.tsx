@@ -26,6 +26,7 @@ export default function ElectricalTradeHubPage() {
       sectionId: "power-outages",
       items: [
         { title: "Breaker Keeps Tripping", href: p("breaker-keeps-tripping") },
+        { title: "Partial Power in Home", href: p("partial-power-in-home") },
         { title: "Partial Power (Half the House)", href: p("partial-power-house") },
         { title: "Power Out in One Room", href: p("power-out-in-one-room") },
         { title: "Whole House Power Out", href: p("whole-house-power-out") },
@@ -38,6 +39,7 @@ export default function ElectricalTradeHubPage() {
       sectionId: "outlets-switches",
       items: [
         { title: "Outlet Not Working", href: p("outlet-not-working") },
+        { title: "Sparks from Outlet", href: p("sparks-from-outlet") },
         { title: "Outlet Sparking", href: p("outlet-sparking") },
         { title: "Light Switch Not Working", href: p("light-switch-not-working") },
         { title: "Dead Outlet", href: p("dead-outlet") },
@@ -48,8 +50,11 @@ export default function ElectricalTradeHubPage() {
       heading: "BREAKERS & PANELS",
       sectionId: "breakers-panels",
       items: [
+        { title: "Panel Hot or Buzzing", href: p("panel-hot-or-buzzing") },
         { title: "Panel Overheating", href: p("panel-overheating") },
         { title: "Circuit Overloaded", href: p("circuit-overloaded") },
+        { title: "GFI Keeps Tripping", href: p("gfi-keeps-tripping") },
+        { title: "GFCI Outlet Keeps Tripping", href: p("gfci-outlet-keeps-tripping") },
         { title: "Breaker Won\u2019t Reset", href: p("breaker-wont-reset") },
         { title: "Partial Power Loss", href: p("partial-power-loss") },
       ],
@@ -59,6 +64,7 @@ export default function ElectricalTradeHubPage() {
       heading: "WIRING & SYSTEM ISSUES",
       sectionId: "wiring-system",
       items: [
+        { title: "Burning Smell (Electrical)", href: p("burning-smell-electrical") },
         { title: "Burning Smell (Outlet or Panel)", href: p("burning-smell-outlet") },
         { title: "Burning Smell from Electrical", href: p("burning-smell-from-electrical") },
         { title: "Buzzing Sound in Walls", href: p("buzzing-sound-in-walls") },

@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 
 import { enforceStoredSlug } from "@/lib/slug-utils";
 
-/** Production origin (apex, HTTPS). Use with redirects in `next.config.mjs`. */
-export const SITE_ORIGIN = "https://hvacrevenueboost.com" as const;
+/** Production origin (HTTPS). Prefer **www** so `<link rel="canonical">` matches the primary host in Search Console. */
+export const SITE_ORIGIN = "https://www.hvacrevenueboost.com" as const;
 
 /** Absolute canonical URL for a path (leading slash optional). */
 export function siteCanonicalUrl(path: string): string {

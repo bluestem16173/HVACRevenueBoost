@@ -12,6 +12,8 @@
  * - **CROSS-CITY:** `crossGeoSameSymptomSlugs` — same symptom, **other cities** in the grid.
  *
  * Plumbing + electrical + Lee grid use {@link LEE_MONETIZATION_* } × {@link LEE_COUNTY_CITIES}.
+ * Cross-city for Lee trade locals: **one** target — {@link LEE_COUNTY_CROSS_CITY_HUB} when the page is not the hub, else first other grid city.
+ * Same-city peers: **max 3** (2–3 link crawl lock).
  * HVAC localized uses core cluster symptoms × `TIER_ONE_CITIES` for cross-geo.
  */
 import type { ServiceVertical } from "@/lib/localized-city-path";
@@ -22,7 +24,7 @@ import {
 } from "@/lib/homeservice/leeCountyInitialMonetizationCluster";
 import { getTierOneCityStorageSlugs } from "@/lib/seo/tier-one-discovery";
 import { enforceStoredSlug } from "@/lib/slug-utils";
-import { LEE_COUNTY_CITIES } from "@/lib/vertical-hub-shared";
+import { LEE_COUNTY_CITIES, LEE_COUNTY_CROSS_CITY_HUB } from "@/lib/vertical-hub-shared";
 
 const LEE_CITY_SET = new Set(LEE_COUNTY_CITIES.map((c) => c.toLowerCase()));
 
@@ -105,10 +107,22 @@ export function buildTradeLocalLinkBuckets(slug: string): TradeLocalLinkBuckets 
       .filter((s) => s !== symptom)
       .map((s) => `${trade}/${s}/${city}`);
   } else if (leeTradeLocal) {
-    sameCityPeerSlugs = peers.filter((s) => s !== symptom).map((s) => `${trade}/${s}/${city}`);
+    sameCityPeerSlugs = peers
+      .filter((s) => s !== symptom)
+      .map((s) => `${trade}/${s}/${city}`)
+      .slice(0, 3);
   }
 
-  if (trade === "hvac" || leeTradeLocal) {
+  if (leeTradeLocal) {
+    const hub = LEE_COUNTY_CROSS_CITY_HUB.toLowerCase();
+    const cur = city.toLowerCase();
+    if (cur === hub) {
+      const alt = [...LEE_COUNTY_CITIES].find((c) => c.toLowerCase() !== hub);
+      if (alt) crossGeoSameSymptomSlugs = [`${trade}/${symptom}/${alt}`];
+    } else {
+      crossGeoSameSymptomSlugs = [`${trade}/${symptom}/${LEE_COUNTY_CROSS_CITY_HUB}`];
+    }
+  } else if (trade === "hvac") {
     const geo = crossGeoCitiesForTrade(trade, city);
     crossGeoSameSymptomSlugs = geo
       .filter((c) => c.toLowerCase() !== city.toLowerCase())
@@ -127,4 +141,34 @@ export function storageSlugToUrlPath(storageSlug: string): string {
   const s = enforceStoredSlug(storageSlug).replace(/\/+/g, "/");
   if (!s) return "/";
   return `/${s}`;
+}
+
+const HUB = LEE_COUNTY_CROSS_CITY_HUB.toLowerCase();
+
+/**
+ * Lee County **same symptom, other cities** (storage slugs) for the on-page **Problem cluster** block.
+ * Excludes the current city, caps length, and **prioritizes Fort Myers** (`LEE_COUNTY_CROSS_CITY_HUB`) when eligible
+ * so every satellite page surfaces the anchor hub early.
+ */
+export function buildLeeSameConditionCitySlugs(
+  trade: ServiceVertical,
+  symptom: string,
+  currentCityLower: string,
+  max = 5,
+): string[] {
+  if (trade !== "plumbing" && trade !== "electrical") return [];
+  const cur = currentCityLower.trim().toLowerCase();
+  const candidates = (LEE_COUNTY_CITIES as readonly string[]).filter((c) => c.toLowerCase() !== cur);
+  const hubFirst = [...candidates].sort((a, b) => {
+    const ah = a.toLowerCase() === HUB ? 0 : 1;
+    const bh = b.toLowerCase() === HUB ? 0 : 1;
+    if (ah !== bh) return ah - bh;
+    return a.localeCompare(b);
+  });
+  const out: string[] = [];
+  for (const city of hubFirst) {
+    if (out.length >= max) break;
+    out.push(`${trade}/${symptom}/${city.toLowerCase()}`);
+  }
+  return out;
 }

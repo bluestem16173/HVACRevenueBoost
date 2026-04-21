@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
 import { SMS_CONSENT_FULL_TEXT, SMS_CONSENT_ORIGINATION_DISCLOSURE, SMS_CONSENT_SAMPLE_MESSAGE } from "@/lib/lead-consent";
 import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
+import { fireGoogleAdsConversion } from "@/lib/gtag-google-ads";
+import { getLeadAttributionFromPathname, readUtmParamsFromSearch } from "@/lib/lead-attribution-from-pathname";
 
 /** Parses labels like `Tampa, FL` for city/state form fields. */
 function parseCityStateFromLabel(raw: string): { city: string; state: string } | null {
@@ -13,6 +16,11 @@ function parseCityStateFromLabel(raw: string): { city: string; state: string } |
 }
 
 export default function LeadCaptureModal() {
+  const pathname = usePathname();
+  const pathOnly = useMemo(() => (pathname || "").split("?")[0] || "/", [pathname]);
+  const pageAttr = useMemo(() => getLeadAttributionFromPathname(pathOnly), [pathOnly]);
+  const [utmRow, setUtmRow] = useState({ utm_source: "", utm_campaign: "", utm_term: "" });
+
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -103,20 +111,36 @@ export default function LeadCaptureModal() {
     };
   }, [isOpen, isSuccess]);
 
+  useEffect(() => {
+    if (!isOpen || typeof window === "undefined") return;
+    setUtmRow(readUtmParamsFromSearch(window.location.search));
+  }, [pathname, isOpen]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorPrompt("");
 
     try {
+      const utm =
+        typeof window !== "undefined"
+          ? readUtmParamsFromSearch(window.location.search)
+          : { utm_source: "", utm_campaign: "", utm_term: "" };
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          page_slug: pageAttr.page_slug,
+          page_city_slug: pageAttr.city,
+          trade: pageAttr.trade,
+          ...utm,
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to submit");
-      
+
+      fireGoogleAdsConversion();
       setIsSuccess(true);
     } catch (err) {
       console.error(err);
@@ -219,6 +243,12 @@ export default function LeadCaptureModal() {
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
+                <input type="hidden" name="page_slug" value={pageAttr.page_slug} readOnly />
+                <input type="hidden" name="page_city_slug" value={pageAttr.city} readOnly />
+                <input type="hidden" name="trade" value={pageAttr.trade} readOnly />
+                <input type="hidden" name="utm_source" value={utmRow.utm_source} readOnly />
+                <input type="hidden" name="utm_campaign" value={utmRow.utm_campaign} readOnly />
+                <input type="hidden" name="utm_term" value={utmRow.utm_term} readOnly />
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-500 uppercase">First Name</label>

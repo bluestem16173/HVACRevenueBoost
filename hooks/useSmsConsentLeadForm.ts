@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { fireGoogleAdsConversion } from "@/lib/gtag-google-ads";
 import { getSmsConsentTextVersion, type SmsConsentSurface } from "@/lib/lead-consent";
 
 export const STICKY_CTA_DISMISS_STORAGE_KEY = "hvacrb-sms-sticky-cta-dismissed";
@@ -33,6 +34,8 @@ export type UseSmsConsentLeadFormOptions = {
   consentSurface?: SmsConsentSurface;
   /** Stored on the lead record (issue_description). */
   issueSummary?: string;
+  /** Merged into `/api/lead` JSON (e.g. page_slug, page_city_slug, trade, utm_*). */
+  buildAttribution?: () => Record<string, string>;
 };
 
 function consentSurfaceFromServiceType(serviceType: string): SmsConsentSurface {
@@ -47,6 +50,7 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
     serviceType = "hvac",
     consentSurface: consentSurfaceOpt,
     issueSummary = "Website service request (quick form)",
+    buildAttribution,
   } = options;
   const consentSurface = consentSurfaceOpt ?? consentSurfaceFromServiceType(serviceType);
 
@@ -111,6 +115,7 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
     const firstName = trimmedName || "Customer";
 
     try {
+      const attribution = buildAttribution?.() ?? {};
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -133,6 +138,7 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
           sms_consent: true,
           consent_at: consentAt,
           consent_text_version: getSmsConsentTextVersion(consentSurface),
+          ...attribution,
         }),
       });
 
@@ -142,6 +148,7 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
         return false;
       }
 
+      fireGoogleAdsConversion();
       setIsSuccess(true);
       return true;
     } catch {
@@ -150,7 +157,7 @@ export function useSmsConsentLeadForm(options: UseSmsConsentLeadFormOptions = {}
     } finally {
       setIsSubmitting(false);
     }
-  }, [consent, consentSurface, consentTextVersion, defaultSourcePage, issueSummary, name, serviceType, validate]);
+  }, [buildAttribution, consent, consentSurface, consentTextVersion, defaultSourcePage, issueSummary, name, serviceType, validate]);
 
   return {
     phone,

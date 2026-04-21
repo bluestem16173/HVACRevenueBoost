@@ -75,20 +75,39 @@ export function patchHsdLlmJsonMinimumGates(json: Record<string, unknown>): void
     const lines = Array.isArray(flRaw)
       ? flRaw.map((x) => String(x ?? "").trim()).filter(Boolean)
       : [];
-    if (lines.length < 4) {
-      o.flow_lines = isHvac
-        ? [
-            "Noise triage (scan):",
-            "→ Outdoor buzz at compressor start/stop → contactor / capacitor class",
-            "→ Squeal changing with blower speed → belt or motor bearing class",
-            "→ Rattle only when air moves → loose panels / hardware class",
-          ]
-        : [
-            "Field triage (scan):",
-            "→ Stable vs intermittent pattern → control vs mechanical class",
-            "→ Worsens under load vs idle → stress-dependent fault class",
-            "→ Localized vs spreading symptom → containment vs systemic class",
-          ];
+    if (isHvac) {
+      if (lines.length < 4) {
+        o.flow_lines = [
+          "Noise triage (scan):",
+          "→ Outdoor buzz at compressor start/stop → contactor / capacitor class",
+          "→ Squeal changing with blower speed → belt or motor bearing class",
+          "→ Rattle only when air moves → loose panels / hardware class",
+        ];
+      }
+    } else if (vertical === "electrical") {
+      if (lines.length < 3) {
+        o.flow_lines = [
+          "Breaker trips immediately when you reset?",
+          "→ Short circuit or ground fault",
+          "Breaker trips when you turn something on?",
+          "→ Circuit overload or failing device",
+        ];
+      }
+    } else if (vertical === "plumbing") {
+      if (lines.length < 3) {
+        o.flow_lines = [
+          "No hot water at all?",
+          "→ Heating failure or power issue",
+          "Water starts hot then turns cold quickly?",
+          "→ Sediment or recovery problem",
+        ];
+      }
+    } else if (lines.length < 3) {
+      o.flow_lines = [
+        "Symptom triage (scan):",
+        "→ Stable vs intermittent pattern → different fault classes",
+        "→ Worsens under load vs idle → stress-dependent fault class",
+      ];
     }
   }
 

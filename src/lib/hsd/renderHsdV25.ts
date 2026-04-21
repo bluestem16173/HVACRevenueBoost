@@ -7,7 +7,10 @@ import {
   type HsdCtaType,
 } from "@/lib/hsd/injectProgrammaticHsdCtas";
 import { simpleDiagnosticFlowToMermaid } from "@/lib/hsd/simpleDiagnosticFlowToMermaid";
-import { backfillLocalizedPlumbingAuthorityFields } from "@/lib/homeservice/backfillLocalizedTradeAuthority";
+import {
+  backfillLocalizedElectricalAuthorityFields,
+  backfillLocalizedPlumbingAuthorityFields,
+} from "@/lib/homeservice/backfillLocalizedTradeAuthority";
 import { buildLeeCountyTradeClusterFooterHtml } from "@/lib/homeservice/leeCountyTradeClusterFooterHtml";
 import {
   buildCityContextForLeeCountyCity,
@@ -19,6 +22,7 @@ import {
   parseLocalizedStorageSlug,
 } from "@/lib/localized-city-path";
 import { filterInternalLinksInPlace, filterTierDiscoveryPaths } from "@/lib/seo/tier-one-discovery";
+import { enforceStoredSlug } from "@/lib/slug-utils";
 import { dedupeLines, stripCostBandsFromTitle } from "@/lib/utils";
 import type { HsdV25Payload } from "@/src/lib/validation/hsdV25Schema";
 
@@ -156,9 +160,9 @@ export function sectionCityContext(lines: string[]): string {
     .join("");
   return `
 <section class="${HSD_V25_SECTION_SHELL}" data-hsd-zone="city-context" aria-label="Local climate and conditions">
-  <h2 id="${hsdSectionDomId("city_context")}" class="hsd-section__title hsd-section-title text-base sm:text-lg">City context</h2>
+  <h2 id="${hsdSectionDomId("city_context")}" class="${HSD_V25_SECTION_TITLE_CLASS}">City context</h2>
   <div class="hsd-section__body">
-    <ul class="m-0 list-disc space-y-2 pl-5 text-sm text-slate-800 dark:text-slate-200 sm:text-[0.9375rem]">${lis}</ul>
+    <ul class="m-0 list-disc space-y-2 pl-5 text-sm text-slate-800 dark:text-slate-300 sm:text-[0.9375rem]">${lis}</ul>
   </div>
 </section>`.trim();
 }
@@ -197,9 +201,15 @@ const HSD_V25_FIGURE_SHELL = `hsd-figure hsd-block ${HSD_V25_SURFACE} ${HSD_V25_
 const HSD_V25_HEADER_SHELL = `hsd-cred ${HSD_V25_SURFACE} ${HSD_V25_SECTION_SPACING}`;
 
 const HSD_V25_PAGE_OUTER =
-  "hsd-v25-compose mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 text-slate-900 dark:text-slate-100";
+  "hsd-v25-compose mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10 text-slate-900 dark:text-slate-300";
 /** Typography: explicit utilities inside sections; `prose` fights custom H2/list styling, so we use a neutral article shell. */
 const HSD_V25_PAGE_ARTICLE = "hsd-v25-article max-w-none space-y-8 text-base leading-relaxed";
+
+/** Dark-mode section headings + crawl-safe link accents (high-contrast lock). */
+const HSD_V25_SECTION_TITLE_CLASS =
+  "hsd-section__title hsd-section-title text-base sm:text-lg font-semibold text-slate-900 dark:text-white";
+const HSD_V25_RELATED_LINK_CLASS =
+  "font-semibold text-blue-600 underline decoration-blue-600/40 underline-offset-2 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300";
 
 /** Wraps full-page HSD HTML for `/diagnose/*` and other bare `dangerouslySetInnerHTML` hosts. */
 export function wrapHsdV25LayoutDocument(inner: string): string {
@@ -357,6 +367,26 @@ function repairVsReplaceFromUnknown(raw: unknown): HsdV25Payload["repair_vs_repl
   return out;
 }
 
+function riskEscalationFromUnknown(raw: unknown): HsdV25Payload["risk_escalation"] | undefined {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return undefined;
+  const o = raw as Record<string, unknown>;
+  const title = String(o.title ?? "").trim();
+  const intro = String(o.intro ?? "").trim();
+  const chainRaw = Array.isArray(o.if_ignored)
+    ? o.if_ignored
+    : Array.isArray((o as { escalation_chain?: unknown }).escalation_chain)
+      ? (o as { escalation_chain: unknown[] }).escalation_chain
+      : [];
+  const if_ignored = dedupeStringArray(chainRaw.map((x) => String(x ?? "").trim())).filter(
+    (s) => s.length >= 5
+  );
+  const closing = String(o.closing ?? "").trim();
+  if (intro.length < 10 || closing.length < 20 || if_ignored.length < 2) return undefined;
+  const out: NonNullable<HsdV25Payload["risk_escalation"]> = { intro, if_ignored, closing };
+  if (title.length >= 3) out.title = title;
+  return out;
+}
+
 function safeInternalHrefForUpgrade(raw: string): string | undefined {
   const h = String(raw ?? "").trim();
   if (!h) return undefined;
@@ -414,6 +444,7 @@ function sanitizeHsdV25RenderInput(data: HsdV25RenderInput | Record<string, unkn
     }
   }
   backfillLocalizedPlumbingAuthorityFields(raw);
+  backfillLocalizedElectricalAuthorityFields(raw);
   filterInternalLinksInPlace(raw);
   const summary_30s = polishSummary30s(summary30sFromUnknown(data.summary_30s as unknown));
 
@@ -501,6 +532,14 @@ function sanitizeHsdV25RenderInput(data: HsdV25RenderInput | Record<string, unkn
   const system_age_load = systemAgeLoadFromUnknown(rawTop.system_age_load);
   const code_updates = codeUpdatesFromUnknown(rawTop.code_updates);
   const repair_vs_replace = repairVsReplaceFromUnknown(rawTop.repair_vs_replace);
+  const tradeFromSlug =
+    enforceStoredSlug(String(raw.slug ?? "").trim())
+      .split("/")
+      .filter(Boolean)[0]?.toLowerCase() ?? "";
+  const risk_escalation =
+    tradeFromSlug === "electrical"
+      ? riskEscalationFromUnknown(rawTop.risk_escalation)
+      : undefined;
   const upgrade_paths = upgradePathsFromUnknown(rawTop.upgrade_paths);
   const common_misdiagnosis = commonMisdiagnosisFromUnknown(rawTop.common_misdiagnosis);
 
@@ -533,6 +572,7 @@ function sanitizeHsdV25RenderInput(data: HsdV25RenderInput | Record<string, unkn
     system_age_load,
     code_updates,
     repair_vs_replace,
+    risk_escalation,
     upgrade_paths,
     common_misdiagnosis,
   } as HsdV25RenderInput;
@@ -553,6 +593,7 @@ export const HSD_V25_BLOCK_PRIORITY = {
   system_age_load: 34,
   code_updates: 36,
   repair_vs_replace: 38,
+  risk_escalation: 39,
   upgrade_paths: 40,
   decision: 100,
   cta: 200,
@@ -595,10 +636,10 @@ export function sectionInternalRelatedLinks(data: HsdV25RenderInput): string {
   if (!Array.isArray(rel) || !rel.length) return "";
   const vertical = String(data.vertical ?? "hvac").trim().toLowerCase() || "hvac";
   const city = String(data.city ?? "").trim();
-  const title =
+  const caption =
     vertical === "hvac"
-      ? `Related HVAC issues${city ? ` in ${city}` : ""}`
-      : `Related ${vertical} issues${city ? ` in ${city}` : ""}`;
+      ? `More HVAC guides${city ? ` in ${city}` : ""}.`
+      : `More ${vertical} guides${city ? ` in ${city}` : ""}.`;
   const relPaths = filterTierDiscoveryPaths(rel.map((x) => String(x ?? "").trim()));
   const lis = relPaths
     .map((path) => {
@@ -607,15 +648,16 @@ export function sectionInternalRelatedLinks(data: HsdV25RenderInput): string {
       if (!href) return "";
       const tail = path.replace(/^\/+/, "").split("/").filter(Boolean).pop() ?? path;
       const display = tail.replace(/-/g, " ");
-      return `<li class="mb-2 last:mb-0"><a href="${escapeHtml(href)}" class="font-semibold text-hvac-blue underline decoration-hvac-blue/40 underline-offset-2 hover:text-hvac-gold dark:text-hvac-gold">${escapeHtml(display)}</a></li>`;
+      return `<li class="mb-2 last:mb-0"><a href="${escapeHtml(href)}" class="${HSD_V25_RELATED_LINK_CLASS}">${escapeHtml(display)}</a></li>`;
     })
     .filter(Boolean)
     .join("");
   if (!lis) return "";
   return `
-<section class="${HSD_V25_SECTION_SHELL} hsd-internal-related" aria-labelledby="hsd-internal-related-label">
-  <h2 id="hsd-internal-related-label" class="hsd-section__title hsd-section-title">${escapeHtml(title)}</h2>
-  <ul class="m-0 list-none p-0">${lis}</ul>
+<section class="${HSD_V25_SECTION_SHELL} hsd-internal-related" aria-labelledby="hsd-related-label">
+  <h3 id="hsd-related-label" class="${HSD_V25_SECTION_TITLE_CLASS}">Related</h3>
+  <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">${escapeHtml(caption)}</p>
+  <ul class="m-0 mt-3 list-none p-0 text-slate-800 dark:text-slate-300">${lis}</ul>
 </section>`.trim();
 }
 
@@ -909,7 +951,7 @@ export function sectionTopCauses(summary_30s: HsdV25Payload["summary_30s"], slug
   const h2 = breakerTrippingTopCausesHeading(slug) ?? "Top causes";
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("top_causes")}" aria-labelledby="hsd-top-causes-label">
-  <h2 id="hsd-top-causes-label" class="hsd-section__title hsd-section-title">${escapeHtml(h2)}</h2>
+  <h2 id="hsd-top-causes-label" class="${HSD_V25_SECTION_TITLE_CLASS}">${escapeHtml(h2)}</h2>
   <div class="hsd-section__body">${causesBlock}</div>
 </section>`.trim();
 }
@@ -938,7 +980,7 @@ export function sectionMostCommonCause(row: HsdV25Payload["most_common_cause"] |
     .join("");
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("most_common_cause")}" aria-labelledby="hsd-most-common-label">
-  <h2 id="hsd-most-common-label" class="hsd-section__title hsd-section-title">Most common cause</h2>
+  <h2 id="hsd-most-common-label" class="${HSD_V25_SECTION_TITLE_CLASS}">Most common cause</h2>
   <div class="hsd-section__body">${rows}</div>
 </section>`.trim();
 }
@@ -955,7 +997,7 @@ export function sectionCommonMisdiagnosis(lines: HsdV25Payload["common_misdiagno
     : "";
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("common_misdiagnosis")}" aria-labelledby="hsd-misdx-label">
-  <h2 id="hsd-misdx-label" class="hsd-section__title hsd-section-title">Common misdiagnosis</h2>
+  <h2 id="hsd-misdx-label" class="${HSD_V25_SECTION_TITLE_CLASS}">Common misdiagnosis</h2>
   <div class="hsd-section__body">
     <ul class="m-0 list-disc space-y-2 pl-5 text-sm text-slate-800 dark:text-slate-200 sm:text-[0.9375rem]">${lis}</ul>
     ${whyBlock}
@@ -998,7 +1040,7 @@ export function sectionSystemAgeLoad(block: HsdV25Payload["system_age_load"] | u
   const lead = summary ? `<p class="text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(summary)}</p>` : "";
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("system_age_load")}" aria-labelledby="hsd-age-load-label">
-  <h2 id="hsd-age-load-label" class="hsd-section__title hsd-section-title">System age &amp; load</h2>
+  <h2 id="hsd-age-load-label" class="${HSD_V25_SECTION_TITLE_CLASS}">System age &amp; load</h2>
   <div class="hsd-section__body">${lead}${table}</div>
 </section>`.trim();
 }
@@ -1011,10 +1053,38 @@ export function sectionCodeUpdates(block: HsdV25Payload["code_updates"] | undefi
   const lis = items.map((t) => `<li class="leading-relaxed">${escapeHtml(t)}</li>`).join("");
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("code_updates")}" aria-labelledby="hsd-code-updates-label">
-  <h2 id="hsd-code-updates-label" class="hsd-section__title hsd-section-title">${escapeHtml(title)}</h2>
+  <h2 id="hsd-code-updates-label" class="${HSD_V25_SECTION_TITLE_CLASS}">${escapeHtml(title)}</h2>
   <div class="hsd-section__body">
     <ul class="m-0 list-disc space-y-2 pl-5 text-sm text-slate-800 dark:text-slate-200 sm:text-[0.9375rem]">${lis}</ul>
   </div>
+</section>`.trim();
+}
+
+export function sectionRiskEscalation(block: HsdV25Payload["risk_escalation"] | undefined): string {
+  if (!block) return "";
+  const heading = String(block.title ?? "").trim() || "Risk escalation";
+  const intro = simplifyReaderLanguage(dedupeLines(String(block.intro ?? "").trim()));
+  const lines = dedupeStringArray((block.if_ignored ?? []).map((x) => String(x ?? "").trim())).filter(Boolean);
+  const closing = simplifyReaderLanguage(dedupeLines(String(block.closing ?? "").trim()));
+  if (!intro && !lines.length && !closing) return "";
+  const introHtml = intro
+    ? `<p class="text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(intro)}</p>`
+    : "";
+  const subheading =
+    lines.length > 0
+      ? `<p class="mt-3 text-sm font-semibold text-slate-900 dark:text-slate-100">If ignored:</p>`
+      : "";
+  const lis = lines.map((t) => `<li class="leading-relaxed">${escapeHtml(t)}</li>`).join("");
+  const listHtml = lis
+    ? `<ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-slate-800 dark:text-slate-200 sm:text-[0.9375rem]">${lis}</ul>`
+    : "";
+  const closeHtml = closing
+    ? `<p class="mt-4 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(closing)}</p>`
+    : "";
+  return `
+<section class="${HSD_V25_SECTION_SHELL} border-l-4 border-amber-500/70 pl-1 dark:border-amber-400/55 sm:pl-0" id="${hsdSectionDomId("risk_escalation")}" aria-labelledby="hsd-risk-escalation-label">
+  <h2 id="hsd-risk-escalation-label" class="${HSD_V25_SECTION_TITLE_CLASS}">${escapeHtml(heading)}</h2>
+  <div class="hsd-section__body">${introHtml}${subheading}${listHtml}${closeHtml}</div>
 </section>`.trim();
 }
 
@@ -1044,7 +1114,7 @@ export function sectionRepairVsReplace(block: HsdV25Payload["repair_vs_replace"]
     : "";
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("repair_vs_replace")}" aria-labelledby="hsd-rvr-label">
-  <h2 id="hsd-rvr-label" class="hsd-section__title hsd-section-title">${escapeHtml(heading)}</h2>
+  <h2 id="hsd-rvr-label" class="${HSD_V25_SECTION_TITLE_CLASS}">${escapeHtml(heading)}</h2>
   <div class="hsd-section__body">${guideBlock}${rulesBlock}</div>
 </section>`.trim();
 }
@@ -1072,7 +1142,7 @@ export function sectionUpgradePaths(paths: HsdV25Payload["upgrade_paths"] | unde
   if (!cards.trim()) return "";
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("upgrade_paths")}" aria-labelledby="hsd-upgrade-label">
-  <h2 id="hsd-upgrade-label" class="hsd-section__title hsd-section-title">Upgrade paths</h2>
+  <h2 id="hsd-upgrade-label" class="${HSD_V25_SECTION_TITLE_CLASS}">Upgrade paths</h2>
   <div class="hsd-section__body">
     <ul class="grid list-none gap-6 p-0 sm:grid-cols-2">${cards}</ul>
   </div>
@@ -1186,7 +1256,7 @@ export function sectionDiagnosticSteps(
     .join("");
   return `
 <section class="${HSD_V25_SECTION_SHELL}">
-  <h2 id="${hsdSectionDomId("diagnostic_steps")}" class="hsd-section__title hsd-section-title">Diagnostic flow <span class="text-sm font-semibold normal-case text-slate-600 dark:text-slate-400">(Pro-level evaluation)</span></h2>
+  <h2 id="${hsdSectionDomId("diagnostic_steps")}" class="${HSD_V25_SECTION_TITLE_CLASS}">Diagnostic flow <span class="text-sm font-semibold normal-case text-slate-600 dark:text-slate-400">(Pro-level evaluation)</span></h2>
   <div class="hsd-section__body">
     <p class="mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">${escapeHtml(checklistIntro)}</p>
     <ol class="hsd-v2__logic space-y-6">${items}</ol>
@@ -1220,7 +1290,7 @@ export function sectionDecisionTreeText(lines: HsdV25Payload["decision_tree_text
     .join("\n");
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("decision_tree_text")}">
-  <h2 class="hsd-section__title hsd-section-title">Decision tree (text)</h2>
+  <h2 class="${HSD_V25_SECTION_TITLE_CLASS}">Decision tree (text)</h2>
   <div class="hsd-section__body hsd-dtree-text">${blocks}</div>
 </section>`.trim();
 }
@@ -1276,7 +1346,7 @@ export function sectionTools(
       : "Trying random fixes without testing can miss the real problem — and repeated breaker resets can mask a serious fault.";
     return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("tools")}">
-  <h2 id="hsd-tools-label" class="hsd-section__title hsd-section-title">How electricians actually diagnose this</h2>
+  <h2 id="hsd-tools-label" class="${HSD_V25_SECTION_TITLE_CLASS}">How electricians actually diagnose this</h2>
   <div class="hsd-section__body">
     <p class="mb-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">${escapeHtml(intro)}</p>
     <p class="mb-2 text-sm font-semibold text-slate-900 dark:text-white">${escapeHtml(listLead)}</p>
@@ -1299,7 +1369,7 @@ export function sectionTools(
 
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("tools")}">
-  <h2 id="hsd-tools-label" class="hsd-section__title hsd-section-title">Tools &amp; verification</h2>
+  <h2 id="hsd-tools-label" class="${HSD_V25_SECTION_TITLE_CLASS}">Tools &amp; verification</h2>
   <div class="hsd-section__body">
     <p class="mb-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300"><strong>This is real technical work</strong> — technicians use the tools below to verify conditions you cannot see from the thermostat alone. Measurements and judgment matter as much as parts. <strong>Not all fixes are DIY-friendly</strong>: high voltage, refrigerant, and combustion work require licensing and proper equipment.</p>
     <ul class="hsd-tools-list list-disc space-y-1 pl-5 text-sm font-semibold text-slate-800 dark:text-slate-200" aria-labelledby="hsd-tools-label">${items}</ul>
@@ -1347,7 +1417,7 @@ export function sectionQuickDiagnosisTable(
     .join("\n");
   return `
 <section class="hsd-section hsd-block hsd-quick-diagnosis" id="${hsdSectionDomId("quick_diagnosis")}" aria-labelledby="hsd-quick-dx-label">
-  <h2 id="hsd-quick-dx-label" class="hsd-section__title hsd-section-title">${h2Inner}</h2>
+  <h2 id="hsd-quick-dx-label" class="${HSD_V25_SECTION_TITLE_CLASS}">${h2Inner}</h2>
   <div class="hsd-section__body">
     <ul class="grid list-none gap-6 p-0 sm:gap-8 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3" aria-labelledby="hsd-quick-dx-label">${cards}</ul>
   </div>
@@ -1379,7 +1449,7 @@ export function sectionQuickTable(
     .join("\n");
   return `
 <section class="hsd-section hsd-block" id="${hsdSectionDomId("quick_table")}">
-  <h2 id="hsd-quick-table-label" class="hsd-section__title hsd-section-title">Symptom → likely cause → fix</h2>
+  <h2 id="hsd-quick-table-label" class="${HSD_V25_SECTION_TITLE_CLASS}">Symptom → likely cause → fix</h2>
   <div class="hsd-section__body hsd-v2__table-wrap">
     <table class="hsd-v2__matrix hsd-quick-table" aria-labelledby="hsd-quick-table-label">
       <thead>
@@ -1409,7 +1479,7 @@ export function renderMermaid(flow: HsdV25Payload["diagnostic_flow"], slug?: str
       : "Use the text branches above to narrow the fault path before moving into refrigerant or compressor diagnosis.";
   return `
 <section class="${HSD_V25_FIGURE_SHELL}" aria-label="Visual diagnostic flow">
-  <h2 class="hsd-section__title hsd-section-title">Visual diagnostic flow</h2>
+  <h2 class="${HSD_V25_SECTION_TITLE_CLASS}">Visual diagnostic flow</h2>
   <div class="hsd-figure__surface rounded-lg border border-slate-200 bg-slate-50 px-4 py-6 text-sm font-medium text-slate-700 dark:border-slate-600 dark:bg-slate-900/40 dark:text-slate-300">
     ${escapeHtml(caption)}
   </div>
@@ -1460,7 +1530,7 @@ export function sectionRepairMatrix(
     .join("");
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("repair_matrix")}">
-  <h2 class="hsd-section__title hsd-section-title">Repair matrix</h2>
+  <h2 class="${HSD_V25_SECTION_TITLE_CLASS}">Repair matrix</h2>
   <div class="hsd-section__body">
     ${introBlock}
     <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-600">
@@ -1492,7 +1562,7 @@ export function sectionCostEscalation(cost_escalation: HsdV25Payload["cost_escal
     .join("");
   return `
 <section class="${HSD_V25_SECTION_SHELL}">
-  <h2 id="${hsdSectionDomId("cost_escalation")}" class="hsd-section__title hsd-section-title"><span aria-hidden="true">⚡</span> Cost escalation</h2>
+  <h2 id="${hsdSectionDomId("cost_escalation")}" class="${HSD_V25_SECTION_TITLE_CLASS}"><span aria-hidden="true">⚡</span> Cost escalation</h2>
   <div class="hsd-section__body">
     <p class="hsd-cost-esc-lead mb-4 text-sm font-semibold leading-relaxed text-slate-800 dark:text-slate-200">There is no idle recovery once the system runs wrong under load. Delay burns the cheap exit first, then leaves only expensive repairs.</p>
     <ol class="hsd-v2__cost-esc">${items}</ol>
@@ -1517,7 +1587,7 @@ export function sectionDecision(
     : "";
   return `
 <section class="${HSD_V25_DECISION_SHELL}" id="${hsdSectionDomId("decision")}">
-  <h2 class="hsd-section__title hsd-section-title">What you should do now</h2>
+  <h2 class="${HSD_V25_SECTION_TITLE_CLASS}">What you should do now</h2>
   <div class="hsd-section__body hsd-v2__cols">
     ${col("hsd-decision-safe", `<span aria-hidden="true">🟦</span> Safe — try first`, decision.safe)}
     ${col("hsd-decision-call", `<span aria-hidden="true">🟨</span> Call a pro — no longer DIY`, decision.call_pro)}
@@ -1538,7 +1608,7 @@ export function sectionFinalWarning(
   );
   return `
 <section class="${HSD_V25_FINAL_SHELL}">
-  <h2 id="${hsdSectionDomId("final_warning")}" class="hsd-section__title hsd-section-title"><span aria-hidden="true">🔥</span> Final warning</h2>
+  <h2 id="${hsdSectionDomId("final_warning")}" class="${HSD_V25_SECTION_TITLE_CLASS}"><span aria-hidden="true">🔥</span> Final warning</h2>
   <div class="hsd-section__body space-y-3">${paras}</div>
 </section>`.trim();
 }
@@ -1607,6 +1677,10 @@ function buildHsdV25MidBlocks(data: HsdV25RenderInput): HsdV25HtmlBlock[] {
     { priority: P.system_age_load, html: sectionSystemAgeLoad(data.system_age_load) },
     { priority: P.code_updates, html: sectionCodeUpdates(data.code_updates) },
     { priority: P.repair_vs_replace, html: sectionRepairVsReplace(data.repair_vs_replace) },
+    {
+      priority: P.risk_escalation,
+      html: hsdPageVertical(data) === "electrical" ? sectionRiskEscalation(data.risk_escalation) : "",
+    },
     { priority: P.upgrade_paths, html: sectionUpgradePaths(data.upgrade_paths) },
     { priority: 99, html: canonicalTruthsEchoHtml(data.canonical_truths, "pre_decision") },
     { priority: P.decision, html: sectionDecision(data.decision, data.decision_footer, data.vertical) },
@@ -1659,7 +1733,7 @@ export function renderHsdV25(data: HsdV25RenderInput | Record<string, unknown>):
   ];
   const slug = String((safe as { slug?: string }).slug ?? "").trim();
   const leeClusterFooter = buildLeeCountyTradeClusterFooterHtml(slug);
-  const related = leeClusterFooter ? "" : sectionInternalRelatedLinks(safe);
-  const inner = `${header}\n${joinSortedHsdV25Blocks(blocks)}\n${related}${leeClusterFooter ? `\n${leeClusterFooter}` : ""}`.trim();
+  const related = sectionInternalRelatedLinks(safe);
+  const inner = `${header}\n${joinSortedHsdV25Blocks(blocks)}\n${related}\n${leeClusterFooter}`.trim();
   return wrapHsdV25LayoutDocument(inner);
 }

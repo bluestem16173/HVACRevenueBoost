@@ -80,13 +80,19 @@ export default async function Page({
     notFound();
   }
 
+  const contentHtml = String((page as { content_html?: unknown }).content_html ?? "").trim();
   const parsed = parseContentJson((page as { content_json?: unknown }).content_json);
-  if (!parsed) notFound();
 
   const storageSlug = String((page as { slug?: string }).slug ?? slug).trim();
   const vertical = verticalFromStorageSlug(storageSlug);
 
-  const html = renderHsdV25({ ...parsed, vertical });
+  const html = contentHtml
+    ? contentHtml
+    : parsed
+      ? renderHsdV25({ ...parsed, vertical })
+      : "";
+
+  if (!html) notFound();
 
   return (
     <div className="hsd-v25-root min-h-screen bg-white dark:bg-slate-950" dangerouslySetInnerHTML={{ __html: html }} />

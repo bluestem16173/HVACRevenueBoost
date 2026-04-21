@@ -218,7 +218,7 @@ STYLE RULES (CRITICAL)
 - No filler phrases: NO "understanding", "in this guide", "we will explore", "learn about", consumer-blog openers.
 - No meta commentary: NO "this section", "expert layer", "as you read", "this guide".
 - No HTML tags in any string.
-- **Line breaks:** most scalar fields stay **one continuous block** (no internal \\n). **Exceptions:** (1) **summary_30s.flow_lines** — each **array item** is one scan line; use **4+** items. (2) **summary_30s.core_truth**, **what_this_means**, **final_warning**, **cta** may use **one** blank line (\\n\\n) to split **at most two** short paragraphs when density demands it — no deeper nesting, no other fields.
+- **Line breaks:** most scalar fields stay **one continuous block** (no internal \\n). **Exceptions:** (1) **summary_30s.flow_lines** — each **array item** is one scan line; use **3–5** items (minimum **3**, prefer **4–5** for HVAC scan density; hard cap **8**). (2) **summary_30s.core_truth**, **what_this_means**, **final_warning**, **cta** may use **one** blank line (\\n\\n) to split **at most two** short paragraphs when density demands it — no deeper nesting, no other fields.
 - **Limit repetition:** the same verbatim sentence must **not** appear more than **twice** anywhere in the JSON. **canonical_truths** holds two iron laws; echo those **ideas** elsewhere with **new wording**, not copy-paste.
 - **Structured blocks first:** put scan ladders in \`quick_table\`, branch logic in \`decision_tree_text\` + \`diagnostic_flow\` (Mermaid), and cost paths in \`repair_matrix\`. Keep \`what_this_means\` to one dense mechanism paragraph — **do not** re-list full branch ladders that already live in those structured fields.
 
@@ -518,7 +518,7 @@ This block must read like a **field cheat sheet**: immediate clarity, fast scann
 
 **headline (H2 on site):** When **slug** is **hvac/ac-not-cooling/{city}**, use **exactly** \`AC Not Cooling? Start Here\` — no variation, no extra words. For **all other** pages: open decisive; minimum **50 characters** with **{{CITY}}** or **{{STATE}}** load context. **Forbidden:** "Understanding…", "In this guide…", "Learn about…", "We will explore…", "30-second read" (or variants) as headline suffix or standalone line, weak hedging.
 
-**flow_lines (REQUIRED — at least 4 strings):** Fast scan under the headline — **classify only** (symptom pattern → failure **class**). Do **not** put repair steps, “shut off…”, “call a pro…”, or dollar-based **fixes** in \`flow_lines\`; those belong in \`diagnostic_steps\`, \`decision\`, and \`repair_matrix\`. Do **not** use a line that is only meta like "30-second read". Line 1 is usually a **symptom gate** ending with a colon; following lines are **→** branches mapping signal → class (HVAC cooling example shape — adapt to symptom). For **HVAC**, **plumbing**, or **electrical** pages, also obey the **VERTICAL ANNEX** block appended in the user message (trade-specific scan shapes and hard constraints).
+**flow_lines (REQUIRED — 3–5 strings, minimum 3):** Fast scan under the headline — **classify only** (symptom pattern → failure **class**). Do **not** put repair steps, “shut off…”, “call a pro…”, or dollar-based **fixes** in \`flow_lines\`; those belong in \`diagnostic_steps\`, \`decision\`, and \`repair_matrix\`. Do **not** use a line that is only meta like "30-second read". Line 1 is usually a **symptom gate** ending with a colon; following lines are **→** branches mapping signal → class (HVAC cooling example shape — adapt to symptom). For **HVAC**, **plumbing**, or **electrical** pages, also obey the **VERTICAL ANNEX** block appended in the user message (trade-specific scan shapes and hard constraints).
 - "Fan runs but no cooling:"
 - "→ Filter → airflow restriction"
 - "→ Ice → frozen coil"
@@ -659,7 +659,7 @@ Before you output, verify (matches server Zod schema):
 - title: at least 10 characters
 - slug: regex ^(hvac|plumbing|electrical)/[a-z0-9-]+/[a-z0-9-]+$
 - cityContext: when slug includes a city (three path segments), **2–4** non-empty strings as in OUTPUT SCHEMA; otherwise \`[]\`
-- summary_30s: headline **≥ 50 characters** for most pages; **exact** \`AC Not Cooling? Start Here\` when \`slug\` matches \`hvac/ac-not-cooling/{city}\`; **flow_lines** at least **4** non-empty strings (arrow scan); core_truth at least 70 characters; risk_warning at least 45 characters with "$"; top_causes at least 3; every top_cause has **deep_dive** at least 120 characters
+- summary_30s: headline **≥ 50 characters** for most pages; **exact** \`AC Not Cooling? Start Here\` when \`slug\` matches \`hvac/ac-not-cooling/{city}\`; **flow_lines** at least **3** non-empty strings (arrow scan; prefer **4–5**); core_truth at least 70 characters; risk_warning at least 45 characters with "$"; top_causes at least 3; every top_cause has **deep_dive** at least 120 characters
 - what_this_means: at least **100** characters (expert bridge: diagnosis → buckets → wear)
 - canonical_truths: exactly **2** non-empty strings; their substance must appear in final_warning and at least one diagnostic_steps.risk in **fresh wording** (no more than **two** identical verbatim sentences anywhere in the full JSON); the site surfaces the two lines **twice** in layout — do not paste the same verbatim line into four different sections
 - decision_tree_text: at least 3 non-empty strings using → or -> between segments
@@ -690,7 +690,7 @@ No filler.
 No shallow statements — every populated string should carry mechanical reasoning, escalation, or decision pressure where that field allows it.
 No keys beyond those shown in OUTPUT SCHEMA (required + extension blocks).
 No missing **required** fields.
-No line breaks inside string fields **except** optional **\\n\\n** in **summary_30s.core_truth**, **what_this_means**, **final_warning**, and **cta** (at most one blank line each). **summary_30s.flow_lines** stays one line per array item (4+ items).
+No line breaks inside string fields **except** optional **\\n\\n** in **summary_30s.core_truth**, **what_this_means**, **final_warning**, and **cta** (at most one blank line each). **summary_30s.flow_lines** stays one line per array item (**3–5** items, minimum **3**, max **8**).
 `.trim();
 
 /** Inject INPUT lines; escape backslashes and flatten newlines inside values. */

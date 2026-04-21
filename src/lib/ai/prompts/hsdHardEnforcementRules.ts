@@ -35,31 +35,60 @@ This page is a diagnostic engine, not a blog post.
 11. System Age & Load
 12. Code Updates
 13. Repair vs Replace
-14. Upgrade Paths
-15. CTA
+14. Risk Escalation (**electrical only** — heat → arcing → fire framing; omit on HVAC/plumbing unless you have trade-correct escalation copy)
+15. Upgrade Paths
+16. CTA
 
-### FIELD TRIAGE RULES
+### ELECTRICAL \`risk_escalation\` (optional JSON object — **high value**)
 
-- Field Triage MUST classify only.
-- Field Triage MUST NOT include fixes, repairs, replacements, or recommendations.
-- Each line must be: symptom state → likely failure class.
-- Each line must be short.
-- If any triage line includes phrases like "replace", "flush", "repair", "call", or "install", the output is invalid.
-- **plumbing/no-hot-water:** \`summary_30s.core_truth\` must stay **classification framing** (why the scan lines exist). **Forbidden in core_truth:** consequence/threat openers like "Ignoring …", "can lead to …", "if left untreated …", or any paragraph that reads like a blog warning — those belong in \`risk_warning\`, \`final_warning\`, or cost sections, not stacked under the triage scan.
+When the job is **electrical** (slug starts with \`electrical/\`), include \`risk_escalation\` with:
+- \`intro\`: one line that states faults **do not stay contained** (or equivalent decisive framing).
+- \`if_ignored\`: **≥ 2** short escalation chains using **→** (minimum three beats total across lines), covering **overheating / insulation**, **loose connections / arcing**, and **arcing / fire risk** without soft hedging.
+- \`closing\`: ties the **starting symptom** (e.g. breaker tripping) to **fire / structural hazard** when ignored.
+- Optional \`title\`: default intent is **Risk escalation** (renderer fallback).
 
-GOOD EXAMPLE:
+### FIELD TRIAGE RULES (MANDATORY)
 
-No hot water at all?
-→ Power loss or failed element
+**Purpose:** Help the user recognize their exact situation **instantly**.
 
-Water warm but not hot?
-→ Partial element failure or thermostat issue
+**Requirements:**
+- MUST be based on **observable behavior** (what the user sees, hears, or feels).
+- MUST NOT use abstract or system-framework language (e.g. "control class", "mechanical class", "failure domain", "subsystem imbalance").
+- MUST NOT include fixes, actions, or recommendations (no "check", "replace", "call", "reset", "flush", "install", "hire", "schedule").
+- MUST NOT use internal-only diagnostic jargon meant for techs, not homeowners.
+- **\`summary_30s.flow_lines\`:** **3–5 lines max.** Each line MUST follow: **\[user scenario\] → \[likely failure type\]** (plain language; the right side names what class of fault the pattern points to, not what to do about it).
 
-Hot water runs out fast?
-→ Sediment limiting recovery
+**Style:** Short, scannable, instantly recognizable.
 
-Rusty or discolored water?
-→ Tank corrosion (replacement path)
+**FAIL:** Triage reads like a technical framework, **or** a user cannot immediately match a line to their situation, **or** any triage line contains fix/action language → **INVALID**.
+
+- **plumbing/no-hot-water:** \`summary_30s.core_truth\` stays **classification framing** (why the scan lines exist). **Forbidden in core_truth:** consequence/threat openers like "Ignoring …", "can lead to …", "if left untreated …" — those belong in \`risk_warning\`, \`final_warning\`, cost sections, \`what_this_means\`, or \`risk_escalation\` (electrical), not under the triage scan.
+
+### URGENCY MODEL (MANDATORY — ALL TRADES)
+
+Communicate risk **without exaggeration** and **without scare tactics**.
+
+**Rules:**
+- Use **cause → effect → consequence** chains (physical escalation), not emotional adjectives.
+- **Forbidden:** vague dread ("this could be bad"), **forbidden:** catastrophic hype ("your house will burn down", "disaster", "nightmare").
+
+**Every page MUST include:**
+1. **Why this matters (mechanical reality):** primarily in \`what_this_means\` — observable mechanism, how the fault behaves under load, what gets worse if the condition persists (still classification + physics, not triage fixes).
+2. **Hard truth (decision pressure):** at least one unmistakable line — typically the closing beat of \`repair_vs_replace\` **or** a single sharp line in \`summary_30s.risk_warning\` / \`final_warning\` that states the cost/stop implication without drama.
+
+**Structure to hit across the page (weave into allowed fields, do not duplicate verbatim 4×):**
+- Reality block: cause → effect
+- Escalation: what physically happens if ignored
+- Decision pressure: clear implication (delay/stabilize/cost)
+
+### ELECTRICAL URGENCY (CRITICAL)
+
+Treat electrical faults as **safety-class**, not annoyance-class.
+
+**Requirements:**
+- MUST address heat buildup, abnormal current, and/or arc risk where relevant to the symptom.
+- MUST treat breakers as **protective devices** (they interrupt fault current) — **do not** normalize repeated trips as "nuisance" or "just reset it."
+- Align escalation copy with \`risk_escalation\` when present: faults **do not stay contained**; uncorrected trip sources → heat in conductors → insulation stress → arc risk. **Hard truth** tone (example class): *A breaker that keeps tripping is not the problem — it is the warning.*
 
 ### WHAT THIS MEANS RULES
 
@@ -200,6 +229,16 @@ If you are stacking repairs, you are already in replacement territory.
 
 The live **Related** band is powered by \`internal_links.related_symptoms\`. **Missing \`internal_links\`, empty arrays where counts are required, or breaking the rules below → output is INVALID.**
 
+#### LOCALIZED ELECTRICAL + LEE GRID (\`electrical/{symptom}/{city-fl}\`) — **ANCHOR HUB (HARD)**
+
+- **Every** such page MUST list \`electrical/breaker-keeps-tripping/fort-myers-fl\` in \`related_symptoms\` **unless** the page slug **is** exactly that path (do not link to yourself).
+- Use **slug path only** (no leading \`/\`, no \`https://\`). The server may merge a deterministic set at finalize — still emit this anchor in model output so validation matches intent.
+- Include **at least 4** total \`related_symptoms\` entries (max **5**): anchor + same-city peers + national pillar \`electrical/{condition_slug}\` + one cross-city same-symptom path. **Never** cross-trade links.
+- **HTML injection (Lee \`*-fl\` plumbing/electrical locals):** The renderer appends crawl-safe **Problem cluster** (national pillar + same symptom across multiple Lee cities, Fort Myers first when applicable) and **Related problems** (same-city, different symptoms) **above the site footer**. Do not mirror those blocks as long prose or second footers in the JSON body.
+- **Three-segment trade locals (\`{trade}/{condition}/{city}\`):** The **Related Pages** strip (national condition primer + two same-trade/city peers) is rendered by the **Next.js layout shell**, not \`content_json\` — do **not** duplicate that three-link block in the model output.
+
+---
+
 - \`related_symptoms\` MUST have **3, 4, or 5** string entries (inclusive). Each entry is a **slug path only** (e.g. \`plumbing/water-heater-leaking/fort-myers-fl\`). **No** \`https://\`, **no** domains, **no** bare \`/\` homepage.
 - **At least 2** entries: **same trade** as the job, **different symptom** from this page, **same failure cluster or system story** (technician-plausible laterals — not random slugs).
   - When the job storage slug has **three** segments (\`{vertical}/{symptom}/{city-fl}\`), those **≥2** laterals MUST end with the **same \`{city-fl}\`** tail as the job.
@@ -209,12 +248,13 @@ The live **Related** band is powered by \`internal_links.related_symptoms\`. **M
 - **Never** link to **another vertical**, marketing homepage only, or off-site URLs inside these arrays.
 - Still populate \`system_pages\` and \`repair_guides\` per the server contract (counts in the master prompt) — they complement Related; they do not replace it.
 
-### STYLE RULES
+### STYLE LOCK (GLOBAL)
 
+- Sound like a **field technician**, not a marketer.
+- Be **direct**, not dramatic; **precise**, not verbose; every sentence must add clarity or legitimate decision pressure.
 - Prefer short paragraphs and lists over long paragraphs.
-- Use arrows (→) to show causality.
-- Sound clinical, not dramatic.
-- Sound urgent when risk is real, not everywhere.
+- Use arrows (→) to show causality where the schema allows.
+- Urgent **only** where risk is real and explained physically — not on every line.
 - Do not pad the page with repeated warnings.
 
 ### FINAL QUALITY BAR
@@ -233,19 +273,33 @@ If it feels like an article, the output failed.
 
 Use these as anchor examples inside the prompt so the model has something concrete to imitate.
 
-### FIELD TRIAGE EXAMPLE
+### FIELD TRIAGE EXAMPLE (PLUMBING — LOCK PATTERN)
 
 No hot water at all?
-→ Power loss or failed element
+→ Heating failure or power issue
 
-Water warm but not hot?
-→ Partial element failure or thermostat issue
+Water starts hot then turns cold quickly?
+→ Sediment or recovery problem
 
-Hot water runs out fast?
-→ Sediment limiting recovery
+Rusty or discolored hot water?
+→ Tank corrosion
 
-Rusty or discolored water?
-→ Tank corrosion (replacement path)
+Water pooling around the heater?
+→ Leak or tank failure
+
+### FIELD TRIAGE EXAMPLE (ELECTRICAL — LOCK PATTERN)
+
+Breaker trips immediately when you reset it?
+→ Short circuit or ground fault
+
+Breaker trips when you turn something on?
+→ Circuit overload or failing device
+
+Breaker trips randomly with no pattern?
+→ Loose connection or intermittent fault
+
+Breaker trips during rain or humidity?
+→ Outdoor or moisture-related fault
 
 ### WHAT THIS MEANS EXAMPLE
 
@@ -303,24 +357,30 @@ Before a page can publish, make it pass these checks:
 
 ### PUBLISH FAIL CONDITIONS
 
-1. Field Triage contains: replace, repair, flush, install, call → FAIL
-2. "What This Means" does not contain at least 3 arrows (→) → FAIL
-3. "What This Means" contains generic phrases like: system is not functioning / serious issues / major failure if not addressed → FAIL
-4. "Diagnostic Flow" does not contain at least 3 IF branches → FAIL
-5. "Common Misdiagnosis" section missing → FAIL
-6. "Common Misdiagnosis" has fewer than 4 bullet items → FAIL
-7. "Repair vs Replace" missing: one jury-rigging / temporary-fix example, repair-first rules, replace-first rules, one hard-truth line → FAIL
-8. Quick Checks intro longer than 1 short paragraph → FAIL
-9. Page repeats the same urgency warning 3+ times with no new info → FAIL
-10. Output reads like a general article instead of a decision tool → FAIL
-11. \`internal_links\` missing / malformed, or \`related_symptoms\` length not in **3–5** → FAIL
-12. **Three-segment job:** fewer than **2** \`related_symptoms\` entries share this job’s **trade** and **city \`*-fl\` tail** → FAIL
-13. No \`related_symptoms\` entry is a **different city** on the same trade **or** a **two-segment** same-trade system/primer path (when a national bridge is required) → FAIL
-14. Any \`related_symptoms\` entry crosses trades, is empty, is only \`/\`, or duplicates the same path twice → FAIL
+1. Field Triage contains fix/action language (replace, repair, flush, install, call, check, reset, schedule, hire) → FAIL
+2. Field Triage uses abstract framework labels ("control class", "mechanical class", internal-only jargon) **or** is not built from observable user scenarios → FAIL
+3. When \`summary_30s.flow_lines\` is non-empty (triage scan), it has fewer than **3** or more than **5** lines **or** any line does not follow **observable scenario → likely failure type** → FAIL
+4. "What This Means" does not contain at least 3 arrows (→) → FAIL
+5. "What This Means" contains generic phrases like: system is not functioning / serious issues / major failure if not addressed → FAIL
+6. Page lacks a clear **hard truth** / decision-pressure line (repair vs replace tail, risk_warning, or final_warning) → FAIL
+7. Urgency is **vague** ("this could be bad") **or** **exaggerated** / catastrophic without physical chain → FAIL
+8. **Electrical** pages: no heat/current/arc or breaker-as-protection positioning where the symptom warrants it, **or** repeated trips framed as normal nuisance → FAIL
+9. "Diagnostic Flow" does not contain at least 3 IF branches → FAIL
+10. "Common Misdiagnosis" section missing → FAIL
+11. "Common Misdiagnosis" has fewer than 4 bullet items → FAIL
+12. "Repair vs Replace" missing: one jury-rigging / temporary-fix example, repair-first rules, replace-first rules, one hard-truth line → FAIL
+13. Quick Checks intro longer than 1 short paragraph → FAIL
+14. Page repeats the same urgency warning 3+ times with no new info → FAIL
+15. Output reads like a general article instead of a decision tool → FAIL
+16. \`internal_links\` missing / malformed, or \`related_symptoms\` length not in **3–5** → FAIL
+17. **Three-segment job:** fewer than **2** \`related_symptoms\` entries share this job’s **trade** and **city \`*-fl\` tail** → FAIL
+18. No \`related_symptoms\` entry is a **different city** on the same trade **or** a **two-segment** same-trade system/primer path (when a national bridge is required) → FAIL
+19. Any \`related_symptoms\` entry crosses trades, is empty, is only \`/\`, or duplicates the same path twice → FAIL
+20. **Localized electrical + Lee grid** (\`electrical/*/*-fl\`): \`related_symptoms\` omits \`electrical/breaker-keeps-tripping/fort-myers-fl\` when the job slug is **not** that path → FAIL
 
 ### THE REAL ISSUE IN YOUR CURRENT PAGE
 
-The latest version still has triage giving fixes, "What This Means" staying generic, diagnostic flow mixing checklist with commentary, and no Common Misdiagnosis section yet.
+The latest version still has triage using framework language or sneaking in actions, urgency that is either mushy or overheated with no physics chain, missing hard-truth pressure, "What This Means" staying generic, diagnostic flow mixing checklist with commentary, or a thin Common Misdiagnosis section.
 
 ### NEXT MOVE
 

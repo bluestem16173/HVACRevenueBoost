@@ -5,6 +5,7 @@ import HvacTradeHubPage from "@/components/hubs/HvacTradeHubPage";
 import HvacWhyAcIsntCoolingPillar from "@/components/hubs/HvacWhyAcIsntCoolingPillar";
 import PlumbingTradeHubPage from "@/components/hubs/PlumbingTradeHubPage";
 import { DiagnosticPageView } from "@/components/DiagnosticPageView";
+import { RelatedPagesSection } from "@/components/diagnose/RelatedPagesSection";
 import { DiagnosticVerticalNav } from "@/components/diagnostic-hub/DiagnosticVerticalNav";
 import { HvacAuthorityLoopNav } from "@/components/homeservice/HvacAuthorityLoopNav";
 import { RenderAuthority } from "@/components/RenderAuthority";
@@ -86,6 +87,8 @@ export async function renderHvacDeepAuthority(tail: string[]): Promise<React.Rea
   const symptom = String(parts[0] ?? "").trim().toLowerCase();
   const isCityPage = joinedSlugEndsWithCityStorage(raw);
   const citySeg = isCityPage && parts.length >= 2 ? String(parts[parts.length - 1] ?? "").toLowerCase() : "";
+  const relatedPagesSlug =
+    isCityPage && symptom && citySeg ? `hvac/${symptom}/${citySeg}`.toLowerCase() : null;
 
   if (row.content_json) {
     return (
@@ -94,6 +97,7 @@ export async function renderHvacDeepAuthority(tail: string[]): Promise<React.Rea
           <HvacAuthorityLoopNav variant="city" symptom={symptom} citySlug={citySeg || null} />
         ) : null}
         <RenderAuthority content={row.content_json} vertical="hvac" />
+        {relatedPagesSlug ? <RelatedPagesSection slug={relatedPagesSlug} /> : null}
       </>
     );
   }
@@ -105,6 +109,7 @@ export async function renderHvacDeepAuthority(tail: string[]): Promise<React.Rea
           <HvacAuthorityLoopNav variant="city" symptom={symptom} citySlug={citySeg || null} />
         ) : null}
         <div dangerouslySetInnerHTML={{ __html: ch }} />
+        {relatedPagesSlug ? <RelatedPagesSection slug={relatedPagesSlug} /> : null}
       </>
     );
   }
@@ -114,6 +119,7 @@ export async function renderHvacDeepAuthority(tail: string[]): Promise<React.Rea
         <HvacAuthorityLoopNav variant="city" symptom={symptom} citySlug={citySeg || null} />
       ) : null}
       <div className="p-6 text-slate-600">No renderable content_json or content_html.</div>
+      {relatedPagesSlug ? <RelatedPagesSection slug={relatedPagesSlug} /> : null}
     </>
   );
 }
@@ -286,18 +292,22 @@ export async function renderPlumbingElectricalCity(
   const page = await getIndexablePageForLocalizedRoute(vertical, symptom, city);
   if (!page) return null;
   const localLabel = formatCityPathSegmentForDisplay(city);
+  const relatedSlug = `${vertical}/${symptom}/${city}`.toLowerCase();
   return (
-    <DiagnosticPageView
-      page={page as any}
-      localLabel={localLabel}
-      relatedVertical={vertical}
-      localizedChrome={{
-        vertical,
-        pillarSlug: symptom,
-        citySlug: city,
-        cityLabel: localLabel,
-      }}
-    />
+    <>
+      <DiagnosticPageView
+        page={page as any}
+        localLabel={localLabel}
+        relatedVertical={vertical}
+        localizedChrome={{
+          vertical,
+          pillarSlug: symptom,
+          citySlug: city,
+          cityLabel: localLabel,
+        }}
+      />
+      <RelatedPagesSection slug={relatedSlug} />
+    </>
   );
 }
 

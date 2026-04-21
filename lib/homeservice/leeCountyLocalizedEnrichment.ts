@@ -49,6 +49,26 @@ function plumbingCityContextLines(place: string, citySeg: string): string[] {
       "Older galvy and CPVC transitions remain common—separate material-era joints from active tank faults before repeated element swaps.",
       "Storm-season pressure swings can track county-wide; confirm house-wide gauges before focusing on the heater alone.",
     ],
+    "fort-myers-beach-fl": [
+      `In ${place}, salt air and seasonal occupancy swings stress exterior hose bibs, pan weeps, and tank jackets before slab intrusion shows.`,
+      "Storm surge history means replaced heaters still sit in humid mechanical rooms—verify relief and pan paths after major weather.",
+      "Short hot-water complaints after guest peaks often track recovery and mixing, not immediate tank failure.",
+    ],
+    "san-carlos-park-fl": [
+      `In ${place}, dense lots and hard water accelerate scale on elements and dip tubes—recovery drops before the tank shell fails.`,
+      "Garage and lanai installs see jacket rust first—small weeps at unions become floor damage under humid runtime.",
+      "Evening multi-bath draws separate distribution faults from true heater faults.",
+    ],
+    "gateway-fl": [
+      `In ${place}, large homes and high fixture counts create sharp hot-water demand—recirc and mixing issues mimic undersized tanks.`,
+      "Newer builds still see hard-water scale—verify setpoints and draw timing before replacement.",
+      "Pool and outdoor kitchens add hose-bib corrosion cycles—exterior leaks often precede interior symptoms.",
+    ],
+    "alva-fl": [
+      `In ${place}, well water and irrigation stacks mineral load on elements and accelerates dip-tube debris.`,
+      "Rural line runs and outbuildings hide slow leaks—pressure swings can track pump or supply, not the tank alone.",
+      "Storm outages align with sediment disturbance—flush discipline matters before stacking element swaps.",
+    ],
   };
   if (byCity[k]) return byCity[k]!;
   return [
@@ -91,6 +111,26 @@ function electricalCityContextLines(place: string, citySeg: string): string[] {
       "Storm seasons align with surge and neutral-instability calls—document which rooms lose power together.",
       "Well and irrigation pump circuits add motor sag—separate branch faults from pump starts before stacking resets.",
     ],
+    "fort-myers-beach-fl": [
+      `In ${place}, salt fog, surge history, and generator-backed homes stack AFCI/GFCI trips and outdoor disconnect corrosion faster than inland Lee.`,
+      "Storm rebuilds and elevated humidity keep fault paths conductive—intermittent trips often return after the next load spike.",
+      "When docks, pools, and whole-home cooling run together, watch for heat at the main before branch devices fail outright.",
+    ],
+    "san-carlos-park-fl": [
+      `In ${place}, dense residential lots and mixed panel ages mean overloaded neutrals and backstabbed devices show up as flicker, nuisance trips, or half-leg loss.`,
+      "Humid garage and lanai runs corrode GFCI and exterior boxes—verify torque before repeated resets.",
+      "Peak cooling plus kitchen loads stress older mains—separate true overload from loose service equipment.",
+    ],
+    "gateway-fl": [
+      `In ${place}, newer builds pack EV, pool, and large-kitchen circuits—AFCI density and neutral discipline issues masquerade as “bad breakers.”`,
+      "Whole-home surge gear is common—labeling and neutral errors surface as random trips under humidity.",
+      "High simultaneous afternoon draw tests service limits—heat at the meter base is a stop signal.",
+    ],
+    "alva-fl": [
+      `In ${place}, rural feeders, well pumps, and outbuildings add long runs and motor starts that show up as sag, trip, or ground-fault confusion at the house panel.`,
+      "Storm and irrigation load spikes align with nuisance trips—separate motor faults from branch wiring before resets.",
+      "Older mains with added barn or shop circuits overload neutrals—document what drops together when a trip returns.",
+    ],
   };
   if (byCity[k]) return byCity[k]!;
   return [
@@ -132,6 +172,26 @@ function hvacCityContextLines(place: string, citySeg: string): string[] {
       `In ${place}, mixed housing ages mean duct leakage and under-sized returns masquerade as “low charge” until static is measured.`,
       "River-adjacent humidity plus long runtimes stress condensate paths—pan switches trip during peak weeks.",
       "Voltage sag after storms aligns with no-cool calls—verify supply before sealed-system work.",
+    ],
+    "fort-myers-beach-fl": [
+      `In ${place}, salt air and tight coastal envelopes keep coils wet and outdoor electrical shells corroding—capacity loss tracks airflow and drain paths before charge faults.`,
+      "Generator and surge seasons stack control faults—verify supply stability before compressor work.",
+      "Canal breezes can mask overheating—measure supply/return, not guesswork alone.",
+    ],
+    "san-carlos-park-fl": [
+      `In ${place}, long cooling seasons and humid garages stress condensate and capacitor classes before major sealed-system spend.`,
+      "Mixed housing ages mean duct leakage reads as “not keeping up” until static is checked.",
+      "Afternoon storms align with no-cool calls—separate utility blips from refrigerant-class failures.",
+    ],
+    "gateway-fl": [
+      `In ${place}, newer glass-heavy plans drive high latent load—short cycling and humidity complaints often track airflow and zoning, not charge alone.`,
+      "Large homes stack evening runtime—condensate and pan switches trip during peak humidity weeks.",
+      "EV and pool heat loads add outdoor electrical stress—verify disconnects when cooling dips under whole-home draw.",
+    ],
+    "alva-fl": [
+      `In ${place}, well pumps, long line sets, and outbuildings add voltage sag and intermittent no-cool calls that track to supply and control, not charge alone.`,
+      "Inland heat and dust load filters and coils faster—verify airflow before sealed-system spend.",
+      "Storm outages align with surge damage—verify outdoor electrical before blaming refrigerant.",
     ],
   };
   if (byCity[k]) return byCity[k]!;

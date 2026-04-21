@@ -49,6 +49,15 @@ export type Lead = {
   consent_at?: string;
   consent_text_version?: string;
   created_at?: string;
+  /** Storage-style path from URL (no leading slash). */
+  page_slug?: string;
+  /** City segment from localized URL (e.g. `fort-myers-fl`). */
+  page_city_slug?: string;
+  /** Trade segment from URL when present (hvac | plumbing | electrical). */
+  trade?: string;
+  utm_source?: string;
+  utm_campaign?: string;
+  utm_term?: string;
 };
 
 export async function POST(req: Request) {
@@ -117,8 +126,25 @@ export async function POST(req: Request) {
       );
     }
 
+    const b = body as Record<string, unknown>;
+    const pageSlugAttr = String(b.page_slug ?? "").trim().slice(0, 512);
+    const pageCitySlugAttr = String(b.page_city_slug ?? "").trim().toLowerCase().slice(0, 128);
+    const routeTradeAttr = String(b.trade ?? "").trim().toLowerCase().slice(0, 32);
+    const utmSource = String(b.utm_source ?? "").trim().slice(0, 256);
+    const utmCampaign = String(b.utm_campaign ?? "").trim().slice(0, 256);
+    const utmTerm = String(b.utm_term ?? "").trim().slice(0, 256);
+
     let citySlug: string | null = null;
-    if (city) {
+    if (pageCitySlugAttr && /^[a-z0-9-]+-[a-z]{2}$/.test(pageCitySlugAttr)) {
+      try {
+        const found = await sql`SELECT slug FROM cities WHERE LOWER(slug) = ${pageCitySlugAttr} LIMIT 1`;
+        if ((found as { slug: string }[]).length) citySlug = (found as { slug: string }[])[0].slug;
+        else citySlug = pageCitySlugAttr;
+      } catch {
+        citySlug = pageCitySlugAttr;
+      }
+    }
+    if (!citySlug && city) {
       const slug = city.toLowerCase().replace(/\s+/g, "-");
       try {
         const found = await sql`SELECT slug FROM cities WHERE slug = ${slug} LIMIT 1`;
@@ -137,8 +163,49 @@ export async function POST(req: Request) {
             ? "electrical"
             : "hvac";
     const src = (source_page || "/").toString().slice(0, 2048);
+    const attrLine = [
+      pageSlugAttr && `page_slug=${pageSlugAttr}`,
+      pageCitySlugAttr && `page_city=${pageCitySlugAttr}`,
+      routeTradeAttr && `route_trade=${routeTradeAttr}`,
+      utmSource && `utm_source=${utmSource}`,
+      utmCampaign && `utm_campaign=${utmCampaign}`,
+      utmTerm && `utm_term=${utmTerm}`,
+    ]
+      .filter(Boolean)
+      .join(" ");
 
-    try {
+    const insertWithAttribution = async () => {
+      await sql`
+        INSERT INTO leads (
+          first_name, last_name, phone, zip_code,
+          system_type, issue_description, urgency,
+          city_slug, status,
+          sms_consent, sms_consent_at, sms_consent_text_version, source_page,
+          page_slug, page_city_slug, utm_source, utm_campaign, utm_term
+        ) VALUES (
+          ${firstName},
+          ${lastName || ""},
+          ${phone || ""},
+          ${zip || location_raw || ""},
+          ${st},
+          ${issue || ""},
+          ${urgency || "asap"},
+          ${citySlug},
+          'new',
+          ${true},
+          ${consentAt},
+          ${consentVersion},
+          ${src},
+          ${pageSlugAttr || null},
+          ${pageCitySlugAttr || null},
+          ${utmSource || null},
+          ${utmCampaign || null},
+          ${utmTerm || null}
+        )
+      `;
+    };
+
+    const insertConsentOnly = async () => {
       await sql`
         INSERT INTO leads (
           first_name, last_name, phone, zip_code,
@@ -161,28 +228,47 @@ export async function POST(req: Request) {
           ${src}
         )
       `;
-      console.log("[API/LEAD] Lead archived in database (with SMS consent audit).");
+    };
+
+    const insertLegacy = async () => {
+      await sql`
+        INSERT INTO leads (
+          first_name, last_name, phone, zip_code,
+          system_type, issue_description, urgency,
+          city_slug, status
+        ) VALUES (
+          ${firstName},
+          ${lastName || ""},
+          ${phone || ""},
+          ${zip || location_raw || ""},
+          ${st},
+          ${issue || ""},
+          ${urgency || "asap"},
+          ${citySlug},
+          'new'
+        )
+      `;
+    };
+
+    try {
+      await insertWithAttribution();
+      console.log("[API/LEAD] Lead archived in database (with SMS consent + attribution).");
     } catch (dbErr: unknown) {
       const msg = dbErr instanceof Error ? dbErr.message : String(dbErr);
-      if (msg.includes("sms_consent") || msg.includes("42703") || msg.includes("column")) {
-        await sql`
-          INSERT INTO leads (
-            first_name, last_name, phone, zip_code,
-            system_type, issue_description, urgency,
-            city_slug, status
-          ) VALUES (
-            ${firstName},
-            ${lastName || ""},
-            ${phone || ""},
-            ${zip || location_raw || ""},
-            ${st},
-            ${issue || ""},
-            ${urgency || "asap"},
-            ${citySlug},
-            'new'
-          )
-        `;
-        console.warn("[API/LEAD] Inserted without consent columns — run npm run db:migrate-020 on this database.");
+      const missingCol = msg.includes("42703") || msg.includes("column") || msg.includes("page_slug");
+      if (missingCol) {
+        try {
+          await insertConsentOnly();
+          console.log("[API/LEAD] Lead archived (consent columns; run db:migrate-021 for attribution columns).");
+        } catch (dbErr2: unknown) {
+          const msg2 = dbErr2 instanceof Error ? dbErr2.message : String(dbErr2);
+          if (msg2.includes("sms_consent") || msg2.includes("42703") || msg2.includes("column")) {
+            await insertLegacy();
+            console.warn("[API/LEAD] Inserted without consent columns — run npm run db:migrate-020 on this database.");
+          } else {
+            console.error("[API/LEAD] DB insert failed:", dbErr2);
+          }
+        }
       } else {
         console.error("[API/LEAD] DB insert failed:", dbErr);
       }
@@ -195,7 +281,7 @@ export async function POST(req: Request) {
         st === "plumbing" ? "Plumbing" : st === "electrical" ? "Electrical" : st === "rv_hvac" ? "RV HVAC" : "HVAC";
       const adminTo = adminAlertSmsToForSystemType(st);
       const adminMessage = await sendLeadSMS(
-        `New ${tradeLabel} lead (consent ${consentVersion} @ ${consentAt})\nName: ${displayName}\nPhone: ${phone}\nIssue: ${issue || "N/A"}\nLocation: ${location_raw || "N/A"}\nSource: ${src}`,
+        `New ${tradeLabel} lead (consent ${consentVersion} @ ${consentAt})\nName: ${displayName}\nPhone: ${phone}\nIssue: ${issue || "N/A"}\nLocation: ${location_raw || "N/A"}\nSource: ${src}${attrLine ? `\nAttribution: ${attrLine}` : ""}`,
         adminTo
       );
       console.log("TWILIO RESPONSE (ADMIN):", adminMessage);

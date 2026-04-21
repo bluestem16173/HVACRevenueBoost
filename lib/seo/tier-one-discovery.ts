@@ -47,7 +47,7 @@ export function isTierOneHvacCoreSymptom(symptom: string): boolean {
  * - `plumbing/{x}` / `electrical/{x}` national pillars (2 segments)
  * - `hvac/{symptom}/{city}` where symptom is core and city ∈ `TIER_ONE_CITIES`
  * - `plumbing|electrical/{symptom}/{city}` when slug is in the locked Lee monetization grid
- *   (`LEE_MONETIZATION_*` × `LEE_COUNTY_CITIES`)
+ *   (`LEE_MONETIZATION_*` × **10** `LEE_COUNTY_CITIES`)
  */
 export function isTierOneDiscoverableStorageSlug(slug: string): boolean {
   const s = enforceStoredSlug(slug).toLowerCase().replace(/\/+/g, "/");

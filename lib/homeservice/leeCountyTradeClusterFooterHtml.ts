@@ -1,21 +1,29 @@
 /**
- * Deterministic **cluster graph** footer for locked Lee County trade locals
- * (`/plumbing|/electrical/{symptom}/{city}-fl`).
+ * Deterministic **Problem cluster** + **Related problems** blocks for Lee County trade locals
+ * (`/plumbing|/electrical/{symptom}/{city}-fl`), injected **above** the global site footer in HSD HTML.
  *
- * Ideal structure (crawl + topical authority):
- * - **UP** → national pillar `/{trade}/{symptom}` (topic hub).
- * - **SIDEWAYS** → other symptoms, **same city** (peer locals).
- * - **CROSS-CITY** → **same symptom**, other grid cities (optional but high value).
+ * - **Problem cluster:** national pillar + same symptom across **multiple** Lee cities (Fort Myers prioritized).
+ * - **Related problems:** same city, different symptoms (lateral crawl; max 3 peers from linking engine).
  *
- * Link sets come from {@link buildTradeLocalLinkBuckets} in `lib/seo/pagesSlugLinkingEngine.ts`.
+ * Link sets use {@link buildTradeLocalLinkBuckets} and {@link buildLeeSameConditionCitySlugs}.
  */
-import { formatCityPathSegmentForDisplay } from "@/lib/localized-city-path";
+import { formatCityPathSegmentForDisplay, type ServiceVertical } from "@/lib/localized-city-path";
 import { isLeeCountyMonetizationLocalizedSlug } from "@/lib/homeservice/leeCountyInitialMonetizationCluster";
-import { buildTradeLocalLinkBuckets, storageSlugToUrlPath } from "@/lib/seo/pagesSlugLinkingEngine";
+import {
+  buildLeeSameConditionCitySlugs,
+  buildTradeLocalLinkBuckets,
+  storageSlugToUrlPath,
+} from "@/lib/seo/pagesSlugLinkingEngine";
 import { enforceStoredSlug } from "@/lib/slug-utils";
 
 const SECTION_SHELL =
   "hsd-section hsd-block rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/80 sm:p-6 mb-8 last:mb-0";
+
+const LINK_CLASS =
+  "font-semibold text-blue-600 underline decoration-blue-600/40 underline-offset-2 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300";
+
+const TITLE_CLASS =
+  "hsd-section__title hsd-section-title text-base sm:text-lg font-semibold text-slate-900 dark:text-white";
 
 function escapeHtml(s: string): string {
   return String(s ?? "")
@@ -40,10 +48,10 @@ function shortPlaceName(cityStorage: string): string {
   return cut || full;
 }
 
-const SIDEWAYS_MAX = 6;
-const CROSS_CITY_MAX = 5;
+const RELATED_PEER_MAX = 4;
+const PROBLEM_CLUSTER_CITY_MAX = 5;
 
-/** HTML fragment appended to HSD v2.5 render for locked Lee County monetization locals. */
+/** HTML fragments (Problem cluster + Related problems) appended before global chrome for Lee monetization locals. */
 export function buildLeeCountyTradeClusterFooterHtml(storageSlug: string): string {
   const canon = enforceStoredSlug(storageSlug);
   if (!isLeeCountyMonetizationLocalizedSlug(canon)) return "";
@@ -59,52 +67,48 @@ export function buildLeeCountyTradeClusterFooterHtml(storageSlug: string): strin
   const tradeLabel = vertical === "electrical" ? "Electrical" : "Plumbing";
   const place = shortPlaceName(citySlug);
 
-  const upHref = storageSlugToUrlPath(buckets.nationalHubSlug);
-  const upLabel = `${titleCaseFromSlug(symptom)} — national overview`;
+  const pillarHref = storageSlugToUrlPath(buckets.nationalHubSlug);
+  const pillarLabel = `${titleCaseFromSlug(symptom)} — national pillar`;
 
-  const sideways = buckets.sameCityPeerSlugs.slice(0, SIDEWAYS_MAX);
-  const sidewaysLis = sideways
+  const citySlugs = buildLeeSameConditionCitySlugs(vertical as ServiceVertical, symptom, citySlug, PROBLEM_CLUSTER_CITY_MAX);
+
+  const problemClusterLis: string[] = [
+    `<li class="mb-2 last:mb-0"><a href="${escapeHtml(pillarHref)}" class="${LINK_CLASS}">${escapeHtml(pillarLabel)}</a></li>`,
+  ];
+  for (const storage of citySlugs) {
+    const tail = storage.split("/").filter(Boolean).pop() ?? "";
+    const href = storageSlugToUrlPath(storage);
+    const label = shortPlaceName(tail);
+    problemClusterLis.push(
+      `<li class="mb-2 last:mb-0"><a href="${escapeHtml(href)}" class="${LINK_CLASS}">${escapeHtml(`${titleCaseFromSlug(symptom)} — ${label}`)}</a></li>`,
+    );
+  }
+
+  const peers = buckets.sameCityPeerSlugs.slice(0, RELATED_PEER_MAX);
+  const relatedLis = peers
     .map((storage) => {
       const seg = storage.split("/").filter(Boolean)[1] ?? storage;
       const href = storageSlugToUrlPath(storage);
-      return `<li class="mb-2 last:mb-0"><a href="${escapeHtml(href)}" class="font-semibold text-hvac-blue underline decoration-hvac-blue/40 underline-offset-2 hover:text-hvac-gold dark:text-hvac-gold">${escapeHtml(titleCaseFromSlug(seg))}</a></li>`;
+      return `<li class="mb-2 last:mb-0"><a href="${escapeHtml(href)}" class="${LINK_CLASS}">${escapeHtml(titleCaseFromSlug(seg))}</a></li>`;
     })
     .join("");
 
-  const cross = buckets.crossGeoSameSymptomSlugs.slice(0, CROSS_CITY_MAX);
-  const crossLis = cross
-    .map((storage) => {
-      const tail = storage.split("/").filter(Boolean).pop() ?? "";
-      const href = storageSlugToUrlPath(storage);
-      const label = shortPlaceName(tail);
-      return `<li class="mb-2 last:mb-0"><a href="${escapeHtml(href)}" class="font-semibold text-hvac-blue underline decoration-hvac-blue/40 underline-offset-2 hover:text-hvac-gold dark:text-hvac-gold">${escapeHtml(label)}</a></li>`;
-    })
-    .join("");
-
-  const upHeading = `Topic hub (national ${tradeLabel.toLowerCase()} guide)`;
-  const sidewaysHeading = `Related ${tradeLabel.toLowerCase()} issues in ${place}`;
-  const crossHeading = `Same issue nearby`;
-
-  return `
-<section class="${SECTION_SHELL} lee-cluster-footer" aria-label="Cluster navigation: pillar, peers, nearby cities">
-  <div class="internal-links cluster-graph space-y-8">
-    <div>
-      <h3 class="hsd-section__title hsd-section-title text-base sm:text-lg">${escapeHtml(upHeading)}</h3>
-      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Link up to the pillar page, then spread across cities and peer symptoms.</p>
-      <ul class="m-0 mt-3 list-none p-0">
-        <li class="mb-2 last:mb-0"><a href="${escapeHtml(upHref)}" class="font-semibold text-hvac-blue underline decoration-hvac-blue/40 underline-offset-2 hover:text-hvac-gold dark:text-hvac-gold">${escapeHtml(upLabel)}</a></li>
-      </ul>
-    </div>
-    <div>
-      <h3 class="hsd-section__title hsd-section-title text-base sm:text-lg">${escapeHtml(sidewaysHeading)}</h3>
-      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Sideways — other symptoms in the same city (cluster lateral crawl).</p>
-      <ul class="m-0 mt-3 list-none p-0">${sidewaysLis}</ul>
-    </div>
-    <div>
-      <h3 class="hsd-section__title hsd-section-title text-base sm:text-lg">${escapeHtml(crossHeading)}</h3>
-      <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Cross-city — same symptom in other service areas (optional but high value).</p>
-      <ul class="m-0 mt-3 list-none p-0">${crossLis}</ul>
-    </div>
-  </div>
+  const problemBlock = `
+<section class="${SECTION_SHELL} lee-problem-cluster" aria-labelledby="lee-problem-cluster-h">
+  <h3 id="lee-problem-cluster-h" class="${TITLE_CLASS}">Problem cluster</h3>
+  <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Same condition across Lee County — start at the national pillar, then open the city that matches where you need service.</p>
+  <ul class="m-0 mt-3 list-none p-0 text-slate-800 dark:text-slate-300">${problemClusterLis.join("")}</ul>
 </section>`.trim();
+
+  const relatedBlock =
+    relatedLis.trim().length > 0
+      ? `
+<section class="${SECTION_SHELL} lee-related-problems" aria-labelledby="lee-related-problems-h">
+  <h3 id="lee-related-problems-h" class="${TITLE_CLASS}">Related problems</h3>
+  <p class="mt-1 text-sm text-slate-600 dark:text-slate-400">Other ${tradeLabel.toLowerCase()} issues in <strong class="font-semibold text-slate-800 dark:text-slate-200">${escapeHtml(place)}</strong> — different symptoms, same service area.</p>
+  <ul class="m-0 mt-3 list-none p-0 text-slate-800 dark:text-slate-300">${relatedLis}</ul>
+</section>`.trim()
+      : "";
+
+  return `${problemBlock}\n${relatedBlock}`.trim();
 }

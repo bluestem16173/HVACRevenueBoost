@@ -5,31 +5,33 @@
  * national indexability for these trades, Lee enrichment, tier-one discovery, and on-page cluster
  * footers assume this exact shape.
  *
- * | Trade       | Problems (8 each) |
+ * | Trade       | Problems (10 electrical × Lee grid) |
  * |------------|-------------------|
- * | Electrical | breaker-keeps-tripping, power-out-in-one-room, outlets-not-working, lights-flickering, burning-smell-from-outlet, circuit-overloaded, gfci-outlet-keeps-tripping, electrical-panel-buzzing |
+ * | Electrical | breaker-keeps-tripping, outlet-not-working, lights-flickering, power-out-in-one-room, circuit-overloaded, panel-hot-or-buzzing, gfi-keeps-tripping, partial-power-in-home, sparks-from-outlet, burning-smell-electrical |
  * | Plumbing   | water-heater-leaking, no-hot-water, low-water-pressure, pipe-leaking, clogged-drain, toilet-overflowing, sewer-smell, faucet-leaking |
  *
- * Cities (human): Fort Myers, Cape Coral, Lehigh Acres, Bonita Springs, Estero, North Fort Myers — storage tails
- * in {@link LEE_COUNTY_CITIES} (`lib/vertical-hub-shared.ts`).
+ * Cities (10): Fort Myers, Cape Coral, Lehigh Acres, Bonita Springs, Estero, North Fort Myers, Fort Myers Beach,
+ * San Carlos Park, Gateway, Alva — storage tails in {@link LEE_COUNTY_CITIES} (`lib/vertical-hub-shared.ts`).
  */
 import { LEE_COUNTY_CITIES } from "@/lib/vertical-hub-shared";
 import { enforceStoredSlug } from "@/lib/slug-utils";
 
-/** Electrical high-ROI cluster — URL segment after `/electrical/`. */
+/** Electrical high-ROI cluster — URL segment after `/electrical/` (10 × 10 Lee city grid). */
 export const LEE_MONETIZATION_ELECTRICAL_SYMPTOMS = [
   "breaker-keeps-tripping",
-  "power-out-in-one-room",
-  "outlets-not-working",
+  "outlet-not-working",
   "lights-flickering",
-  "burning-smell-from-outlet",
+  "power-out-in-one-room",
   "circuit-overloaded",
-  "gfci-outlet-keeps-tripping",
-  "electrical-panel-buzzing",
+  "panel-hot-or-buzzing",
+  "gfi-keeps-tripping",
+  "partial-power-in-home",
+  "sparks-from-outlet",
+  "burning-smell-electrical",
 ] as const;
 
 /**
- * Lee County core cities for localized electrical + plumbing rollout (all six grid cities).
+ * Lee County core cities for localized electrical + plumbing rollout (all ten grid cities).
  * @deprecated Historical name — use {@link LEE_COUNTY_CORE_CITY_SLUGS}.
  */
 export const LEE_ELECTRICAL_PRIORITY_CITY_SLUGS = LEE_COUNTY_CITIES;

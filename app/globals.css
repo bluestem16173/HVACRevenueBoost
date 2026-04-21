@@ -488,9 +488,9 @@
   transition: box-shadow 0.25s ease;
 }
 
-/* Room for fixed bottom SMS lead bar (Twilio visible opt-in) */
+/* Room for fixed bottom SMS lead bar (Twilio opt-in; bar max ~20vh expanded) */
 html.hvacrb-sticky-lead-visible body > main {
-  padding-bottom: min(30vh, 12rem);
+  padding-bottom: min(22vh, 9rem);
 }
 
 /* ---- DG structured authority preview (/dg-authority-structured-preview) ---- */

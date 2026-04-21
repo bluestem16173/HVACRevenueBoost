@@ -145,8 +145,11 @@ export function assertHsdV25ContentRules(page: HsdV25Payload): void {
   if (!page.summary_30s?.risk_warning.includes("$")) throw new Error("No cost risk");
 
   const summaryFlowLines = (page.summary_30s.flow_lines ?? []).map((s) => String(s).trim()).filter(Boolean);
-  if (summaryFlowLines.length < 4) {
-    throw new Error("summary_30s.flow_lines must have at least 4 non-empty lines (DG scan block under headline)");
+  if (summaryFlowLines.length < 3) {
+    throw new Error("summary_30s.flow_lines must have at least 3 non-empty lines (field triage scan under headline)");
+  }
+  if (summaryFlowLines.length > 8) {
+    throw new Error("summary_30s.flow_lines must not exceed 8 scan lines (keep triage tight; prefer 3–5)");
   }
 
   if (!page.final_warning.includes("$")) {

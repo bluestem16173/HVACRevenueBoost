@@ -419,19 +419,19 @@ export function coerceHsdJsonForV25View(raw: Record<string, unknown>): HsdV25Pay
     ? (s30.flow_lines as unknown[]).map((x) => String(x ?? "").trim()).filter(Boolean)
     : [];
   if (isElectricalSlug) {
-    if (flowLines.length === 0 || flowLines.length < 4 || electricalPublishGuardHit(flowLines.join("\n"))) {
+    if (flowLines.length === 0 || flowLines.length < 3 || electricalPublishGuardHit(flowLines.join("\n"))) {
       flowLines = [...ELECTRICAL_DEFAULT_FLOW_LINES];
     } else {
-      while (flowLines.length < 4) {
+      while (flowLines.length < 3) {
         flowLines.push(
-          "→ If the pattern does not match a single branch, stop repeated resets and call a licensed electrician.",
+          "→ Pattern unclear under safe observation → intermittent fault class",
         );
       }
     }
   } else if (flowLines.length === 0) {
     flowLines = [...DEFAULT_FLOW_LINES];
   } else {
-    while (flowLines.length < 4) {
+    while (flowLines.length < 3) {
       flowLines.push("→ If branches disagree, stop DIY and call a licensed technician for measured diagnosis.");
     }
   }

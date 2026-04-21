@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function ContentEngineDashboard() {
@@ -117,12 +118,23 @@ export default function ContentEngineDashboard() {
           </h1>
           <p className="text-slate-500 dark:text-slate-400 mt-1">DecisionGrid Execution Engine Control</p>
         </div>
-        <button 
-          onClick={() => { localStorage.removeItem("admin_token"); setIsAuth(false); }}
-          className="text-sm text-slate-500 hover:text-white"
-        >
-          Lock Interface
-        </button>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/admin/leads"
+            className="text-sm font-semibold text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            Leads
+          </Link>
+          <button
+            onClick={() => {
+              localStorage.removeItem("admin_token");
+              setIsAuth(false);
+            }}
+            className="text-sm text-slate-500 hover:text-white"
+          >
+            Lock Interface
+          </button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

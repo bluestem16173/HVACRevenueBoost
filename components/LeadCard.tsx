@@ -9,6 +9,7 @@ import {
   inferLeadCardProfile,
   tradeFromLeadProfile,
 } from "@/lib/lead-card-profile";
+import { fireGoogleAdsConversion } from "@/lib/gtag-google-ads";
 import {
   SMS_CONSENT_OPT_IN_LEAD,
   SMS_CONSENT_ORIGINATION_DISCLOSURE,
@@ -227,7 +228,7 @@ export default function LeadCard({
             : "hvac";
 
     try {
-      await fetch("/api/lead", {
+      const res = await fetch("/api/lead", {
         method: "POST",
         body: JSON.stringify({
           first_name: firstName,
@@ -244,10 +245,11 @@ export default function LeadCard({
         headers: { "Content-Type": "application/json" },
       });
 
+      if (res.ok) fireGoogleAdsConversion();
       setTimeout(() => setStatus("submitted"), 800);
     } catch (error) {
       console.error(error);
-      setStatus("submitted");
+      setTimeout(() => setStatus("submitted"), 800);
     }
   }
 

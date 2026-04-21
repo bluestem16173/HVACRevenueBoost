@@ -31,12 +31,13 @@ export default async function Page({ params }: PageProps) {
       return <div style={{ padding: 20 }}>Page not found</div>;
     }
 
-    if (page.content_json != null) {
-      return <RenderAuthority content={page.content_json} />;
+    const html = String(page.content_html ?? "").trim();
+    if (html) {
+      return <div dangerouslySetInnerHTML={{ __html: html }} />;
     }
 
-    if (page.content_html) {
-      return <div dangerouslySetInnerHTML={{ __html: page.content_html }} />;
+    if (page.content_json != null) {
+      return <RenderAuthority content={page.content_json} />;
     }
 
     return <div>No content available</div>;

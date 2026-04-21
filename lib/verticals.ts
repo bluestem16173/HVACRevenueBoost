@@ -74,8 +74,8 @@ export const HOME_SERVICE_VERTICALS: Record<string, HomeServiceVertical> = {
     ],
     pillarExamples: [
       { slug: "breaker-keeps-tripping", title: "Breaker keeps tripping", href: "/electrical" },
-      { slug: "outlets-not-working", title: "Outlets not working", href: "/electrical" },
-      { slug: "flickering-lights", title: "Flickering lights", href: "/electrical" },
+      { slug: "outlet-not-working", title: "Outlet not working", href: "/electrical" },
+      { slug: "lights-flickering", title: "Lights flickering", href: "/electrical" },
     ],
     forbiddenCrossTrade: ["refrigerant charge", "condensate pan"],
   },
