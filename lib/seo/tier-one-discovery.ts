@@ -10,6 +10,7 @@
  */
 
 import { HVAC_CORE_CLUSTER_SYMPTOM_ORDER } from "@/lib/homeservice/hsdHvacCoreCluster";
+import { isLeeCountyMonetizationLocalizedSlug } from "@/lib/homeservice/leeCountyInitialMonetizationCluster";
 import { enforceStoredSlug, isLocalizedPillarPageSlug } from "@/lib/slug-utils";
 
 const HVAC_CORE_SYMPTOM_SET = new Set<string>(
@@ -45,6 +46,8 @@ export function isTierOneHvacCoreSymptom(symptom: string): boolean {
  * - `hvac/{symptom}` where symptom is HVAC core cluster
  * - `plumbing/{x}` / `electrical/{x}` national pillars (2 segments)
  * - `hvac/{symptom}/{city}` where symptom is core and city ∈ `TIER_ONE_CITIES`
+ * - `plumbing|electrical/{symptom}/{city}` when slug is in the locked Lee monetization grid
+ *   (`LEE_MONETIZATION_*` × `LEE_COUNTY_CITIES`)
  */
 export function isTierOneDiscoverableStorageSlug(slug: string): boolean {
   const s = enforceStoredSlug(slug).toLowerCase().replace(/\/+/g, "/");
@@ -63,6 +66,9 @@ export function isTierOneDiscoverableStorageSlug(slug: string): boolean {
     const [v, sym, city] = parts.map((p) => p.toLowerCase());
     if (v === "hvac") {
       return isTierOneHvacCoreSymptom(sym) && getTierOneCityStorageSlugs().includes(city);
+    }
+    if (v === "plumbing" || v === "electrical") {
+      return isLeeCountyMonetizationLocalizedSlug(s);
     }
     return false;
   }

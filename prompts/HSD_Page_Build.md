@@ -156,17 +156,39 @@ Write so a motivated homeowner **calls a licensed tech** when the logic crosses 
 
 ---
 
-## INTERNAL LINKING REQUIREMENTS (MANDATORY)
+## INTERNAL LINKING REQUIREMENTS (MANDATORY) — **MASTER PROMPT ADD-ON (LOCKED)**
 
-Populate **`internal_links`** for programmatic SEO and clustering. Every item must be a **valid slug path** for this site (e.g. `hvac/weak-airflow`, `plumbing/water-heater-leaking`); **no** full URLs, **no** `https://`, **no** domains.
+The on-page **“Related”** block (near the bottom in the live site) is driven by **`internal_links.related_symptoms`**. **If `internal_links` is missing, empty, or composition rules below fail → the output is INVALID** (do not submit).
 
-- **related_symptoms:** **3–5** links — other symptom / diagnostic pages in the **same trade** that a technician would associate with this failure mode.
-- **system_pages:** **2–3** links — core “how it works” or system-principle pages for the trade.
-- **repair_guides:** **≥ 1** link (often 2–3) — repair or escalation pages matching **mechanisms you described** (charge, airflow, control, leak class, etc.).
-- Links must be **contextually relevant** to the **failure mechanism** and diagnostics in this page (not generic filler slugs).
-- Respect **category** (HVAC vs plumbing vs electrical — **no cross-trade bleed**).
+### Rules (all trades)
 
-Example shape (replace paths with issue-appropriate slugs):
+- **`related_symptoms`:** **3, 4, or 5** entries only — each a **valid slug path** (e.g. `plumbing/water-heater-leaking/fort-myers-fl`, `hvac/weak-airflow/tampa-fl`, `electrical/breaker-keeps-tripping/cape-coral-fl`). **No** full URLs, **no** `https://`, **no** domains, **no** bare `/` or homepage.
+- **Same cluster / system:** every path must be **plausible for this symptom cluster** (technician-credible peers — not generic filler).
+- **Composition (must all be satisfied within the 3–5):**
+  - **≥ 2 links** = **same trade** + **different symptom** + **same city storage tail** as the job when the job slug has three segments (`{vertical}/{symptom}/{city-fl}`). For **two-segment** national jobs (`{vertical}/{symptom}`), these two are **other national symptom pillars** on the same trade (2 segments each).
+  - **≥ 1 link** = **same dominant symptom** (or same cluster) in a **different `*-fl` city`** *or* a **same-trade system / primer** pillar (typically **2 segments**: `{vertical}/{system-topic}`).
+  - **Optional:** **≤ 1** extra same-trade link (root / system / long-tail) that deepens authority.
+- **Forbidden:** links to **another trade**, the **generic homepage**, or **copy-pasting identical** `related_symptoms` lists across unrelated pages when the brief allows better lateral targets.
+- **Do not** repeat the same target twice inside `related_symptoms`.
+
+**`system_pages`** and **`repair_guides`** still follow server minimums below; they **do not** replace the Related composition rules.
+
+Example (localized plumbing — replace slugs with brief-appropriate peers):
+
+```json
+"internal_links": {
+  "related_symptoms": [
+    "plumbing/water-heater-leaking/fort-myers-fl",
+    "plumbing/low-water-pressure/fort-myers-fl",
+    "plumbing/pipe-leaking/fort-myers-fl",
+    "plumbing/no-hot-water/cape-coral-fl"
+  ],
+  "system_pages": ["plumbing/water-heater-leaking", "plumbing/no-hot-water"],
+  "repair_guides": ["repair/fort-myers/no-hot-water"]
+}
+```
+
+Example shape (HVAC — replace paths with issue-appropriate slugs):
 
 ```json
 "internal_links": {

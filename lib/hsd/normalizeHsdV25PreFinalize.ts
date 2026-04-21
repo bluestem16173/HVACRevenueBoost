@@ -82,11 +82,11 @@ function buildNoHotWaterMostCommonCause(slug: string): { cause: string; why: str
   const waterLine =
     city === "fort-myers-fl"
       ? "In Fort Myers, mineral-heavy water accelerates scale buildup, which traps heat at the element and shortens element life."
-      : city === "gateway-fl"
-        ? "In Gateway, mineral-heavy Lee County water accelerates scale buildup, which traps heat at the element and shortens element life."
+      : city === "cape-coral-fl" || city === "lehigh-acres-fl" || city === "bonita-springs-fl" || city === "estero-fl" || city === "north-fort-myers-fl"
+        ? "In Lee County, mineral-heavy water accelerates scale buildup, which traps heat at the element and shortens element life."
         : city
-        ? "In hard-water coastal markets, mineral loading accelerates scale on elements, traps heat at the sheath, and shortens element life."
-        : "In hard-water markets, scale on the sheath traps heat and accelerates element burnout.";
+          ? "In hard-water coastal markets, mineral loading accelerates scale on elements, traps heat at the sheath, and shortens element life."
+          : "In hard-water markets, scale on the sheath traps heat and accelerates element burnout.";
 
   const why =
     "Electric elements fail in two primary ways:\n\n" +

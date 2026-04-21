@@ -24,40 +24,30 @@ function plumbingCityContextLines(place: string, citySeg: string): string[] {
       "Salt-laden air from Gulf access plus irrigation-heavy lots accelerates exterior fixture pitting and pan corrosion on garage or lanai water heaters.",
       "When hot water drops or pressure swings, separate canal-area distribution quirks from true tank or element failure before buying parts.",
     ],
-    "fort-myers-beach-fl": [
-      `In ${place}, relentless salt air and wind-driven spray corrode outdoor connections, relief piping, and cabinet hardware fast—surface rust is often a leading indicator, not cosmetic.`,
-      "Rapid jacket and union oxidation on coastal installs shortens element and anode life; small exterior weeps can flood finished levels when tides and storms stack water paths.",
-      "Prioritize stop-the-water triage on active tank or line weeps—humidity and salt keep corrosion moving even when the leak looks minor.",
-    ],
     "estero-fl": [
       `In ${place}, newer high-demand homes and amenity-heavy communities create sharp evening hot-water spikes—short cycling and recovery faults show up as “runs out fast” complaints.`,
       "Larger fixture counts and multi-bath draw patterns separate true low recovery from mixing or recirculation side issues.",
       "When performance drops after move-in surges, verify setpoints and demand timing before assuming the tank is undersized or failed.",
-    ],
-    "sanibel-fl": [
-      `In ${place}, barrier-island salt exposure and post-storm rebuild cycles accelerate exterior tank and piping corrosion—inspect exposed runs after any wind-driven salt event.`,
-      "Bridge access and island logistics can delay heavy equipment—early containment on active leaks limits finished-floor damage.",
-      "Hot-only discoloration after surge or replumb periods should trigger integrity planning, not repeated element swaps alone.",
-    ],
-    "north-captiva-fl": [
-      `In ${place}, Gulf-barrier exposure and limited road service patterns mean exterior tank, hose bib, and relief piping corrode aggressively—small weeps can soak elevated or pile-built shells before they read as “major” indoors.`,
-      "Boat and barge logistics for heavy equipment slow full swaps—plan containment and photo documentation early on active leaks.",
-      "Non-municipal water sources and generator-backed homes are common—separate pressure and quality symptoms from pure heater faults before parts stacking.",
     ],
     "fort-myers-fl": [
       `In ${place}, the inland–coastal mix still drives hard-water scaling, high evening hot-water demand, and humid exterior installs that rust tank jackets and pan seams quickly.`,
       "Peak multi-bath and laundry stacks stress recovery—separate distribution and mixing faults from true element or control failure.",
       "When pressure fluctuates county-wide after storms, confirm whether the symptom is house-wide before focusing on the water heater alone.",
     ],
-    "gateway-fl": [
-      `In ${place}, newer master-planned density plus hard water drives fast scale on elements and dip-tube wear—short “runs out hot” complaints often track recovery, not just thermostat setpoint.`,
-      "Garage and lanai tank installs see heavy humidity cycling—jacket rust and pan weeps show up before homeowners notice floor damage.",
-      "Even inland of the barrier islands, summer electrical storms correlate with nuisance trips and dry-fired elements—separate power path from pure tank failure before parts stacking.",
-    ],
     "lehigh-acres-fl": [
       `In ${place}, rapid residential growth and hard well water still stress tank elements and dip tubes—recovery complaints often track scale before the tank is structurally failed.`,
       "Humid summers and afternoon storms keep exterior hose bibs and relief piping under corrosion cycles—small weeps at threads show up before slab intrusion.",
       "When pressure swings track neighborhood demand, confirm house-wide supply before assuming the water heater is the root fault.",
+    ],
+    "bonita-springs-fl": [
+      `In ${place}, Gulf proximity and seasonal tourism spikes drive uneven water demand—short hot-water complaints often track recovery and mixing before tank failure.`,
+      "Canal-adjacent lots and irrigation-heavy landscaping accelerate exterior fixture corrosion and hose-bib weeps.",
+      "When pressure drops appear after peak visitor weeks, separate distribution load from true supply faults.",
+    ],
+    "north-fort-myers-fl": [
+      `In ${place}, Caloosahatchee-adjacent humidity and mixed housing stock mean slab and wall paths hide slow leaks longer than open-garage installs.`,
+      "Older galvy and CPVC transitions remain common—separate material-era joints from active tank faults before repeated element swaps.",
+      "Storm-season pressure swings can track county-wide; confirm house-wide gauges before focusing on the heater alone.",
     ],
   };
   if (byCity[k]) return byCity[k]!;
@@ -76,40 +66,30 @@ function electricalCityContextLines(place: string, citySeg: string): string[] {
       "Salt air wicks into meter bases and lug pockets—heat under load turns intermittent resistance into repeat breaker trips.",
       "After heavy irrigation or pump cycles, separate motor-start sag from true branch faults before resetting large loads repeatedly.",
     ],
-    "fort-myers-beach-fl": [
-      `In ${place}, salt fog corrodes outdoor panels, meter housings, and conduit bodies quickly—surface rust near lugs is a field priority, not a paint issue.`,
-      "Wind-driven moisture follows nicks in SE cable jackets; coastal trips often return after the next humidity spike if connections are not cleaned and torqued.",
-      "After named storms, surge damage and neutral instability symptoms spike—separate branch damage from utility-side loss with measured checks.",
-    ],
     "estero-fl": [
       `In ${place}, newer homes pack AFCI/GFCI density, EV circuits, and large kitchen loads—nuisance trips often track neutral sharing mistakes or parallel neutral paths.`,
       "Whole-home surge devices and smart panels are common—verify labeling and neutrals before swapping breakers on symptoms alone.",
       "High simultaneous cooling and pool loads stress service sizing—watch for heat at the main when everything runs at once.",
-    ],
-    "sanibel-fl": [
-      `In ${place}, salt exposure and storm recovery rewires stress outdoor feeders and generator transfer gear—corrosion hides under heat-shrink that still looks intact.`,
-      "Island logistics can delay parts—document trip patterns and burning smells early to avoid extended energized faults.",
-      "After flooding, separate replaced branch circuits from old aluminum or damaged homeruns still in the walls.",
-    ],
-    "north-captiva-fl": [
-      `In ${place}, salt fog and wind-driven spray attack meter bases, mastheads, and dock feeders first—surface oxidation near lugs is a stop-and-verify signal, not a cosmetic pass.`,
-      "Generator and transfer-switch installs are dense—neutral errors and GEC issues masquerade as “random” trips until load stacks.",
-      "Limited truck access can stretch return visits—photo-label suspect breakers and heat signatures on first pass.",
     ],
     "fort-myers-fl": [
       `In ${place}, older stock mixes with dense infill—knob-and-tube remnants, doubled neutrals, and overloaded subpanels show up as heat, buzz, or partial power under summer load.`,
       "Humidity keeps fault paths conductive—trips that “clear” after reset often return once the breaker and bus warm up.",
       "When cooling and kitchen peaks align, whole-home draw exposes weak lugs and undersized mains before individual devices fail outright.",
     ],
-    "gateway-fl": [
-      `In ${place}, rapid infill means AFCI/GFCI density, EV chargers, and pool heat pumps stack on panels sized for older baselines—nuisance trips often track neutral routing, not “bad breakers.”`,
-      "New construction moisture in attics and garages wicks into outdoor disconnects and SE jackets—surface corrosion near lugs shows up in the first few humid seasons.",
-      "Whole-home surge gear is common—verify neutral bus discipline before swapping breakers on repeat trip patterns.",
-    ],
     "lehigh-acres-fl": [
       `In ${place}, inland heat and fast build-out mean panels fill with kitchen, laundry, and garage loads before service upgrades catch up—nuisance trips often read as “bad breakers” when the bus is already warm.`,
       "Well-water hardness and irrigation pump circuits add motor load and ground paths—separate pump faults from branch trips before you stack resets.",
       "Afternoon storms and long cooling runtime stack whole-home draw—watch for dimming or half-leg symptoms that point past a single device.",
+    ],
+    "bonita-springs-fl": [
+      `In ${place}, seasonal occupancy swings and pool-heavy backyards stack motor and heat-pump loads on panels—nuisance trips often track neutral discipline, not “weak breakers.”`,
+      "Gulf moisture and irrigation keep outdoor disconnects and GFCI devices under corrosion cycles—verify torque and labeling before repeated resets.",
+      "When flicker tracks to one leg, separate utility sag from loose neutrals early.",
+    ],
+    "north-fort-myers-fl": [
+      `In ${place}, mixed-era housing and river-adjacent humidity expose doubled neutrals, overloaded mains, and DIY add-ons that show up as buzz, heat, or partial power.`,
+      "Storm seasons align with surge and neutral-instability calls—document which rooms lose power together.",
+      "Well and irrigation pump circuits add motor sag—separate branch faults from pump starts before stacking resets.",
     ],
   };
   if (byCity[k]) return byCity[k]!;
@@ -128,40 +108,30 @@ function hvacCityContextLines(place: string, citySeg: string): string[] {
       "Salt air etches fin stock and outdoor electrical shells; condenser coil corrosion shows up as high head pressure before obvious noise.",
       "Canal breezes can mask overheating outdoor units with gusts—verify measured temperatures, not airflow guesses alone.",
     ],
-    "fort-myers-beach-fl": [
-      `In ${place}, salt spray and onshore flow pit condenser coils and electrical shells within seasons—capacity loss often precedes any loud mechanical failure.`,
-      "High dew points keep drain lines working constantly—clogged traps and pan switches trip cooling during the hottest weeks.",
-      "Storm debris and sand accelerate outdoor fan imbalance—vibration tracks to bearing wear if ignored.",
-    ],
     "estero-fl": [
       `In ${place}, newer tight envelopes plus large glass area create high latent load—short cycling and humidity complaints often track airflow and control setup, not charge alone.`,
       "Zoned systems with bypass issues show up as rooms that never dehumidify—verify bypass and static before adding refrigerant.",
       "Peak evening whole-home draws stack runtime—capacitor and contactor wear shows up as intermittent no-start under load.",
-    ],
-    "sanibel-fl": [
-      `In ${place}, coastal coils need aggressive wash cadence—salt-fouled microchannels drive head pressure and compressor amps without obvious ice.`,
-      "Generator and storm-hardening add-ons change return air paths—recheck static after any major electrical or envelope work.",
-      "Bridge traffic and salt fog mean outdoor units live in harsher Class than inland Lee—plan corrosion controls, not only part swaps.",
-    ],
-    "north-captiva-fl": [
-      `In ${place}, relentless onshore salt and limited wash access between storms foul condenser microchannels fast—capacity loss tracks to head pressure before homeowners hear a mechanical change.`,
-      "Elevated and pile-built envelopes change return paths after rebuilds—static and bypass mistakes read as “weak cooling” under peak latent load.",
-      "Generator-backed runtime during outages stacks heat on contactors and caps—check start components after any long island brownout period.",
     ],
     "fort-myers-fl": [
       `In ${place}, humidity and long summer runtime keep drains and blower assemblies under continuous load—clogged pans and weak airflow are primary compressor killers.`,
       "Salt air still reaches inland garages and lanai closets—outdoor electrical and line sets corrode faster than northern markets.",
       "Afternoon thunderstorms and voltage sags coincide with no-cool calls—separate supply problems from refrigerant faults before sealed-system work.",
     ],
-    "gateway-fl": [
-      `In ${place}, tight newer envelopes plus high latent load keep coils wet and drains working constantly—weak airflow reads as “not cold enough” before charge symptoms show.`,
-      "Dense rooflines and afternoon storms stack voltage sag with long runtimes—capacitor and contactor wear shows up as intermittent no-start under peak load.",
-      "Garage and lanai condensers still see seasonal salt drift—fin corrosion tracks to high head pressure before homeowners hear a mechanical change.",
-    ],
     "lehigh-acres-fl": [
       `In ${place}, inland summer heat and long runtimes stress budget installs—dirty filters and weak condensate paths show up as “not keeping up” before charge faults surface.`,
       "Hard water and dust load coils and pans faster than coastal-only markets—capacity loss can track to airflow and coil loading before mechanical noise changes.",
       "Thunderstorm voltage sags align with no-cool calls—separate supply-side blips from refrigerant-class failures before sealed-system work.",
+    ],
+    "bonita-springs-fl": [
+      `In ${place}, high latent load from glass-heavy plans and lanai living keeps coils wet—drain and static issues read as capacity loss before charge faults show.`,
+      "Seasonal peaks and pool heat loads stack afternoon runtime—capacitor and contactor wear shows up as intermittent no-start.",
+      "Gulf air still reaches inland lots—plan coil wash cadence and electrical shell checks.",
+    ],
+    "north-fort-myers-fl": [
+      `In ${place}, mixed housing ages mean duct leakage and under-sized returns masquerade as “low charge” until static is measured.`,
+      "River-adjacent humidity plus long runtimes stress condensate paths—pan switches trip during peak weeks.",
+      "Voltage sag after storms aligns with no-cool calls—verify supply before sealed-system work.",
     ],
   };
   if (byCity[k]) return byCity[k]!;
@@ -183,7 +153,7 @@ export function buildCityContextForLeeCountyCity(
   const pillar = (pillarSlug ?? "").trim().toLowerCase();
 
   /** Pillar + Lee city: product copy for localized context (does not change diagnostic JSON branches). */
-  if (vertical === "electrical" && pillar === "power-out-in-one-room" && seg === "gateway-fl") {
+  if (vertical === "electrical" && pillar === "power-out-in-one-room" && seg === "fort-myers-fl") {
     return [
       `Power out in one room in ${place}? If part of your home suddenly lost power, don't panic—this is usually a localized circuit issue, not a full electrical failure.`,
       "In most cases, it comes down to: a tripped breaker; a failed outlet or GFCI; or a loose or damaged wire connection.",

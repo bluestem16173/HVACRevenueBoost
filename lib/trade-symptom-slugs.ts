@@ -22,9 +22,13 @@ export const HVAC = [
 
 export const ELECTRICAL = [
   "breaker-keeps-tripping",
+  "outlets-not-working",
   "outlet-not-working",
   "lights-flickering",
+  "burning-smell-from-outlet",
   "burning-smell-outlet",
+  "gfci-outlet-keeps-tripping",
+  "electrical-panel-buzzing",
   "partial-power-house",
   "power-out-in-one-room",
   "partial-power-loss",
@@ -44,6 +48,12 @@ export const ELECTRICAL = [
 export const PLUMBING = [
   "no-hot-water",
   "water-heater-leaking",
+  "low-water-pressure",
+  "pipe-leaking",
+  "clogged-drain",
+  "toilet-overflowing",
+  "sewer-smell",
+  "faucet-leaking",
   "not-enough-hot-water",
   "strange-noises-from-tank",
   "pipe-leaking-under-sink",

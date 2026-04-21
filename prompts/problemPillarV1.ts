@@ -144,8 +144,18 @@ Write like a 30-year field technician:
 - Top Causes MUST be ranked by likelihood
 - Include real measurement thresholds where applicable
 - repairMatrix must include real-world fixes
-- internalLinks.related must include similar problems
-- DO NOT include city slugs in internalLinks
+
+---
+
+# INTERNAL LINKING — RELATED (MASTER ADD-ON, LOCKED)
+
+**National problem pillar** (\`page_type: "problem_pillar"\`, two-segment \`slug\`): populate \`internalLinks\` so the shipped page has a real **Related** graph.
+
+- \`internalLinks.related\`: **3–5** same-trade entries (paths this site can serve — **two segments only** here: \`{vertical}/{symptom}\`; **do not** put \`*-fl\` tails inside \`internalLinks\` for this national template). **≥2** = different symptom, same trade, same cluster/system story. **≥1** = system primer / root topic (\`internalLinks.system\` may overlap but Related must still read as lateral discovery). **No** cross-trade links, **no** homepage-only \`/\`.
+- \`localLinks\`: list real city tails for downstream localized pages (e.g. \`fort-myers-fl\`) — that is where city segments live for this schema.
+- **Localized city pages** are **not** this template — they use **\`prompts/HSD_Page_Build.md\`** + runtime **HSD_HARD_ENFORCEMENT_RULES** (\`internal_links.related_symptoms\` with **three-segment** paths including \`{city-fl}\`).
+
+**If \`internalLinks.related\` is missing or empty → output is INVALID.**
 
 ---
 

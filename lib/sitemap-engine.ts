@@ -125,7 +125,7 @@ export async function getDiagnosticEntries(): Promise<SitemapEntry[]> {
   try {
     const rows = await sql`SELECT slug, created_at, updated_at FROM pages WHERE status = 'published'`;
     return (rows as any[])
-      .filter((r) => rowPassesIndexableSince(r.updated_at))
+      .filter((r) => rowPassesIndexableSince(r.updated_at, r.created_at))
       .filter((r) => {
         const slug = String(r.slug ?? "");
         if (isLocalizedPillarPageSlug(slug)) {

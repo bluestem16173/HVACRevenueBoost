@@ -7,11 +7,13 @@ import type { Metadata } from "next";
  * `STRICT_SITE_INDEXING=true` — root metadata still uses {@link strictDefaultRobotsForPathname} (only `/` and
  * `INDEXABLE_EXTRA_PATHS` are broadly indexable). DB-backed routes that call {@link strictRobotsForDbPage} with
  * `eligible=true` and **no** `INDEXABLE_SINCE` are treated as **indexable** in page metadata (set `INDEXABLE_SINCE`
- * when you want a hard cutoff on `updated_at` for staged rollout).
+ * when you want a hard cutoff on the later of `created_at` / `updated_at` for staged rollout).
  *
  * **Phase 2 — First controlled release**  
  * Set `INDEXABLE_SINCE` to an ISO instant (e.g. start of release day). Publish 10–25 high-value pages.  
- * Any route wired with `strictRobotsForDbPage` becomes `index` only when `pages.updated_at >= INDEXABLE_SINCE`.  
+ * Any route wired with `strictRobotsForDbPage` becomes `index` only when the **later** of
+ * `pages.created_at` and `pages.updated_at` is on/after `INDEXABLE_SINCE` (so brand-new rows are not dropped
+ * if `updated_at` lags).  
  * `sitemap.xml` then adds curated / DB-filtered children (e.g. Tampa HVAC urlset + filtered `sitemaps/diagnose`).
  *
  * **Phase 3 — Ongoing**  
@@ -25,8 +27,8 @@ import type { Metadata } from "next";
  *
  * **Leak risk**  
  * Routes that set `robots: { index: true }` without merging strict logic can override the root default. Prefer
- * {@link robotsForDbBackedPage} for any route backed by a `pages` row so **unpublished** rows and rows before
- * `INDEXABLE_SINCE` never ship `index: true` metadata.
+ * {@link robotsForDbBackedPage} for any route backed by a `pages` row so **unpublished** rows and rows whose
+ * rollout instant is before `INDEXABLE_SINCE` never ship `index: true` metadata.
  *
  * **Tier-1 discovery (localized trade pages)**  
  * For `hvac|plumbing|electrical/{symptom}/{city}` triplets, indexing eligibility is further gated by
@@ -69,21 +71,29 @@ export function parsePageUpdatedAt(row: unknown): Date | null {
   return null;
 }
 
-/** `true` when `INDEXABLE_SINCE` is unset, or `updated_at` parses and is on/after that instant. */
-export function rowPassesIndexableSince(updatedAt: unknown): boolean {
+/** Latest rollout timestamp for cohort gating: max(parseable `updated_at`, parseable `created_at`). */
+export function effectivePageRolloutAt(updatedAt: unknown, createdAt?: unknown): Date | null {
+  const u = parsePageUpdatedAt(updatedAt);
+  const c = parsePageUpdatedAt(createdAt);
+  if (u && c) return u.getTime() >= c.getTime() ? u : c;
+  return u ?? c ?? null;
+}
+
+/** `true` when `INDEXABLE_SINCE` is unset, or the effective rollout instant is on/after that cutoff. */
+export function rowPassesIndexableSince(updatedAt: unknown, createdAt?: unknown): boolean {
   const since = getIndexableSinceDate();
   if (!since) return true;
-  const at = parsePageUpdatedAt(updatedAt);
+  const at = effectivePageRolloutAt(updatedAt, createdAt);
   return Boolean(at && at >= since);
 }
 
-type DbPageLike = { status?: unknown; updated_at?: unknown } | null | undefined;
+type DbPageLike = { status?: unknown; updated_at?: unknown; created_at?: unknown } | null | undefined;
 
 /**
  * Crawl policy for a `pages` row:
  * - Always **noindex** when missing or `status !== 'published'`.
- * - When `INDEXABLE_SINCE` is set, **noindex** if `updated_at` is missing or before the cutoff (independent of
- *   `STRICT_SITE_INDEXING`, so new rollout rows stay out of the index until bumped).
+ * - When `INDEXABLE_SINCE` is set, **noindex** if both `created_at` and `updated_at` are missing or their latest
+ *   parseable instant is before the cutoff (independent of `STRICT_SITE_INDEXING`).
  * - `eligible: false` (thin page, `quality_status`, etc.) always yields **noindex**, even when strict mode is off.
  * - When `STRICT_SITE_INDEXING` is on, published + eligible + date-ok rows get explicit `index: true` metadata
  *   (via {@link strictRobotsForDbPage}); otherwise the caller may fall back to route defaults.
@@ -92,13 +102,13 @@ export function robotsForDbBackedPage(page: DbPageLike, eligible: boolean): Pick
   if (!page || String(page.status) !== "published") {
     return { robots: { index: false, follow: true } };
   }
-  if (!rowPassesIndexableSince(page.updated_at)) {
+  if (!rowPassesIndexableSince(page.updated_at, page.created_at)) {
     return { robots: { index: false, follow: true } };
   }
   if (!eligible) {
     return { robots: { index: false, follow: true } };
   }
-  return strictRobotsForDbPage(true, page.updated_at);
+  return strictRobotsForDbPage(true, page.updated_at, page.created_at);
 }
 
 /** Root default: noindex everywhere except `/` and optional extras when strict is on. */
@@ -117,15 +127,19 @@ export function strictDefaultRobotsForPathname(pathname: string): Metadata["robo
 
 /**
  * When strict indexing is on, attach robots for a DB-backed page that should be indexable
- * only if `eligible` (quality gates, etc.) and `updated_at` is on/after `INDEXABLE_SINCE`.
+ * only if `eligible` (quality gates, etc.) and the effective rollout instant is on/after `INDEXABLE_SINCE`.
  * Returns `undefined` when strict mode is off (leave metadata unchanged).
  */
-export function strictRobotsForDbPage(eligible: boolean, updatedAt: unknown): Pick<Metadata, "robots"> | undefined {
+export function strictRobotsForDbPage(
+  eligible: boolean,
+  updatedAt: unknown,
+  createdAt?: unknown,
+): Pick<Metadata, "robots"> | undefined {
   if (!isStrictIndexingEnabled()) return undefined;
   if (!eligible) return { robots: { index: false, follow: true } };
   const since = getIndexableSinceDate();
   // No cutoff: do not blanket-noindex eligible rows (use `INDEXABLE_SINCE` when you want a staged rollout).
   if (!since) return { robots: { index: true, follow: true } };
-  const at = parsePageUpdatedAt(updatedAt);
+  const at = effectivePageRolloutAt(updatedAt, createdAt);
   return { robots: { index: Boolean(at && at >= since), follow: true } };
 }

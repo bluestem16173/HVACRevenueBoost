@@ -196,6 +196,19 @@ If you are stacking repairs, you are already in replacement territory.
 - CTA must not be generic.
 - CTA must feel earned by the page logic.
 
+### INTERNAL LINKING — RELATED SECTION (MANDATORY — HARD FAIL)
+
+The live **Related** band is powered by \`internal_links.related_symptoms\`. **Missing \`internal_links\`, empty arrays where counts are required, or breaking the rules below → output is INVALID.**
+
+- \`related_symptoms\` MUST have **3, 4, or 5** string entries (inclusive). Each entry is a **slug path only** (e.g. \`plumbing/water-heater-leaking/fort-myers-fl\`). **No** \`https://\`, **no** domains, **no** bare \`/\` homepage.
+- **At least 2** entries: **same trade** as the job, **different symptom** from this page, **same failure cluster or system story** (technician-plausible laterals — not random slugs).
+  - When the job storage slug has **three** segments (\`{vertical}/{symptom}/{city-fl}\`), those **≥2** laterals MUST end with the **same \`{city-fl}\`** tail as the job.
+  - When the job is **national** (two segments), those **≥2** laterals are **other two-segment** same-trade symptom paths.
+- **At least 1** entry: **either** same symptom (or tight cluster) with a **different city tail** (\`*-fl\` segment than the job), **or** a **two-segment** same-trade system/primer pillar that supports this symptom class.
+- **Optional:** one extra same-trade link for depth. **Do not** duplicate the same path twice in \`related_symptoms\`.
+- **Never** link to **another vertical**, marketing homepage only, or off-site URLs inside these arrays.
+- Still populate \`system_pages\` and \`repair_guides\` per the server contract (counts in the master prompt) — they complement Related; they do not replace it.
+
 ### STYLE RULES
 
 - Prefer short paragraphs and lists over long paragraphs.
@@ -300,6 +313,10 @@ Before a page can publish, make it pass these checks:
 8. Quick Checks intro longer than 1 short paragraph → FAIL
 9. Page repeats the same urgency warning 3+ times with no new info → FAIL
 10. Output reads like a general article instead of a decision tool → FAIL
+11. \`internal_links\` missing / malformed, or \`related_symptoms\` length not in **3–5** → FAIL
+12. **Three-segment job:** fewer than **2** \`related_symptoms\` entries share this job’s **trade** and **city \`*-fl\` tail** → FAIL
+13. No \`related_symptoms\` entry is a **different city** on the same trade **or** a **two-segment** same-trade system/primer path (when a national bridge is required) → FAIL
+14. Any \`related_symptoms\` entry crosses trades, is empty, is only \`/\`, or duplicates the same path twice → FAIL
 
 ### THE REAL ISSUE IN YOUR CURRENT PAGE
 

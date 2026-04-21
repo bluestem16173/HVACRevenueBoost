@@ -66,19 +66,19 @@ function plumbingHotWaterUpgradePaths(citySeg: string): { title: string; descrip
   const c = citySeg.toLowerCase();
   return [
     {
-      title: "Not enough hot water",
-      description: "Demand grew before the tank failed — capacity vs recovery path.",
-      href: `/plumbing/not-enough-hot-water/${c}`,
-    },
-    {
       title: "Water heater leaking",
       description: "T&P weeps vs tank seam — containment before floor damage.",
       href: `/plumbing/water-heater-leaking/${c}`,
     },
     {
-      title: "Strange noises from the tank",
-      description: "Sediment rumble vs control snap — when noise predicts failure.",
-      href: `/plumbing/strange-noises-from-tank/${c}`,
+      title: "Low water pressure",
+      description: "Whole-house vs fixture-only — when pressure maps to supply or obstruction.",
+      href: `/plumbing/low-water-pressure/${c}`,
+    },
+    {
+      title: "Pipe leaking",
+      description: "Slab vs visible runs — stop-the-water triage before finish damage.",
+      href: `/plumbing/pipe-leaking/${c}`,
     },
   ];
 }

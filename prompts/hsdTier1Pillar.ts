@@ -160,9 +160,15 @@ Plumbing → active leak spread, sewer backup, no shutoff control, pressure loss
 
 ---
 
-### ALSO
+### ALSO — INTERNAL LINKING (MASTER ADD-ON, LOCKED)
 
-- Internal links: related problems, system pillar, cluster expansion (populate fields per OUTPUT FORMAT below).
+- Every page MUST support the on-site **Related** graph. In the JSON contract you emit, populate **`internalLinks.related`** (and **`internalLinks.system`** as needed) so there are **3–5** total internal targets where the schema allows, and they read as one Related band in product:
+  - **≥2** = same **trade**, **different symptom** (national: 2-segment peers under the same vertical).
+  - **≥1** = same symptom cluster **routed to a real city page** (3-segment `/{vertical}/{symptom}/{city-fl}` using cities from the brief) **or** a **system-level** same-trade pillar.
+  - **Optional:** one extra same-trade root/system link.
+- **Do not** link across trades, to the generic homepage only, or repeat the same URL twice to pad the list. If you cannot find 3 credible targets, the brief is incomplete — still **do not** invent impossible slugs.
+- **If Related-style links are absent or obviously generic → output is INVALID.**
+
 - Trade-specific triage must appear early and match the vertical.
 
 ---

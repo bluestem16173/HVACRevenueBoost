@@ -67,7 +67,7 @@ export async function GET() {
     WHERE status = 'published'
       AND quality_status = 'approved'
       AND (noindex IS NULL OR noindex = false)
-      AND updated_at >= ${since.toISOString()}
+      AND (updated_at >= ${since.toISOString()} OR created_at >= ${since.toISOString()})
       AND slug NOT LIKE '%canary%'
       AND slug NOT LIKE '%test%'
       AND slug NOT LIKE '%v1%'

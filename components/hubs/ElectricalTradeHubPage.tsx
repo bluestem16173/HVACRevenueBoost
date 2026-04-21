@@ -3,9 +3,18 @@ import { HubHero } from "@/components/hub/HubHero";
 import { ProblemCard } from "@/components/diagnostic-hub/ProblemCard";
 import { ProblemClusterSection } from "@/components/diagnostic-hub/ProblemClusterSection";
 import { buildElectricalLocalizedPillarPath } from "@/lib/localized-city-path";
-import { FL_EXAMPLE_CITIES, HOW_IT_WORKS_STEPS } from "@/lib/vertical-hub-shared";
+import { LEE_MONETIZATION_ELECTRICAL_SYMPTOMS } from "@/lib/homeservice/leeCountyInitialMonetizationCluster";
+import { FL_EXAMPLE_CITIES, FL_EXAMPLE_PRIMARY_CITY_SLUG, HOW_IT_WORKS_STEPS } from "@/lib/vertical-hub-shared";
 
 const DEMO_SYMPTOM = "breaker-keeps-tripping";
+
+function humanizeSlugLabel(slug: string): string {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
 
 export default function ElectricalTradeHubPage() {
   const p = (slug: string) => `/electrical/${slug.trim().toLowerCase()}`;
@@ -69,13 +78,10 @@ export default function ElectricalTradeHubPage() {
     },
   ] as const;
 
-  const quickEntry = [
-    { title: "Breaker Keeps Tripping", href: p("breaker-keeps-tripping") },
-    { title: "Outlet Not Working", href: p("outlet-not-working") },
-    { title: "Lights Flickering or Dimming", href: p("lights-flickering") },
-    { title: "Burning Smell (Outlet or Panel)", href: p("burning-smell-outlet") },
-    { title: "Partial Power — Half the House", href: p("partial-power-house") },
-  ] as const;
+  const quickEntry = LEE_MONETIZATION_ELECTRICAL_SYMPTOMS.map((slug) => ({
+    title: humanizeSlugLabel(slug),
+    href: p(slug),
+  }));
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
@@ -107,9 +113,9 @@ export default function ElectricalTradeHubPage() {
             for Florida context (example:{" "}
             <Link
               className="font-medium text-hvac-blue hover:underline"
-              href={buildElectricalLocalizedPillarPath(DEMO_SYMPTOM, "tampa-fl")}
+              href={buildElectricalLocalizedPillarPath(DEMO_SYMPTOM, FL_EXAMPLE_PRIMARY_CITY_SLUG)}
             >
-              /electrical/{DEMO_SYMPTOM}/tampa-fl
+              /electrical/{DEMO_SYMPTOM}/{FL_EXAMPLE_PRIMARY_CITY_SLUG}
             </Link>
             ).
           </p>

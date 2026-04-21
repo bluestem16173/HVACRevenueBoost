@@ -8,6 +8,7 @@ import {
 } from "@/lib/hsd/injectProgrammaticHsdCtas";
 import { simpleDiagnosticFlowToMermaid } from "@/lib/hsd/simpleDiagnosticFlowToMermaid";
 import { backfillLocalizedPlumbingAuthorityFields } from "@/lib/homeservice/backfillLocalizedTradeAuthority";
+import { buildLeeCountyTradeClusterFooterHtml } from "@/lib/homeservice/leeCountyTradeClusterFooterHtml";
 import {
   buildCityContextForLeeCountyCity,
   isLeeCountyCityStorageSlug,
@@ -1656,7 +1657,9 @@ export function renderHsdV25(data: HsdV25RenderInput | Record<string, unknown>):
     ...buildHsdV25MidBlocks(safe),
     ...buildHsdV25ClosingBlocks(safe),
   ];
-  const related = sectionInternalRelatedLinks(safe);
-  const inner = `${header}\n${joinSortedHsdV25Blocks(blocks)}\n${related}`.trim();
+  const slug = String((safe as { slug?: string }).slug ?? "").trim();
+  const leeClusterFooter = buildLeeCountyTradeClusterFooterHtml(slug);
+  const related = leeClusterFooter ? "" : sectionInternalRelatedLinks(safe);
+  const inner = `${header}\n${joinSortedHsdV25Blocks(blocks)}\n${related}${leeClusterFooter ? `\n${leeClusterFooter}` : ""}`.trim();
   return wrapHsdV25LayoutDocument(inner);
 }

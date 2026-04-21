@@ -1,31 +1,29 @@
 /**
  * Lee County, FL — **storage** city segments for `pages.slug` / URLs (`{city}-fl`).
- * DB paths must use these exact tails (e.g. `hvac/ac-not-cooling/fort-myers-fl`).
+ * DB paths must use these exact tails (e.g. `electrical/breaker-keeps-tripping/fort-myers-fl`).
  *
- * Same metros as the locked initial monetization cluster
- * (`lib/homeservice/leeCountyInitialMonetizationCluster.ts`).
+ * **Locked core expansion grid** (do not expand without product sign-off):
+ * Fort Myers, Cape Coral, Lehigh Acres, Bonita Springs, Estero, North Fort Myers.
+ *
+ * Aligned with {@link LEE_MONETIZATION_* } in `lib/homeservice/leeCountyInitialMonetizationCluster.ts`.
  */
 export const LEE_COUNTY_CITIES = [
   "fort-myers-fl",
   "cape-coral-fl",
-  "estero-fl",
-  "fort-myers-beach-fl",
-  "sanibel-fl",
-  "north-captiva-fl",
-  "gateway-fl",
   "lehigh-acres-fl",
+  "bonita-springs-fl",
+  "estero-fl",
+  "north-fort-myers-fl",
 ] as const;
 
 /** Human labels aligned with {@link LEE_COUNTY_CITIES} (same order). */
 export const FL_EXAMPLE_CITIES: { label: string; slug: string }[] = [
   { label: "Fort Myers", slug: "fort-myers-fl" },
   { label: "Cape Coral", slug: "cape-coral-fl" },
-  { label: "Estero", slug: "estero-fl" },
-  { label: "Fort Myers Beach", slug: "fort-myers-beach-fl" },
-  { label: "Sanibel", slug: "sanibel-fl" },
-  { label: "North Captiva", slug: "north-captiva-fl" },
-  { label: "Gateway", slug: "gateway-fl" },
   { label: "Lehigh Acres", slug: "lehigh-acres-fl" },
+  { label: "Bonita Springs", slug: "bonita-springs-fl" },
+  { label: "Estero", slug: "estero-fl" },
+  { label: "North Fort Myers", slug: "north-fort-myers-fl" },
 ];
 
 /** Default localized example for marketing copy (Lee County primary). */

@@ -3,9 +3,18 @@ import { HubHero } from "@/components/hub/HubHero";
 import { ProblemCard } from "@/components/diagnostic-hub/ProblemCard";
 import { ProblemClusterSection } from "@/components/diagnostic-hub/ProblemClusterSection";
 import { buildPlumbingLocalizedPillarPath } from "@/lib/localized-city-path";
-import { FL_EXAMPLE_CITIES, HOW_IT_WORKS_STEPS } from "@/lib/vertical-hub-shared";
+import { LEE_MONETIZATION_PLUMBING_SYMPTOMS } from "@/lib/homeservice/leeCountyInitialMonetizationCluster";
+import { FL_EXAMPLE_CITIES, FL_EXAMPLE_PRIMARY_CITY_SLUG, HOW_IT_WORKS_STEPS } from "@/lib/vertical-hub-shared";
 
 const DEMO_SYMPTOM = "no-hot-water";
+
+function humanizeSlugLabel(slug: string): string {
+  return slug
+    .split("-")
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
 
 export default function PlumbingTradeHubPage() {
   const p = (slug: string) => `/plumbing/${slug.trim().toLowerCase()}`;
@@ -71,12 +80,10 @@ export default function PlumbingTradeHubPage() {
     },
   ] as const;
 
-  const quickEntry = [
-    { title: "No Hot Water", href: p("no-hot-water") },
-    { title: "Water Heater Leaking", href: p("water-heater-leaking") },
-    { title: "Toilet Keeps Running", href: p("toilet-keeps-running") },
-    { title: "Drain Clogged", href: p("drain-clogged") },
-  ] as const;
+  const quickEntry = LEE_MONETIZATION_PLUMBING_SYMPTOMS.map((slug) => ({
+    title: humanizeSlugLabel(slug),
+    href: p(slug),
+  }));
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
@@ -108,9 +115,9 @@ export default function PlumbingTradeHubPage() {
             for Florida context (example:{" "}
             <Link
               className="font-medium text-hvac-blue hover:underline"
-              href={buildPlumbingLocalizedPillarPath(DEMO_SYMPTOM, "tampa-fl")}
+              href={buildPlumbingLocalizedPillarPath(DEMO_SYMPTOM, FL_EXAMPLE_PRIMARY_CITY_SLUG)}
             >
-              /plumbing/{DEMO_SYMPTOM}/tampa-fl
+              /plumbing/{DEMO_SYMPTOM}/{FL_EXAMPLE_PRIMARY_CITY_SLUG}
             </Link>
             ).
           </p>
