@@ -518,7 +518,7 @@ This block must read like a **field cheat sheet**: immediate clarity, fast scann
 
 **headline (H2 on site):** When **slug** is **hvac/ac-not-cooling/{city}**, use **exactly** \`AC Not Cooling? Start Here\` — no variation, no extra words. For **all other** pages: open decisive; minimum **50 characters** with **{{CITY}}** or **{{STATE}}** load context. **Forbidden:** "Understanding…", "In this guide…", "Learn about…", "We will explore…", "30-second read" (or variants) as headline suffix or standalone line, weak hedging.
 
-**flow_lines (REQUIRED — at least 4 strings):** Fast scan under the headline — **classify only** (symptom pattern → failure **class**). Do **not** put repair steps, “shut off…”, “call a pro…”, or dollar-based **fixes** in \`flow_lines\`; those belong in \`diagnostic_steps\`, \`decision\`, and \`repair_matrix\`. Do **not** use a line that is only meta like "30-second read". Line 1 is usually a **symptom gate** ending with a colon; following lines are **→** branches mapping signal → class (HVAC cooling example shape — adapt to symptom). For **plumbing/no-hot-water/{city}**, prefer four **question → class** one-liners (hard loss vs lukewarm vs fast runout vs rusty water).
+**flow_lines (REQUIRED — at least 4 strings):** Fast scan under the headline — **classify only** (symptom pattern → failure **class**). Do **not** put repair steps, “shut off…”, “call a pro…”, or dollar-based **fixes** in \`flow_lines\`; those belong in \`diagnostic_steps\`, \`decision\`, and \`repair_matrix\`. Do **not** use a line that is only meta like "30-second read". Line 1 is usually a **symptom gate** ending with a colon; following lines are **→** branches mapping signal → class (HVAC cooling example shape — adapt to symptom). For **HVAC**, **plumbing**, or **electrical** pages, also obey the **VERTICAL ANNEX** block appended in the user message (trade-specific scan shapes and hard constraints).
 - "Fan runs but no cooling:"
 - "→ Filter → airflow restriction"
 - "→ Ice → frozen coil"
@@ -534,7 +534,7 @@ Also: top_causes **3–4** entries with label + probability each (mechanism + li
 
 ### what_this_means (REQUIRED — bridge after summary)
 - **Minimum 100 characters** — diagnosis → dominant physical branches → wear/failure pressure. **No meta** ("this section", "expert layer", "in this article").
-- **plumbing/no-hot-water (electric tank):** lead with **failed heat transfer** physics (element open → no current → no heat; thermostat never calls → element stays off; sediment insulates element → heat trapped → burnout). **Forbidden opener tone:** "The system is not producing hot water due to a failure…" / generic blog narration.
+- **Plumbing hot-water / tank physics:** when the **VERTICAL ANNEX** covers this symptom, follow that annex for opener + mechanism shape (failed heat transfer, forbidden generic “system not producing…” blog tone).
 - **Do not duplicate structured pages:** if \`decision_tree_text\`, \`diagnostic_flow\`, or \`repair_matrix\` already states a branch or cost path, reference it in one sentence here instead of repeating the full ladder in prose.
 - Name what the system is actually doing (e.g. still moving air but **failing to remove heat** — adapt to plumbing/electrical physics).
 - Bucket the dominant physical branches (HVAC cooling: airflow, refrigerant charge, control logic, compressor load — swap for correct vertical).
@@ -558,7 +558,7 @@ Also: top_causes **3–4** entries with label + probability each (mechanism + li
 - **risk** must include **$** on every quick check when physically plausible. Do **not** paste the site's static quick-checks lead ("If cooling does not return after these checks…") into JSON — the renderer owns that line.
 
 ### diagnostic_steps (site title: **Diagnostic Flow (What’s actually happening)** — no Homeowner/Pro/Risk labels on screen)
-- **plumbing/no-hot-water:** render as a **checklist ladder**—bold **step** titles like "Step 1 — Check power", **homeowner** line is the **IF → branch** (short), **pro** is one measurement/verification clause, **risk** keeps a **$** band. Avoid essay-style "first you should understand how a water heater works…" copy.
+- **Plumbing ladder steps:** when the **VERTICAL ANNEX** names a checklist-ladder shape for this pillar, match that shape (bold step titles, short IF→branch homeowner lines, one verification **pro** clause, **risk** with **$**).
 - Must follow **real technician order** — each step advances the diagnosis; **homeowner** vs **pro** are sequential **→** beats in the same physical branch (not generic labels).
 - **step:** A **physical gate** (often phrased as a verification title, e.g. "Verify thermostat operation.").
 - **homeowner:** First **→** line(s) a resident can execute (display, mode, setpoint, obvious signs).
@@ -639,12 +639,14 @@ Also: top_causes **3–4** entries with label + probability each (mechanism + li
 - Format: hvac/{{kebab-case symptom}}/{{city-slug}}-{{state-slug}} (example: hvac/ac-not-turning-on/tampa-fl). Must match PRIMARY PAGE SLUG in context when provided.
 
 ### cityContext (top-of-page market load — **required when slug has a city segment**, i.e. three \`/\`-delimited parts after normalization)
-- Array of **2–4** short strings (no HTML), each one continuous line — climate, coastal/corrosion, humidity/runtime, or cycling/wear for **{{CITY}}** / **{{STATE}}** and nearby metros where relevant.
+- Array of **2–4** short strings (no HTML), each one continuous line — **this is the primary SEO differentiation per city** (canals vs barrier island vs newer master-planned demand, salt exposure, well-water markets, storm surge history, corrosion on exterior runs, peak hot-water or cooling load patterns).
 - **National pillars** (slug with only vertical + symptom): use an empty array \`[]\`.
-- Example shape (rewrite for the actual metro — do not copy verbatim unless it matches the market):
-  - humidity + long runtime → airflow/drainage stress
-  - salt air / coastal → corrosion on panels and outdoor units
-  - heat + cycling → capacitor / compressor / pump wear
+- **Localization freeze:** \`cityContext\` is where metro-specific nuance lives. **Do not** invent new failure theories, new diagnostic branches, or city-specific \`repair_matrix\` / \`diagnostic_steps\` rewrites—keep structure and logic aligned with the pillar; only these bullets (and natural **{{CITY}}** in title/cta/headline where appropriate) should change between cities.
+- Example angles (pick what matches **{{CITY}}**, not all at once):
+  - canal / waterfront-adjacent lots → hidden chase moisture, exterior steel corrosion
+  - barrier-island / beach → salt fog, rapid jacket and union loss, storm stack-up
+  - newer high-amenity suburbs → demand spikes, short cycling complaints vs true undersizing
+  - county-seat mix → hard water + peak multi-bath draw + storm pressure swings
 
 ### Page arc (final formula every reader should feel)
 1. **Diagnosis** — headline + top causes + what_this_means. 2. **Explanation** — core_truth, quick_checks, diagnostic_steps. 3. **Failure chain** — risks, cost_escalation, repair_matrix. 4. **Cost** — repair_matrix numbers + repair_matrix_intro + escalation lines. 5. **Decision** — decision columns + decision_footer + final_warning + cta.

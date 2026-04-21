@@ -25,6 +25,7 @@ import {
   HSD_MASTER_IDEMPOTENT,
   HSD_PILLAR_AUTHORITY_OVERRIDE,
 } from "@/src/lib/ai/prompts/diagnostic-engine-json";
+import { hsdVerticalPromptAnnex } from "@/src/lib/ai/prompts/hsdVerticalPromptAnnex";
 import { finalizeHsdV25Page } from "@/lib/hsd/finalizeHsdPage";
 import {
   applyLeeCountyLocalizedEnrichmentToHsdJson,
@@ -117,9 +118,11 @@ export function buildPrompt(
 
   const core = buildHsdV2VeteranTechnicianPrompt(symptomLine, cityLine, stateLine);
   const preamble = buildVerticalPromptPreamble(normalizeVerticalId(vertical));
-  const topicLine = `PRIMARY PAGE SLUG / TOPIC SEED: "${enforceStoredSlug(storageSlug)}"`;
-  const leeBlock = isLeeCountyCityStorageSlug(storageSlug)
-    ? `\n\n---\n\nLOCAL MARKET (use in copy, cityContext bullets, and CTA — no generic nationwide filler):\n- REGION: Lee County, Florida\n- CLIMATE: hot, humid, coastal\n- NEIGHBOR CITIES TO NAME NATURALLY: Fort Myers, Cape Coral, Estero, Fort Myers Beach, Sanibel\n`
+  const slugNorm = enforceStoredSlug(storageSlug);
+  const topicLine = `PRIMARY PAGE SLUG / TOPIC SEED: "${slugNorm}"`;
+  const verticalAnnex = hsdVerticalPromptAnnex(vertical, slugNorm);
+  const leeBlock = isLeeCountyCityStorageSlug(slugNorm)
+    ? `\n\n---\n\nLOCAL MARKET (Lee County — **context layer only**):\n- REGION: Lee County, Florida\n- CLIMATE: hot, humid, coastal\n- PRIMARY CITY: match the slug city segment (e.g. Cape Coral, Fort Myers Beach, Sanibel, North Captiva) in **cityContext**, **title**, and **cta** — do not substitute a different city name.\n- BARRIER / ISLAND SEGMENTS (Sanibel, North Captiva, Fort Myers Beach): salt fog, storm rebuild, logistics, and generator-backed homes belong in **cityContext** bullets—not new diagnostic branches.\n- **LOCALIZATION FREEZE:** vary **cityContext** (2–4 bullets: canals, salt air, demand spikes, corrosion, storms as relevant) plus light city naming in headline/CTA only. **Do not** rewrite \`diagnostic_steps\`, \`flow_lines\`, \`what_this_means\`, \`quick_table\`, \`repair_matrix\`, or \`common_misdiagnosis\` per city—keep diagnostic logic identical to the national pillar; only the context layer changes.\n`
     : "";
 
   /** Lee County localized slugs use `…-fl`; national storage slugs omit that city segment. */
@@ -134,6 +137,7 @@ export function buildPrompt(
     HSD_HARD_ENFORCEMENT_RULES,
     modeLayer,
     `${topicLine}${leeBlock}`,
+    verticalAnnex,
     "---",
     core,
   ].join("\n\n");

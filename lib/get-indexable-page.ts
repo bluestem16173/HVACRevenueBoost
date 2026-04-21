@@ -115,7 +115,7 @@ export async function getIndexablePageForDiagnoseJoinedSlug(rawSlug: string) {
 
 /**
  * Localized route: prefer `pages.slug` = `{vertical}/{symptom}/{city}` (page_queue / HSD),
- * else fall back to national pillar `{symptom}`.
+ * else fall back to national pillar `{vertical}/{symptom}` (storage shape in `pages`).
  */
 export async function getIndexablePageForLocalizedRoute(
   vertical: ServiceVertical,
@@ -149,6 +149,12 @@ export async function getIndexablePageForLocalizedRoute(
       );
     }
   }
-  if (!page) page = await getIndexablePageBySlug(enforceStoredSlug(symptom));
+  if (!page) {
+    const nationalSlug = `${vertical}/${enforceStoredSlug(symptom).toLowerCase()}`.replace(/\/+/g, "/");
+    page =
+      vertical === "hvac"
+        ? await getIndexablePageBySlug(nationalSlug)
+        : await getPageBySlug(nationalSlug);
+  }
   return page;
 }

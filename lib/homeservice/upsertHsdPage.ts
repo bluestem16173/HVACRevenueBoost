@@ -1,5 +1,6 @@
 import sql from "@/lib/db";
 import { HSD_V2_SCHEMA_VERSION } from "@/lib/generated-page-json-contract";
+import { assertVerticalContentIsolation } from "@/lib/hsd/assertVerticalContentIsolation";
 import { assertPayloadSubstantiveForPublish } from "@/lib/homeservice/assertPayloadSubstantiveForPublish";
 import { enforceStoredSlug } from "@/lib/slug-utils";
 import { canonicalLocalizedStorageSlug } from "@/lib/localized-city-path";
@@ -44,6 +45,9 @@ export async function upsertHsdPage(job: UpsertHsdPageJob, json: Record<string, 
 
   assertPayloadSubstantiveForPublish(cleanSlug, json);
 
+  const jsonText = JSON.stringify(json);
+  assertVerticalContentIsolation(cleanSlug, jsonText);
+
   const run = (pageType: string) => sql`
     INSERT INTO pages (
       slug,
@@ -60,7 +64,7 @@ export async function upsertHsdPage(job: UpsertHsdPageJob, json: Record<string, 
     )
     VALUES (
       ${rowSlug},
-      ${JSON.stringify(json)}::jsonb,
+      ${jsonText}::jsonb,
       ${null},
       'published',
       'approved',

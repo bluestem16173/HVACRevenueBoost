@@ -28,6 +28,7 @@ import { generateProblemPillarPageWithRetry } from "@/src/lib/ai/generateProblem
 import { upsertPage } from "@/src/lib/db/upsertPage";
 import { upsertHsdPage } from "@/lib/homeservice/upsertHsdPage";
 import { assertPayloadSubstantiveForPublish } from "@/lib/homeservice/assertPayloadSubstantiveForPublish";
+import { assertVerticalContentIsolation } from "@/lib/hsd/assertVerticalContentIsolation";
 
 export type PageQueueRow = {
   id: number;
@@ -155,6 +156,9 @@ export async function upsertPageFromHsdCityJson(
 
   assertPayloadSubstantiveForPublish(cleanSlug, result);
 
+  const persistJson = JSON.stringify(result);
+  assertVerticalContentIsolation(cleanSlug, persistJson);
+
   await sql`
     INSERT INTO pages (
       slug,
@@ -171,7 +175,7 @@ export async function upsertPageFromHsdCityJson(
     )
     VALUES (
       ${cleanSlug},
-      ${JSON.stringify(result)}::jsonb,
+      ${persistJson}::jsonb,
       ${null},
       'published',
       'approved',

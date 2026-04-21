@@ -149,6 +149,8 @@ Use patterns like:
     "estero-fl",
     "fort-myers-beach-fl",
     "sanibel-fl",
+    "north-captiva-fl",
+    "gateway-fl",
     "tampa-fl"
   ],
 

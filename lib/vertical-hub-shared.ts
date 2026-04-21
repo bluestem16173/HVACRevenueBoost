@@ -2,7 +2,7 @@
  * Lee County, FL — **storage** city segments for `pages.slug` / URLs (`{city}-fl`).
  * DB paths must use these exact tails (e.g. `hvac/ac-not-cooling/fort-myers-fl`).
  *
- * Same five metros as the locked initial monetization cluster
+ * Same metros as the locked initial monetization cluster
  * (`lib/homeservice/leeCountyInitialMonetizationCluster.ts`).
  */
 export const LEE_COUNTY_CITIES = [
@@ -11,6 +11,8 @@ export const LEE_COUNTY_CITIES = [
   "estero-fl",
   "fort-myers-beach-fl",
   "sanibel-fl",
+  "north-captiva-fl",
+  "gateway-fl",
 ] as const;
 
 /** Human labels aligned with {@link LEE_COUNTY_CITIES} (same order). */
@@ -20,6 +22,8 @@ export const FL_EXAMPLE_CITIES: { label: string; slug: string }[] = [
   { label: "Estero", slug: "estero-fl" },
   { label: "Fort Myers Beach", slug: "fort-myers-beach-fl" },
   { label: "Sanibel", slug: "sanibel-fl" },
+  { label: "North Captiva", slug: "north-captiva-fl" },
+  { label: "Gateway", slug: "gateway-fl" },
 ];
 
 /** Default localized example for marketing copy (Lee County primary). */

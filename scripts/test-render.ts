@@ -1,22 +1,19 @@
 import "dotenv/config";
-import React from 'react';
-import HvacSymptomOrHubPage from '../app/hvac/[symptom]/page';
+import { renderHvacTwoSegment } from "../lib/programmatic-pages/catchAllDbRoutes";
 
 async function main() {
-  const result = await HvacSymptomOrHubPage({ params: { symptom: 'ac-not-cooling' } });
-  
-  // Inspect the top-level element type and props returned by the server component
+  const result = await renderHvacTwoSegment("ac-not-cooling");
+
   console.log("COMPONENT RENDER RESULT:");
-  console.log("Type:", result.type);
-  if (result.props && result.props.style) {
-     console.log("Style:", result.props.style);
+  console.log("Type:", (result as any)?.type);
+  if ((result as any)?.props?.style) {
+    console.log("Style:", (result as any).props.style);
   } else {
-     console.log("It did not return a styled div.");
+    console.log("It did not return a styled div.");
   }
 
-  // Look for GoldStandardPage or SymptomPageTemplate in the element
-  if (result.type && result.type.name === 'SymptomPageTemplate') {
-     console.log("RETURNED LEGACY SymptomPageTemplate!");
+  if ((result as any)?.type?.name === "SymptomPageTemplate") {
+    console.log("RETURNED LEGACY SymptomPageTemplate!");
   }
 
   process.exit(0);

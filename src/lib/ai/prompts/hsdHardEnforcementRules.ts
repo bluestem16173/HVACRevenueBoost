@@ -11,6 +11,7 @@ This page is a diagnostic engine, not a blog post.
 
 ### GLOBAL RULES
 
+- **Localized slugs (three path segments):** Differentiate pages with **\`cityContext\` bullets** (2–4 lines: climate, salt/corrosion, demand, canals/storms as relevant to **{{CITY}}**) and natural **{{CITY}}** in **title** / **cta** / **headline** where it reads as location—not new mechanics. **Do not** rewrite entire \`diagnostic_steps\`, \`what_this_means\`, \`quick_table\`, \`repair_matrix\`, or \`common_misdiagnosis\` per city, and do not introduce city-only failure theories—**only the context layer** may vary.
 - **Cross-section rule:** If any section contains **both** a diagnosis **and** a recommended action in the **same sentence or line**, the output is **invalid** (split classification from action across the correct sections).
 - Write like a 30-year field technician.
 - Use dense, decisive language.

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { SmsLegalFooterLinks } from "@/components/SmsLegalFooterLinks";
-import { getVertical, HOME_SERVICE_VERTICALS, normalizeVerticalId } from "@/lib/verticals";
+import { getVertical, HOME_SERVICE_VERTICALS, normalizeVerticalId, verticalHubNavHref } from "@/lib/verticals";
 
 export default function VerticalHub({ verticalId }: { verticalId: string }) {
   const v = getVertical(normalizeVerticalId(verticalId));
@@ -68,7 +68,7 @@ export default function VerticalHub({ verticalId }: { verticalId: string }) {
           {otherVerticals.map((x) => (
             <Link
               key={x.id}
-              href={x.id === "hvac" ? "/hvac" : `/${x.id}`}
+              href={verticalHubNavHref(x.id)}
               className="px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-sm font-medium hover:border-hvac-blue"
             >
               {x.label}

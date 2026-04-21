@@ -8,6 +8,7 @@ import DiagnosticModal from "@/components/DiagnosticModal";
 import StickySmsLeadCta from "@/components/StickySmsLeadCta";
 import { SITE_ORIGIN } from "@/lib/seo/canonical";
 import { isStrictIndexingEnabled, strictDefaultRobotsForPathname } from "@/lib/seo/strict-indexing";
+import { verticalHubNavHref } from "@/lib/verticals";
 
 const RV_DIAGNOSTICS_URL = "https://www.decisiongrid.co";
 
@@ -61,16 +62,16 @@ export default function RootLayout({
               <span className="text-slate-500 hidden sm:inline" aria-hidden>
                 |
               </span>
-              <Link href="/hvac" className="hover:text-hvac-gold transition-colors whitespace-nowrap">
+              <Link href={verticalHubNavHref("hvac")} className="hover:text-hvac-gold transition-colors whitespace-nowrap">
                 HVAC
               </Link>
-              <Link href="/plumbing" className="hover:text-hvac-gold transition-colors whitespace-nowrap">
+              <Link href={verticalHubNavHref("plumbing")} className="hover:text-hvac-gold transition-colors whitespace-nowrap">
                 Plumbing
               </Link>
-              <Link href="/electrical" className="hover:text-hvac-gold transition-colors whitespace-nowrap">
+              <Link href={verticalHubNavHref("electrical")} className="hover:text-hvac-gold transition-colors whitespace-nowrap">
                 Electrical
               </Link>
-              <Link href="/roofing" className="hover:text-hvac-gold transition-colors whitespace-nowrap">
+              <Link href={verticalHubNavHref("roofing")} className="hover:text-hvac-gold transition-colors whitespace-nowrap">
                 Roofing
               </Link>
               <span className="text-slate-500 hidden sm:inline" aria-hidden>
@@ -117,22 +118,22 @@ export default function RootLayout({
                     </Link>
                   </li>
                   <li>
-                    <Link href="/hvac" className="hover:text-white">
+                    <Link href={verticalHubNavHref("hvac")} className="hover:text-white">
                       HVAC
                     </Link>
                   </li>
                   <li>
-                    <Link href="/plumbing" className="hover:text-white">
+                    <Link href={verticalHubNavHref("plumbing")} className="hover:text-white">
                       Plumbing
                     </Link>
                   </li>
                   <li>
-                    <Link href="/electrical" className="hover:text-white">
+                    <Link href={verticalHubNavHref("electrical")} className="hover:text-white">
                       Electrical
                     </Link>
                   </li>
                   <li>
-                    <Link href="/roofing" className="hover:text-white">
+                    <Link href={verticalHubNavHref("roofing")} className="hover:text-white">
                       Roofing
                     </Link>
                   </li>

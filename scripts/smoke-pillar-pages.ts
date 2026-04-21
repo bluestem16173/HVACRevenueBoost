@@ -24,7 +24,7 @@ const PILLARS: { prefix: string; slugs: readonly string[] }[] = [
 /** Optional pillars: warn on non-200 but do not fail the script (queue / DB may not have built them yet). */
 const OPTIONAL_HVAC_PILLARS = ["high-energy-bills", "ac-blowing-warm-air", "ac-running-but-not-cooling"] as const;
 
-/** Short slugs for `/hvac/{segment}` system hubs — see `app/hvac/[symptom]/page.tsx` SLUG_MAP. */
+/** Short slugs for `/hvac/{segment}` system hubs — see `lib/programmatic-pages/catchAllDbRoutes.tsx` HVAC_SLUG_MAP. */
 const HVAC_SYSTEM_HUBS = [
   "air-conditioning",
   "heating-systems",

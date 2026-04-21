@@ -30,6 +30,9 @@ const nextConfig = {
         destination: "https://hvacrevenueboost.com/:path*",
         permanent: true,
       },
+      { source: "/roofing", destination: "/symptom/roofing", permanent: true },
+      { source: "/appliance-repair", destination: "/symptom/appliance-repair", permanent: true },
+      { source: "/mold-remediation", destination: "/symptom/mold-remediation", permanent: true },
     ];
   },
   async rewrites() {

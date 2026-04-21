@@ -9,7 +9,7 @@
  * | Electrical | breaker-keeps-tripping, outlet-not-working, power-out-in-one-room |
  * | Plumbing   | no-hot-water, drain-clogged, water-heater-leaking |
  *
- * Cities (human): Fort Myers, Cape Coral, Estero, Fort Myers Beach, Sanibel — storage tails
+ * Cities (human): Fort Myers, Cape Coral, Estero, Fort Myers Beach, Sanibel, North Captiva, Gateway — storage tails
  * live in {@link LEE_COUNTY_CITIES} (`lib/vertical-hub-shared.ts`).
  */
 import { LEE_COUNTY_CITIES } from "@/lib/vertical-hub-shared";

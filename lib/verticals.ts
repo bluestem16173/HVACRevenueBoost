@@ -92,8 +92,8 @@ export const HOME_SERVICE_VERTICALS: Record<string, HomeServiceVertical> = {
       "storm / impact patterns",
     ],
     pillarExamples: [
-      { slug: "roof-leak", title: "Roof leak / ceiling stain", href: "/roofing" },
-      { slug: "missing-shingles", title: "Missing or damaged shingles", href: "/roofing" },
+      { slug: "roof-leak", title: "Roof leak / ceiling stain", href: "/symptom/roofing" },
+      { slug: "missing-shingles", title: "Missing or damaged shingles", href: "/symptom/roofing" },
     ],
     forbiddenCrossTrade: ["TXV", "evaporator coil"],
   },
@@ -110,8 +110,8 @@ export const HOME_SERVICE_VERTICALS: Record<string, HomeServiceVertical> = {
       "user-observable error codes",
     ],
     pillarExamples: [
-      { slug: "dishwasher-not-draining", title: "Dishwasher not draining", href: "/appliance-repair" },
-      { slug: "dryer-not-heating", title: "Dryer not heating", href: "/appliance-repair" },
+      { slug: "dishwasher-not-draining", title: "Dishwasher not draining", href: "/symptom/appliance-repair" },
+      { slug: "dryer-not-heating", title: "Dryer not heating", href: "/symptom/appliance-repair" },
     ],
     forbiddenCrossTrade: ["duct static pressure", "superheat"],
   },
@@ -128,14 +128,14 @@ export const HOME_SERVICE_VERTICALS: Record<string, HomeServiceVertical> = {
       "prevention & drying plan",
     ],
     pillarExamples: [
-      { slug: "musty-smell", title: "Musty smell after leak", href: "/mold-remediation" },
-      { slug: "visible-mold", title: "Visible mold growth", href: "/mold-remediation" },
+      { slug: "musty-smell", title: "Musty smell after leak", href: "/symptom/mold-remediation" },
+      { slug: "visible-mold", title: "Visible mold growth", href: "/symptom/mold-remediation" },
     ],
     forbiddenCrossTrade: [],
   },
 };
 
-/** Slugs that render a vertical hub from `app/[symptom]/page.tsx` */
+/** Slugs that render a vertical hub from `app/symptom/[symptom]/page.tsx` */
 export const UMBRELLA_VERTICAL_HUB_SLUGS = [
   "plumbing",
   "electrical",
@@ -148,6 +148,15 @@ export type UmbrellaVerticalHubSlug = (typeof UMBRELLA_VERTICAL_HUB_SLUGS)[numbe
 
 export function isUmbrellaVerticalHubSlug(slug: string): slug is UmbrellaVerticalHubSlug {
   return (UMBRELLA_VERTICAL_HUB_SLUGS as readonly string[]).includes(slug);
+}
+
+/** Primary nav / hub link: dedicated routes for HVAC + trades with `app/{trade}/page`, else `/symptom/{id}`. */
+export function verticalHubNavHref(verticalId: string): string {
+  const id = normalizeVerticalId(verticalId);
+  if (id === "hvac") return "/hvac";
+  if (id === "plumbing") return "/plumbing";
+  if (id === "electrical") return "/electrical";
+  return `/symptom/${id}`;
 }
 
 export function normalizeVerticalId(raw?: string | null): string {

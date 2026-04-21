@@ -1,3 +1,9 @@
+import type { ServiceVertical } from "@/lib/localized-city-path";
+import {
+  buildCityContextForLeeCountyCity,
+  isLeeCountyCityStorageSlug,
+} from "@/lib/homeservice/leeCountyLocalizedEnrichment";
+
 /**
  * Deterministic fill-ins when the model returns JSON that is close but fails
  * Zod superRefine or {@link assertHsdV25ContentRules} on headline / flow_lines only.
@@ -22,11 +28,34 @@ function issueTitleFromSlug(slug: string): string {
     .join(" ");
 }
 
+/** {@link assertHsdV25ContentRules} requires ≥1 row with cost_max ≥ 1500 — model sometimes returns all low bands. */
+function ensureRepairMatrixHighCostScenario(json: Record<string, unknown>): void {
+  const rm = json.repair_matrix;
+  if (!Array.isArray(rm) || rm.length === 0) return;
+  const hasHigh = rm.some((row) => {
+    if (!row || typeof row !== "object") return false;
+    const n = Number((row as Record<string, unknown>).cost_max);
+    return Number.isFinite(n) && n >= 1500;
+  });
+  if (hasHigh) return;
+  const last = rm[rm.length - 1];
+  if (!last || typeof last !== "object") return;
+  const o = last as Record<string, unknown>;
+  const lo = Number(o.cost_min);
+  const hi = Number(o.cost_max);
+  const safeLo = Number.isFinite(lo) ? Math.min(lo, 1400) : 800;
+  o.cost_min = safeLo;
+  o.cost_max = 2200;
+  if (!String(o.difficulty ?? "").trim()) o.difficulty = "pro";
+}
+
 export function patchHsdLlmJsonMinimumGates(json: Record<string, unknown>): void {
   const slug = String(json.slug ?? "").trim();
   const load = cityLoadFromStorageSlug(slug);
   const parts = slug.split("/").filter(Boolean);
-  const vertical = (parts[0] ?? "hvac").toLowerCase();
+  const verticalRaw = (parts[0] ?? "hvac").toLowerCase();
+  const vertical: ServiceVertical =
+    verticalRaw === "plumbing" || verticalRaw === "electrical" ? verticalRaw : "hvac";
   const isHvac = vertical === "hvac";
 
   const s30 = json.summary_30s;
@@ -68,7 +97,10 @@ export function patchHsdLlmJsonMinimumGates(json: Record<string, unknown>): void
       ? (json.cityContext as unknown[]).map((x) => String(x ?? "").trim()).filter(Boolean)
       : [];
     if (rawLines.length === 0) {
-      if (vertical === "plumbing") {
+      const citySeg = String(parts[parts.length - 1] ?? "");
+      if (isLeeCountyCityStorageSlug(slug) && citySeg) {
+        json.cityContext = buildCityContextForLeeCountyCity(citySeg, vertical);
+      } else if (vertical === "plumbing") {
         json.cityContext = [
           `In ${load}, hard water and peak evening hot-water demand accelerate sediment and element stress in tank heaters.`,
           "Coastal humidity speeds exterior jacket rust on garage or lanai units—small weeps become floor and cabinet damage quickly.",
@@ -89,4 +121,6 @@ export function patchHsdLlmJsonMinimumGates(json: Record<string, unknown>): void
       }
     }
   }
+
+  ensureRepairMatrixHighCostScenario(json);
 }

@@ -1,0 +1,72 @@
+import { Metadata } from "next";
+import type { ComponentType } from "react";
+import { notFound } from "next/navigation";
+import HybridServicePageTemplate, { CityServiceSchema } from "@/templates/hybrid-service-page";
+import { getDiagnosticPageFromDB } from "@/lib/diagnostic-engine";
+import { robotsForDbBackedPage } from "@/lib/seo/strict-indexing";
+import { isUmbrellaVerticalHubSlug } from "@/lib/verticals";
+import VerticalHub from "@/components/verticals/VerticalHub";
+
+import DiagnoseIndex from "../../diagnose/page";
+import RepairHubPage from "../../repair/page";
+import ResidentialHub from "../../hvac/page";
+import OrchestratorDashboard from "../../orchestrator/page";
+import CommercialHub from "../../commercial-hvac/page";
+import TestDbPage from "../../test-db/page";
+import TestGeneratePage from "../../test-generate/page";
+
+/**
+ * `app/symptom/[symptom]` — single-segment hub + hybrid DB lookup (no longer at `app/[symptom]`,
+ * which shadowed other root dynamic routes).
+ */
+const STATIC_TOP_LEVEL_FALLBACK: Record<string, ComponentType> = {
+  diagnose: DiagnoseIndex,
+  repair: RepairHubPage,
+  hvac: ResidentialHub,
+  orchestrator: OrchestratorDashboard,
+  "commercial-hvac": CommercialHub,
+  "test-db": TestDbPage,
+  "test-generate": TestGeneratePage,
+};
+
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: { symptom: string } }): Promise<Metadata> {
+  if (STATIC_TOP_LEVEL_FALLBACK[params.symptom]) {
+    return {};
+  }
+
+  const page = await getDiagnosticPageFromDB(params.symptom, "hybrid");
+
+  if (!page || !page.content_json) {
+    return { title: "HVAC Service Guide" };
+  }
+
+  const content = page.content_json as unknown as CityServiceSchema;
+  const strict = robotsForDbBackedPage(page, true);
+
+  return {
+    title: content.seo?.metaTitle || content.hero?.headline || `${content.title} | HVAC Expert Service`,
+    description: content.seo?.metaDescription || content.hero?.subheadline,
+    ...(strict ?? {}),
+  };
+}
+
+export default async function CatchAllHybridPage({ params }: { params: { symptom: string } }) {
+  if (isUmbrellaVerticalHubSlug(params.symptom)) {
+    return <VerticalHub verticalId={params.symptom} />;
+  }
+
+  const StaticPage = STATIC_TOP_LEVEL_FALLBACK[params.symptom];
+  if (StaticPage) {
+    return <StaticPage />;
+  }
+
+  const page = await getDiagnosticPageFromDB(params.symptom, "hybrid");
+
+  if (page) {
+    notFound();
+  }
+
+  notFound();
+}

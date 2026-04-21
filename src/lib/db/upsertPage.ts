@@ -2,6 +2,7 @@ import sql from "@/lib/db";
 import { assertHsdV26AuthorityRules } from "@/lib/hsd/assertHsdV26AuthorityRules";
 import { HSD_V2_SCHEMA_VERSION } from "@/lib/generated-page-json-contract";
 import { serializePageContentJson } from "@/lib/db/upsertHsdV2CitySymptomPage";
+import { assertVerticalContentIsolation } from "@/lib/hsd/assertVerticalContentIsolation";
 import { assertPayloadSubstantiveForPublish } from "@/lib/homeservice/assertPayloadSubstantiveForPublish";
 import { enforceStoredSlug } from "@/lib/slug-utils";
 import { HSDV25Schema } from "@/lib/validation/hsdV25Schema";
@@ -49,6 +50,7 @@ export async function upsertPage(page: UpsertPageInput): Promise<void> {
   assertPayloadSubstantiveForPublish(storageSlug, page as Record<string, unknown>);
 
   const contentJson = serializePageContentJson(page);
+  assertVerticalContentIsolation(storageSlug, contentJson);
 
   const persistedPageType =
     row.page_type === "hsd" || row.page_type === "city_symptom" ? String(row.page_type) : "city_symptom";

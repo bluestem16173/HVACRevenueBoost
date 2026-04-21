@@ -103,7 +103,7 @@ export const PAGE_TYPES = {
   hsd: {
     id: "hsd",
     queueKeys: ["hsd", "hvac_authority_v3"],
-    routes: ["/hvac/[symptom]/[city]", "/diagnose/[symptom]"],
+    routes: ["/[...slug] (hvac/{pillar}/{city})", "/diagnose/[symptom]"],
     templates: ["HSDPage", "HSD locked JSON", "generateDiagnosticEngineJson + HSD_V2 prompt"],
     schemaVersions: ["hsd_v2"],
     promptDoc: "lib/prompt-schema-router.ts (HSD_V2) | lib/hsd/validatePage.ts",
@@ -115,13 +115,13 @@ export const PAGE_TYPES = {
   hybrid: {
     id: "hybrid",
     queueKeys: ["hybrid"],
-    routes: ["/[symptom] (catch-all hybrid DB)"],
+    routes: ["/symptom/[symptom] (hybrid DB)"],
     templates: ["HybridServicePageTemplate"],
     promptDoc: "generateTwoStagePage hybrid branch — lib/content-engine/generator.ts",
     schemaModule: "templates/hybrid-service-page",
     validatorModule: "lib/content-engine/core validateContent",
     generator: "generateTwoStagePage",
-    notes: "City / service hybrid pages via app/[symptom]/page.tsx + hybrid page_type.",
+    notes: "City / service hybrid pages via app/symptom/[symptom]/page.tsx + hybrid page_type.",
   },
   cause: {
     id: "cause",

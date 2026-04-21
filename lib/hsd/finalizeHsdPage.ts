@@ -1,4 +1,5 @@
 import { assertHsdV26AuthorityRules } from "@/lib/hsd/assertHsdV26AuthorityRules";
+import { assertVerticalContentIsolation } from "@/lib/hsd/assertVerticalContentIsolation";
 import { enforceStrongHeadline } from "@/lib/hsd/enforceStrongHeadline";
 import { limitCanonicalTruthOccurrences } from "@/lib/hsd/limitCanonicalTruthOccurrences";
 import { normalizeHsdV25PreFinalize } from "@/lib/hsd/normalizeHsdV25PreFinalize";
@@ -33,6 +34,7 @@ export function finalizeHsdV25Page(page: unknown): HsdV25Payload {
   p = removeScaffoldingFromPayload(p);
   p = limitCanonicalTruthOccurrences(p);
   assertContentRules(p);
+  assertVerticalContentIsolation(p.slug, JSON.stringify(p));
   return p;
 }
 

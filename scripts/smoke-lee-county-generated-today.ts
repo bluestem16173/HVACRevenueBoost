@@ -1,7 +1,7 @@
 /**
  * GET smoke test: Lee monetization cluster pages in `pages` that were **created or updated today (UTC)**.
  *
- * Uses locked slugs from `lib/homeservice/leeCountyInitialMonetizationCluster.ts` (30 locals).
+ * Uses locked slugs from `lib/homeservice/leeCountyInitialMonetizationCluster.ts` (electrical + plumbing × `LEE_COUNTY_CITIES`).
  *
  *   npx tsx scripts/smoke-lee-county-generated-today.ts
  *   npx tsx scripts/smoke-lee-county-generated-today.ts http://localhost:3000

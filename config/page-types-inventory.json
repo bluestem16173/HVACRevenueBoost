@@ -20,7 +20,7 @@
     {
       "id": "symptom",
       "queue_keys": ["symptom", "diagnose", "diagnostic", "condition"],
-      "routes": ["/diagnose/[symptom]", "/app/[symptom] (hybrid fallback)"],
+      "routes": ["/diagnose/[symptom]", "/symptom/[symptom] (hybrid fallback)"],
       "templates": ["DiagnosticGoldPage", "GoldStandardPage", "AuthoritySymptomPage", "MasterDecisionGridPage"],
       "schema_versions": ["v5_master", "v6_dg_hvac_hybrid", "v2_goldstandard", "authority_symptom", "decisiongrid_master"],
       "schema_modules": ["lib/content-engine/schema.ts", "lib/normalize-diagnostic-display.ts", "lib/content/normalizePageData.ts"],
@@ -51,11 +51,11 @@
     {
       "id": "hybrid",
       "queue_keys": ["hybrid"],
-      "routes": ["/[symptom] with page_type hybrid in DB"],
+      "routes": ["/symptom/[symptom] with page_type hybrid in DB"],
       "templates": ["templates/hybrid-service-page.tsx"],
       "schema_modules": ["templates/hybrid-service-page (CityServiceSchema)"],
       "generator": "generateTwoStagePage (pageType hybrid)",
-      "notes": "Catch-all app/[symptom]/page.tsx loads HybridServicePageTemplate"
+      "notes": "Catch-all app/symptom/[symptom]/page.tsx loads HybridServicePageTemplate"
     },
     {
       "id": "cause",

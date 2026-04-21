@@ -33,7 +33,7 @@ export function normalizePagesTableSlugLookup(raw: string | null | undefined): s
 }
 
 /**
- * Next.js `app/hvac/[...slug]` gives **segments after** `/hvac/`. Build a normalized **URL path**
+ * **Segments after `/hvac/`** (e.g. `app/[...slug]` tail for `hvac/...` paths). Build a normalized **URL path**
  * (leading slash, no trailing slash) for DB lookup / logging.
  *
  * Collapses duplicate vertical-style prefixes when the first segment equals the first hyphen
@@ -83,7 +83,7 @@ function normalizeSlugStringInput(rawSlug: string): string {
   return slug;
 }
 
-/** Legacy string slug, or `app/hvac/[...slug]` segment array → URL path for DB lookup. */
+/** Legacy string slug, or catch-all segment array (post-`/hvac/` tail) → URL path for DB lookup. */
 export function normalizeSlug(rawSlug: string): string;
 export function normalizeSlug(paramsSlug: string[] | undefined): string | null;
 export function normalizeSlug(arg: string | string[] | undefined): string | null {
