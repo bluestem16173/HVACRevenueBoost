@@ -13,6 +13,7 @@ export const LEE_COUNTY_CITIES = [
   "sanibel-fl",
   "north-captiva-fl",
   "gateway-fl",
+  "lehigh-acres-fl",
 ] as const;
 
 /** Human labels aligned with {@link LEE_COUNTY_CITIES} (same order). */
@@ -24,6 +25,7 @@ export const FL_EXAMPLE_CITIES: { label: string; slug: string }[] = [
   { label: "Sanibel", slug: "sanibel-fl" },
   { label: "North Captiva", slug: "north-captiva-fl" },
   { label: "Gateway", slug: "gateway-fl" },
+  { label: "Lehigh Acres", slug: "lehigh-acres-fl" },
 ];
 
 /** Default localized example for marketing copy (Lee County primary). */

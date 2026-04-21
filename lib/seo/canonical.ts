@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { enforceStoredSlug } from "@/lib/slug-utils";
+
 /** Production origin (apex, HTTPS). Use with redirects in `next.config.mjs`. */
 export const SITE_ORIGIN = "https://hvacrevenueboost.com" as const;
 
@@ -7,6 +9,20 @@ export const SITE_ORIGIN = "https://hvacrevenueboost.com" as const;
 export function siteCanonicalUrl(path: string): string {
   const p = path.startsWith("/") ? path : `/${path}`;
   return `${SITE_ORIGIN}${p}`;
+}
+
+/**
+ * Public pathname for `/diagnose/[...slug]` — `joinedOrStorageSlug` is `pages.slug` shape
+ * (no leading slash, no `diagnose/` prefix), or the catch-all join.
+ */
+export function diagnosePublicPathname(joinedOrStorageSlug: string): string {
+  const cleanSlug = joinedOrStorageSlug.replace(/^\/+/, "").trim();
+  const normalized = enforceStoredSlug(cleanSlug).toLowerCase().replace(/\/+/g, "/");
+  return `/diagnose/${normalized}`;
+}
+
+export function siteCanonicalDiagnoseUrl(joinedOrStorageSlug: string): string {
+  return siteCanonicalUrl(diagnosePublicPathname(joinedOrStorageSlug));
 }
 
 /**

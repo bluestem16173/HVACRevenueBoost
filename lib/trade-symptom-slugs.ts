@@ -21,15 +21,17 @@ export const HVAC = [
 ] as const;
 
 export const ELECTRICAL = [
+  "breaker-keeps-tripping",
+  "outlet-not-working",
+  "lights-flickering",
+  "burning-smell-outlet",
+  "partial-power-house",
   "power-out-in-one-room",
   "partial-power-loss",
   "whole-house-power-out",
-  "lights-flickering",
-  "outlet-not-working",
   "outlet-sparking",
   "light-switch-not-working",
   "dead-outlet",
-  "breaker-keeps-tripping",
   "panel-overheating",
   "circuit-overloaded",
   "breaker-wont-reset",

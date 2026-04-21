@@ -1,3 +1,4 @@
+import { applyBreakerKeepsTrippingMoneyToSummary30s } from "@/lib/hsd/breakerKeepsTrippingMoneyCopy";
 import { hsdSectionDomId } from "@/lib/hsd/mermaidClickMap";
 import {
   injectProgrammaticHsdCtas,
@@ -11,7 +12,11 @@ import {
   buildCityContextForLeeCountyCity,
   isLeeCountyCityStorageSlug,
 } from "@/lib/homeservice/leeCountyLocalizedEnrichment";
-import { isPlumbingNoHotWaterSlug, parseLocalizedStorageSlug } from "@/lib/localized-city-path";
+import {
+  formatCityPathSegmentForDisplay,
+  isPlumbingNoHotWaterSlug,
+  parseLocalizedStorageSlug,
+} from "@/lib/localized-city-path";
 import { filterInternalLinksInPlace, filterTierDiscoveryPaths } from "@/lib/seo/tier-one-discovery";
 import { dedupeLines, stripCostBandsFromTitle } from "@/lib/utils";
 import type { HsdV25Payload } from "@/src/lib/validation/hsdV25Schema";
@@ -393,7 +398,12 @@ function commonMisdiagnosisFromUnknown(raw: unknown): HsdV25Payload["common_misd
 function sanitizeHsdV25RenderInput(data: HsdV25RenderInput | Record<string, unknown>): HsdV25RenderInput {
   const raw = data as Record<string, unknown>;
   injectProgrammaticHsdCtas(raw);
-  const slugForRepair = String(raw.slug ?? "").trim();
+  const slugForBreaker = String(raw.slug ?? "").trim();
+  const s30Breaker = raw.summary_30s;
+  if (s30Breaker && typeof s30Breaker === "object" && !Array.isArray(s30Breaker)) {
+    applyBreakerKeepsTrippingMoneyToSummary30s(s30Breaker as Record<string, unknown>, slugForBreaker);
+  }
+  const slugForRepair = slugForBreaker;
   const loc = parseLocalizedStorageSlug(slugForRepair);
   if (loc?.vertical === "plumbing" && isLeeCountyCityStorageSlug(slugForRepair)) {
     const cc = Array.isArray(raw.cityContext) ? (raw.cityContext as unknown[]).map((x) => String(x ?? "")) : [];
@@ -663,7 +673,7 @@ function hsdPageVertical(data: HsdV25RenderInput): string {
 function placementCtaButtonLabel(vertical: string): string {
   const v = vertical.toLowerCase();
   if (v === "plumbing") return "Urgent: book a licensed plumber";
-  if (v === "electrical") return "Urgent: book a licensed electrician";
+  if (v === "electrical") return "Stop the risk — connect with a local electrician now";
   if (v === "hvac") return "Urgent: book HVAC service now";
   return "Urgent: book professional help now";
 }
@@ -874,8 +884,20 @@ export function sectionFieldTriage(
 </section>`.trim();
 }
 
+function breakerTrippingTopCausesHeading(slug: string | undefined): string | null {
+  const s = String(slug ?? "")
+    .trim()
+    .replace(/^\/+/, "")
+    .toLowerCase();
+  if (!s.includes("breaker-keeps-tripping")) return null;
+  const parts = s.split("/").filter(Boolean);
+  const seg = parts[2];
+  const place = seg ? formatCityPathSegmentForDisplay(seg) : "Local";
+  return `Top reasons breakers keep tripping in ${place} homes:`;
+}
+
 /** Ranked causes from `summary_30s.top_causes` (placed after diagnostic flow in the mid stack). */
-export function sectionTopCauses(summary_30s: HsdV25Payload["summary_30s"]): string {
+export function sectionTopCauses(summary_30s: HsdV25Payload["summary_30s"], slug?: string): string {
   const flow = (summary_30s.flow_lines ?? [])
     .map((s) => stripThirtySecondReadMeta(String(s).trim()))
     .filter(Boolean)
@@ -883,9 +905,10 @@ export function sectionTopCauses(summary_30s: HsdV25Payload["summary_30s"]): str
   const useDgFlow = flow.length >= 4;
   const causesBlock = topCausesListMarkup(summary_30s, useDgFlow);
   if (!causesBlock.trim()) return "";
+  const h2 = breakerTrippingTopCausesHeading(slug) ?? "Top causes";
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("top_causes")}" aria-labelledby="hsd-top-causes-label">
-  <h2 id="hsd-top-causes-label" class="hsd-section__title hsd-section-title">Top causes</h2>
+  <h2 id="hsd-top-causes-label" class="hsd-section__title hsd-section-title">${escapeHtml(h2)}</h2>
   <div class="hsd-section__body">${causesBlock}</div>
 </section>`.trim();
 }
@@ -1201,8 +1224,25 @@ export function sectionDecisionTreeText(lines: HsdV25Payload["decision_tree_text
 </section>`.trim();
 }
 
-/** Pro tools list + DIY boundary copy. */
-export function sectionTools(tools: HsdV25Payload["tools"]): string {
+function isElectricalHsdToolsSection(slug?: string, vertical?: string): boolean {
+  if (String(vertical ?? "")
+    .trim()
+    .toLowerCase() === "electrical") {
+    return true;
+  }
+  const s = String(slug ?? "")
+    .trim()
+    .replace(/^\/+/, "")
+    .toLowerCase();
+  return s.startsWith("electrical/");
+}
+
+/** Pro tools list — HVAC uses legacy “Tools & verification”; electrical uses circuit-level pro framing. */
+export function sectionTools(
+  tools: HsdV25Payload["tools"],
+  slug?: string,
+  vertical?: string
+): string {
   const list = (tools ?? []).map((t) => String(t).trim()).filter(Boolean);
   if (!list.length) return "";
   const items = list
@@ -1214,6 +1254,48 @@ export function sectionTools(tools: HsdV25Payload["tools"]): string {
       return `<li>${escapeHtml(label)}</li>`;
     })
     .join("\n");
+
+  if (isElectricalHsdToolsSection(slug, vertical)) {
+    const slugLc = String(slug ?? "")
+      .trim()
+      .replace(/^\/+/, "")
+      .toLowerCase();
+    const isBreakerTripping = slugLc.includes("breaker-keeps-tripping");
+    const intro = isBreakerTripping
+      ? "When a breaker keeps tripping, the issue is traced at the circuit level — not guessed."
+      : "Electrical problems aren't guesswork — they're traced at the circuit level.";
+    const listLead = isBreakerTripping
+      ? "An electrician will:"
+      : "A licensed electrician will typically:";
+    const isolate = isBreakerTripping
+      ? "This quickly determines whether the problem is a simple device failure, a circuit overload, or a deeper wiring issue."
+      : "These steps quickly isolate whether the issue is a simple outlet failure, a circuit-level problem, or a wiring issue behind the wall.";
+    const resetWarn = isBreakerTripping
+      ? "Resetting the breaker without isolating the cause can make the problem worse."
+      : "Trying random fixes without testing can miss the real problem — and repeated breaker resets can mask a serious fault.";
+    return `
+<section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("tools")}">
+  <h2 id="hsd-tools-label" class="hsd-section__title hsd-section-title">How electricians actually diagnose this</h2>
+  <div class="hsd-section__body">
+    <p class="mb-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">${escapeHtml(intro)}</p>
+    <p class="mb-2 text-sm font-semibold text-slate-900 dark:text-white">${escapeHtml(listLead)}</p>
+    <ul class="hsd-tools-list mb-4 list-disc space-y-1 pl-5 text-sm font-semibold text-slate-800 dark:text-slate-200" aria-labelledby="hsd-tools-label">${items}</ul>
+    <p class="mb-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">${escapeHtml(isolate)}</p>
+    <p class="mb-6 text-sm leading-relaxed text-slate-700 dark:text-slate-300">${escapeHtml(resetWarn)}</p>
+    <div class="rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700/60 dark:bg-amber-950/40" role="note">
+      <p class="m-0 text-sm font-black uppercase tracking-wide text-amber-900 dark:text-amber-200">When to stop and call an electrician</p>
+      <p class="mt-2 text-sm font-semibold text-slate-900 dark:text-white">Stop immediately if you notice:</p>
+      <ul class="mt-2 list-disc space-y-1 pl-5 text-sm leading-relaxed text-slate-800 dark:text-slate-200">
+        <li>Burning smell or hot outlets</li>
+        <li>Breaker trips repeatedly</li>
+        <li>Sparks or buzzing sounds</li>
+      </ul>
+      <p class="mt-3 text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">These are not DIY situations — they indicate overheating or wiring failure.</p>
+    </div>
+  </div>
+</section>`.trim();
+  }
+
   return `
 <section class="${HSD_V25_SECTION_SHELL}" id="${hsdSectionDomId("tools")}">
   <h2 id="hsd-tools-label" class="hsd-section__title hsd-section-title">Tools &amp; verification</h2>
@@ -1512,10 +1594,10 @@ function buildHsdV25MidBlocks(data: HsdV25RenderInput): HsdV25HtmlBlock[] {
       priority: P.quick_table,
       html: quickDx.trim() ? "" : sectionQuickTable(data.quick_table, data.canonical_truths),
     },
-    { priority: P.tools, html: sectionTools(data.tools) },
+    { priority: P.tools, html: sectionTools(data.tools, data.slug, hsdPageVertical(data)) },
     { priority: P.visual_diagnostic_flow, html: renderMermaid(data.diagnostic_flow, data.slug) },
     { priority: P.cta_danger_before_repair, html: dangerCtas },
-    { priority: P.top_causes, html: sectionTopCauses(data.summary_30s) },
+    { priority: P.top_causes, html: sectionTopCauses(data.summary_30s, data.slug) },
     { priority: P.common_misdiagnosis, html: sectionCommonMisdiagnosis(data.common_misdiagnosis) },
     {
       priority: P.repair_matrix,

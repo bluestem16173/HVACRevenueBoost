@@ -99,7 +99,7 @@ export function patchHsdLlmJsonMinimumGates(json: Record<string, unknown>): void
     if (rawLines.length === 0) {
       const citySeg = String(parts[parts.length - 1] ?? "");
       if (isLeeCountyCityStorageSlug(slug) && citySeg) {
-        json.cityContext = buildCityContextForLeeCountyCity(citySeg, vertical);
+        json.cityContext = buildCityContextForLeeCountyCity(citySeg, vertical, parts[1] ?? undefined);
       } else if (vertical === "plumbing") {
         json.cityContext = [
           `In ${load}, hard water and peak evening hot-water demand accelerate sediment and element stress in tank heaters.`,

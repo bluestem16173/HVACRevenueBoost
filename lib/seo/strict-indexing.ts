@@ -108,6 +108,10 @@ export function strictDefaultRobotsForPathname(pathname: string): Metadata["robo
   if (lower === "/" || getIndexableExtraPaths().has(lower)) {
     return { index: true, follow: true };
   }
+  /** `/diagnose/*` uses segment `generateMetadata` + DB gates; avoid blanket noindex from root layout. */
+  if (lower === "/diagnose" || lower.startsWith("/diagnose/")) {
+    return { index: true, follow: true };
+  }
   return { index: false, follow: true };
 }
 

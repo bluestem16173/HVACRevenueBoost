@@ -6,19 +6,28 @@
  *
  * | Trade       | Problems |
  * |------------|----------|
- * | Electrical | breaker-keeps-tripping, outlet-not-working, power-out-in-one-room |
+ * | Electrical | **Gold standard (5):** breaker-keeps-tripping, outlet-not-working, lights-flickering, burning-smell-outlet, partial-power-house |
  * | Plumbing   | no-hot-water, drain-clogged, water-heater-leaking |
  *
- * Cities (human): Fort Myers, Cape Coral, Estero, Fort Myers Beach, Sanibel, North Captiva, Gateway — storage tails
+ * Cities (human): Fort Myers, Cape Coral, Estero, Fort Myers Beach, Sanibel, North Captiva, Gateway, Lehigh Acres — storage tails
  * live in {@link LEE_COUNTY_CITIES} (`lib/vertical-hub-shared.ts`).
  */
 import { LEE_COUNTY_CITIES } from "@/lib/vertical-hub-shared";
 
-/** Electrical problem pillars in this cluster (URL segment after `/electrical/`). */
+/** Electrical “gold standard” pillars — strategic cluster coverage (URL segment after `/electrical/`). */
 export const LEE_MONETIZATION_ELECTRICAL_SYMPTOMS = [
   "breaker-keeps-tripping",
   "outlet-not-working",
-  "power-out-in-one-room",
+  "lights-flickering",
+  "burning-smell-outlet",
+  "partial-power-house",
+] as const;
+
+/** First-wave Lee County cities for electrical rollout (Fort Myers, Cape Coral, Lehigh Acres). */
+export const LEE_ELECTRICAL_PRIORITY_CITY_SLUGS = [
+  "fort-myers-fl",
+  "cape-coral-fl",
+  "lehigh-acres-fl",
 ] as const;
 
 /** Plumbing problem pillars in this cluster (URL segment after `/plumbing/`). */

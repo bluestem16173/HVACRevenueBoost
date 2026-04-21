@@ -37,7 +37,7 @@ const PILLARS: PillarDef[] = [
   { vertical: "hvac", slug: "weak-airflow", system: "HVAC", symptom: "Weak airflow" },
   { vertical: "hvac", slug: "no-cold-air", system: "HVAC", symptom: "No cold air" },
 
-  // Electrical
+  // Electrical (gold-standard national pillars — Lee cluster)
   {
     vertical: "electrical",
     slug: "breaker-keeps-tripping",
@@ -45,11 +45,18 @@ const PILLARS: PillarDef[] = [
     symptom: "Breaker keeps tripping",
   },
   { vertical: "electrical", slug: "outlet-not-working", system: "Electrical", symptom: "Outlet not working" },
+  { vertical: "electrical", slug: "lights-flickering", system: "Electrical", symptom: "Lights flickering or dimming" },
   {
     vertical: "electrical",
-    slug: "power-out-in-one-room",
+    slug: "burning-smell-outlet",
     system: "Electrical",
-    symptom: "Power out in one room",
+    symptom: "Burning smell from outlet or panel",
+  },
+  {
+    vertical: "electrical",
+    slug: "partial-power-house",
+    system: "Electrical",
+    symptom: "Partial power — half the house dead",
   },
 
   // Plumbing

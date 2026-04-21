@@ -16,7 +16,7 @@ const PILLARS: { prefix: string; slugs: readonly string[] }[] = [
   { prefix: "/hvac", slugs: ["ac-not-cooling", "weak-airflow", "no-cold-air"] },
   {
     prefix: "/electrical",
-    slugs: ["breaker-keeps-tripping", "outlet-not-working", "power-out-in-one-room"],
+    slugs: ["breaker-keeps-tripping", "outlet-not-working", "lights-flickering"],
   },
   { prefix: "/plumbing", slugs: ["no-hot-water", "drain-clogged", "water-heater-leaking"] },
 ];

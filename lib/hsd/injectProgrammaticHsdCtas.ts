@@ -48,7 +48,7 @@ function buildDefaultCtasMap(json: Record<string, unknown>): Map<HsdCtaType, Hsd
         : vertical === "plumbing"
           ? `In ${city}, active leaks and drain backups do not self-resolve—water damage, mold, and sewer exposure stack fast. Urgent: stop the spread and book a licensed plumber before a $300 fix becomes $1,500+ tear-out.`
           : vertical === "electrical"
-            ? `In ${city}, breaker trips, heat at devices, or partial power are emergency-class signals. Urgent: do not keep forcing power—book a licensed electrician before arc faults or panel damage push repairs past $1,500.`
+            ? `In ${city}, breaker trips, heat at devices, or partial power are emergency-class signals. Stop the risk — connect with a local electrician now before arc faults or panel damage push repairs past $1,500.`
             : `In ${city}, this kind of fault usually worsens with continued use. Repair exposure commonly exceeds $1,500 when problems are left unresolved—have a licensed professional verify before damage spreads.`,
   });
   m.set("mid", {
@@ -59,7 +59,7 @@ function buildDefaultCtasMap(json: Record<string, unknown>): Map<HsdCtaType, Hsd
         : vertical === "plumbing"
           ? `If water keeps running, pressure is dropping, or sewage is backing up, every hour widens damage in ${city}—treat it as urgent.`
           : vertical === "electrical"
-            ? `If breakers will not stay reset, you smell ozone, or outlets are dead, stop DIY escalation in ${city}—call a licensed electrician today.`
+            ? `If this has tripped more than once in ${city}, you're no longer testing — you're stressing the wiring.`
             : `If quick checks fail, continuing to operate the system worsens damage in ${city}.`,
   });
   m.set("danger", {
@@ -79,7 +79,7 @@ function buildDefaultCtasMap(json: Record<string, unknown>): Map<HsdCtaType, Hsd
       vertical === "plumbing"
         ? `In ${city}, delay turns drips into drywall, cabinet, and subfloor damage—urgent: book a licensed plumber now. Waiting commonly pushes a contained repair past $1,500 once mold and tear-out enter the picture.`
         : vertical === "electrical"
-          ? `In ${city}, electrical faults escalate without warning—urgent: book a licensed electrician now. Waiting can turn a $300 repair into $1,500+ once panels, feeders, or devices are damaged under fault current.`
+          ? `Most electrical issues in ${city} start under $300 and turn into $1,500+ when ignored. Stop the risk — connect with a local electrician now before fault current damages panels, feeders, or devices.`
           : vertical === "hvac"
             ? `In ${city}, delay accelerates failure—book a licensed HVAC technician before damage spreads. Waiting can turn a $300 issue into $1,500+ worst-case damage under load.`
             : `In ${city}, delay accelerates failure—book a licensed technician before damage spreads. Waiting can turn a $300 issue into $1,500+ worst-case damage under load.`,

@@ -14,6 +14,7 @@ import { problemPillarRawToHsdCandidate } from "@/lib/hsd/problemPillarRawToHsdC
 import type { ServiceVertical } from "@/lib/localized-city-path";
 import { DG_AUTHORITY_ENGINE_V4 } from "@/lib/dg/dgAuthorityEngineV4Prompt";
 import { HSD_TIER1_PILLAR } from "@/prompts/hsdTier1Pillar";
+import { ELECTRICAL_AUTHORITY_PROMPT } from "@/src/lib/ai/prompts/hsdElectricalPromptAnnex";
 import type { HsdV25Payload } from "@/src/lib/validation/hsdV25Schema";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
@@ -44,7 +45,9 @@ Fill "slug" in your JSON as "${v}/${s}". Obey the OUTPUT FORMAT and CTA RULES fo
   const fb = input.retryFeedback?.trim();
   /** Tier-1 authority brief first; V4 block supplies strict root JSON keys the mapper consumes. */
   const contract = [HSD_TIER1_PILLAR, DG_AUTHORITY_ENGINE_V4].join("\n\n---\n\n");
-  return [contract, "---", seed, fb ? `---\n\n${fb}` : ""].filter(Boolean).join("\n\n");
+  const electricalMaster =
+    v === "electrical" ? ["---", ELECTRICAL_AUTHORITY_PROMPT].join("\n\n") : "";
+  return [contract, "---", seed, electricalMaster, fb ? `---\n\n${fb}` : ""].filter(Boolean).join("\n\n");
 }
 
 async function callLlm(user: string): Promise<string> {

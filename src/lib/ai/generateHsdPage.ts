@@ -25,6 +25,7 @@ import {
   HSD_MASTER_IDEMPOTENT,
   HSD_PILLAR_AUTHORITY_OVERRIDE,
 } from "@/src/lib/ai/prompts/diagnostic-engine-json";
+import { ELECTRICAL_AUTHORITY_PROMPT } from "@/src/lib/ai/prompts/hsdElectricalPromptAnnex";
 import { hsdVerticalPromptAnnex } from "@/src/lib/ai/prompts/hsdVerticalPromptAnnex";
 import { finalizeHsdV25Page } from "@/lib/hsd/finalizeHsdPage";
 import {
@@ -103,7 +104,10 @@ function primaryIssueLabel(symptom: string): string {
     .join(" ");
 }
 
-/** Full user message for HSD v2 (v2.5) — INPUT block + vertical + slug seed. */
+/**
+ * Full user message for HSD v2 (v2.5) — INPUT block + vertical + slug seed.
+ * Electrical: uses `ELECTRICAL_AUTHORITY_PROMPT` as the vertical annex (**v1 locked** master diagnostic engine — city_symptom + JSON contract).
+ */
 export function buildPrompt(
   symptom: string,
   city: string,
@@ -120,7 +124,8 @@ export function buildPrompt(
   const preamble = buildVerticalPromptPreamble(normalizeVerticalId(vertical));
   const slugNorm = enforceStoredSlug(storageSlug);
   const topicLine = `PRIMARY PAGE SLUG / TOPIC SEED: "${slugNorm}"`;
-  const verticalAnnex = hsdVerticalPromptAnnex(vertical, slugNorm);
+  const verticalAnnex =
+    vertical === "electrical" ? ELECTRICAL_AUTHORITY_PROMPT : hsdVerticalPromptAnnex(vertical, slugNorm);
   const leeBlock = isLeeCountyCityStorageSlug(slugNorm)
     ? `\n\n---\n\nLOCAL MARKET (Lee County — **context layer only**):\n- REGION: Lee County, Florida\n- CLIMATE: hot, humid, coastal\n- PRIMARY CITY: match the slug city segment (e.g. Cape Coral, Fort Myers Beach, Sanibel, North Captiva) in **cityContext**, **title**, and **cta** — do not substitute a different city name.\n- BARRIER / ISLAND SEGMENTS (Sanibel, North Captiva, Fort Myers Beach): salt fog, storm rebuild, logistics, and generator-backed homes belong in **cityContext** bullets—not new diagnostic branches.\n- **LOCALIZATION FREEZE:** vary **cityContext** (2–4 bullets: canals, salt air, demand spikes, corrosion, storms as relevant) plus light city naming in headline/CTA only. **Do not** rewrite \`diagnostic_steps\`, \`flow_lines\`, \`what_this_means\`, \`quick_table\`, \`repair_matrix\`, or \`common_misdiagnosis\` per city—keep diagnostic logic identical to the national pillar; only the context layer changes.\n`
     : "";

@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ElectricalTradeHubPage from "@/components/hubs/ElectricalTradeHubPage";
+import HvacTradeHubPage from "@/components/hubs/HvacTradeHubPage";
+import HvacWhyAcIsntCoolingPillar from "@/components/hubs/HvacWhyAcIsntCoolingPillar";
+import PlumbingTradeHubPage from "@/components/hubs/PlumbingTradeHubPage";
 import { DiagnosticPageView } from "@/components/DiagnosticPageView";
 import { DiagnosticVerticalNav } from "@/components/diagnostic-hub/DiagnosticVerticalNav";
 import { HvacAuthorityLoopNav } from "@/components/homeservice/HvacAuthorityLoopNav";
@@ -20,6 +24,7 @@ import {
   normalizeCatchAllParamsSlugPath,
 } from "@/lib/slug-utils";
 import sql from "@/lib/db";
+import { HVAC_PILLAR_WHY_AC_ISNT_COOLING_V3 } from "@/lib/dg-authority-structured-preview/dgAuthorityV3Demos";
 
 const HVAC_SLUG_MAP: Record<string, string> = {
   "air-conditioning": "hvac-air-conditioning",
@@ -114,6 +119,9 @@ export async function renderHvacDeepAuthority(tail: string[]): Promise<React.Rea
 }
 
 export async function renderHvacTwoSegment(segment: string): Promise<React.ReactNode | null> {
+  if (segment.toLowerCase() === "why-ac-isnt-cooling") {
+    return <HvacWhyAcIsntCoolingPillar />;
+  }
   if (HVAC_SLUG_MAP[segment]) {
     const hubSlug = HVAC_SLUG_MAP[segment];
     const hub = getSystemHub(hubSlug);
@@ -295,6 +303,37 @@ export async function renderPlumbingElectricalCity(
 
 export async function metadataForProgrammaticSegments(segments: string[]): Promise<Metadata | null> {
   const segs = segments.map((s) => s.toLowerCase());
+  if (segs.length === 1) {
+    const r = segs[0]!;
+    if (r === "hvac") {
+      return {
+        title: "HVAC problems, organized | HVAC diagnostics",
+        description:
+          "Residential HVAC diagnostics: AC, heating, airflow, and controls. Pick a symptom pillar, then open localized Florida guides.",
+        ...canonicalMetadata("/hvac"),
+        robots: { index: true, follow: true },
+      };
+    }
+    if (r === "plumbing") {
+      return {
+        title: "Plumbing diagnostics | Residential plumbing",
+        description:
+          "Structured plumbing guides for leaks, water heaters, drains, and pressure issues. Add your city for Florida context.",
+        ...canonicalMetadata("/plumbing"),
+        robots: { index: true, follow: true },
+      };
+    }
+    if (r === "electrical") {
+      return {
+        title: "Electrical diagnostics | Power, breakers, and wiring",
+        description:
+          "Structured electrical guides for breaker trips, dead outlets, flickering lights, and panel issues. Add your city for Florida context.",
+        ...canonicalMetadata("/electrical"),
+        robots: { index: true, follow: true },
+      };
+    }
+    return null;
+  }
   if (segs.length < 2) return null;
   const root = segs[0]!;
 
@@ -329,6 +368,14 @@ export async function metadataForProgrammaticSegments(segments: string[]): Promi
       };
     }
     const segment = segs[1]!;
+    if (segment === "why-ac-isnt-cooling") {
+      return {
+        title: `${HVAC_PILLAR_WHY_AC_ISNT_COOLING_V3.title} | HVAC`,
+        description: HVAC_PILLAR_WHY_AC_ISNT_COOLING_V3.summary_30s.slice(0, 160),
+        ...canonicalMetadata("/hvac/why-ac-isnt-cooling"),
+        robots: { index: true, follow: true },
+      };
+    }
     if (HVAC_SLUG_MAP[segment]) {
       const hub = getSystemHub(HVAC_SLUG_MAP[segment]);
       return {
@@ -423,6 +470,13 @@ export async function metadataForProgrammaticSegments(segments: string[]): Promi
 
 export async function renderProgrammaticPage(segments: string[]): Promise<React.ReactNode | null> {
   const segs = segments.map((s) => s.trim()).filter(Boolean);
+  if (segs.length === 1) {
+    const r = segs[0]!.toLowerCase();
+    if (r === "hvac") return <HvacTradeHubPage />;
+    if (r === "plumbing") return <PlumbingTradeHubPage />;
+    if (r === "electrical") return <ElectricalTradeHubPage />;
+    return null;
+  }
   if (segs.length < 2) return null;
   const root = segs[0]!.toLowerCase();
 

@@ -42,8 +42,14 @@ export default async function ProgrammaticCatchAllPage({
 }) {
   const resolved = await resolveParams(params);
   const segs = slugSegments(resolved);
-  if (segs.length < 2) {
+  if (segs.length === 0) {
     notFound();
+  }
+  if (segs.length === 1) {
+    const r = segs[0]!.toLowerCase();
+    if (r !== "hvac" && r !== "plumbing" && r !== "electrical") {
+      notFound();
+    }
   }
   const node = await renderProgrammaticPage(segs);
   if (node === null) {

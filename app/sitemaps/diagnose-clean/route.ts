@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import sql from "@/lib/db";
+import { siteCanonicalDiagnoseUrl } from "@/lib/seo/canonical";
 import { isIndexable } from "@/lib/slug-utils";
 
 export async function GET() {
@@ -28,7 +29,7 @@ export async function GET() {
 
   const urls = validPages.map((p: any) => `
     <url>
-      <loc>https://hvacrevenueboost.com/diagnose/${p.slug}</loc>
+      <loc>${siteCanonicalDiagnoseUrl(String(p.slug ?? ""))}</loc>
     </url>
   `).join("");
 

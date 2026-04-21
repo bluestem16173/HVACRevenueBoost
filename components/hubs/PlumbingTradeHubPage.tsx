@@ -2,89 +2,91 @@ import Link from "next/link";
 import { HubHero } from "@/components/hub/HubHero";
 import { ProblemCard } from "@/components/diagnostic-hub/ProblemCard";
 import { ProblemClusterSection } from "@/components/diagnostic-hub/ProblemClusterSection";
-import { buildElectricalLocalizedPillarPath } from "@/lib/localized-city-path";
+import { buildPlumbingLocalizedPillarPath } from "@/lib/localized-city-path";
 import { FL_EXAMPLE_CITIES, HOW_IT_WORKS_STEPS } from "@/lib/vertical-hub-shared";
 
-export const revalidate = 3600;
+const DEMO_SYMPTOM = "no-hot-water";
 
-const DEMO_SYMPTOM = "breaker-keeps-tripping";
-
-export default function ElectricalHubPage() {
-  const p = (slug: string) => `/electrical/${slug.trim().toLowerCase()}`;
+export default function PlumbingTradeHubPage() {
+  const p = (slug: string) => `/plumbing/${slug.trim().toLowerCase()}`;
 
   const problemClusters = [
     {
-      icon: "⚡",
-      heading: "POWER & OUTAGES",
-      sectionId: "power-outages",
+      icon: "🔥",
+      heading: "WATER HEATER PROBLEMS",
+      sectionId: "water-heater-problems",
       items: [
-        { title: "Power Out in One Room", href: p("power-out-in-one-room") },
-        { title: "Partial Power Loss", href: p("partial-power-loss") },
-        { title: "Whole House Power Out", href: p("whole-house-power-out") },
-        { title: "Lights Flickering", href: p("lights-flickering") },
+        { title: "Water Heater Not Working", href: p("water-heater-not-working") },
+        { title: "No Hot Water", href: p("no-hot-water") },
+        { title: "Not Enough Hot Water", href: p("not-enough-hot-water") },
+        { title: "Water Heater Leaking", href: p("water-heater-leaking") },
+        { title: "Strange Noises from Tank", href: p("water-heater-strange-noises") },
       ],
     },
     {
-      icon: "🔌",
-      heading: "OUTLETS & SWITCHES",
-      sectionId: "outlets-switches",
+      icon: "🚿",
+      heading: "LEAKS & WATER DAMAGE",
+      sectionId: "leaks-water-damage",
       items: [
-        { title: "Outlet Not Working", href: p("outlet-not-working") },
-        { title: "Outlet Sparking", href: p("outlet-sparking") },
-        { title: "Light Switch Not Working", href: p("light-switch-not-working") },
-        { title: "Dead Outlet", href: p("dead-outlet") },
+        { title: "Pipe Leaking Under Sink", href: p("pipe-leaking-under-sink") },
+        { title: "Water Leak in Wall", href: p("water-leak-in-wall") },
+        { title: "Ceiling Water Leak", href: p("ceiling-water-leak") },
+        { title: "Faucet Dripping", href: p("faucet-dripping") },
+        { title: "Toilet Leaking at Base", href: p("toilet-leaking-at-base") },
+      ],
+    },
+    {
+      icon: "🚰",
+      heading: "DRAIN & SEWER ISSUES",
+      sectionId: "drain-sewer",
+      items: [
+        { title: "Drain Clogged", href: p("drain-clogged") },
+        { title: "Shower Drain Backing Up", href: p("shower-drain-backing-up") },
+        { title: "Main Sewer Line Clogged", href: p("main-sewer-line-clogged") },
+        { title: "Slow Draining Sink", href: p("slow-draining-sink") },
+        { title: "Gurgling Drains", href: p("gurgling-drains") },
       ],
     },
     {
       icon: "⚙️",
-      heading: "BREAKERS & PANELS",
-      sectionId: "breakers-panels",
+      heading: "WATER PRESSURE & FLOW",
+      sectionId: "water-pressure-flow",
       items: [
-        { title: "Breaker Keeps Tripping", href: p("breaker-keeps-tripping") },
-        { title: "Panel Overheating", href: p("panel-overheating") },
-        { title: "Circuit Overloaded", href: p("circuit-overloaded") },
-        { title: "Breaker Won\u2019t Reset", href: p("breaker-wont-reset") },
+        { title: "Low Water Pressure", href: p("low-water-pressure") },
+        { title: "No Water in House", href: p("no-water-in-house") },
+        { title: "Uneven Water Pressure", href: p("uneven-water-pressure") },
+        { title: "Water Pressure Drops Suddenly", href: p("water-pressure-drops-suddenly") },
       ],
     },
     {
-      icon: "🧠",
-      heading: "WIRING & SYSTEM ISSUES",
-      sectionId: "wiring-system",
-      items: [
-        { title: "Burning Smell from Electrical", href: p("burning-smell-from-electrical") },
-        { title: "Buzzing Sound in Walls", href: p("buzzing-sound-in-walls") },
-        { title: "Exposed Wiring", href: p("exposed-wiring") },
-        { title: "Faulty Wiring", href: p("faulty-wiring") },
-      ],
-    },
-    {
-      icon: "🏠",
+      icon: "🛠️",
       heading: "FIXTURES & APPLIANCES",
       sectionId: "fixtures-appliances",
       items: [
-        { title: "Ceiling Fan Not Working", href: p("ceiling-fan-not-working") },
-        { title: "Light Fixture Not Turning On", href: p("light-fixture-not-turning-on") },
-        { title: "Appliance Tripping Breaker", href: p("appliance-tripping-breaker") },
+        { title: "Toilet Keeps Running", href: p("toilet-keeps-running") },
+        { title: "Garbage Disposal Not Working", href: p("garbage-disposal-not-working") },
+        { title: "Dishwasher Not Draining", href: p("dishwasher-not-draining") },
+        { title: "Sink Not Draining", href: p("sink-not-draining") },
       ],
     },
   ] as const;
 
   const quickEntry = [
-    { title: "Breaker Keeps Tripping", href: p("breaker-keeps-tripping") },
-    { title: "Power Out in One Room", href: p("power-out-in-one-room") },
-    { title: "Outlet Not Working", href: p("outlet-not-working") },
-    { title: "Lights Flickering", href: p("lights-flickering") },
+    { title: "No Hot Water", href: p("no-hot-water") },
+    { title: "Water Heater Leaking", href: p("water-heater-leaking") },
+    { title: "Toilet Keeps Running", href: p("toilet-keeps-running") },
+    { title: "Drain Clogged", href: p("drain-clogged") },
   ] as const;
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950">
       <HubHero
         theme="residential"
-        badgeText="Residential electrical diagnostics"
-        title="Diagnose electrical problems like a pro"
-        description="Find the cause of power issues, breaker trips, and wiring problems using structured diagnostics — then decide whether to fix it or call an electrician."
+        badgeText="Residential plumbing diagnostics"
+        title="Diagnose plumbing problems like a pro"
+        description="Identify leaks, water heater issues, pressure problems, and drain failures using structured diagnostic guides — then decide whether to fix it or call a plumber."
         primaryCTA={{ label: "Start Diagnosis", href: "/diagnose" }}
-        secondaryCTA={{ label: "Get local electrical help", href: "/repair" }}
+        secondaryCTA={{ label: "Get local plumbing help", href: "/repair" }}
       />
 
       <div className="container mx-auto max-w-4xl px-4 py-12 sm:py-16">
@@ -93,7 +95,7 @@ export default function ElectricalHubPage() {
             Home
           </Link>
           <span className="mx-2 text-slate-300">/</span>
-          <span className="font-medium text-slate-800 dark:text-slate-200">Electrical</span>
+          <span className="font-medium text-slate-800 dark:text-slate-200">Plumbing</span>
         </nav>
 
         <header id="problem-clusters" className="mb-10 scroll-mt-28">
@@ -102,13 +104,13 @@ export default function ElectricalHubPage() {
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-400">
             Each card opens a national pillar under{" "}
-            <span className="font-mono text-sm text-slate-800 dark:text-slate-200">/electrical/…</span>. Add your city
+            <span className="font-mono text-sm text-slate-800 dark:text-slate-200">/plumbing/…</span>. Add your city
             for Florida context (example:{" "}
             <Link
               className="font-medium text-hvac-blue hover:underline"
-              href={buildElectricalLocalizedPillarPath(DEMO_SYMPTOM, "tampa-fl")}
+              href={buildPlumbingLocalizedPillarPath(DEMO_SYMPTOM, "tampa-fl")}
             >
-              /electrical/{DEMO_SYMPTOM}/tampa-fl
+              /plumbing/{DEMO_SYMPTOM}/tampa-fl
             </Link>
             ).
           </p>
@@ -126,7 +128,7 @@ export default function ElectricalHubPage() {
 
         <section className="mb-14 border-t border-slate-200 pt-12 dark:border-slate-800" aria-labelledby="quick-entry-heading">
           <h2 id="quick-entry-heading" className="mb-2 text-2xl font-black text-hvac-navy dark:text-white">
-            Common electrical problems right now
+            Common plumbing problems right now
           </h2>
           <p className="mb-6 text-sm text-slate-600 dark:text-slate-400">
             High-intent entry points — each opens the matching diagnostic pillar.
@@ -146,7 +148,7 @@ export default function ElectricalHubPage() {
             Not sure what&apos;s wrong?
           </h2>
           <p className="mt-3 max-w-xl text-slate-600 dark:text-slate-400">
-            Start a guided diagnosis and we&apos;ll help you narrow it down safely.
+            Start a guided diagnosis and we&apos;ll help you identify the issue quickly.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <Link
@@ -159,7 +161,7 @@ export default function ElectricalHubPage() {
               href="/repair"
               className="inline-flex min-h-[48px] items-center justify-center rounded-xl border-2 border-slate-300 bg-white px-8 py-3.5 text-center text-sm font-bold text-hvac-navy transition hover:border-hvac-blue hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-white dark:hover:border-hvac-blue"
             >
-              Find an electrician
+              Find a local plumber
             </Link>
           </div>
         </section>
@@ -190,7 +192,7 @@ export default function ElectricalHubPage() {
             {FL_EXAMPLE_CITIES.map((city) => (
               <li key={city.slug}>
                 <Link
-                  href={buildElectricalLocalizedPillarPath(DEMO_SYMPTOM, city.slug)}
+                  href={buildPlumbingLocalizedPillarPath(DEMO_SYMPTOM, city.slug)}
                   className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-hvac-navy shadow-sm transition hover:border-hvac-blue dark:border-slate-600 dark:bg-slate-900 dark:text-white"
                 >
                   {city.label}

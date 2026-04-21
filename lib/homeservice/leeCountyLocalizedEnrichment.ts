@@ -54,6 +54,11 @@ function plumbingCityContextLines(place: string, citySeg: string): string[] {
       "Garage and lanai tank installs see heavy humidity cycling—jacket rust and pan weeps show up before homeowners notice floor damage.",
       "Even inland of the barrier islands, summer electrical storms correlate with nuisance trips and dry-fired elements—separate power path from pure tank failure before parts stacking.",
     ],
+    "lehigh-acres-fl": [
+      `In ${place}, rapid residential growth and hard well water still stress tank elements and dip tubes—recovery complaints often track scale before the tank is structurally failed.`,
+      "Humid summers and afternoon storms keep exterior hose bibs and relief piping under corrosion cycles—small weeps at threads show up before slab intrusion.",
+      "When pressure swings track neighborhood demand, confirm house-wide supply before assuming the water heater is the root fault.",
+    ],
   };
   if (byCity[k]) return byCity[k]!;
   return [
@@ -100,6 +105,11 @@ function electricalCityContextLines(place: string, citySeg: string): string[] {
       `In ${place}, rapid infill means AFCI/GFCI density, EV chargers, and pool heat pumps stack on panels sized for older baselines—nuisance trips often track neutral routing, not “bad breakers.”`,
       "New construction moisture in attics and garages wicks into outdoor disconnects and SE jackets—surface corrosion near lugs shows up in the first few humid seasons.",
       "Whole-home surge gear is common—verify neutral bus discipline before swapping breakers on repeat trip patterns.",
+    ],
+    "lehigh-acres-fl": [
+      `In ${place}, inland heat and fast build-out mean panels fill with kitchen, laundry, and garage loads before service upgrades catch up—nuisance trips often read as “bad breakers” when the bus is already warm.`,
+      "Well-water hardness and irrigation pump circuits add motor load and ground paths—separate pump faults from branch trips before you stack resets.",
+      "Afternoon storms and long cooling runtime stack whole-home draw—watch for dimming or half-leg symptoms that point past a single device.",
     ],
   };
   if (byCity[k]) return byCity[k]!;
@@ -148,6 +158,11 @@ function hvacCityContextLines(place: string, citySeg: string): string[] {
       "Dense rooflines and afternoon storms stack voltage sag with long runtimes—capacitor and contactor wear shows up as intermittent no-start under peak load.",
       "Garage and lanai condensers still see seasonal salt drift—fin corrosion tracks to high head pressure before homeowners hear a mechanical change.",
     ],
+    "lehigh-acres-fl": [
+      `In ${place}, inland summer heat and long runtimes stress budget installs—dirty filters and weak condensate paths show up as “not keeping up” before charge faults surface.`,
+      "Hard water and dust load coils and pans faster than coastal-only markets—capacity loss can track to airflow and coil loading before mechanical noise changes.",
+      "Thunderstorm voltage sags align with no-cool calls—separate supply-side blips from refrigerant-class failures before sealed-system work.",
+    ],
   };
   if (byCity[k]) return byCity[k]!;
   return [
@@ -158,9 +173,24 @@ function hvacCityContextLines(place: string, citySeg: string): string[] {
 }
 
 /** `cityStorageSlug` e.g. `fort-myers-fl` — bullets for {@link HsdV25Payload.cityContext} (trade-specific). */
-export function buildCityContextForLeeCountyCity(cityStorageSlug: string, vertical: ServiceVertical): string[] {
+export function buildCityContextForLeeCountyCity(
+  cityStorageSlug: string,
+  vertical: ServiceVertical,
+  pillarSlug?: string | null
+): string[] {
   const place = formatCityPathSegmentForDisplay(cityStorageSlug);
   const seg = cityStorageSlug.toLowerCase();
+  const pillar = (pillarSlug ?? "").trim().toLowerCase();
+
+  /** Pillar + Lee city: product copy for localized context (does not change diagnostic JSON branches). */
+  if (vertical === "electrical" && pillar === "power-out-in-one-room" && seg === "gateway-fl") {
+    return [
+      `Power out in one room in ${place}? If part of your home suddenly lost power, don't panic—this is usually a localized circuit issue, not a full electrical failure.`,
+      "In most cases, it comes down to: a tripped breaker; a failed outlet or GFCI; or a loose or damaged wire connection.",
+      "If breakers keep tripping or outlets feel warm, don't ignore it—this can escalate into a fire risk, so identify the cause quickly or stop and call a licensed electrician.",
+    ];
+  }
+
   if (vertical === "plumbing") return plumbingCityContextLines(place, seg);
   if (vertical === "electrical") return electricalCityContextLines(place, seg);
   return hvacCityContextLines(place, seg);
@@ -191,6 +221,7 @@ export function applyLeeCountyLocalizedEnrichmentToHsdJson(
   const parts = enforceStoredSlug(storageSlug).split("/").filter(Boolean);
   const citySeg = parts[parts.length - 1] ?? "";
   if (!citySeg) return;
-  json.cityContext = buildCityContextForLeeCountyCity(citySeg, vertical);
+  const pillarSeg = parts.length >= 2 ? (parts[1] ?? "") : "";
+  json.cityContext = buildCityContextForLeeCountyCity(citySeg, vertical, pillarSeg);
   json.cta = buildLocalizedLeeCountyCta(vertical, citySeg);
 }

@@ -7,9 +7,9 @@ import { robotsForDbBackedPage } from "@/lib/seo/strict-indexing";
 import { isUmbrellaVerticalHubSlug } from "@/lib/verticals";
 import VerticalHub from "@/components/verticals/VerticalHub";
 
+import HvacTradeHubPage from "@/components/hubs/HvacTradeHubPage";
 import DiagnoseIndex from "../../diagnose/page";
 import RepairHubPage from "../../repair/page";
-import ResidentialHub from "../../hvac/page";
 import OrchestratorDashboard from "../../orchestrator/page";
 import CommercialHub from "../../commercial-hvac/page";
 import TestDbPage from "../../test-db/page";
@@ -22,7 +22,7 @@ import TestGeneratePage from "../../test-generate/page";
 const STATIC_TOP_LEVEL_FALLBACK: Record<string, ComponentType> = {
   diagnose: DiagnoseIndex,
   repair: RepairHubPage,
-  hvac: ResidentialHub,
+  hvac: HvacTradeHubPage,
   orchestrator: OrchestratorDashboard,
   "commercial-hvac": CommercialHub,
   "test-db": TestDbPage,

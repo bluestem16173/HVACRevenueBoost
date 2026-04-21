@@ -7,9 +7,10 @@
 import sql from "@/lib/db";
 import { CLUSTERS } from "@/lib/clusters";
 import { HVAC_CORE_CLUSTER_SYMPTOM_ORDER } from "@/lib/homeservice/hsdHvacCoreCluster";
+import { siteCanonicalDiagnoseUrl } from "@/lib/seo/canonical";
 import { isStrictIndexingEnabled, rowPassesIndexableSince } from "@/lib/seo/strict-indexing";
 import { getTierOneCityStorageSlugs, isTierOneDiscoverableStorageSlug } from "@/lib/seo/tier-one-discovery";
-import { isLocalizedPillarPageSlug } from "@/lib/slug-utils";
+import { enforceStoredSlug, isLocalizedPillarPageSlug } from "@/lib/slug-utils";
 import { CONDITIONS } from "@/lib/conditions";
 import { SYMPTOMS, CAUSES, REPAIRS } from "@/data/knowledge-graph";
 import { CITIES } from "@/data/knowledge-graph";
@@ -112,11 +113,10 @@ export async function getSystemEntries(): Promise<SitemapEntry[]> {
 }
 
 function locFromPublishedPageSlug(slug: string): string {
-  const s = String(slug || "").trim();
+  const s = enforceStoredSlug(slug).toLowerCase();
   if (!s) return `${BASE_URL}/`;
-  if (s.startsWith("diagnose/")) return `${BASE_URL}/${s}`;
-  if (/^(hvac|plumbing|electrical)\//i.test(s)) return `${BASE_URL}/${s}`;
-  return `${BASE_URL}/diagnose/${s}`;
+  const rest = s.startsWith("diagnose/") ? s.slice("diagnose/".length) : s;
+  return siteCanonicalDiagnoseUrl(rest);
 }
 
 /** Diagnostics (DecisionGrid wizard) */
