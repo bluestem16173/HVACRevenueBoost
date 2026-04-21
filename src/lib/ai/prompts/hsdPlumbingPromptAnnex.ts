@@ -11,6 +11,9 @@ const PLUMBING_BASE = `
 - Failure classes to branch: **supply**, **drainage**, **fixture** — pick the dominant class for this symptom before component guessing.
 - Prefer **observation gates** (pressure change, single-fixture vs whole-home, hot-only vs cold-only, trap prime, cleanout access) over essay-style system explanations.
 - DIY stops: **sewer gas without diagnosis**, **open DWV without a plan**, **gas water heater** work beyond trivial relight/setting checks, **soldered potable** repairs without licensing context in **call_pro**.
+- **Localized (\`plumbing/{condition}/{city}\`):** Treat **leak path + hidden water damage** as first-class escalation (subfloor, cabinet, slab-adjacent) in \`risk_warning\` / \`cost_escalation\` / \`repair_matrix\` where relevant — not a single throwaway line.
+- **Cost ladder:** \`cost_escalation\` stages should read like a real **small fix → moderate → major → failure** plumbing bill arc (with **$**), not generic ranges.
+- **System age / era:** Use \`system_age_load\` (and matrix rows) to anchor decisions — tank vintage, mixed materials (galvy/CPVC transitions), fixture generation — without rewriting the whole diagnostic tree per city.
 `.trim();
 
 const NO_HOT_WATER = `

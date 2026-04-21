@@ -28,6 +28,42 @@ function issueTitleFromSlug(slug: string): string {
     .join(" ");
 }
 
+const REPAIR_MATRIX_DIFFICULTY = new Set(["easy", "moderate", "pro"]);
+
+/** Model sometimes emits `hard`, `diy`, `licensed`, etc. — schema allows only easy | moderate | pro. */
+function normalizeRepairMatrixDifficulty(json: Record<string, unknown>): void {
+  const rm = json.repair_matrix;
+  if (!Array.isArray(rm)) return;
+  const alias: Record<string, "easy" | "moderate" | "pro"> = {
+    diy: "easy",
+    homeowner: "easy",
+    simple: "easy",
+    basic: "easy",
+    low: "easy",
+    minor: "easy",
+    medium: "moderate",
+    intermediate: "moderate",
+    mod: "moderate",
+    standard: "moderate",
+    hard: "pro",
+    expert: "pro",
+    advanced: "pro",
+    licensed: "pro",
+    professional: "pro",
+    severe: "pro",
+    complex: "pro",
+  };
+  for (const row of rm) {
+    if (!row || typeof row !== "object") continue;
+    const o = row as Record<string, unknown>;
+    const d = String(o.difficulty ?? "")
+      .trim()
+      .toLowerCase();
+    if (REPAIR_MATRIX_DIFFICULTY.has(d)) continue;
+    o.difficulty = alias[d] ?? "moderate";
+  }
+}
+
 /** {@link assertHsdV25ContentRules} requires ≥1 row with cost_max ≥ 1500 — model sometimes returns all low bands. */
 function ensureRepairMatrixHighCostScenario(json: Record<string, unknown>): void {
   const rm = json.repair_matrix;
@@ -141,5 +177,6 @@ export function patchHsdLlmJsonMinimumGates(json: Record<string, unknown>): void
     }
   }
 
+  normalizeRepairMatrixDifficulty(json);
   ensureRepairMatrixHighCostScenario(json);
 }

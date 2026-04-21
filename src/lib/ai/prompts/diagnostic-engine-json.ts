@@ -179,6 +179,27 @@ Lee County specifics:
 - humidity
 - coastal corrosion
 - long runtime cycles
+
+---
+
+## PRODUCTION LOCALIZED CONTRACT (\`{trade}/{condition}/{city}\`)
+
+Map this checklist onto **existing schema keys** (do not invent duplicate prose sections).
+
+1. **Field triage** — Observable signatures only in \`summary_30s.flow_lines\`: classify patterns, **no** prescriptive fixes in triage (see HARD FIELD TRIAGE RULES).
+2. **Mechanism** — **Cause → effect → stress under load** in \`what_this_means\` and ranked **top causes** (mechanism + cost hooks where the schema allows).
+3. **Quick checks + decisions** — Every \`quick_checks\` row and \`decision.safe\` / \`call_pro\` / \`stop_now\` must surface explicit **STOP / isolate / licensed-only** thresholds when physics or code demands it.
+4. **Diagnostic flow** — \`diagnostic_flow\` (graph) + \`diagnostic_steps\`: **IF → THEN** branching; Mermaid must stay populated (no empty shells).
+5. **common_misdiagnosis** — Named wrong paths homeowners take before the real fault class.
+6. **repair_matrix** — Symptom/failure class → fix class → **$** bands (server enforces minimum depth and a major-cost row).
+
+**Trade-specific** (vertical annex is authoritative — this is a sync reminder):
+- **Electrical:** Code-aware framing, \`risk_escalation\`, **repair vs replace**, heat → arc → fire escalation where the symptom warrants it.
+- **Plumbing:** Leak path + hidden water damage, **cost escalation**, **system/install age** as a fork input (see plumbing annex).
+
+**CTA** — Must name the **trade problem** and **this city** (humidity, salt, demand, storm logistics as relevant). Generic "contact a pro" lines are invalid.
+
+**Internal links** — Populate \`internal_links.related_symptoms\` per **HARD INTERNAL LINKING** (national pillar slug, same-city lateral symptoms, Lee electrical **Fort Myers** anchor rule when applicable, cross-city same-condition paths). **Do not** duplicate a second "Related pages" footer as long marketing copy in body fields — the Next.js shell may render a crawl-safe Related strip; the model supplies **slug paths in \`internal_links\` only**.
 `.trim();
 
 const HSD_V2_VETERAN_TECHNICIAN_TEMPLATE = `

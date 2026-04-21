@@ -18,12 +18,13 @@ import {
   getCityEntries,
   getLocalEntries,
   getHvacTampaCitySymptomEntries,
+  getTradeTierOneLocalizedEntries,
   chunkEntries,
   toUrlSetXml,
   toSitemapIndexXml,
 } from "@/lib/sitemap-engine";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://hvacrevenueboost.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.hvacrevenueboost.com";
 
 export const revalidate = 3600;
 
@@ -44,6 +45,12 @@ export async function GET(
 
     if (filename === "hvac-tampa-city") {
       const xml = toUrlSetXml(getHvacTampaCitySymptomEntries());
+      return xmlResponse(xml);
+    }
+
+    if (filename === "trade-tier-one-locals") {
+      const entries = await getTradeTierOneLocalizedEntries();
+      const xml = toUrlSetXml(entries);
       return xmlResponse(xml);
     }
 

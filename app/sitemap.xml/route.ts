@@ -11,7 +11,7 @@ import { NextResponse } from "next/server";
 import { toSitemapIndexXml } from "@/lib/sitemap-engine";
 import { getIndexableSinceDate, isStrictIndexingEnabled } from "@/lib/seo/strict-indexing";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://hvacrevenueboost.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.hvacrevenueboost.com";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -26,6 +26,7 @@ export async function GET() {
       ? [
           { loc: `${BASE_URL}/sitemaps/static`, lastmod: now },
           { loc: `${BASE_URL}/sitemaps/hvac-tampa-city.xml`, lastmod: now },
+          { loc: `${BASE_URL}/sitemaps/trade-tier-one-locals.xml`, lastmod: now },
           { loc: `${BASE_URL}/sitemaps/diagnose`, lastmod: now },
         ]
       : [{ loc: `${BASE_URL}/sitemaps/static`, lastmod: now }]

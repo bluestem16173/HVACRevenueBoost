@@ -7,7 +7,7 @@
 import sql from "@/lib/db";
 import { CLUSTERS } from "@/lib/clusters";
 import { HVAC_CORE_CLUSTER_SYMPTOM_ORDER } from "@/lib/homeservice/hsdHvacCoreCluster";
-import { siteCanonicalDiagnoseUrl } from "@/lib/seo/canonical";
+import { siteCanonicalDiagnoseUrl, siteCanonicalUrl } from "@/lib/seo/canonical";
 import { isStrictIndexingEnabled, rowPassesIndexableSince } from "@/lib/seo/strict-indexing";
 import { getTierOneCityStorageSlugs, isTierOneDiscoverableStorageSlug } from "@/lib/seo/tier-one-discovery";
 import { enforceStoredSlug, isLocalizedPillarPageSlug } from "@/lib/slug-utils";
@@ -15,7 +15,7 @@ import { CONDITIONS } from "@/lib/conditions";
 import { SYMPTOMS, CAUSES, REPAIRS } from "@/data/knowledge-graph";
 import { CITIES } from "@/data/knowledge-graph";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://hvacrevenueboost.com";
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://www.hvacrevenueboost.com";
 const CHUNK_SIZE = 5000;
 
 export type SitemapLayer =
@@ -76,6 +76,8 @@ export function getStaticEntries(): SitemapEntry[] {
     { url: "/repair", priority: 0.9, changefreq: "weekly" as const },
     { url: "/diagnose", priority: 0.9, changefreq: "weekly" as const },
     { url: "/hvac", priority: 0.8, changefreq: "weekly" as const },
+    { url: "/plumbing", priority: 0.8, changefreq: "weekly" as const },
+    { url: "/electrical", priority: 0.8, changefreq: "weekly" as const },
     { url: "/hvac-air-conditioning", priority: 0.8, changefreq: "weekly" as const },
     { url: "/hvac-heating-systems", priority: 0.8, changefreq: "weekly" as const },
     { url: "/hvac-airflow-ductwork", priority: 0.8, changefreq: "weekly" as const },
@@ -115,8 +117,50 @@ export async function getSystemEntries(): Promise<SitemapEntry[]> {
 function locFromPublishedPageSlug(slug: string): string {
   const s = enforceStoredSlug(slug).toLowerCase();
   if (!s) return `${BASE_URL}/`;
-  const rest = s.startsWith("diagnose/") ? s.slice("diagnose/".length) : s;
-  return siteCanonicalDiagnoseUrl(rest);
+  if (s.startsWith("diagnose/")) {
+    const rest = s.slice("diagnose/".length);
+    return siteCanonicalDiagnoseUrl(rest);
+  }
+  /** `app/[...slug]` trade + HVAC deep pages use path canonicals, not `/diagnose/…`. */
+  const head = s.split("/").filter(Boolean)[0]?.toLowerCase() ?? "";
+  if (head === "hvac" || head === "plumbing" || head === "electrical") {
+    return siteCanonicalUrl(`/${s}`);
+  }
+  return siteCanonicalDiagnoseUrl(s);
+}
+
+/**
+ * Published Lee plumbing + electrical locals (Tier-1 grid) — for strict `sitemap.xml` child urlset.
+ * Loc matches page metadata (`/{vertical}/{symptom}/{city}`).
+ */
+export async function getTradeTierOneLocalizedEntries(): Promise<SitemapEntry[]> {
+  const now = toLastmod(new Date());
+  try {
+    const rows = await sql`
+      SELECT slug, created_at, updated_at
+      FROM pages
+      WHERE status = 'published'
+        AND slug ~ '^(plumbing|electrical)/[a-z0-9-]+/[a-z0-9-]+$'
+    `;
+    return (rows as { slug?: unknown; created_at?: unknown; updated_at?: unknown }[])
+      .filter((r) => rowPassesIndexableSince(r.updated_at, r.created_at))
+      .filter((r) => isTierOneDiscoverableStorageSlug(String(r.slug ?? "")))
+      .map((r) => {
+        const slug = enforceStoredSlug(String(r.slug ?? "")).toLowerCase();
+        return {
+          loc: siteCanonicalUrl(`/${slug}`),
+          lastmod: r.updated_at
+            ? toLastmod(new Date(String(r.updated_at)))
+            : r.created_at
+              ? toLastmod(new Date(String(r.created_at)))
+              : now,
+          changefreq: "weekly" as const,
+          priority: 0.85,
+        };
+      });
+  } catch {
+    return [];
+  }
 }
 
 /** Diagnostics (DecisionGrid wizard) */
